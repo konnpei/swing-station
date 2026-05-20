@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/swing-analysis",
+      "schedule": "30 21 * * 0-4"
+    },
+    {
+      "path": "/api/weekly-outlook",
+      "schedule": "0 22 * * 6"
+    },
+    {
+      "path": "/api/earnings-alert",
+      "schedule": "*/5 0-6 * * 1-5"
+    }
+  ]
+}
