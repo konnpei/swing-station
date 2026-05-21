@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SYSTEM = `あなたはスイングトレード（数日〜1週間）専門のAIアナリストです。
+
 銘柄コードや名前が来たら必ずweb_searchで「{コード} 株価 週足 トレンド 今日」「{コード} ニュース 材料」を調べてから回答してください。
 
 回答フォーマット：
@@ -23,12 +24,7 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   const { messages } = req.body;
 
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
-
   try {
-    // ストリームを使わずに通常呼び出し（web_searchがあるため）
     const response = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
@@ -37,7 +33,6 @@ export default async function handler(req, res) {
       messages,
     });
 
-    // テキストブロックだけ抽出して送信
     let fullText = "";
     for (const block of response.content) {
       if (block.type === "text") {
@@ -45,11 +40,8 @@ export default async function handler(req, res) {
       }
     }
 
-    res.write(`data: ${JSON.stringify({ text: fullText })}\n\n`);
-    res.write("data: [DONE]\n\n");
-    res.end();
+    res.status(200).json({ text: fullText });
   } catch (e) {
-    res.write(`data: ${JSON.stringify({ error: e.message })}\n\n`);
-    res.end();
+    res.status(500).json({ error: e.message });
   }
 }
