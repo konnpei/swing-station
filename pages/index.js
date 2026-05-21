@@ -1,25 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Head from "next/head";
 
-const SYSTEM_PROMPT = `あなたはスイングトレード（数日〜1週間）専門のAIアナリストです。
-
-銘柄コードや名前が来たら必ずweb_searchで「{コード} 株価 週足 トレンド 今日」「{コード} ニュース 材料」を調べてから回答してください。
-
-回答フォーマット：
-🎯 銘柄名（コード）
-📊 現在値・週間騰落率
-📈 週足トレンド：[上昇/下降/横ばい]
-📉 日足状況：[押し目/上昇中/調整中]
-⏱️ 60分足エントリーゾーン：
-⏱️ 30分足エントリーポイント：
-🗓️ 最適エントリー曜日：[月/火/水/木/金]
-🎯 利確目標：+XX%（想定X〜X日）
-🛑 損切りライン：-XX%
-💡 スイング戦略（3点）
-⚠️ リスク・注意点
-
-スイング（数日〜1週間・月〜金）特化。株クラウィット口調。投資判断は自己責任。`;
-
 const QUICK = [
   { label: "🗓️ 今週の戦略", text: "今週のスイングトレード戦略を教えて。日米の週足トレンドと最適エントリー曜日も。" },
   { label: "🇯🇵 日本株候補", text: "今週スイングに最適な日本株を3銘柄、週足→60分の分析で教えて。" },
@@ -48,7 +29,6 @@ const TV_INTERVALS = [
   { label: "週足", val: "W" },
 ];
 
-// 曜日判定
 function getTodayInfo() {
   const days = ["日", "月", "火", "水", "木", "金", "土"];
   const now = new Date();
@@ -91,27 +71,19 @@ export default function SwingStation() {
   }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [streaming, setStreaming] = useState("");
   const [todayInfo] = useState(getTodayInfo());
   const [chartReady, setChartReady] = useState(false);
   const tvRef = useRef(null);
   const bottomRef = useRef(null);
-  const chartInitRef = useRef(false);
 
-  // TradingViewウィジェット（通知を1回だけ表示）
   useEffect(() => {
     if (tab !== "chart" || !tvRef.current) return;
-    
-    // 同じシンボル・インターバルなら再描画しない
     const key = `${tvSymbol}_${tvInterval}`;
     if (tvRef.current.dataset.key === key) return;
     tvRef.current.dataset.key = key;
     tvRef.current.innerHTML = "";
     setChartReady(false);
 
-    const container = document.createElement("div");
-    container.style.cssText = "height:100%;width:100%;";
-    
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.async = true;
@@ -128,16 +100,14 @@ export default function SwingStation() {
       studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "BB@tv-basicstudies"],
       disabled_features: ["popup_hints"],
     });
-    
     script.onload = () => setChartReady(true);
-    tvRef.current.appendChild(container);
     tvRef.current.appendChild(script);
     setTimeout(() => setChartReady(true), 3000);
   }, [tab, tvSymbol, tvInterval]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [msgs, streaming]);
+  }, [msgs]);
 
   const changeSymbol = useCallback((tv, code) => {
     setTvSymbol(tv);
@@ -149,9 +119,7 @@ export default function SwingStation() {
     const t = (text || input).trim();
     if (!t || loading) return;
     setInput("");
-    setStreaming("");
 
-    // 銘柄コードをチャートに反映
     const codeMatch = t.match(/\b(\d{4})\b/);
     if (codeMatch) setTvSymbol(`TYO:${codeMatch[1]}`);
 
@@ -169,33 +137,14 @@ export default function SwingStation() {
 
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let full = "", buf = "";
+      const data = await res.json();
+      setMsgs(p => [...p, { role: "assistant", content: data.text || "（応答取得失敗）" }]);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const lines = buf.split("\n");
-        buf = lines.pop();
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const data = line.slice(6).trim();
-          if (data === "[DONE]") continue;
-          try {
-            const evt = JSON.parse(data);
-            if (evt.text) { full += evt.text; setStreaming(full); }
-            if (evt.error) throw new Error(evt.error);
-          } catch {}
-        }
-      }
-      setStreaming("");
-      setMsgs(p => [...p, { role: "assistant", content: full || "（応答取得失敗）" }]);
     } catch (e) {
-      setStreaming("");
       setMsgs(p => [...p, { role: "assistant", content: `⚠️ エラー: ${e.message}` }]);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const B = ({ style, ...p }) => <button style={{ fontFamily: "inherit", cursor: "pointer", border: "none", ...style }} {...p} />;
@@ -209,7 +158,6 @@ export default function SwingStation() {
       </Head>
       <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#08090e", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#c0c8dc" }}>
         <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@800;900&display=swap');
           @keyframes ssB{0%,80%,100%{opacity:.15}40%{opacity:1}}
           @keyframes ssG{0%,100%{text-shadow:0 0 14px #7c83ff80}50%{text-shadow:0 0 5px #7c83ff30}}
           @keyframes ssP{0%,100%{opacity:1}50%{opacity:.2}}
@@ -228,8 +176,6 @@ export default function SwingStation() {
             📈 SWING STATION
           </div>
           <div style={{ fontSize:8, color:"#3a3a6a", marginLeft:2 }}>月〜金 数日〜1週間特化</div>
-          
-          {/* 市場状態インジケーター */}
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
             <div style={{
               padding:"2px 8px", borderRadius:8, fontSize:9,
@@ -348,7 +294,7 @@ export default function SwingStation() {
                 <div style={{ display:"flex", alignItems:"flex-start", animation:"ssFU .2s ease-out" }}>
                   <div style={{ width:24, height:24, borderRadius:6, flexShrink:0, background:"linear-gradient(135deg,#7c83ff18,#4a50ff18)", border:"1px solid #7c83ff28", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, marginRight:6 }}>🤖</div>
                   <div style={{ padding:"8px 12px", borderRadius:"4px 14px 14px 14px", background:"#0c0e1e", border:"1px solid #1a1d2e", minWidth:60 }}>
-                    {streaming ? renderContent(streaming) : <Dots/>}
+                    <Dots/>
                   </div>
                 </div>
               )}
