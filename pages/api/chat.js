@@ -3,8 +3,6 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SYSTEM = `あなたはスイングトレード（数日〜1週間）専門のAIアナリストです。
 
-銘柄コードや名前が来たら必ずweb_searchで「{コード} 株価 週足 トレンド 今日」「{コード} ニュース 材料」を調べてから回答してください。
-
 回答フォーマット：
 🎯 銘柄名（コード）
 📊 現在値・週間騰落率
@@ -18,7 +16,7 @@ const SYSTEM = `あなたはスイングトレード（数日〜1週間）専門
 💡 スイング戦略（3点）
 ⚠️ リスク・注意点
 
-スイング（数日〜1週間・月〜金）特化。株クラウィット口調。投資判断は自己責任。`;
+スイング特化。株クラウィット口調。投資判断は自己責任。`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -28,17 +26,10 @@ export default async function handler(req, res) {
       model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       system: SYSTEM,
-      tools: [{ type: "web_search_20250305", name: "web_search" }],
       messages,
-      betas: ["web-search-2025-03-05"],
     });
-    let fullText = "";
-    for (const block of response.content) {
-      if (block.type === "text") {
-        fullText += block.text;
-      }
-    }
-    res.status(200).json({ text: fullText });
+    const text = response.content.find(b => b.type === "text")?.text || "応答なし";
+    res.status(200).json({ text });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
