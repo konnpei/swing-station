@@ -23,7 +23,6 @@ const SYSTEM = `あなたはスイングトレード（数日〜1週間）専門
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   const { messages } = req.body;
-
   try {
     const response = await client.messages.create({
       model: "claude-sonnet-4-20250514",
@@ -31,15 +30,14 @@ export default async function handler(req, res) {
       system: SYSTEM,
       tools: [{ type: "web_search_20250305", name: "web_search" }],
       messages,
+      betas: ["web-search-2025-03-05"],
     });
-
     let fullText = "";
     for (const block of response.content) {
       if (block.type === "text") {
         fullText += block.text;
       }
     }
-
     res.status(200).json({ text: fullText });
   } catch (e) {
     res.status(500).json({ error: e.message });
