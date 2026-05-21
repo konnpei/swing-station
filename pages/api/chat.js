@@ -1,10 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
-
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SYSTEM = `あなたはスイングトレード（数日〜1週間・月〜金）専門のAIアナリストです。
-
-銘柄コードや名前が来たら必ずweb_searchで「{コード} 株価 週足 トレンド」「{コード} ニュース 材料」を調べてから回答。
+const SYSTEM = `あなたはスイングトレード（数日〜1週間）専門のAIアナリストです。
+銘柄コードや名前が来たら必ずweb_searchで「{コード} 株価 週足 トレンド 今日」「{コード} ニュース 材料」を調べてから回答してください。
 
 回答フォーマット：
 🎯 銘柄名（コード）
@@ -17,9 +15,9 @@ const SYSTEM = `あなたはスイングトレード（数日〜1週間・月〜
 🎯 利確目標：+XX%（想定X〜X日）
 🛑 損切りライン：-XX%
 💡 スイング戦略（3点）
-⚠️ リスク
+⚠️ リスク・注意点
 
-スイング特化・株クラウィット口調・投資判断は自己責任。`;
+スイング（数日〜1週間・月〜金）特化。株クラウィット口調。投資判断は自己責任。`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -30,18 +28,24 @@ export default async function handler(req, res) {
   res.setHeader("Connection", "keep-alive");
 
   try {
-    const stream = await client.messages.stream({
+    // ストリームを使わずに通常呼び出し（web_searchがあるため）
+    const response = await client.messages.create({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
+      max_tokens: 2000,
       system: SYSTEM,
       tools: [{ type: "web_search_20250305", name: "web_search" }],
       messages,
     });
-    for await (const event of stream) {
-      if (event.type === "content_block_delta" && event.delta?.type === "text_delta") {
-        res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+
+    // テキストブロックだけ抽出して送信
+    let fullText = "";
+    for (const block of response.content) {
+      if (block.type === "text") {
+        fullText += block.text;
       }
     }
+
+    res.write(`data: ${JSON.stringify({ text: fullText })}\n\n`);
     res.write("data: [DONE]\n\n");
     res.end();
   } catch (e) {
