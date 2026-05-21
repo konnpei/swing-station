@@ -1,4 +1,4 @@
-const WEBHOOK = process.env.DISCORD_WEBHOOK_NOTE_CONTENT;
+const WEBHOOK = process.env.DISCORD_NOTE_CONTENT;
 
 export default async function handler(req, res) {
   if (req.method !== "POST" && req.headers["x-cron-secret"] !== process.env.CRON_SECRET) {
