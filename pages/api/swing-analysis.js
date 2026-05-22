@@ -1,25 +1,11 @@
-/**
- * /api/swing-analysis
- * 毎朝6:30 JSTに実行
- * 週足トレンド → 日足押し目 → 60分エントリー の3段階分析
- * 日米株スイング候補を選定してDiscord各チャンネルに通知
- */
-
-import Anthropic from "@anthropic-ai/sdk";
-
 export const config = { maxDuration: 60 };
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-// Discord Webhook URLs（チャンネル別）
 const WEBHOOKS = {
   jp:      process.env.DISCORD_JP_STOCKS,
   us:      process.env.DISCORD_US_STOCKS,
   market:  process.env.DISCORD_MARKET_WATCH,
   content: process.env.DISCORD_NOTE_CONTENT,
 };
-
-// ── プロンプト ─────────────────────────────────────────────────────────────
 
 const SWING_PROMPT = `あなたはスイングトレード（数日〜1週間）専門のアナリストです。
 
@@ -35,8 +21,8 @@ const SWING_PROMPT = `あなたはスイングトレード（数日〜1週間）
   "date": "YYYY/MM/DD",
   "week": "第N週",
   "market": {
-    "jp_trend": "週足トレンド（上昇/下降/横ばい）",
-    "us_trend": "週足トレンド（上昇/下降/横ばい）",
+    "jp_trend": "週足トレンド",
+    "us_trend": "週足トレンド",
     "swing_env": "スイング環境スコア（1-10）",
     "comment": "今週の相場コメント（40文字以内）"
   },
@@ -55,7 +41,7 @@ const SWING_PROMPT = `あなたはスイングトレード（数日〜1週間）
       "best_entry_day": "最適エントリー曜日",
       "reason": "選定理由（50文字）",
       "risk": "リスク（30文字）",
-      "score": 1から10
+      "score": 8
     }
   ],
   "us_stocks": [
@@ -72,16 +58,14 @@ const SWING_PROMPT = `あなたはスイングトレード（数日〜1週間）
       "best_entry_day": "最適エントリー曜日",
       "reason": "選定理由（50文字）",
       "risk": "リスク（30文字）",
-      "score": 1から10
+      "score": 8
     }
   ],
-  "x_post": "X投稿文（140文字以内・絵文字あり・#スイングトレード #株式投資 含む）",
-  "note_article": "Note記事本文（1200文字程度・スイング手法解説含む）"
+  "x_post": "X投稿文（140文字以内）",
+  "note_article": "Note記事本文（1200文字程度）"
 }
 
-日本株3銘柄、米国株3銘柄を選定。スイングに最適な銘柄のみ。`;
-
-// ── Discord通知 ────────────────────────────────────────────────────────────
+日本株3銘柄、米国株3銘柄を選定。`;
 
 async function sendDiscord(webhookUrl, content) {
   if (!webhookUrl) return false;
@@ -102,7 +86,6 @@ function formatJPStock(s, rank) {
     `週足：${s.weekly_trend}`,
     `60分エントリー：${s.entry_60min}`,
     `30分エントリー：${s.entry_30min}`,
-    `日足サポート：${s.daily_support}`,
     `利確目標：+${s.target} / 損切：${s.stop_loss}`,
     `保有想定：${s.hold_days} / 狙い曜日：${s.best_entry_day}`,
     `📌 ${s.reason}`,
@@ -124,8 +107,6 @@ function formatUSStock(s, rank) {
   ].join("\n");
 }
 
-// ── メイン ─────────────────────────────────────────────────────────────────
-
 export default async function handler(req, res) {
   const authHeader = req.headers.authorization;
   if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -133,19 +114,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 分析実行
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 2000,
-      tools: [{ type: "web_search_20250305", name: "web_search" }],
-      messages: [{ role: "user", content: SWING_PROMPT }],
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "web-search-2025-03-05",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 2000,
+        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        messages: [{ role: "user", content: SWING_PROMPT }],
+      }),
     });
+
+    const response = await r.json();
+    if (!r.ok) throw new Error(JSON.stringify(response));
 
     const raw = response.content.filter(b => b.type === "text").map(b => b.text).join("");
     const clean = raw.replace(/```json|```/g, "").trim();
     const data = JSON.parse(clean);
 
-    // ── market-watch チャンネル ──
     const marketMsg = [
       `📊 **${data.date} スイング相場環境**`,
       `🇯🇵 日本株週足：${data.market.jp_trend}`,
@@ -155,44 +146,39 @@ export default async function handler(req, res) {
     ].join("\n");
     await sendDiscord(WEBHOOKS.market, marketMsg);
 
-    // ── jp-stocks チャンネル ──
     const jpMsg = [
-      `🇯🇵 **本日の日本株スイング候補【週足→日足→60分 3段階分析】**`,
+      `🇯🇵 **本日の日本株スイング候補**`,
       "",
       ...data.jp_stocks.map((s, i) => formatJPStock(s, i + 1) + "\n"),
-      "※売買推奨ではありません。投資判断は自己責任で。",
+      "※投資判断は自己責任で。",
     ].join("\n");
     await sendDiscord(WEBHOOKS.jp, jpMsg);
 
-    // ── us-stocks チャンネル ──
     const usMsg = [
-      `🇺🇸 **本日の米国株スイング候補【週足→60分 分析】**`,
+      `🇺🇸 **本日の米国株スイング候補**`,
       "",
       ...data.us_stocks.map((s, i) => formatUSStock(s, i + 1) + "\n"),
-      "※売買推奨ではありません。投資判断は自己責任で。",
+      "※投資判断は自己責任で。",
     ].join("\n");
     await sendDiscord(WEBHOOKS.us, usMsg);
 
-    // ── note-content チャンネル ──
     const contentMsg = [
-      `📝 **本日のコンテンツ生成完了**`,
+      `📝 **本日のコンテンツ**`,
       "",
-      "**📱 X投稿文：**",
+      "**X投稿文：**",
       "```",
       data.x_post,
       "```",
       "",
-      "**📝 Note記事：**",
+      "**Note記事：**",
       "```",
       data.note_article.slice(0, 800),
-      "...(続き)",
       "```",
     ].join("\n");
     await sendDiscord(WEBHOOKS.content, contentMsg);
 
-    res.status(200).json({ success: true, date: data.date, data });
+    res.status(200).json({ success: true, date: data.date });
   } catch (e) {
-    console.error("swing-analysis error:", e);
     res.status(500).json({ error: e.message });
   }
 }
