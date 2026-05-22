@@ -7,65 +7,57 @@ const WEBHOOKS = {
   content: process.env.DISCORD_NOTE_CONTENT,
 };
 
-const SWING_PROMPT = `あなたはスイングトレード（数日〜1週間）専門のアナリストです。
+const SWING_PROMPT = `以下のJSON形式のみで回答してください。説明文・前置き・コードブロック不要。JSONのみ。
 
-以下の手順で分析してJSONのみ返してください。前置き不要。
-
-【分析手順】
-1. web_searchで「日本株 スイングトレード 注目銘柄 今週」を検索
-2. web_searchで「米国株 スイング 買い場 今週」を検索
-3. web_searchで「日経平均 週足 トレンド 今週」を検索
-
-【出力形式】
 {
-  "date": "YYYY/MM/DD",
-  "week": "第N週",
+  "date": "2025/05/23",
+  "week": "第1週",
   "market": {
-    "jp_trend": "週足トレンド",
-    "us_trend": "週足トレンド",
-    "swing_env": "スイング環境スコア（1-10）",
-    "comment": "今週の相場コメント（40文字以内）"
+    "jp_trend": "上昇",
+    "us_trend": "上昇",
+    "swing_env": "7",
+    "comment": "相場コメント"
   },
   "jp_stocks": [
     {
-      "code": "証券コード",
-      "name": "銘柄名",
-      "type": "上昇継続 or 押し目買い or 底値反転",
-      "weekly_trend": "週足トレンド説明（20文字）",
-      "daily_support": "日足サポートライン",
-      "entry_60min": "60分足エントリーゾーン",
-      "entry_30min": "30分足エントリーポイント",
-      "target": "利確目標（%）",
-      "stop_loss": "損切りライン（%）",
-      "hold_days": "想定保有日数",
-      "best_entry_day": "最適エントリー曜日",
-      "reason": "選定理由（50文字）",
-      "risk": "リスク（30文字）",
+      "code": "7203",
+      "name": "トヨタ自動車",
+      "type": "押し目買い",
+      "weekly_trend": "上昇トレンド継続",
+      "daily_support": "3500円",
+      "entry_60min": "3520-3540円",
+      "entry_30min": "3525円",
+      "target": "3%",
+      "stop_loss": "-2%",
+      "hold_days": "3-5日",
+      "best_entry_day": "月曜",
+      "reason": "週足上昇トレンドで日足押し目形成中",
+      "risk": "為替リスクあり",
       "score": 8
     }
   ],
   "us_stocks": [
     {
-      "ticker": "ティッカー",
-      "name": "銘柄名",
-      "type": "上昇継続 or 押し目買い or 底値反転",
-      "weekly_trend": "週足トレンド説明（20文字）",
-      "entry_60min": "60分足エントリーゾーン",
-      "entry_30min": "30分足エントリーポイント",
-      "target": "利確目標（%）",
-      "stop_loss": "損切りライン（%）",
-      "hold_days": "想定保有日数",
-      "best_entry_day": "最適エントリー曜日",
-      "reason": "選定理由（50文字）",
-      "risk": "リスク（30文字）",
-      "score": 8
+      "ticker": "NVDA",
+      "name": "エヌビディア",
+      "type": "上昇継続",
+      "weekly_trend": "強い上昇トレンド",
+      "entry_60min": "900-910ドル",
+      "entry_30min": "905ドル",
+      "target": "5%",
+      "stop_loss": "-3%",
+      "hold_days": "3-5日",
+      "best_entry_day": "火曜",
+      "reason": "AI需要継続で強い上昇トレンド",
+      "risk": "決算リスク",
+      "score": 9
     }
   ],
-  "x_post": "X投稿文（140文字以内）",
-  "note_article": "Note記事本文（1200文字程度）"
+  "x_post": "X投稿文",
+  "note_article": "Note記事本文"
 }
 
-日本株3銘柄、米国株3銘柄を選定。`;
+今日の日付と実際の相場状況で日本株3銘柄・米国株3銘柄を埋めてください。JSONのみ返してください。`;
 
 async function sendDiscord(webhookUrl, content) {
   if (!webhookUrl) return false;
