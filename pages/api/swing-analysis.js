@@ -1,5 +1,65 @@
-const SWING_PROMPT = `You must respond with ONLY a JSON object. No text before or after. No markdown. No explanation.
+export const config = { maxDuration: 60 };
 
-{"date":"2025/05/24","week":"第1週","market":{"jp_trend":"上昇","us_trend":"上昇","swing_env":"7","comment":"相場コメント"},"jp_stocks":[{"code":"7203","name":"トヨタ自動車","type":"押し目買い","weekly_trend":"上昇トレンド継続","daily_support":"3500円","entry_60min":"3520-3540円","entry_30min":"3525円","target":"3%","stop_loss":"-2%","hold_days":"3-5日","best_entry_day":"月曜","reason":"週足上昇トレンドで日足押し目形成中","risk":"為替リスクあり","score":8},{"code":"9984","name":"ソフトバンクG","type":"上昇継続","weekly_trend":"強い上昇","daily_support":"9000円","entry_60min":"9100-9200円","entry_30min":"9150円","target":"4%","stop_loss":"-2%","hold_days":"3-5日","best_entry_day":"火曜","reason":"AI関連で強い上昇継続","risk":"為替リスク","score":9},{"code":"6857","name":"アドバンテスト","type":"押し目買い","weekly_trend":"上昇トレンド","daily_support":"8000円","entry_60min":"8100-8200円","entry_30min":"8150円","target":"5%","stop_loss":"-3%","hold_days":"3-5日","best_entry_day":"水曜","reason":"半導体需要で上昇継続","risk":"決算リスク","score":8}],"us_stocks":[{"ticker":"NVDA","name":"エヌビディア","type":"押し目買い","weekly_trend":"調整局面","entry_60min":"218-223ドル","entry_30min":"220ドル","target":"4%","stop_loss":"-3%","hold_days":"5-7日","best_entry_day":"月曜","reason":"決算後の押し目買いチャンス","risk":"AI相場転換リスク","score":7},{"ticker":"MSFT","name":"マイクロソフト","type":"上昇継続","weekly_trend":"強い上昇トレンド","entry_60min":"418-425ドル","entry_30min":"421ドル","target":"3%","stop_loss":"-2%","hold_days":"3-5日","best_entry_day":"月曜","reason":"AI関連銘柄の中核","risk":"利確売り拡大","score":8},{"ticker":"AAPL","name":"アップル","type":"底値反転","weekly_trend":"反転上昇中","entry_60min":"195-200ドル","entry_30min":"197ドル","target":"3%","stop_loss":"-2%","hold_days":"3-5日","best_entry_day":"火曜","reason":"サポートラインから反発","risk":"景気後退リスク","score":7}],"x_post":"【5/24相場】日経平均上昇継続！トヨタ・SBG・アドバンテストが注目。米国はNVDA押し目・MSFT上昇継続。月曜は買い仕込みチャンス。#日本株 #米国株 #スイングトレード","note_article":"本日の相場概況と注目銘柄分析。日経平均は上昇トレンド継続。トヨタは週足上昇で日足押し目形成中。SBGはAI関連で強い上昇。米国ではNVDAが決算後の調整から押し目買いチャンス。MSFTは強い上昇トレンド継続。スイングトレードの基本は週足でトレンド確認、日足で押し目確認、60分足でエントリーゾーン絞り込みの3段階分析。"}
+const WEBHOOKS = {
+  jp:      process.env.DISCORD_JP_STOCKS,
+  us:      process.env.DISCORD_US_STOCKS,
+  market:  process.env.DISCORD_MARKET_WATCH,
+  content: process.env.DISCORD_NOTE_CONTENT,
+};
 
-Replace all values above with TODAY's actual market data. Return ONLY the JSON object.`;
+async function sendDiscord(webhookUrl, content) {
+  if (!webhookUrl) return false;
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: content.slice(0, 1900) }),
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+function formatJPStock(s, rank) {
+  return [
+    `**${rank}位 ${s.name}（${s.code}）** 📊スコア:${s.score}/10`,
+    `タイプ：${s.type}`,
+    `週足：${s.weekly_trend}`,
+    `60分エントリー：${s.entry_60min}`,
+    `30分エントリー：${s.entry_30min}`,
+    `利確目標：+${s.target} / 損切：${s.stop_loss}`,
+    `保有想定：${s.hold_days} / 狙い曜日：${s.best_entry_day}`,
+    `📌 ${s.reason}`,
+    `⚠️ ${s.risk}`,
+  ].join("\n");
+}
+
+function formatUSStock(s, rank) {
+  return [
+    `**${rank}位 $${s.ticker} ${s.name}** 📊スコア:${s.score}/10`,
+    `タイプ：${s.type}`,
+    `週足：${s.weekly_trend}`,
+    `60分エントリー：${s.entry_60min}`,
+    `30分エントリー：${s.entry_30min}`,
+    `利確目標：+${s.target} / 損切：${s.stop_loss}`,
+    `保有想定：${s.hold_days} / 狙い曜日：${s.best_entry_day}`,
+    `📌 ${s.reason}`,
+    `⚠️ ${s.risk}`,
+  ].join("\n");
+}
+
+export default async function handler(req, res) {
+  const authHeader = req.headers.authorization;
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001
