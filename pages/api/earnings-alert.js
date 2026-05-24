@@ -1,4 +1,4 @@
-/**
+**
  * /api/earnings-alert
  * TDnet RSS監視 → 決算サプライズ → スイング視点でDiscord通知
  */
@@ -9,7 +9,7 @@ const DISCORD_EARNINGS = process.env.DISCORD_EARNINGS_ALERT;
 const TDNET_RSS = "https://www.release.tdnet.info/inbs/I_list_001_20000101.rss";
 const EARNINGS_KW = ["決算","業績","通期","四半期","上方修正","下方修正","営業利益","純利益"];
 const processed = new Set();
-
+ 
 async function fetchRSS() {
   try {
     const res = await fetch(TDNET_RSS, { signal: AbortSignal.timeout(10000) });
@@ -23,7 +23,7 @@ async function fetchRSS() {
     return items;
   } catch { return []; }
 }
-
+ 
 export default async function handler(req, res) {
   const authHeader = req.headers.authorization;
   if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
