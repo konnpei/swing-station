@@ -1,6 +1,18 @@
 {
   "crons": [
     {
+      "path": "/api/earnings-alert",
+      "schedule": "30 6 * * 1-5"
+    },
+    {
+      "path": "/api/earnings-alert",
+      "schedule": "30 18 * * 1-5"
+    },
+    {
+      "path": "/api/note-content",
+      "schedule": "0 7 * * 1-5"
+    },
+    {
       "path": "/api/swing-analysis",
       "schedule": "30 21 * * 0-4"
     }
