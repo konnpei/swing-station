@@ -124,9 +124,12 @@ async function fetchUSEarnings() {
 // ---- Claude分析 ----
 async function analyzeEarnings(item) {
   const isJP = item.market === "JP";
+  const US_TICKERS = ["AAPL","MSFT","GOOGL","GOOG","AMZN","NVDA","META","TSLA","NFLX","AMD","INTC","DBX","CRM","SNOW","UBER","LYFT","COIN","SHOP"];
   const code = isJP
     ? (item.link.match(/(\d{4})/) || item.title.match(/[（(](\d{4})[）)]/))? .[1]
-    : item.title.match(/\b([A-Z]{1,5})\b/)?.[1];
+    : US_TICKERS.find(t => new RegExp(`\\b${t}\\b`).test(item.title) || new RegExp(`\\b${t}\\b`).test(item.description || ""))
+      || item.link.match(/[?&]s=([A-Z]{1,5})/)?.[1]
+      || null;
 
   const prompt = isJP
     ? `以下の日本株決算をスイングトレード視点で分析してください。
@@ -135,14 +138,16 @@ async function analyzeEarnings(item) {
 web_searchで「${code} 決算 予想 結果」を検索して市場予想と比較し、
 スイング（数日〜1週間）の観点でBEAT_FLAG: YES/NO/UNKNOWNと
 60分足エントリーゾーン・損切り・目標を含む分析を返してください。
-株クラ向けウィット口調で。`
-    : `以下の米国株決算をスイングトレード視点で分析してください。
+株クラ向けウィット口調で。
+思考過程は不要。分析結果のみ出力してください。`
+    : `以下の米国株ニュースをスイングトレード視点で分析してください。
 タイトル：${item.title}
 ティッカー：${code || "不明"}
-web_searchで「${code} earnings EPS beat miss estimate」を検索して市場予想と比較し、
+${code ? `web_searchで「${code} earnings EPS beat miss estimate 2026」を検索して直近決算と市場予想を比較し、` : "ティッカーが特定できないためBEAT_FLAG: UNKNOWNを返してください。"}
 スイング（数日〜1週間）の観点でBEAT_FLAG: YES/NO/UNKNOWNと
-60分足エントリーゾーン・損切り・目標を含む分析を日本語で返してください。
-株クラ向けウィット口調で、数字・ティッカーは英語のままでOK。`;
+エントリーゾーン・損切り・目標を含む分析を日本語で返してください。
+株クラ向けウィット口調で、数字・ティッカーは英語のままでOK。
+思考過程・検索過程は不要。分析結果のみ出力してください。`;
 
   const r = await client.messages.create({
     model: "claude-sonnet-4-5",
