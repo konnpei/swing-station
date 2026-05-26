@@ -144,7 +144,7 @@ Return BEAT_FLAG: YES/NO/UNKNOWN and a swing (days to 1 week) analysis with entr
 Use witty tone for Japanese stock Twitter community (株クラ), mix Japanese and English naturally.`;
 
   const r = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-5",
     max_tokens: 600,
     tools: [{ type: "web_search_20250305", name: "web_search" }],
     messages: [{ role: "user", content: prompt }],
