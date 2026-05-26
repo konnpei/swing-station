@@ -136,12 +136,13 @@ web_searchで「${code} 決算 予想 結果」を検索して市場予想と比
 スイング（数日〜1週間）の観点でBEAT_FLAG: YES/NO/UNKNOWNと
 60分足エントリーゾーン・損切り・目標を含む分析を返してください。
 株クラ向けウィット口調で。`
-    : `Analyze the following US earnings from a swing trade perspective.
-Title: ${item.title}
-Ticker: ${code || "unknown"}
-Use web_search to find "${code} earnings beat miss EPS estimate" and compare with consensus.
-Return BEAT_FLAG: YES/NO/UNKNOWN and a swing (days to 1 week) analysis with entry zone, stop loss, and target.
-Use witty tone for Japanese stock Twitter community (株クラ), mix Japanese and English naturally.`;
+    : `以下の米国株決算をスイングトレード視点で分析してください。
+タイトル：${item.title}
+ティッカー：${code || "不明"}
+web_searchで「${code} earnings EPS beat miss estimate」を検索して市場予想と比較し、
+スイング（数日〜1週間）の観点でBEAT_FLAG: YES/NO/UNKNOWNと
+60分足エントリーゾーン・損切り・目標を含む分析を日本語で返してください。
+株クラ向けウィット口調で、数字・ティッカーは英語のままでOK。`;
 
   const r = await client.messages.create({
     model: "claude-sonnet-4-5",
