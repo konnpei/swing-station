@@ -1,69 +1,227 @@
-**
+/**
  * /api/earnings-alert
- * TDnet RSS監視 → 決算サプライズ → スイング視点でDiscord通知
+ * JP: TDnet RSS監視 → 決算サプライズ → スイング視点でDiscord通知
+ * US: Yahoo Finance RSS監視 → 決算ビート → Discord通知
+ * 重複対策: KVストア(Vercel KV) or フォールバックでURLベース管理
  */
 import Anthropic from "@anthropic-ai/sdk";
+
 export const config = { maxDuration: 60 };
+
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const DISCORD_EARNINGS = process.env.DISCORD_EARNINGS_ALERT;
+const CRON_SECRET = process.env.CRON_SECRET;
+
+// VercelKVが使えない場合のフォールバック用（実行間で共有できないが最低限の重複防止）
+const sessionProcessed = new Set();
+
+// JST日付取得ユーティリティ
+function getJST() {
+  const now = new Date();
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  return {
+    date: jst.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" }),
+    datetime: jst.toLocaleString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }),
+    raw: jst,
+  };
+}
+
+// 重複チェック（Vercel KVがあればKV、なければセッション内Set）
+async function isProcessed(guid) {
+  // Vercel KV対応（環境変数KV_REST_API_URLがあれば使用）
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    try {
+      const res = await fetch(`${process.env.KV_REST_API_URL}/get/processed:${encodeURIComponent(guid)}`, {
+        headers: { Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}` },
+      });
+      const data = await res.json();
+      return data.result !== null;
+    } catch {
+      return sessionProcessed.has(guid);
+    }
+  }
+  return sessionProcessed.has(guid);
+}
+
+async function markProcessed(guid) {
+  sessionProcessed.add(guid);
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    try {
+      // 24時間TTLで保存
+      await fetch(`${process.env.KV_REST_API_URL}/set/processed:${encodeURIComponent(guid)}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ value: "1", ex: 86400 }),
+      });
+    } catch {}
+  }
+}
+
+// ---- JP: TDnet RSS ----
 const TDNET_RSS = "https://www.release.tdnet.info/inbs/I_list_001_20000101.rss";
-const EARNINGS_KW = ["決算","業績","通期","四半期","上方修正","下方修正","営業利益","純利益"];
-const processed = new Set();
- 
-async function fetchRSS() {
+const EARNINGS_KW = ["決算", "業績", "通期", "四半期", "上方修正", "下方修正", "営業利益", "純利益"];
+
+async function fetchJPEarnings() {
   try {
     const res = await fetch(TDNET_RSS, { signal: AbortSignal.timeout(10000) });
     const text = await res.text();
     const items = [];
     for (const m of text.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
       const x = m[1];
-      const get = (tag) => x.match(new RegExp(`<${tag}[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/${tag}>`, "s"))?.[1]?.trim() || "";
-      items.push({ title: get("title"), link: get("link"), pubDate: get("pubDate"), description: get("description"), guid: get("guid") || get("link") });
+      const get = (tag) =>
+        x.match(new RegExp(`<${tag}[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/${tag}>`, "s"))?.[1]?.trim() || "";
+      items.push({
+        title: get("title"),
+        link: get("link"),
+        pubDate: get("pubDate"),
+        description: get("description"),
+        guid: get("guid") || get("link"),
+        market: "JP",
+      });
     }
-    return items;
-  } catch { return []; }
-}
- 
-export default async function handler(req, res) {
-  const authHeader = req.headers.authorization;
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: "Unauthorized" });
+    return items.filter((i) => EARNINGS_KW.some((k) => `${i.title}${i.description}`.includes(k)));
+  } catch {
+    return [];
   }
-  const items = await fetchRSS();
-  const earnings = items.filter(i => EARNINGS_KW.some(k => `${i.title}${i.description}`.includes(k)));
-  const newItems = earnings.filter(i => !processed.has(i.guid)).slice(0, 3);
-  let notified = 0;
-  for (const item of newItems) {
-    processed.add(item.guid);
-    const code = (item.link.match(/(\d{4})/) || item.title.match(/[（(](\d{4})[）)]/))? .[1];
-    const r = await client.messages.create({
-      model: "claude-sonnet-4-5",
-      max_tokens: 600,
-      tools: [{ type: "web_search_20250305", name: "web_search" }],
-      messages: [{
-        role: "user",
-        content: `以下の決算をスイングトレード視点で分析してください。
+}
+
+// ---- US: Yahoo Finance RSS（決算カレンダー） ----
+const US_RSS = "https://finance.yahoo.com/rss/2.0/headline?s=AAPL,MSFT,GOOGL,AMZN,NVDA,META,TSLA&region=US&lang=en-US";
+const US_EARNINGS_KW = ["earnings", "beat", "miss", "EPS", "revenue", "quarterly", "results", "guidance"];
+
+async function fetchUSEarnings() {
+  try {
+    const res = await fetch(US_RSS, {
+      signal: AbortSignal.timeout(10000),
+      headers: { "User-Agent": "Mozilla/5.0" },
+    });
+    const text = await res.text();
+    const items = [];
+    for (const m of text.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+      const x = m[1];
+      const get = (tag) =>
+        x.match(new RegExp(`<${tag}[^>]*>(?:<!\\[CDATA\\[)?(.*?)(?:\\]\\]>)?<\\/${tag}>`, "s"))?.[1]?.trim() || "";
+      items.push({
+        title: get("title"),
+        link: get("link"),
+        pubDate: get("pubDate"),
+        description: get("description"),
+        guid: get("guid") || get("link"),
+        market: "US",
+      });
+    }
+    return items.filter((i) =>
+      US_EARNINGS_KW.some((k) => `${i.title}${i.description}`.toLowerCase().includes(k.toLowerCase()))
+    );
+  } catch {
+    return [];
+  }
+}
+
+// ---- Claude分析 ----
+async function analyzeEarnings(item) {
+  const isJP = item.market === "JP";
+  const code = isJP
+    ? (item.link.match(/(\d{4})/) || item.title.match(/[（(](\d{4})[）)]/))? .[1]
+    : item.title.match(/\b([A-Z]{1,5})\b/)?.[1];
+
+  const prompt = isJP
+    ? `以下の日本株決算をスイングトレード視点で分析してください。
 タイトル：${item.title}
 コード：${code || "不明"}
 web_searchで「${code} 決算 予想 結果」を検索して市場予想と比較し、
 スイング（数日〜1週間）の観点でBEAT_FLAG: YES/NO/UNKNOWNと
 60分足エントリーゾーン・損切り・目標を含む分析を返してください。
 株クラ向けウィット口調で。`
-      }],
-    });
-    const text = r.content.filter(b => b.type === "text").map(b => b.text).join("");
-    const beat = text.match(/BEAT_FLAG:\s*(YES|NO|UNKNOWN)/i)?.[1] || "UNKNOWN";
-    if (beat === "YES" && DISCORD_EARNINGS) {
-      await fetch(DISCORD_EARNINGS, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: `🔥 **決算サプライズ！スイング狙い目！**\n\n**${item.title}**\n🕐 ${item.pubDate}\n\n${text.replace(/BEAT_FLAG:.*\n?/, "").trim().slice(0, 1400)}\n\n🔗 ${item.link}`.slice(0, 1900)
-        }),
-      });
-      notified++;
-    }
-    await new Promise(r => setTimeout(r, 2000));
+    : `Analyze the following US earnings from a swing trade perspective.
+Title: ${item.title}
+Ticker: ${code || "unknown"}
+Use web_search to find "${code} earnings beat miss EPS estimate" and compare with consensus.
+Return BEAT_FLAG: YES/NO/UNKNOWN and a swing (days to 1 week) analysis with entry zone, stop loss, and target.
+Use witty tone for Japanese stock Twitter community (株クラ), mix Japanese and English naturally.`;
+
+  const r = await client.messages.create({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 600,
+    tools: [{ type: "web_search_20250305", name: "web_search" }],
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const text = r.content
+    .filter((b) => b.type === "text")
+    .map((b) => b.text)
+    .join("");
+  const beat = text.match(/BEAT_FLAG:\s*(YES|NO|UNKNOWN)/i)?.[1] || "UNKNOWN";
+  return { text, beat, code };
+}
+
+// ---- Discord送信 ----
+async function sendDiscord(item, analysis) {
+  if (!DISCORD_EARNINGS) return;
+  const { datetime } = getJST();
+  const flag = item.market === "JP" ? "🇯🇵" : "🇺🇸";
+  const body = `${flag} **決算サプライズ！スイング狙い目！**\n\n**${item.title}**\n🕐 ${datetime} JST\n\n${analysis.text
+    .replace(/BEAT_FLAG:.*\n?/, "")
+    .trim()
+    .slice(0, 1400)}\n\n🔗 ${item.link}`.slice(0, 1900);
+
+  await fetch(DISCORD_EARNINGS, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content: body }),
+  });
+}
+
+// ---- メインハンドラ ----
+export default async function handler(req, res) {
+  // 認証
+  if (CRON_SECRET && req.headers.authorization !== `Bearer ${CRON_SECRET}`) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
-  res.status(200).json({ success: true, checked: items.length, earnings: earnings.length, notified });
+
+  const { datetime } = getJST();
+  let notified = 0;
+  const results = { jp: { checked: 0, earnings: 0 }, us: { checked: 0, earnings: 0 } };
+
+  // JP取得
+  const jpItems = await fetchJPEarnings();
+  results.jp.checked = jpItems.length;
+
+  // US取得
+  const usItems = await fetchUSEarnings();
+  results.us.checked = usItems.length;
+
+  // 全アイテムをまとめて処理（最大JP:3件、US:3件）
+  const targets = [
+    ...jpItems.slice(0, 3),
+    ...usItems.slice(0, 3),
+  ];
+
+  for (const item of targets) {
+    // 重複チェック
+    if (await isProcessed(item.guid)) continue;
+    await markProcessed(item.guid);
+
+    const analysis = await analyzeEarnings(item);
+
+    if (analysis.beat === "YES") {
+      await sendDiscord(item, analysis);
+      notified++;
+      if (item.market === "JP") results.jp.earnings++;
+      else results.us.earnings++;
+    }
+
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+
+  res.status(200).json({
+    success: true,
+    executedAt: datetime,
+    jp: results.jp,
+    us: results.us,
+    notified,
+  });
 }
