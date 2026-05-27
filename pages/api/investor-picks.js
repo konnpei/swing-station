@@ -1,9 +1,3 @@
-/**
- * /api/investor-picks
- * 毎朝6:35（JST）に実行（swing-analysisの5分後）
- * 清原・井村・SIS・バフェット式銘柄判定 → Discord通知
- */
-
 import Anthropic from "@anthropic-ai/sdk";
 
 export const config = { maxDuration: 60 };
@@ -72,4 +66,65 @@ JSONのみ返してください。思考過程不要。
 }`;
 
 export default async function handler(req, res) {
-  const authHeader = req.headers.auth
+  const authHeader = req.headers.authorization;
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const dateStr = getJST();
+
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 2000,
+      system: "You are a JSON generator. Respond with valid JSON only. No text outside JSON.",
+      tools: [{ type: "web_search_20250305", name: "web_search" }],
+      messages: [{ role: "user", content: PROMPT }],
+    });
+
+    const raw = response.content.filter(b => b.type === "text").map(b => b.text).join("");
+    const clean = raw.replace(/```json|```/g, "").trim();
+    const data = JSON.parse(clean);
+
+    const jpLines = [
+      `👑 **${dateStr} JST｜投資家スタイル別ピック（JP）**`, ``,
+      `🏆 **${data.kiyohara.label}**（${data.kiyohara.description}）`,
+      ...data.kiyohara.stocks.map(s =>
+        `　**${s.code} ${s.name}** PBR:${s.pbr} ROE:${s.roe}\n　📌 ${s.reason}`
+      ),
+      ``,
+      `🚀 **${data.imura.label}**（${data.imura.description}）`,
+      ...data.imura.stocks.map(s =>
+        `　**${s.code} ${s.name}**\n　📌 ${s.reason}`
+      ),
+      ``,
+      `⚡️ **${data.sis.label}**（${data.sis.description}）`,
+      ...data.sis.stocks.map(s =>
+        `　**${s.code} ${s.name}**\n　📌 ${s.reason}`
+      ),
+      ``,
+      `※投資判断は自己責任で。`,
+    ];
+    await sendDiscord(WEBHOOKS.jp, jpLines.join("\n"));
+
+    const usLines = [
+      `🇺🇸 **${data.buffett.label}**（${data.buffett.description}）`, ``,
+      ...data.buffett.stocks.map(s =>
+        `　**$${s.ticker} ${s.name}** ROE:${s.roe}\n　📌 ${s.reason}`
+      ),
+      ``,
+      `※投資判断は自己責任で。`,
+    ];
+    await sendDiscord(WEBHOOKS.us, usLines.join("\n"));
+
+    await sendDiscord(WEBHOOKS.content, [
+      `📝 **投資家スタイル別ピック X投稿文**`, ``,
+      `\`\`\``, data.x_post, `\`\`\``,
+    ].join("\n"));
+
+    res.status(200).json({ success: true, executedAt: dateStr });
+
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+}
