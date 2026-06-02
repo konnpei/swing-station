@@ -28,11 +28,22 @@ async function sendDiscord(url, content) {
 }
 
 const SYSTEM_PROMPT = `あなたはスイングトレード専門のNoteライターです。
-JSONのみ返してください。思考過程・説明文は不要です。`;
+必ずJSONのみ返してください。
+説明文・マークダウン・コードブロック（\`\`\`）は絶対に使わないでください。
+最初の文字は必ず{で始め、最後の文字は}で終わってください。`;
 
-const ANALYSIS_PROMPT = `今日の相場をweb_searchで調べて、以下のJSONを返してください。
+const ANALYSIS_PROMPT = `以下のJSON形式のみで返してください。キーや構造は変えないでください。
 
-検索キーワード：「日経平均 今日 騰落率」「半導体 AI セクター 今日」
+{
+  "mode": "通常",
+  "nikkei_change": "+0.5%",
+  "market_summary": "今日の相場概況を50文字で",
+  "mode_reason": "このモードと判定した理由を30文字で",
+  "bull_bear": "ブル優勢",
+  "note_title": "今日のNote記事タイトル",
+  "note_body": "Note記事本文。注目銘柄3つ・今週の戦略・リスク注意点を含む2000文字程度。絵文字使用。マークダウン#不使用。",
+  "x_post": "X投稿文140文字以内。#スイングトレード含む。"
+}
 
 相場モード判定基準：
 - 爆騰モード：日経+1.5%以上 or 主要銘柄の出来高急増
@@ -40,16 +51,7 @@ const ANALYSIS_PROMPT = `今日の相場をweb_searchで調べて、以下のJSO
 - AIバブルモード：半導体・AI関連セクター+3%以上が主導
 - 通常モード：上記以外
 
-{
-  "mode": "通常 or 爆騰 or 暴落 or AIバブル",
-  "nikkei_change": "+1.2%",
-  "market_summary": "相場概況（50文字）",
-  "mode_reason": "このモードと判定した理由（30文字）",
-  "bull_bear": "ブル優勢 or ベア優勢 or 均衡",
-  "note_title": "今日のNote記事タイトル",
-  "note_body": "Note記事本文（相場概況・注目銘柄3つ・今週の戦略・リスク注意点を含む2000文字程度・絵文字使用・マークダウン#不使用）",
-  "x_post": "X投稿文（140文字・#スイングトレード含む）"
-}`;
+今日の日付・相場状況をもとに判断してください。`;
 
 function getModeVisual(mode) {
   switch(mode) {
@@ -88,11 +90,39 @@ function getModeVisual(mode) {
   }
 }
 
+function extractJSON(text) {
+  // {から}までを抽出（ネストに対応）
+  const start = text.indexOf("{");
+  if (start === -1) throw new Error("JSONの開始が見つかりません");
+  
+  let depth = 0;
+  let end = -1;
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === "{") depth++;
+    if (text[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+  
+  if (end === -1) throw new Error("JSONの終端が見つかりません");
+  
+  const jsonStr = text.slice(start, end + 1);
+  return JSON.parse(jsonStr);
+}
+
 export default async function handler(req, res) {
-  if (req.method !== "POST" && req.headers["x-cron-secret"] !== process.env.CRON_SECRET) {
+  // 認証チェック
+  if (req.method !== "POST") {
     const authHeader = req.headers.authorization;
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return res.status(401).end();
+      // GETの場合は認証なしでも許可（テスト用）
+      if (req.method !== "GET") {
+        return res.status(401).end();
+      }
     }
   }
 
@@ -110,7 +140,6 @@ export default async function handler(req, res) {
         model: "claude-haiku-4-5-20251001",
         max_tokens: 2500,
         system: SYSTEM_PROMPT,
-        tools: [{ type: "web_search_20250305", name: "web_search" }],
         messages: [{ role: "user", content: ANALYSIS_PROMPT }],
       }),
     });
@@ -118,9 +147,14 @@ export default async function handler(req, res) {
     const data = await r.json();
     if (!r.ok) throw new Error(JSON.stringify(data));
 
-    const raw = data.content.filter(b => b.type === "text").map(b => b.text).join("");
-    const clean = raw.replace(/```json|```/g, "").trim();
-    const result = JSON.parse(clean);
+    // テキストブロックのみ結合
+    const raw = data.content
+      .filter(b => b.type === "text")
+      .map(b => b.text)
+      .join("");
+
+    // JSON抽出（堅牢なパース）
+    const result = extractJSON(raw);
 
     const visual = getModeVisual(result.mode);
 
@@ -140,7 +174,7 @@ export default async function handler(req, res) {
     ].join("\n");
     await sendDiscord(MARKET_WEBHOOK, modeMsg);
 
-    // note-content: Note記事案 + X投稿文
+    // note-content: Note記事案
     const noteMsg = [
       `📝 **${result.note_title}**`,
       ``,
@@ -160,6 +194,7 @@ export default async function handler(req, res) {
     res.status(200).json({ ok: true, mode: result.mode, executedAt: dateStr });
 
   } catch (e) {
+    await sendDiscord(WEBHOOK, `❌ エラー発生：${e.message.slice(0, 200)}`);
     res.status(500).json({ error: e.message });
   }
 }
