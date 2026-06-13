@@ -1,1 +1,86 @@
 
+name: swing-station 自動配信
+
+on:
+  schedule:
+    # 朝刊 JST 6:30 = UTC 21:30（前日）
+    - cron: '30 21 * * 0-4'
+    # 昼刊 JST 12:00 = UTC 3:00
+    - cron: '0 3 * * 1-5'
+    # 夕刊 JST 19:30 = UTC 10:30
+    - cron: '30 10 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      session:
+        description: '配信セッション (morning / noon / evening / alert)'
+        required: false
+        default: 'morning'
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python セットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 依存パッケージをインストール
+        run: |
+          pip install \
+            anthropic \
+            requests \
+            matplotlib \
+            mplfinance \
+            pandas \
+            numpy \
+            Pillow \
+            yfinance \
+            feedparser \
+            python-dotenv
+
+      - name: フォントをインストール
+        run: |
+          sudo apt-get install -y fonts-noto-cjk -q
+          fc-cache -fv
+
+      - name: セッション判定
+        id: session
+        run: |
+          HOUR=$(TZ=Asia/Tokyo date +%H)
+          INPUT="${{ github.event.inputs.session }}"
+          if [ -n "$INPUT" ]; then
+            echo "name=$INPUT" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "06" ]; then
+            echo "name=morning" >> $GITHUB_OUTPUT
+          elif [ "$HOUR" = "12" ]; then
+            echo "name=noon" >> $GITHUB_OUTPUT
+          else
+            echo "name=evening" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 朝刊 — 全素材生成 & Discord配信
+        if: steps.session.outputs.name == 'morning'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK:   ${{ secrets.DISCORD_WEBHOOK_MAIN }}
+        run: python scripts/morning_briefing.py
+
+      - name: 昼刊 — 相場中間まとめ & Discord配信
+        if: steps.session.outputs.name == 'noon'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK:   ${{ secrets.DISCORD_WEBHOOK_MAIN }}
+        run: python scripts/noon_briefing.py
+
+      - name: 夕刊 — 本日の振り返り & Discord配信
+        if: steps.session.outputs.name == 'evening'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK:   ${{ secrets.DISCORD_WEBHOOK_MAIN }}
+        run: python scripts/evening_briefing.py
