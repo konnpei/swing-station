@@ -1,3 +1,4 @@
+"""
 
 swing-station morning_briefing.py (kabubocchi complete v4)
 Generates and sends to Discord at 6:30 AM JST:
