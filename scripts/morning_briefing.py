@@ -464,7 +464,7 @@ def generate_note(data, mode, c):
     earnings_md = "".join(earnings_lines) if earnings_lines else "本日は主要な決算発表なし。"
  
     consider = c.get("consideration", {})
-    strategy_lines = ["- " + s for s in c.get("strategy", [])]
+    strategy_lines = ["- " + (s if isinstance(s, str) else str(s)) for s in c.get("strategy", [])]
     strategy_md = "\n".join(strategy_lines)
  
     events_lines = ["| 日時 | イベント | 重要度 |", "|------|---------|--------|"]
