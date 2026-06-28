@@ -12,7 +12,7 @@ import os, io, json, re
 from datetime import datetime, timezone, timedelta
  
 import requests
-import requests as http_requests
+import anthropic
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -28,7 +28,7 @@ TODAY   = NOW.strftime("%Y/%m/%d")
 WEEKDAY = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][NOW.weekday()]
 WEEKDAY_JP = ["月","火","水","木","金","土","日"][NOW.weekday()]
  
-GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 
 DISCORD_WEBHOOK   = os.environ["DISCORD_WEBHOOK_MAIN"]
 FONT_PATH         = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
@@ -125,7 +125,7 @@ def detect_mode(data):
  
  
 def generate_content(data, mode):
-    pass  # no client needed
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     m = MODES[mode]
     sign = "▲" if data["diff"] >= 0 else "▼"
  
@@ -180,12 +180,12 @@ stocks_jp must have 9 Japanese stocks covering these patterns:
  
 All text content must be in Japanese. Return ONLY the JSON object."""
  
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
-    res = http_requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]})
-    res_json = res.json()
-    if "candidates" not in res_json:
-        raise Exception(f"Gemini API error: {res_json}")
-    raw = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+    response = client.messages.create(
+        model="claude-haiku-4-5",
+        max_tokens=4096,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    raw = response.content[0].text.strip()
     raw = re.sub(r"^```json\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
  
