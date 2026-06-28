@@ -1,4 +1,4 @@
-"""
+
 swing-station morning_briefing.py (kabubocchi complete v4)
 Generates and sends to Discord at 6:30 AM JST:
   1. Banner image (bull/bear + 8 mode auto-detection)
@@ -585,4 +585,4 @@ if __name__ == "__main__":
     print("Sending to Discord...")
     send_to_discord(banner_buf, chart_buf, note_text, content, data, mode)
  
-    print("\nDone! Auto-delivery at 6:30 AM JST daily."
+    print("\nDone! Auto-delivery at 6:30 AM JST daily.")
