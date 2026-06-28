@@ -103,6 +103,53 @@ def fetch_market_data():
                 "usd_jpy":155.0, "sox_pct":-2.1, "vix":22.5}
  
  
+
+STOCKS_JP = [
+    ("7203", "トヨタ自動車"), ("9984", "ソフトバンクG"), ("6758", "ソニーグループ"),
+    ("6861", "キーエンス"), ("8306", "三菱UFJ"), ("9432", "NTT"),
+    ("4063", "信越化学"), ("6954", "ファナック"), ("8035", "東京エレクトロン"),
+    ("6367", "ダイキン"), ("8058", "三菱商事"), ("6098", "リクルートHD"),
+    ("7974", "任天堂"), ("4568", "第一三共"), ("9983", "ファーストリテイリング"),
+    ("6501", "日立製作所"), ("7267", "本田技研"), ("2914", "JT"),
+    ("4543", "テルモ"), ("4519", "中外製薬"),
+]
+
+def fetch_stock_technicals():
+    import yfinance as yf
+    results = []
+    for code, name in STOCKS_JP:
+        try:
+            hist = yf.Ticker(f"{code}.T").history(period="60d")
+            if hist.empty or len(hist) < 25:
+                continue
+            close = hist["Close"]
+            volume = hist["Volume"]
+            current = float(close.iloc[-1])
+            prev = float(close.iloc[-2])
+            change_pct = (current - prev) / prev * 100
+            ma25 = float(close.tail(25).mean())
+            ma5 = float(close.tail(5).mean())
+            ma25_diff = (current - ma25) / ma25 * 100
+            std25 = float(close.tail(25).std())
+            bb_upper = ma25 + 2 * std25
+            bb_lower = ma25 - 2 * std25
+            bb_pos = (current - bb_lower) / (bb_upper - bb_lower) * 100 if bb_upper != bb_lower else 50
+            delta = close.diff().tail(15)
+            gain = delta.clip(lower=0).mean()
+            loss = (-delta.clip(upper=0)).mean()
+            rsi = round(100 - (100 / (1 + gain / loss)), 1) if loss != 0 else 50
+            vol_ratio = round(float(volume.tail(5).mean()) / float(volume.tail(20).mean()), 2) if float(volume.tail(20).mean()) > 0 else 1.0
+            results.append({
+                "code": code, "name": name,
+                "price": int(current), "change_pct": round(change_pct, 2),
+                "ma25": int(ma25), "ma25_diff": round(ma25_diff, 1),
+                "ma5": int(ma5), "bb_pos": round(bb_pos, 1),
+                "rsi": rsi, "vol_ratio": vol_ratio,
+            })
+        except:
+            continue
+    return results
+
 def detect_mode(data):
     pct = data["pct"]
     sox = data["sox_pct"]
