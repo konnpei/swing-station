@@ -12,7 +12,7 @@ import os, io, json, re
 from datetime import datetime, timezone, timedelta
  
 import requests
-import anthropic
+import google.generativeai as genai
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -28,7 +28,8 @@ TODAY   = NOW.strftime("%Y/%m/%d")
 WEEKDAY = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][NOW.weekday()]
 WEEKDAY_JP = ["月","火","水","木","金","土","日"][NOW.weekday()]
  
-ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+genai.configure(api_key=GEMINI_API_KEY)
 DISCORD_WEBHOOK   = os.environ["DISCORD_WEBHOOK_MAIN"]
 FONT_PATH         = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
  
@@ -124,7 +125,7 @@ def detect_mode(data):
  
  
 def generate_content(data, mode):
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    model = genai.GenerativeModel("gemini-2.0-flash")
     m = MODES[mode]
     sign = "▲" if data["diff"] >= 0 else "▼"
  
