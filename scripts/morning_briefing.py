@@ -12,7 +12,7 @@ import os, io, json, re
 from datetime import datetime, timezone, timedelta
  
 import requests
-from google import genai as genai
+import google.genai as genai
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
