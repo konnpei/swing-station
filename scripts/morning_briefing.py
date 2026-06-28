@@ -177,7 +177,12 @@ def generate_content(data, mode):
     sign = "▲" if data["diff"] >= 0 else "▼"
  
     print("Fetching individual stock data...")
-    stocks = fetch_stock_technicals()
+    try:
+        stocks = fetch_stock_technicals()
+        print(f"Stock data fetched: {len(stocks)} stocks")
+    except Exception as e:
+        print(f"Stock fetch error: {e}")
+        stocks = []
     stocks_str = ""
     for s in stocks:
         bb = "BB下限" if s["bb_pos"] < 20 else ("BB上限" if s["bb_pos"] > 80 else "BB中間")
