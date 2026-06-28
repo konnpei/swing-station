@@ -349,8 +349,8 @@ def generate_banner(data, mode):
     hl, sub = headlines.get(mode, (m["label"], ""))
  
     draw.rounded_rectangle([(40, 26), (240, 62)], radius=18,
-        fill=(*accent, 40), outline=(*accent, 200), width=2)
-    draw.text((54, 36), f"[{m['label']}]", fill=(*accent, 255), font=fn_sm)
+        fill=accent, outline=accent, width=2)
+    draw.text((54, 36), f"[{m['label']}]", fill=(255, 255, 255), font=fn_sm)
  
     draw.text((40, 72),  hl,           fill=(*accent, 255),     font=fn_xl)
     draw.text((40, 140), sub,          fill=(180, 200, 200, 255), font=fn_lg)
