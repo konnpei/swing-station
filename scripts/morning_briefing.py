@@ -182,7 +182,10 @@ All text content must be in Japanese. Return ONLY the JSON object."""
  
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
     res = http_requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]})
-    raw = res.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+    res_json = res.json()
+    if "candidates" not in res_json:
+        raise Exception(f"Gemini API error: {res_json}")
+    raw = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
     raw = re.sub(r"^```json\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
  
