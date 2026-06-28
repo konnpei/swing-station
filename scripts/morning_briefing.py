@@ -12,7 +12,7 @@ import os, io, json, re
 from datetime import datetime, timezone, timedelta
  
 import requests
-import google.generativeai as genai
+from google import genai
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -29,7 +29,7 @@ WEEKDAY = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][NOW.weekday()]
 WEEKDAY_JP = ["月","火","水","木","金","土","日"][NOW.weekday()]
  
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
-genai.configure(api_key=GEMINI_API_KEY)
+
 DISCORD_WEBHOOK   = os.environ["DISCORD_WEBHOOK_MAIN"]
 FONT_PATH         = "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"
  
@@ -125,7 +125,7 @@ def detect_mode(data):
  
  
 def generate_content(data, mode):
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    client = genai.Client(api_key=GEMINI_API_KEY)
     m = MODES[mode]
     sign = "▲" if data["diff"] >= 0 else "▼"
  
