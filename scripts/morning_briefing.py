@@ -180,13 +180,12 @@ stocks_jp must have 9 Japanese stocks covering these patterns:
  
 All text content must be in Japanese. Return ONLY the JSON object."""
  
-    response = client.messages.create(
-        model="claude-sonnet-4-5",
-        max_tokens=5000,
-        messages=[{"role": "user", "content": prompt}]
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
     )
  
-    raw = response.content[0].text.strip()
+    raw = response.text.strip()
     raw = re.sub(r"^```json\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
  
