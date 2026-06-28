@@ -310,6 +310,19 @@ def generate_chart(data, mode):
  
  
 def generate_banner(data, mode):
+    banner_map = {
+        "normal": "public/banners/normal.png",
+        "surge": "public/banners/surge.png",
+        "crash": "public/banners/crash.png",
+        "ai": "public/banners/ai.png",
+    }
+    banner_path = banner_map.get(mode)
+    if banner_path and os.path.exists(banner_path):
+        with open(banner_path, "rb") as f:
+            buf = io.BytesIO(f.read())
+        buf.seek(0)
+        return buf
+
     m = MODES[mode]
     W, H = 1200, 400
  
