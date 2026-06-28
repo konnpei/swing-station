@@ -176,17 +176,36 @@ def generate_content(data, mode):
     m = MODES[mode]
     sign = "▲" if data["diff"] >= 0 else "▼"
  
+    print("Fetching individual stock data...")
+    stocks = fetch_stock_technicals()
+    stocks_str = ""
+    for s in stocks:
+        bb = "BB下限" if s["bb_pos"] < 20 else ("BB上限" if s["bb_pos"] > 80 else "BB中間")
+        vol = f"出来高{s['vol_ratio']}倍" if s["vol_ratio"] > 1.5 else "出来高普通"
+        stocks_str += f"{s['name']}({s['code']}): 現在{s['price']:,}円 {s['change_pct']:+.1f}% MA25乖離{s['ma25_diff']:+.1f}% RSI{s['rsi']} {bb} {vol}\n"
+
     prompt = f"""You are kabubocchi, a popular swing trader content creator in Japan.
 You write morning briefings for Discord and note at 6:30 AM JST.
- 
-Today's market data:
-- Date: {TODAY} ({WEEKDAY_JP})
-- Nikkei 225: {data["latest"]["close"]:,}yen ({sign}{abs(int(data["diff"])):,}yen / {data["pct"]:+.2f}%)
+
+【重要】以下の実際の株価データのみを使用すること。架空の株価・銘柄コード・断定表現は絶対禁止。
+
+本日の市場データ:
+- 日付: {TODAY} ({WEEKDAY_JP})
+- 日経225: {data["latest"]["close"]:,}円 ({sign}{abs(int(data["diff"])):,}円 / {data["pct"]:+.2f}%)
 - USD/JPY: {data["usd_jpy"]}
-- SOX index: {data["sox_pct"]:+.1f}% vs last week
+- SOX指数: {data["sox_pct"]:+.1f}% 先週比
 - VIX: {data["vix"]}
-- Market mode: {m["label"]}
+- 相場モード: {m["label"]}
 - Quote: {m["quote"]}
+
+実際の個別銘柄データ（エントリー価格は必ずこのデータを元に設定すること）:
+{stocks_str}
+
+禁止事項:
+- 上記リスト以外の銘柄コードを使用すること
+- 上記の実際の株価と大きく異なる価格レンジを設定すること
+- 「確実」「必ず」「今週中に底」など断定表現を使うこと
+- 「機関投資家が買っている」など確認できない事実を書くこと
  
 Character traits:
 - Sharp and witty but insightful
