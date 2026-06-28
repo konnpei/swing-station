@@ -12,7 +12,7 @@ import os, io, json, re
 from datetime import datetime, timezone, timedelta
  
 import requests
-import google.genai as genai
+import requests as http_requests
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -125,7 +125,7 @@ def detect_mode(data):
  
  
 def generate_content(data, mode):
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    pass  # no client needed
     m = MODES[mode]
     sign = "▲" if data["diff"] >= 0 else "▼"
  
@@ -180,12 +180,9 @@ stocks_jp must have 9 Japanese stocks covering these patterns:
  
 All text content must be in Japanese. Return ONLY the JSON object."""
  
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
-    )
- 
-    raw = response.text.strip()
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+    res = http_requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]})
+    raw = res.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
     raw = re.sub(r"^```json\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
  
