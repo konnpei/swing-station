@@ -381,6 +381,39 @@ def generate_chart(data, mode):
     return buf
  
  
+
+def self_check_content(content_json, valid_codes):
+    """生成コンテンツをClaudeでセルフチェック"""
+    import json
+    check_prompt = f"""あなたは株式投資コンテンツの品質チェッカーです。
+以下のJSONコンテンツをチェックして、問題があればJSONで返してください。
+
+チェック項目:
+1. stocks_jpの各銘柄のcodeが以下の有効コードリストに含まれているか: {valid_codes}
+2. entryフィールドに具体的な株価（円）が含まれていないか
+3. 「確実」「必ず」「今週中に底」などの断定表現がないか
+4. reasonフィールドに具体的な株価が含まれていないか
+
+チェック対象:
+{json.dumps(content_json, ensure_ascii=False, indent=2)[:3000]}
+
+以下のJSON形式のみで返答してください:
+{{"ok": true}} または {{"ok": false, "issues": ["問題1", "問題2"]}}"""
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    response = client.messages.create(
+        model="claude-haiku-4-5",
+        max_tokens=500,
+        messages=[{"role": "user", "content": check_prompt}]
+    )
+    raw = response.content[0].text.strip()
+    raw = re.sub(r"^```json\s*", "", raw)
+    raw = re.sub(r"\s*```$", "", raw)
+    try:
+        return json.loads(raw)
+    except:
+        return {"ok": True}
+
 def generate_banner(data, mode):
     banner_map = {
         "normal": "public/banners/normal.png",
@@ -664,6 +697,16 @@ if __name__ == "__main__":
  
     print("Generating content with Claude API...")
     content = generate_content(data, mode)
+    
+    print("Self-checking content quality...")
+    valid_codes = [s[0] for s in STOCKS_JP]
+    check_result = self_check_content(content, valid_codes)
+    if not check_result.get("ok", True):
+        print(f"Quality issues found: {check_result.get('issues', [])}")
+        print("Regenerating content...")
+        content = generate_content(data, mode)
+    else:
+        print("Quality check passed!")
  
     print("Generating chart...")
     chart_buf = generate_chart(data, mode)
