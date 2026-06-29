@@ -651,44 +651,126 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
     m    = MODES[mode]
     diff = data["diff"]
     sign = "▲" if diff >= 0 else "▼"
- 
-    def post(text, files=None):
-        if files:
-            r = requests.post(DISCORD_WEBHOOK, data={"content": text}, files=files)
-        else:
-            r = requests.post(DISCORD_WEBHOOK, json={"content": text})
+    pct  = data["pct"]
+
+    color_map = {
+        "normal": 0x3498db, "surge": 0x2ecc71,
+        "crash": 0xe74c3c, "ai": 0x9b59b6,
+    }
+    color = color_map.get(mode, 0x3498db)
+
+    def post_json(payload):
+        r = requests.post(DISCORD_WEBHOOK, json=payload)
         if r.status_code not in (200, 204):
             print(f"Discord error: {r.status_code} {r.text}")
- 
-    summary = (
-        f"**📡 swing-station 朝刊 | {TODAY}({WEEKDAY_JP})**\n"
-        f"**{m['label']}**  {m['quote']}\n\n"
-        f"🇯🇵 日経平均:**{data['latest']['close']:,}円** {sign}{abs(int(diff)):,}円({data['pct']:+.2f}%)\n"
-        f"💴 ドル円:{data['usd_jpy']}円  📉 SOX:{data['sox_pct']:+.1f}%  😱 VIX:{data['vix']}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━"
-    )
- 
+
+    def post_files(text, files):
+        r = requests.post(DISCORD_WEBHOOK, data={"content": text}, files=files)
+        if r.status_code not in (200, 204):
+            print(f"Discord error: {r.status_code} {r.text}")
+
+    stocks_jp = c.get("stocks_jp", [])
+    stock_fields = []
+    for s in stocks_jp[:9]:
+        name    = s.get("name", "")
+        code    = s.get("code", "")
+        pattern = s.get("pattern", "")
+        score   = s.get("score", 7)
+        entry   = s.get("entry", "")
+        target  = s.get("target", "")
+        stop    = s.get("stop", "")
+        comment = s.get("comment", "")
+        stock_fields.append({
+            "name": f"**{name}（{code}）** [{pattern}] {score}/10",
+            "value": f"📌 {entry}\n🎯 {target}　🛡️ {stop}\n💬 _{comment}_",
+            "inline": True
+        })
+
+    us = c.get("stock_us", {})
+    if us:
+        stock_fields.append({
+            "name": f"**{us.get('name','')}（{us.get('ticker','')}）** [{us.get('pattern','')}] {us.get('score',7)}/10",
+            "value": f"📌 {us.get('entry','')}\n🎯 {us.get('target','')}　🛡️ {us.get('stop','')}\n💬 _{us.get('comment','')}_",
+            "inline": True
+        })
+
+    consider = c.get("consideration", {})
+
+    embed_main = {
+        "embeds": [{
+            "title": f"📡 swing-station 朝刊 | {TODAY}({WEEKDAY_JP})",
+            "description": (
+                f"**{m['label']}**　_{m['quote']}_\n\n"
+                f"🇯🇵 日経平均　**{data['latest']['close']:,}円**　{sign}{abs(int(diff)):,}円 ({pct:+.2f}%)\n"
+                f"💴 ドル円　{data['usd_jpy']}円　　"
+                f"📉 SOX　{data['sox_pct']:+.1f}%　　"
+                f"😱 VIX　{data['vix']}\n\n"
+                f"{c.get('market_summary', '')}"
+            ),
+            "color": color,
+            "footer": {"text": "swing-station | かぶぼっち | ※投資勧誘ではありません"}
+        }]
+    }
+    post_json(embed_main)
+
+    embed_stocks = {
+        "embeds": [{
+            "title": "🎯 本日の注目銘柄 10選",
+            "color": color,
+            "fields": stock_fields[:6]
+        }]
+    }
+    post_json(embed_stocks)
+
+    if len(stock_fields) > 6:
+        embed_stocks2 = {
+            "embeds": [{
+                "title": "🎯 注目銘柄（続き）",
+                "color": color,
+                "fields": stock_fields[6:]
+            }]
+        }
+        post_json(embed_stocks2)
+
+    embed_strategy = {
+        "embeds": [{
+            "title": "🧠 かぶぼっちの総合考察",
+            "description": (
+                f"{consider.get('main', '')}\n\n"
+                f"**⚡ 今日の一番重要なこと**\n> {consider.get('point', '')}\n\n"
+                f"**📋 アクション提案**\n{consider.get('action', '')}"
+            ),
+            "color": color
+        }]
+    }
+    post_json(embed_strategy)
+
     banner_buf.seek(0)
     chart_buf.seek(0)
-    post(summary, files={
+    post_files("", files={
         "banner": ("banner.png", banner_buf, "image/png"),
         "chart":  ("chart.png",  chart_buf,  "image/png"),
     })
- 
+
+    x_main   = c.get("x_main", "")
+    x_engage = c.get("x_engage", "")
+    post_json({
+        "embeds": [{
+            "title": "📱 X投稿文",
+            "color": color,
+            "fields": [
+                {"name": "メイン投稿", "value": f"```\n{x_main[:900]}\n```", "inline": False},
+                {"name": "エンゲージメント狙い", "value": f"```\n{x_engage[:400]}\n```", "inline": False},
+            ]
+        }]
+    })
+
     chunks = [note_text[i:i+1900] for i in range(0, len(note_text), 1900)]
     for i, chunk in enumerate(chunks):
         prefix = "**📝 note本文(コピペして投稿)**\n```\n" if i == 0 else "```\n"
         suffix = "\n```" if i == len(chunks)-1 else "\n```(続く)"
-        post(prefix + chunk + suffix)
- 
-    x_main   = c.get("x_main", "")
-    x_engage = c.get("x_engage", "")
-    post(
-        f"**📱 X投稿文**\n\n"
-        f"**【メイン投稿】**\n```\n{x_main}\n```\n\n"
-        f"**【エンゲージメント狙い】**\n```\n{x_engage}\n```"
-    )
- 
+        post_json({"content": prefix + chunk + suffix})
+
     print("Discord send complete!")
  
  
