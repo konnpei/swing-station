@@ -89,18 +89,8 @@ def fetch_market_data():
                 "usd_jpy":usd_jpy, "sox_pct":sox_pct, "vix":vix}
  
     except Exception as e:
-        print(f"Market data error (using fallback): {e}")
-        ohlcv = [
-            {"date":"6/17","open":69200,"high":69600,"low":68900,"close":69404,"volume":28},
-            {"date":"6/18","open":69300,"high":70100,"low":69100,"close":69750,"volume":33},
-            {"date":"6/19","open":69600,"high":70200,"low":69400,"close":69902,"volume":35},
-            {"date":"6/20","open":69800,"high":70300,"low":69200,"close":70100,"volume":30},
-            {"date":"6/23","open":70000,"high":70400,"low":67400,"close":67541,"volume":55},
-            {"date":"6/24","open":67400,"high":68200,"low":67000,"close":67800,"volume":42},
-            {"date":"6/25","open":67800,"high":68500,"low":67500,"close":68200,"volume":38},
-        ]
-        return {"ohlcv":ohlcv, "latest":ohlcv[-1], "diff":-100, "pct":-0.16,
-                "usd_jpy":155.0, "sox_pct":-2.1, "vix":22.5}
+        print(f"Market data fetch FAILED: {e}")
+        raise RuntimeError(f"市場データ取得失敗。処理を中止します: {e}")
  
  
 
@@ -218,9 +208,11 @@ You write morning briefings for Discord and note at 6:30 AM JST.
 禁止事項:
 - 具体的な株価・価格レンジを書くこと（絶対禁止）
 - 上記の実データに存在しない銘柄コードを使うこと（絶対禁止）
-- 「確実」「必ず」「今週中に底」など断定表現
+- 「確実」「必ず」「今週中に底」「令和最大級」など断定・誇張表現
 - 「機関投資家が買っている」「出来高3倍」など未確認の事実
+- 過去の統計・データの裏付けなしの断定（例：「SOXが-6%後は1ヶ月以内に反発」）
 - エントリーは必ず条件ベース（「MA25付近」「RSI30以下」など）のみ
+- 可能性の話は「〜との見方もある」「〜の可能性がある」など推測表現を使うこと
  
 Character traits:
 - Sharp and witty but insightful
