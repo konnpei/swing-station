@@ -552,10 +552,13 @@ def generate_note(data, mode, c):
         stars   = "★" * sc + "☆" * (10-sc)
         line = (
             f"\n**{i}. {name}（{code}）** [{pattern}] {sc}/10\n"
-            f"📌 エントリー条件：{entry}\n"
-            f"🎯 目標：{target}　🛡️ 損切：{stop}\n"
-            f"📝 {reason}\n"
-            f"💬 _{comment}_\n"
+            f"| 項目 | 内容 |\n"
+            f"|------|------|\n"
+            f"| 📌 エントリー | {entry} |\n"
+            f"| 🎯 目標 | {target} |\n"
+            f"| 🛡️ 損切 | {stop} |\n"
+            f"| 📝 根拠 | {reason} |\n"
+            f"\n> 💬 _{comment}_\n"
         )
         stock_lines.append(line)
     stocks_jp_md = "".join(stock_lines)
@@ -564,10 +567,13 @@ def generate_note(data, mode, c):
     sc = us.get("score", 8)
     us_md = (
         f"\n**10. {us.get('name','')}（{us.get('ticker','')}）** [{us.get('pattern','')}] {sc}/10\n"
-        f"📌 エントリー条件：{us.get('entry','')}\n"
-        f"🎯 目標：{us.get('target','')}　🛡️ 損切：{us.get('stop','')}\n"
-        f"📝 {us.get('reason','')}\n"
-        f"💬 _{us.get('comment','')}_\n"
+        f"| 項目 | 内容 |\n"
+        f"|------|------|\n"
+        f"| 📌 エントリー | {us.get('entry','')} |\n"
+        f"| 🎯 目標 | {us.get('target','')} |\n"
+        f"| 🛡️ 損切 | {us.get('stop','')} |\n"
+        f"| 📝 根拠 | {us.get('reason','')} |\n"
+        f"\n> 💬 _{us.get('comment','')}_\n"
     ) if us else ""
  
     earnings_lines = []
