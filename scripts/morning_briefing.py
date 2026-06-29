@@ -256,8 +256,9 @@ Return ONLY valid JSON (no markdown, no backticks):
   "note_cta": "compelling CTA to note"
 }}
  
-stocks_jp must have 9 Japanese stocks covering these patterns:
+stocks_jpは5銘柄のみ。以下のパターンから5つ選ぶ:
 イベントドリブン/暴落リバウンド/モメンタム/押し目買い/出来高急増/ギャップアップ/セクターローテーション/清原式割安/井村式急回復
+※本日の相場モードに最も合う5パターンを選ぶこと
  
 All text content must be in Japanese. Return ONLY the JSON object."""
  
@@ -539,7 +540,7 @@ def generate_note(data, mode, c):
     news_md = "".join(news_lines)
  
     stock_lines = []
-    for i, s in enumerate(c.get("stocks_jp", []), 1):
+    for i, s in enumerate(c.get("stocks_jp", [])[:4], 1):
         sc      = s.get("score", 7)
         pattern = s.get("pattern", "")
         name    = s.get("name", "")
@@ -630,8 +631,8 @@ def generate_note(data, mode, c):
         f"---\n\n"
         f"## 📰 主要ニュース\n{news_md}\n"
         f"---\n\n"
-        f"## 🎯 本日の注目銘柄 10選\n\n"
-        f"### 🇯🇵 日本株(9銘柄)\n{stocks_jp_md}\n"
+        f"## 🎯 本日の注目銘柄 5選\n\n"
+        f"### 🇯🇵 日本株(4銘柄)\n{stocks_jp_md}\n"
         f"### 🇺🇸 米国株(1銘柄)\n{us_md}\n"
         f"---\n\n"
         f"## 🔔 決算速報\n{earnings_md}\n\n"
@@ -726,7 +727,7 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
         "embeds": [{
             "title": "🎯 本日の注目銘柄 10選",
             "color": color,
-            "fields": stock_fields[:6]
+            "fields": stock_fields[:5]
         }]
     }
     post_json(embed_stocks)
