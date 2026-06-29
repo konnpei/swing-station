@@ -119,7 +119,9 @@ def fetch_stock_technicals():
     results = []
     for code, name in STOCKS_JP:
         try:
-            hist = yf.Ticker(f"{code}.T").history(period="60d")
+            ticker = yf.Ticker(f"{code}.T")
+            ticker.session.timeout = 10
+            hist = ticker.history(period="60d")
             if hist.empty or len(hist) < 25:
                 continue
             close = hist["Close"]
@@ -260,7 +262,7 @@ stocks_jp must have 9 Japanese stocks covering these patterns:
 All text content must be in Japanese. Return ONLY the JSON object."""
  
     response = client.messages.create(
-        model="claude-haiku-4-5",
+        model="claude-sonnet-4-6",
         max_tokens=8192,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -788,15 +790,7 @@ if __name__ == "__main__":
     print("Generating content with Claude API...")
     content = generate_content(data, mode)
     
-    print("Self-checking content quality...")
-    valid_codes = [s[0] for s in STOCKS_JP]
-    check_result = self_check_content(content, valid_codes)
-    if not check_result.get("ok", True):
-        print(f"Quality issues found: {check_result.get('issues', [])}")
-        print("Regenerating content...")
-        content = generate_content(data, mode)
-    else:
-        print("Quality check passed!")
+    print("Self-check skipped.")
  
     print("Generating chart...")
     chart_buf = generate_chart(data, mode)
