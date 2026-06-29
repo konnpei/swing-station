@@ -260,7 +260,7 @@ All text content must be in Japanese. Return ONLY the JSON object."""
  
     response = client.messages.create(
         model="claude-haiku-4-5",
-        max_tokens=4096,
+        max_tokens=8192,
         messages=[{"role": "user", "content": prompt}]
     )
     raw = response.content[0].text.strip()
