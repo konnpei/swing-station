@@ -245,7 +245,7 @@ Return ONLY valid JSON (no markdown, no backticks):
   "events": [{{"date": "date/time", "text": "event", "urgent": true}}],
   "x_main": "main X post under 280 chars with emojis, 3 hashtags, note CTA",
   "x_engage": "engagement post under 200 chars, question format",
-  "note_cta": "compelling CTA to note"
+  "note_cta": "noteマガジンへの自然なCTA。読者が次のアクションを取りたくなる文章。押しつけがましくなく、学びや価値を提供するスタンスで。100文字以内。"
 }}
  
 stocks_jpは5銘柄のみ。以下のパターンから5つ選ぶ:
