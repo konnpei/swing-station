@@ -385,32 +385,38 @@ def generate_chart(data, mode):
  
 
 def self_check_content(content_json, valid_codes):
-    """生成コンテンツをClaudeでセルフチェック"""
+    """生成コンテンツをClaudeでセルフチェック（チャッピー基準）"""
     import json
+    content_str = json.dumps(content_json, ensure_ascii=False, indent=2)[:4000]
     check_prompt = f"""あなたは株式投資コンテンツの品質チェッカーです。
-以下のJSONコンテンツをチェックして、問題があればJSONで返してください。
+以下のJSONコンテンツを厳しくチェックしてください。
 
-チェック項目:
-1. stocks_jpの各銘柄のcodeが以下の有効コードリストに含まれているか: {valid_codes}
-2. entryフィールドに具体的な株価（円）が含まれていないか
-3. 「確実」「必ず」「今週中に底」などの断定表現がないか
-4. reasonフィールドに具体的な株価が含まれていないか
+【チェック項目】
+1. 銘柄コードが有効リストに含まれているか: {valid_codes}
+2. エントリー条件に具体的な株価（例：1200円）が含まれていないか
+3. 以下の断定・誇張表現がないか:
+   - 「確実」「必ず」「令和最大級」「今週中に底」
+   - 「機関投資家が買っている」（未確認の事実）
+   - 統計的裏付けのない断言（例：「SOX-6%後は必ず反発」）
+4. 推測は「〜の可能性がある」「〜との見方もある」になっているか
+5. 銘柄コードと銘柄名が対応しているか（例：8306は三菱UFJ、三井住友は8316）
 
 チェック対象:
-{json.dumps(content_json, ensure_ascii=False, indent=2)[:3000]}
+{content_str}
 
-以下のJSON形式のみで返答してください:
-{{"ok": true}} または {{"ok": false, "issues": ["問題1", "問題2"]}}"""
+以下のJSON形式のみで返答してください（日本語で）:
+{{"ok": true}} または {{"ok": false, "issues": ["問題1", "問題2"], "fixed_fields": {{}}}}"""
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     response = client.messages.create(
         model="claude-haiku-4-5",
-        max_tokens=500,
+        max_tokens=800,
         messages=[{"role": "user", "content": check_prompt}]
     )
     raw = response.content[0].text.strip()
     raw = re.sub(r"^```json\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
+    raw = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", raw)
     try:
         return json.loads(raw)
     except:
@@ -789,7 +795,16 @@ if __name__ == "__main__":
     print("Generating content with Claude API...")
     content = generate_content(data, mode)
     
-    print("Self-check skipped.")
+    print("Running quality check...")
+    valid_codes = [s[0] for s in STOCKS_JP]
+    check_result = self_check_content(content, valid_codes)
+    if not check_result.get("ok", True):
+        issues = check_result.get("issues", [])
+        print(f"Quality issues: {issues}")
+        print("Regenerating...")
+        content = generate_content(data, mode)
+    else:
+        print("Quality check passed!")
  
     print("Generating chart...")
     chart_buf = generate_chart(data, mode)
