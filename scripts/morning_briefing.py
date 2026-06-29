@@ -146,7 +146,8 @@ def fetch_stock_technicals():
                 "ma5": int(ma5), "bb_pos": round(bb_pos, 1),
                 "rsi": rsi, "vol_ratio": vol_ratio,
             })
-        except:
+        except Exception as e:
+            print(f"yfinance error {code}: {e}")
             continue
     return results
 
