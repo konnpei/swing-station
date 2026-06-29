@@ -185,9 +185,15 @@ def generate_content(data, mode):
         stocks = []
     stocks_str = ""
     for s in stocks:
-        bb = "BB下限" if s["bb_pos"] < 20 else ("BB上限" if s["bb_pos"] > 80 else "BB中間")
-        vol = f"出来高{s['vol_ratio']}倍" if s["vol_ratio"] > 1.5 else "出来高普通"
-        stocks_str += f"{s['name']}({s['code']}): 現在{s['price']:,}円 {s['change_pct']:+.1f}% MA25乖離{s['ma25_diff']:+.1f}% RSI{s['rsi']} {bb} {vol}\n"
+        try:
+            bb = "BB下限" if s["bb_pos"] < 20 else ("BB上限" if s["bb_pos"] > 80 else "BB中間")
+            vol = f"出来高{s['vol_ratio']}倍" if s["vol_ratio"] > 1.5 else "出来高普通"
+            stocks_str += f"{s['name']}({s['code']}): 現在{s['price']:,}円 {s['change_pct']:+.1f}% MA25乖離{s['ma25_diff']:+.1f}% RSI{s['rsi']} {bb} {vol}\n"
+        except Exception as e:
+            print(f"Stock format error: {e}")
+            continue
+    if not stocks_str:
+        stocks_str = "株価データ取得失敗。銘柄は上記リストから選択し、価格は書かないこと。"
 
     prompt = f"""You are kabubocchi, a popular swing trader content creator in Japan.
 You write morning briefings for Discord and note at 6:30 AM JST.
