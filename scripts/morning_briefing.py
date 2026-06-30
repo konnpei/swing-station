@@ -8,7 +8,10 @@ Generates and sends to Discord at 6:30 AM JST:
   4. X post text x2
 """
  
-import os, io, json, re
+import os, io, json, re, base64
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from quality_check import run_quality_check
 from datetime import datetime, timezone, timedelta
  
 import requests
