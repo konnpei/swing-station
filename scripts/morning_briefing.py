@@ -783,5 +783,42 @@ if __name__ == "__main__":
  
     print("Sending to Discord...")
     send_to_discord(banner_buf, chart_buf, note_text, content, data, mode)
+
+    print("Saving data/latest.json...")
+    diff = data["diff"]
+    latest_json = {
+        "date": f"{TODAY}",
+        "mode": mode,
+        "market_summary": content.get("market_summary", ""),
+        "nikkei": data["latest"]["close"],
+        "nikkei_diff": int(diff),
+        "nikkei_pct": data["pct"],
+        "usd_jpy": data["usd_jpy"],
+        "sox_pct": data["sox_pct"],
+        "vix": data["vix"],
+        "news": content.get("news", []),
+        "stocks_jp": content.get("stocks_jp", []),
+        "stock_us": content.get("stock_us", {}),
+        "consideration": content.get("consideration", {}),
+        "x_main": content.get("x_main", ""),
+        "note_cta": content.get("note_cta", ""),
+    }
+
+    gh_token = os.environ.get("GH_PAT", "")
+    if gh_token:
+        try:
+            gh_url = "https://api.github.com/repos/konnpei/swing-station/contents/data/latest.json"
+            r_existing = requests.get(gh_url, headers={"Authorization": f"Bearer {gh_token}"})
+            sha_existing = r_existing.json().get("sha") if r_existing.status_code == 200 else None
+            content_b64 = base64.b64encode(json.dumps(latest_json, ensure_ascii=False, indent=2).encode("utf-8")).decode("ascii")
+            body = {"message": f"Update latest.json {TODAY}", "content": content_b64}
+            if sha_existing:
+                body["sha"] = sha_existing
+            r_put = requests.put(gh_url, headers={"Authorization": f"Bearer {gh_token}", "Content-Type": "application/json"}, json=body)
+            print(f"data/latest.json updated: {r_put.status_code}")
+        except Exception as e:
+            print(f"Failed to update data/latest.json: {e}")
+    else:
+        print("GH_PAT not set, skipping data/latest.json update")
  
     print("\nDone! Auto-delivery at 6:30 AM JST daily.")
