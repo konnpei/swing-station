@@ -15,7 +15,7 @@ const QUICK = [
 ];
 
 const TV_SYMBOLS = [
-  { label: "日経平均", tv: "TVC:NI225" },
+  { label: "日経平均", tv: "INDEXNIKKEI:NI225" },
   { label: "S&P500", tv: "SP:SPX" },
   { label: "トヨタ", tv: "TYO:7203", code: "7203" },
   { label: "SBG", tv: "TYO:9984", code: "9984" },
@@ -168,7 +168,7 @@ function BriefingView({ briefing }) {
 
 export default function SwingStation({ briefing }) {
   const [tab, setTab] = useState("briefing");
-  const [tvSymbol, setTvSymbol] = useState("TVC:NI225");
+  const [tvSymbol, setTvSymbol] = useState("INDEXNIKKEI:NI225");
   const [tvInterval, setTvInterval] = useState("D");
   const [customCode, setCustomCode] = useState("");
   const [msgs, setMsgs] = useState([{
