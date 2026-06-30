@@ -79,7 +79,7 @@ function BriefingView({ briefing }) {
   }
 
   const mode = MODE_LABELS[briefing.mode] || MODE_LABELS.normal;
-  const sign = briefing.nikkei_diff >= 0 ? "▲" : "▼";
+  const sign = briefing.nikkei_diff >= 0 ? "+" : "-";
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
