@@ -278,8 +278,9 @@ export default function SwingStation({ briefing }) {
 
         {/* Header */}
         <div style={{ background:"#060710", borderBottom:"1px solid #1a1d2e", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
-          <div style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#7c83ff", animation:"ssG 3s infinite", letterSpacing:2 }}>
-            📈 SWING STATION
+          <img src="/logo.png" alt="かぶぼっち" style={{ width:30, height:30, borderRadius:"50%" }} />
+          <div style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2 }}>
+            SWING STATION
           </div>
           <div style={{ fontSize:8, color:"#3a3a6a", marginLeft:2 }}>月〜金 数日〜1週間特化</div>
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
