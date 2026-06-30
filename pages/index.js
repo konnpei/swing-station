@@ -72,7 +72,7 @@ const Dots = () => (
 function BriefingView({ briefing }) {
   if (!briefing) {
     return (
-      <div style={{ padding: 20, textAlign: "center", color: "#3a3a6a", fontSize: 12 }}>
+      <div style={{ padding: 20, textAlign: "center", color: "#6a6a6a", fontSize: 12 }}>
         朝刊データがまだありません。
       </div>
     );
@@ -88,34 +88,34 @@ function BriefingView({ briefing }) {
         borderRadius: 10, padding: "10px 14px", marginBottom: 12,
       }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: mode.color }}>
-          {mode.emoji} {mode.label} <span style={{ color: "#5a5a8a", fontWeight: 400, fontSize: 10 }}>{briefing.date}</span>
+          {mode.emoji} {mode.label} <span style={{ color: "#8a8a8a", fontWeight: 400, fontSize: 10 }}>{briefing.date}</span>
         </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
-        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#5a5a8a" }}>日経平均</div>
-          <div style={{ fontSize: 15, color: "#e0e4f0", marginTop: 2 }}>{briefing.nikkei?.toLocaleString()}円</div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>日経平均</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.nikkei?.toLocaleString()}円</div>
           <div style={{ fontSize: 10, color: briefing.nikkei_diff >= 0 ? "#00ff9d" : "#ff5566" }}>
             {sign}{Math.abs(briefing.nikkei_diff)?.toLocaleString()}円 ({briefing.nikkei_pct?.toFixed(2)}%)
           </div>
         </div>
-        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#5a5a8a" }}>ドル円</div>
-          <div style={{ fontSize: 15, color: "#e0e4f0", marginTop: 2 }}>{briefing.usd_jpy}円</div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>ドル円</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.usd_jpy}円</div>
         </div>
-        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#5a5a8a" }}>SOX指数</div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>SOX指数</div>
           <div style={{ fontSize: 15, color: briefing.sox_pct >= 0 ? "#00ff9d" : "#ff5566", marginTop: 2 }}>{briefing.sox_pct?.toFixed(1)}%</div>
         </div>
-        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#5a5a8a" }}>VIX</div>
-          <div style={{ fontSize: 15, color: "#e0e4f0", marginTop: 2 }}>{briefing.vix}</div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>VIX</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.vix}</div>
         </div>
       </div>
 
       {briefing.market_summary && (
-        <div style={{ fontSize: 11.5, lineHeight: 1.8, color: "#a0aac0", marginBottom: 16, padding: "0 2px" }}>
+        <div style={{ fontSize: 11.5, lineHeight: 1.8, color: "#b8b8b8", marginBottom: 16, padding: "0 2px" }}>
           {briefing.market_summary}
         </div>
       )}
@@ -127,20 +127,20 @@ function BriefingView({ briefing }) {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
             {briefing.stocks_jp.map((s, i) => (
-              <div key={i} style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, padding: "10px 12px" }}>
+              <div key={i} style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
                   <div>
                     <span style={{ fontSize: 9, color: "#e8e8e8", background: "#e8e8e818", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
-                    <div style={{ fontSize: 13, color: "#e0e4f0", marginTop: 4 }}>{s.name}<span style={{ color: "#5a5a8a", fontSize: 10 }}> ({s.code})</span></div>
+                    <div style={{ fontSize: 13, color: "#eeeeee", marginTop: 4 }}>{s.name}<span style={{ color: "#8a8a8a", fontSize: 10 }}> ({s.code})</span></div>
                   </div>
                   <div style={{ fontSize: 12, color: "#ffd166" }}>{s.score}/10</div>
                 </div>
-                <div style={{ fontSize: 10, color: "#7a8aaa", marginBottom: 4 }}>📌 {s.entry}</div>
-                <div style={{ fontSize: 10, color: "#7a8aaa", marginBottom: 4, display: "flex", gap: 12 }}>
+                <div style={{ fontSize: 10, color: "#9a9a9a", marginBottom: 4 }}>📌 {s.entry}</div>
+                <div style={{ fontSize: 10, color: "#9a9a9a", marginBottom: 4, display: "flex", gap: 12 }}>
                   <span>🎯 目標 <strong style={{color:"#00ff9d"}}>{s.target}</strong></span>
                   <span>🛡️ 損切 <strong style={{color:"#ff5566"}}>{s.stop}</strong></span>
                 </div>
-                <div style={{ fontSize: 10, color: "#5a6080", fontStyle: "italic" }}>💬 {s.comment}</div>
+                <div style={{ fontSize: 10, color: "#787878", fontStyle: "italic" }}>💬 {s.comment}</div>
               </div>
             ))}
           </div>
@@ -148,18 +148,18 @@ function BriefingView({ briefing }) {
       )}
 
       {briefing.consideration?.main && (
-        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>🧠 かぶぼっちの考察</div>
-          <div style={{ fontSize: 11, lineHeight: 1.7, color: "#a0aac0" }}>{briefing.consideration.main}</div>
+          <div style={{ fontSize: 11, lineHeight: 1.7, color: "#b8b8b8" }}>{briefing.consideration.main}</div>
         </div>
       )}
 
       <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
-        <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>📝 note</a>
-        <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>𝕏 X</a>
+        <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#121212", border: "1px solid #262626", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>📝 note</a>
+        <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#121212", border: "1px solid #262626", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>𝕏 X</a>
       </div>
 
-      <div style={{ fontSize: 9, color: "#3a3a6a", textAlign: "center", marginTop: 18 }}>
+      <div style={{ fontSize: 9, color: "#6a6a6a", textAlign: "center", marginTop: 18 }}>
         swing-station | かぶぼっち | ※投資勧誘ではありません
       </div>
     </div>
@@ -262,7 +262,7 @@ export default function SwingStation({ briefing }) {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@800;900&display=swap" rel="stylesheet" />
       </Head>
-      <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#08090e", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#c0c8dc" }}>
+      <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#0a0a0a", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#d0d0d0" }}>
         <style>{`
           @keyframes ssB{0%,80%,100%{opacity:.15}40%{opacity:1}}
           @keyframes ssG{0%,100%{text-shadow:0 0 14px #e8e8e870}50%{text-shadow:0 0 5px #e8e8e835}}
@@ -277,18 +277,18 @@ export default function SwingStation({ briefing }) {
         `}</style>
 
         {/* Header */}
-        <div style={{ background:"#060710", borderBottom:"1px solid #1a1d2e", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
+        <div style={{ background:"#080808", borderBottom:"1px solid #262626", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
           <img src="/logo.png" alt="かぶぼっち" style={{ width:30, height:30, borderRadius:"50%" }} />
           <div style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2 }}>
             SWING STATION
           </div>
-          <div style={{ fontSize:8, color:"#3a3a6a", marginLeft:2 }}>月〜金 数日〜1週間特化</div>
+          <div style={{ fontSize:8, color:"#6a6a6a", marginLeft:2 }}>月〜金 数日〜1週間特化</div>
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
             <div style={{
               padding:"2px 8px", borderRadius:8, fontSize:9,
-              background: todayInfo.isMarketOpen ? "#0a2a0a" : "#1a1a2a",
-              border: `1px solid ${todayInfo.isMarketOpen ? "#00ff9d33" : "#3a3a5a"}`,
-              color: todayInfo.isMarketOpen ? "#00ff9d" : "#5a5a8a",
+              background: todayInfo.isMarketOpen ? "#0a2a0a" : "#161616",
+              border: `1px solid ${todayInfo.isMarketOpen ? "#00ff9d33" : "#5a5a5a"}`,
+              color: todayInfo.isMarketOpen ? "#00ff9d" : "#8a8a8a",
             }}>
               {todayInfo.isMarketOpen ? "🟢 東証OPEN" : todayInfo.isUSMarket ? "🟡 NY OPEN" : `⚫ ${todayInfo.day}曜`}
             </div>
@@ -298,26 +298,26 @@ export default function SwingStation({ briefing }) {
         </div>
 
         {/* Tabs */}
-        <div style={{ display:"flex", background:"#060710", borderBottom:"1px solid #141620", flexShrink:0 }}>
+        <div style={{ display:"flex", background:"#080808", borderBottom:"1px solid #1f1f1f", flexShrink:0 }}>
           {[{id:"briefing",label:"📰 朝刊"},{id:"chart",label:"📊 チャート"},{id:"chat",label:"💬 AI分析"}].map(t => (
             <B key={t.id} onClick={() => setTab(t.id)} style={{
               flex:1, padding:"8px", fontSize:11,
-              background: tab===t.id ? "#0c0e1e" : "transparent",
+              background: tab===t.id ? "#121212" : "transparent",
               borderBottom: tab===t.id ? "2px solid #e8e8e8" : "2px solid transparent",
-              color: tab===t.id ? "#e8e8e8" : "#3a4060",
+              color: tab===t.id ? "#e8e8e8" : "#5a5a5a",
             }}>{t.label}</B>
           ))}
         </div>
 
         {/* Symbol bar (only on chart tab) */}
         {tab === "chart" && (
-          <div style={{ display:"flex", gap:5, padding:"5px 10px", overflowX:"auto", background:"#070810", borderBottom:"1px solid #141620", flexShrink:0, alignItems:"center" }}>
+          <div style={{ display:"flex", gap:5, padding:"5px 10px", overflowX:"auto", background:"#0d0d0d", borderBottom:"1px solid #1f1f1f", flexShrink:0, alignItems:"center" }}>
             {TV_SYMBOLS.map((s, i) => (
               <B key={i} onClick={() => changeSymbol(s.tv, s.code)} style={{
                 whiteSpace:"nowrap", padding:"4px 10px",
-                background: tvSymbol===s.tv ? "#2a2a2a" : "#0e0f20",
-                border:`1px solid ${tvSymbol===s.tv ? "#e8e8e855" : "#1a1d2e"}`,
-                borderRadius:14, color: tvSymbol===s.tv ? "#e8e8e8" : "#4a5070",
+                background: tvSymbol===s.tv ? "#2a2a2a" : "#161616",
+                border:`1px solid ${tvSymbol===s.tv ? "#e8e8e855" : "#262626"}`,
+                borderRadius:14, color: tvSymbol===s.tv ? "#e8e8e8" : "#707070",
                 fontSize:10, flexShrink:0,
               }}>{s.label}</B>
             ))}
@@ -331,25 +331,25 @@ export default function SwingStation({ briefing }) {
               }}
               placeholder="コード"
               maxLength={4}
-              style={{ width:60, padding:"4px 8px", background:"#0e0f20", border:"1px solid #1a1d2e", borderRadius:14, color:"#7a8aaa", fontSize:10, outline:"none", fontFamily:"inherit" }}
+              style={{ width:60, padding:"4px 8px", background:"#161616", border:"1px solid #262626", borderRadius:14, color:"#9a9a9a", fontSize:10, outline:"none", fontFamily:"inherit" }}
               onFocus={e => e.target.style.borderColor="#e8e8e855"}
-              onBlur={e => e.target.style.borderColor="#1a1d2e"}
+              onBlur={e => e.target.style.borderColor="#262626"}
             />
           </div>
         )}
 
         {tab === "chart" && (
-          <div style={{ display:"flex", gap:5, padding:"4px 10px", background:"#060710", borderBottom:"1px solid #141620", flexShrink:0, alignItems:"center" }}>
+          <div style={{ display:"flex", gap:5, padding:"4px 10px", background:"#080808", borderBottom:"1px solid #1f1f1f", flexShrink:0, alignItems:"center" }}>
             {TV_INTERVALS.map(iv => (
               <B key={iv.val} onClick={() => { setTvInterval(iv.val); setTab("chart"); }} style={{
                 padding:"3px 11px",
                 background: tvInterval===iv.val ? "#2a2a2a" : "transparent",
-                border:`1px solid ${tvInterval===iv.val ? "#e8e8e855" : "#1a1d2e"}`,
-                borderRadius:10, color: tvInterval===iv.val ? "#e8e8e8" : "#3a4060",
+                border:`1px solid ${tvInterval===iv.val ? "#e8e8e855" : "#262626"}`,
+                borderRadius:10, color: tvInterval===iv.val ? "#e8e8e8" : "#5a5a5a",
                 fontSize:10,
               }}>{iv.label}</B>
             ))}
-            <div style={{ marginLeft:"auto", fontSize:8, color:"#2a2a5a" }}>RSI・MACD・BB</div>
+            <div style={{ marginLeft:"auto", fontSize:8, color:"#5a5a5a" }}>RSI・MACD・BB</div>
           </div>
         )}
 
@@ -364,7 +364,7 @@ export default function SwingStation({ briefing }) {
           {/* Chart */}
           <div style={{ display:tab==="chart"?"block":"none", height:"100%", padding:4 }}>
             {!chartReady && tab==="chart" && (
-              <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", color:"#3a3a6a", fontSize:11, zIndex:1 }}>
+              <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", color:"#6a6a6a", fontSize:11, zIndex:1 }}>
                 チャート読み込み中...
               </div>
             )}
@@ -375,12 +375,12 @@ export default function SwingStation({ briefing }) {
           <div style={{ display:tab==="chat"?"flex":"none", flexDirection:"column", height:"100%" }}>
 
             {/* Quick buttons */}
-            <div style={{ display:"flex", gap:5, padding:"5px 10px", overflowX:"auto", background:"#070810", borderBottom:"1px solid #141620", flexShrink:0 }}>
+            <div style={{ display:"flex", gap:5, padding:"5px 10px", overflowX:"auto", background:"#0d0d0d", borderBottom:"1px solid #1f1f1f", flexShrink:0 }}>
               {QUICK.map((q,i) => (
                 <B key={i} onClick={() => send(q.text)} disabled={loading} style={{
                   whiteSpace:"nowrap", padding:"4px 10px",
-                  background:"#0e0f20", border:"1px solid #1a1d2e",
-                  borderRadius:14, color:"#4a5080", fontSize:10,
+                  background:"#161616", border:"1px solid #262626",
+                  borderRadius:14, color:"#707070", fontSize:10,
                   opacity:loading ? .4 : 1, flexShrink:0,
                 }}>{q.label}</B>
               ))}
@@ -396,9 +396,9 @@ export default function SwingStation({ briefing }) {
                   <div style={{
                     maxWidth:"82%", padding:"8px 12px", fontSize:12, lineHeight:1.7,
                     borderRadius:m.role==="user"?"14px 14px 4px 14px":"4px 14px 14px 14px",
-                    background:m.role==="user"?"linear-gradient(135deg,#2a2a2a,#1a1a1a)":"#0c0e1e",
-                    border:`1px solid ${m.role==="user"?"#e8e8e830":"#1a1d2e"}`,
-                    color:m.role==="user"?"#e8e8e8":"#a0aac0",
+                    background:m.role==="user"?"linear-gradient(135deg,#2a2a2a,#1a1a1a)":"#121212",
+                    border:`1px solid ${m.role==="user"?"#e8e8e830":"#262626"}`,
+                    color:m.role==="user"?"#e8e8e8":"#b8b8b8",
                   }}>
                     {m.role==="assistant" ? renderContent(m.content) : m.content}
                   </div>
@@ -408,7 +408,7 @@ export default function SwingStation({ briefing }) {
               {loading && (
                 <div style={{ display:"flex", alignItems:"flex-start", animation:"ssFU .2s ease-out" }}>
                   <div style={{ width:24, height:24, borderRadius:6, flexShrink:0, background:"linear-gradient(135deg,#e8e8e818,#80808018)", border:"1px solid #e8e8e830", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, marginRight:6 }}>🤖</div>
-                  <div style={{ padding:"8px 12px", borderRadius:"4px 14px 14px 14px", background:"#0c0e1e", border:"1px solid #1a1d2e", minWidth:60 }}>
+                  <div style={{ padding:"8px 12px", borderRadius:"4px 14px 14px 14px", background:"#121212", border:"1px solid #262626", minWidth:60 }}>
                     <Dots/>
                   </div>
                 </div>
@@ -417,21 +417,21 @@ export default function SwingStation({ briefing }) {
             </div>
 
             {/* Input */}
-            <div style={{ padding:"8px 10px 14px", background:"#060710", borderTop:"1px solid #141620", display:"flex", gap:7, alignItems:"center", flexShrink:0 }}>
+            <div style={{ padding:"8px 10px 14px", background:"#080808", borderTop:"1px solid #1f1f1f", display:"flex", gap:7, alignItems:"center", flexShrink:0 }}>
               <input
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if(e.key==="Enter"){ e.preventDefault(); send(); } }}
                 placeholder="銘柄コード（7203など）や質問…"
-                style={{ flex:1, padding:"11px 14px", background:"#0c0e1e", border:"1px solid #1a1d2e", borderRadius:22, color:"#a0aac0", fontSize:12, outline:"none", fontFamily:"inherit" }}
+                style={{ flex:1, padding:"11px 14px", background:"#121212", border:"1px solid #262626", borderRadius:22, color:"#b8b8b8", fontSize:12, outline:"none", fontFamily:"inherit" }}
                 onFocus={e => e.target.style.borderColor="#e8e8e855"}
-                onBlur={e => e.target.style.borderColor="#1a1d2e"}
+                onBlur={e => e.target.style.borderColor="#262626"}
               />
               <B onClick={() => send()} disabled={loading||!input.trim()} style={{
                 width:44, height:44, borderRadius:"50%", flexShrink:0,
-                background:(loading||!input.trim())?"#0c0e1e":"linear-gradient(135deg,#888888,#444444)",
-                border:`2px solid ${(loading||!input.trim())?"#1a1d2e":"#e8e8e860"}`,
-                color:(loading||!input.trim())?"#2a2a4a":"#fff",
+                background:(loading||!input.trim())?"#121212":"linear-gradient(135deg,#888888,#444444)",
+                border:`2px solid ${(loading||!input.trim())?"#262626":"#e8e8e860"}`,
+                color:(loading||!input.trim())?"#1a1a1a":"#fff",
                 fontSize:18,
               }}>↑</B>
             </div>
