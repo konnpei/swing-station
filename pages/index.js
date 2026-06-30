@@ -53,7 +53,7 @@ function renderContent(text) {
     if (!line.trim()) return <div key={i} style={{ height: 4 }} />;
     const html = line
       .replace(/\*\*(.*?)\*\*/g, "<strong style='color:#ffe08a'>$1</strong>")
-      .replace(/`(.*?)`/g, "<code style='background:#1a1a3a;color:#7c83ff;padding:1px 4px;border-radius:3px;font-size:11px'>$1</code>");
+      .replace(/`(.*?)`/g, "<code style='background:#2a2a2a;color:#e8e8e8;padding:1px 4px;border-radius:3px;font-size:11px'>$1</code>");
     return <div key={i} style={{ lineHeight: 1.75 }} dangerouslySetInnerHTML={{ __html: html }} />;
   });
 }
@@ -62,7 +62,7 @@ const Dots = () => (
   <span style={{ display: "inline-flex", gap: 4, alignItems: "center" }}>
     {[0,1,2].map(i => (
       <span key={i} style={{
-        width: 6, height: 6, borderRadius: "50%", background: "#7c83ff",
+        width: 6, height: 6, borderRadius: "50%", background: "#e8e8e8",
         animation: `ssB 1.2s ${i*.2}s infinite`,
       }} />
     ))}
@@ -122,7 +122,7 @@ function BriefingView({ briefing }) {
 
       {briefing.stocks_jp?.length > 0 && (
         <>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#7c83ff", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>
             🎯 本日の注目銘柄
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
@@ -130,7 +130,7 @@ function BriefingView({ briefing }) {
               <div key={i} style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, padding: "10px 12px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
                   <div>
-                    <span style={{ fontSize: 9, color: "#7c83ff", background: "#7c83ff18", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
+                    <span style={{ fontSize: 9, color: "#e8e8e8", background: "#e8e8e818", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
                     <div style={{ fontSize: 13, color: "#e0e4f0", marginTop: 4 }}>{s.name}<span style={{ color: "#5a5a8a", fontSize: 10 }}> ({s.code})</span></div>
                   </div>
                   <div style={{ fontSize: 12, color: "#ffd166" }}>{s.score}/10</div>
@@ -149,14 +149,14 @@ function BriefingView({ briefing }) {
 
       {briefing.consideration?.main && (
         <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#7c83ff", marginBottom: 6 }}>🧠 かぶぼっちの考察</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>🧠 かぶぼっちの考察</div>
           <div style={{ fontSize: 11, lineHeight: 1.7, color: "#a0aac0" }}>{briefing.consideration.main}</div>
         </div>
       )}
 
       <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
-        <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, color: "#7c83ff", fontSize: 11, textDecoration: "none" }}>📝 note</a>
-        <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, color: "#7c83ff", fontSize: 11, textDecoration: "none" }}>𝕏 X</a>
+        <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>📝 note</a>
+        <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>𝕏 X</a>
       </div>
 
       <div style={{ fontSize: 9, color: "#3a3a6a", textAlign: "center", marginTop: 18 }}>
@@ -265,14 +265,14 @@ export default function SwingStation({ briefing }) {
       <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#08090e", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#c0c8dc" }}>
         <style>{`
           @keyframes ssB{0%,80%,100%{opacity:.15}40%{opacity:1}}
-          @keyframes ssG{0%,100%{text-shadow:0 0 14px #7c83ff80}50%{text-shadow:0 0 5px #7c83ff30}}
+          @keyframes ssG{0%,100%{text-shadow:0 0 14px #e8e8e870}50%{text-shadow:0 0 5px #e8e8e835}}
           @keyframes ssP{0%,100%{opacity:1}50%{opacity:.2}}
           @keyframes ssSpin{to{transform:rotate(360deg)}}
           @keyframes ssFU{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
           *{box-sizing:border-box}
           html,body{height:100%;margin:0;padding:0}
           ::-webkit-scrollbar{width:3px}
-          ::-webkit-scrollbar-thumb{background:#7c83ff25;border-radius:2px}
+          ::-webkit-scrollbar-thumb{background:#e8e8e825;border-radius:2px}
           button{cursor:pointer}
         `}</style>
 
@@ -292,8 +292,8 @@ export default function SwingStation({ briefing }) {
             }}>
               {todayInfo.isMarketOpen ? "🟢 東証OPEN" : todayInfo.isUSMarket ? "🟡 NY OPEN" : `⚫ ${todayInfo.day}曜`}
             </div>
-            {loading && <span style={{ width:9, height:9, border:"1.5px solid #7c83ff30", borderTop:"1.5px solid #7c83ff", borderRadius:"50%", display:"inline-block", animation:"ssSpin .8s linear infinite" }}/>}
-            <div style={{ width:5, height:5, borderRadius:"50%", background:"#7c83ff", animation:"ssP 2s infinite" }}/>
+            {loading && <span style={{ width:9, height:9, border:"1.5px solid #e8e8e835", borderTop:"1.5px solid #e8e8e8", borderRadius:"50%", display:"inline-block", animation:"ssSpin .8s linear infinite" }}/>}
+            <div style={{ width:5, height:5, borderRadius:"50%", background:"#e8e8e8", animation:"ssP 2s infinite" }}/>
           </div>
         </div>
 
@@ -303,8 +303,8 @@ export default function SwingStation({ briefing }) {
             <B key={t.id} onClick={() => setTab(t.id)} style={{
               flex:1, padding:"8px", fontSize:11,
               background: tab===t.id ? "#0c0e1e" : "transparent",
-              borderBottom: tab===t.id ? "2px solid #7c83ff" : "2px solid transparent",
-              color: tab===t.id ? "#7c83ff" : "#3a4060",
+              borderBottom: tab===t.id ? "2px solid #e8e8e8" : "2px solid transparent",
+              color: tab===t.id ? "#e8e8e8" : "#3a4060",
             }}>{t.label}</B>
           ))}
         </div>
@@ -315,9 +315,9 @@ export default function SwingStation({ briefing }) {
             {TV_SYMBOLS.map((s, i) => (
               <B key={i} onClick={() => changeSymbol(s.tv, s.code)} style={{
                 whiteSpace:"nowrap", padding:"4px 10px",
-                background: tvSymbol===s.tv ? "#1a1a3a" : "#0e0f20",
-                border:`1px solid ${tvSymbol===s.tv ? "#7c83ff44" : "#1a1d2e"}`,
-                borderRadius:14, color: tvSymbol===s.tv ? "#7c83ff" : "#4a5070",
+                background: tvSymbol===s.tv ? "#2a2a2a" : "#0e0f20",
+                border:`1px solid ${tvSymbol===s.tv ? "#e8e8e855" : "#1a1d2e"}`,
+                borderRadius:14, color: tvSymbol===s.tv ? "#e8e8e8" : "#4a5070",
                 fontSize:10, flexShrink:0,
               }}>{s.label}</B>
             ))}
@@ -332,7 +332,7 @@ export default function SwingStation({ briefing }) {
               placeholder="コード"
               maxLength={4}
               style={{ width:60, padding:"4px 8px", background:"#0e0f20", border:"1px solid #1a1d2e", borderRadius:14, color:"#7a8aaa", fontSize:10, outline:"none", fontFamily:"inherit" }}
-              onFocus={e => e.target.style.borderColor="#7c83ff44"}
+              onFocus={e => e.target.style.borderColor="#e8e8e855"}
               onBlur={e => e.target.style.borderColor="#1a1d2e"}
             />
           </div>
@@ -343,9 +343,9 @@ export default function SwingStation({ briefing }) {
             {TV_INTERVALS.map(iv => (
               <B key={iv.val} onClick={() => { setTvInterval(iv.val); setTab("chart"); }} style={{
                 padding:"3px 11px",
-                background: tvInterval===iv.val ? "#1a1a3a" : "transparent",
-                border:`1px solid ${tvInterval===iv.val ? "#7c83ff44" : "#1a1d2e"}`,
-                borderRadius:10, color: tvInterval===iv.val ? "#7c83ff" : "#3a4060",
+                background: tvInterval===iv.val ? "#2a2a2a" : "transparent",
+                border:`1px solid ${tvInterval===iv.val ? "#e8e8e855" : "#1a1d2e"}`,
+                borderRadius:10, color: tvInterval===iv.val ? "#e8e8e8" : "#3a4060",
                 fontSize:10,
               }}>{iv.label}</B>
             ))}
@@ -391,14 +391,14 @@ export default function SwingStation({ briefing }) {
               {msgs.map((m,i) => (
                 <div key={i} style={{ display:"flex", justifyContent:m.role==="user"?"flex-end":"flex-start", animation:"ssFU .2s ease-out" }}>
                   {m.role==="assistant" && (
-                    <div style={{ width:24, height:24, borderRadius:6, flexShrink:0, background:"linear-gradient(135deg,#7c83ff18,#4a50ff18)", border:"1px solid #7c83ff28", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, marginRight:6, marginTop:2 }}>🤖</div>
+                    <div style={{ width:24, height:24, borderRadius:6, flexShrink:0, background:"linear-gradient(135deg,#e8e8e818,#80808018)", border:"1px solid #e8e8e830", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, marginRight:6, marginTop:2 }}>🤖</div>
                   )}
                   <div style={{
                     maxWidth:"82%", padding:"8px 12px", fontSize:12, lineHeight:1.7,
                     borderRadius:m.role==="user"?"14px 14px 4px 14px":"4px 14px 14px 14px",
-                    background:m.role==="user"?"linear-gradient(135deg,#1a1a3a,#0e0e28)":"#0c0e1e",
-                    border:`1px solid ${m.role==="user"?"#7c83ff28":"#1a1d2e"}`,
-                    color:m.role==="user"?"#9a9fff":"#a0aac0",
+                    background:m.role==="user"?"linear-gradient(135deg,#2a2a2a,#1a1a1a)":"#0c0e1e",
+                    border:`1px solid ${m.role==="user"?"#e8e8e830":"#1a1d2e"}`,
+                    color:m.role==="user"?"#e8e8e8":"#a0aac0",
                   }}>
                     {m.role==="assistant" ? renderContent(m.content) : m.content}
                   </div>
@@ -407,7 +407,7 @@ export default function SwingStation({ briefing }) {
 
               {loading && (
                 <div style={{ display:"flex", alignItems:"flex-start", animation:"ssFU .2s ease-out" }}>
-                  <div style={{ width:24, height:24, borderRadius:6, flexShrink:0, background:"linear-gradient(135deg,#7c83ff18,#4a50ff18)", border:"1px solid #7c83ff28", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, marginRight:6 }}>🤖</div>
+                  <div style={{ width:24, height:24, borderRadius:6, flexShrink:0, background:"linear-gradient(135deg,#e8e8e818,#80808018)", border:"1px solid #e8e8e830", display:"flex", alignItems:"center", justifyContent:"center", fontSize:12, marginRight:6 }}>🤖</div>
                   <div style={{ padding:"8px 12px", borderRadius:"4px 14px 14px 14px", background:"#0c0e1e", border:"1px solid #1a1d2e", minWidth:60 }}>
                     <Dots/>
                   </div>
@@ -424,13 +424,13 @@ export default function SwingStation({ briefing }) {
                 onKeyDown={e => { if(e.key==="Enter"){ e.preventDefault(); send(); } }}
                 placeholder="銘柄コード（7203など）や質問…"
                 style={{ flex:1, padding:"11px 14px", background:"#0c0e1e", border:"1px solid #1a1d2e", borderRadius:22, color:"#a0aac0", fontSize:12, outline:"none", fontFamily:"inherit" }}
-                onFocus={e => e.target.style.borderColor="#7c83ff44"}
+                onFocus={e => e.target.style.borderColor="#e8e8e855"}
                 onBlur={e => e.target.style.borderColor="#1a1d2e"}
               />
               <B onClick={() => send()} disabled={loading||!input.trim()} style={{
                 width:44, height:44, borderRadius:"50%", flexShrink:0,
-                background:(loading||!input.trim())?"#0c0e1e":"linear-gradient(135deg,#5c63df,#3a40af)",
-                border:`2px solid ${(loading||!input.trim())?"#1a1d2e":"#7c83ff55"}`,
+                background:(loading||!input.trim())?"#0c0e1e":"linear-gradient(135deg,#888888,#444444)",
+                border:`2px solid ${(loading||!input.trim())?"#1a1d2e":"#e8e8e860"}`,
                 color:(loading||!input.trim())?"#2a2a4a":"#fff",
                 fontSize:18,
               }}>↑</B>
