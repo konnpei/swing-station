@@ -136,7 +136,10 @@ function BriefingView({ briefing }) {
                   <div style={{ fontSize: 12, color: "#ffd166" }}>{s.score}/10</div>
                 </div>
                 <div style={{ fontSize: 10, color: "#7a8aaa", marginBottom: 4 }}>📌 {s.entry}</div>
-                <div style={{ fontSize: 10, color: "#7a8aaa", marginBottom: 4 }}>🎯 {s.target} 🛡️ {s.stop}</div>
+                <div style={{ fontSize: 10, color: "#7a8aaa", marginBottom: 4, display: "flex", gap: 12 }}>
+                  <span>🎯 目標 <strong style={{color:"#00ff9d"}}>{s.target}</strong></span>
+                  <span>🛡️ 損切 <strong style={{color:"#ff5566"}}>{s.stop}</strong></span>
+                </div>
                 <div style={{ fontSize: 10, color: "#5a6080", fontStyle: "italic" }}>💬 {s.comment}</div>
               </div>
             ))}
