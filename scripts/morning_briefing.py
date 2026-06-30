@@ -804,7 +804,8 @@ if __name__ == "__main__":
         "stocks_jp": content.get("stocks_jp", []),
         "stock_us": content.get("stock_us", {}),
         "consideration": content.get("consideration", {}),
-        "events": content.get("events", []),
+        "events_jp": content.get("events_jp", []),
+        "events_us": content.get("events_us", []),
         "x_main": content.get("x_main", ""),
         "note_cta": content.get("note_cta", ""),
     }
