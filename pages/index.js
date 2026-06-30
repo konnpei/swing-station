@@ -133,7 +133,7 @@ function BriefingView({ briefing }) {
                     <span style={{ fontSize: 9, color: "#e8e8e8", background: "#e8e8e818", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
                     <div style={{ fontSize: 13, color: "#eeeeee", marginTop: 4 }}>{s.name}<span style={{ color: "#8a8a8a", fontSize: 10 }}> ({s.code})</span></div>
                   </div>
-                  <div style={{ fontSize: 12, color: "#ffd166" }}>{s.score}/10</div>
+                  <div style={{ textAlign:"right" }}><div style={{ fontSize: 9, color:"#8a8a8a" }}>総合スコア</div><div style={{ fontSize: 14, color: "#ffd166", fontWeight:500 }}>{s.score}<span style={{fontSize:10,color:"#8a8a8a"}}>/10</span></div></div>
                 </div>
                 <div style={{ fontSize: 10, color: "#9a9a9a", marginBottom: 4 }}>📌 {s.entry}</div>
                 <div style={{ fontSize: 10, color: "#9a9a9a", marginBottom: 4, display: "flex", gap: 12 }}>
@@ -280,7 +280,7 @@ export default function SwingStation({ briefing }) {
         <div style={{ background:"#080808", borderBottom:"1px solid #262626", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
           <img src="/logo.png" alt="かぶぼっち" style={{ width:30, height:30, borderRadius:"50%" }} />
           <div style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2 }}>
-            SWING STATION
+            KabuBocchi
           </div>
           <div style={{ fontSize:8, color:"#6a6a6a", marginLeft:2 }}>月〜金 数日〜1週間特化</div>
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
@@ -299,7 +299,7 @@ export default function SwingStation({ briefing }) {
 
         {/* Tabs */}
         <div style={{ display:"flex", background:"#080808", borderBottom:"1px solid #1f1f1f", flexShrink:0 }}>
-          {[{id:"briefing",label:"📰 朝刊"},{id:"chart",label:"📊 チャート"},{id:"chat",label:"💬 AI分析"}].map(t => (
+          {[{id:"briefing",label:"📰 朝刊"},{id:"chart",label:"📊 日本株"}].map(t => (
             <B key={t.id} onClick={() => setTab(t.id)} style={{
               flex:1, padding:"8px", fontSize:11,
               background: tab===t.id ? "#121212" : "transparent",
