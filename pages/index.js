@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 
 const TV_SYMBOLS_JP = [
-  { label: "日経平均", tv: "INDEXNIKKEI:NI225" },
+  { label: "日経平均", tv: "CURRENCYCOM:JP225" },
   { label: "トヨタ", tv: "TYO:7203", code: "7203" },
   { label: "SBG", tv: "TYO:9984", code: "9984" },
   { label: "ドル円", tv: "FX:USDJPY" },
@@ -167,7 +167,7 @@ function CalendarView({ briefing }) {
 
 export default function SwingStation({ briefing }) {
   const [tab, setTab] = useState("briefing");
-  const [tvSymbolJp, setTvSymbolJp] = useState("INDEXNIKKEI:NI225");
+  const [tvSymbolJp, setTvSymbolJp] = useState("CURRENCYCOM:JP225");
   const [tvSymbolUs, setTvSymbolUs] = useState("SP:SPX");
   const [tvInterval, setTvInterval] = useState("D");
   const [customCode, setCustomCode] = useState("");
