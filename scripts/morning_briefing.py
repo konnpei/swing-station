@@ -726,11 +726,17 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
         "chart":  ("chart.png",  chart_buf,  "image/png"),
     })
 
+    chunks = [note_text[i:i+1900] for i in range(0, len(note_text), 1900)]
+    for i, chunk in enumerate(chunks):
+        prefix = "**📝 note本文(コピペして投稿)**\n```\n" if i == 0 else "```\n"
+        suffix = "\n```" if i == len(chunks)-1 else "\n```(続く)"
+        post_json({"content": prefix + chunk + suffix})
+
     x_main   = c.get("x_main", "")
     x_engage = c.get("x_engage", "")
     post_json({
         "embeds": [{
-            "title": "📱 X投稿文",
+            "title": "📱 X投稿文（コピペしてそのまま投稿）",
             "color": color,
             "fields": [
                 {"name": "メイン投稿", "value": f"```\n{x_main[:900]}\n```", "inline": False},
@@ -738,12 +744,6 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
             ]
         }]
     })
-
-    chunks = [note_text[i:i+1900] for i in range(0, len(note_text), 1900)]
-    for i, chunk in enumerate(chunks):
-        prefix = "**📝 note本文(コピペして投稿)**\n```\n" if i == 0 else "```\n"
-        suffix = "\n```" if i == len(chunks)-1 else "\n```(続く)"
-        post_json({"content": prefix + chunk + suffix})
 
     print("Discord send complete!")
  
