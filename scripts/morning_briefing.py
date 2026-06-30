@@ -245,7 +245,8 @@ Return ONLY valid JSON (no markdown, no backticks):
     "action": "specific action for readers"
   }},
   "strategy": ["5 specific strategies with actions and rationale"],
-  "events": [{{"date": "date/time", "text": "event", "urgent": true}}],
+  "events_jp": [{{"date": "YYYY-MM-DD", "text": "日本の経済イベント（日銀会合、決算発表、経済指標等）", "urgent": true}}],
+  "events_us": [{{"date": "YYYY-MM-DD", "text": "米国の経済イベント（FOMC、雇用統計、CPI等）", "urgent": true}}],
   "x_main": "main X post under 280 chars with emojis, 3 hashtags, note CTA",
   "x_engage": "engagement post under 200 chars, question format",
   "note_cta": "noteマガジンへの自然なCTA。読者が次のアクションを取りたくなる文章。押しつけがましくなく、学びや価値を提供するスタンスで。100文字以内。"
