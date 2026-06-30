@@ -249,7 +249,7 @@ Return ONLY valid JSON (no markdown, no backticks):
   "events_us": [{{"date": "YYYY-MM-DD", "text": "米国の経済イベント（FOMC、雇用統計、CPI等）", "urgent": true}}],
   "x_main": "main X post under 280 chars with emojis, 3 hashtags, note CTA",
   "x_engage": "engagement post under 200 chars, question format",
-  "note_cta": "noteマガジンへの自然なCTA。読者が次のアクションを取りたくなる文章。押しつけがましくなく、学びや価値を提供するスタンスで。100文字以内。"
+  "note_cta": "実際に公開しているもの・継続発信する内容のみをCTAに書くこと。「〜公開中」など存在しないコンテンツへの誘導は絶対禁止。「毎朝の相場分析や注目銘柄は継続して発信していきます」のような誠実な表現にすること。100文字以内。"
 }}
  
 stocks_jpは5銘柄のみ。以下のパターンから5つ選ぶ:
