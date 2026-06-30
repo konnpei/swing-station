@@ -1,34 +1,13 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState } from "react";
 import Head from "next/head";
 import fs from "fs";
 import path from "path";
 
-const TV_SYMBOLS_JP = [
-  { label: "日経平均", tv: "CURRENCYCOM:JP225" },
-  { label: "トヨタ", tv: "TYO:7203", code: "7203" },
-  { label: "SBG", tv: "TYO:9984", code: "9984" },
-  { label: "ドル円", tv: "FX:USDJPY" },
-];
-
-const TV_SYMBOLS_US = [
-  { label: "S&P500", tv: "SP:SPX" },
-  { label: "NASDAQ", tv: "NASDAQ:IXIC" },
-  { label: "NVDA", tv: "NASDAQ:NVDA" },
-  { label: "AAPL", tv: "NASDAQ:AAPL" },
-];
-
-const TV_INTERVALS = [
-  { label: "日足", val: "D" },
-  { label: "60分", val: "60" },
-  { label: "30分", val: "30" },
-  { label: "週足", val: "W" },
-];
-
 const MODE_LABELS = {
-  normal: { label: "通常モード", color: "#888888", emoji: "" },
-  surge: { label: "爆騰モード", color: "#00ff9d", emoji: "" },
-  crash: { label: "暴落モード", color: "#ff5566", emoji: "" },
-  ai: { label: "AIバブルモード", color: "#cccccc", emoji: "" },
+  normal: { label: "通常モード", color: "#888888" },
+  surge: { label: "爆騰モード", color: "#00ff9d" },
+  crash: { label: "暴落モード", color: "#ff5566" },
+  ai: { label: "AIバブルモード", color: "#cccccc" },
 };
 
 function getTodayInfo() {
@@ -39,6 +18,42 @@ function getTodayInfo() {
   const isMarketOpen = now.getDay() >= 1 && now.getDay() <= 5 && hour >= 9 && hour < 16;
   const isUSMarket = now.getDay() >= 1 && now.getDay() <= 5 && (hour >= 23 || hour < 6);
   return { day, isMarketOpen, isUSMarket };
+}
+
+function StockCard({ s }) {
+  return (
+    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div>
+          <span style={{ fontSize: 9, color: "#e8e8e8", background: "#e8e8e818", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
+          <div style={{ fontSize: 14, color: "#eeeeee", marginTop: 5, fontWeight: 500 }}>{s.name}<span style={{ color: "#8a8a8a", fontSize: 11 }}> ({s.code})</span></div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>総合スコア</div>
+          <div style={{ fontSize: 15, color: "#ffd166", fontWeight: 500 }}>{s.score}<span style={{ fontSize: 10, color: "#8a8a8a" }}>/10</span></div>
+        </div>
+      </div>
+
+      {s.fundamental && (
+        <div style={{ marginBottom: 8, padding: "8px 10px", background: "#0d0d0d", borderRadius: 8 }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a", marginBottom: 3 }}>ファンダメンタル</div>
+          <div style={{ fontSize: 11, color: "#b8b8b8", lineHeight: 1.6 }}>{s.fundamental}</div>
+        </div>
+      )}
+
+      <div style={{ marginBottom: 8, padding: "8px 10px", background: "#0d0d0d", borderRadius: 8 }}>
+        <div style={{ fontSize: 9, color: "#8a8a8a", marginBottom: 3 }}>チャート分析</div>
+        <div style={{ fontSize: 11, color: "#b8b8b8", lineHeight: 1.6 }}>{s.reason}</div>
+        <div style={{ fontSize: 10, color: "#9a9a9a", marginTop: 6 }}>エントリー条件: {s.entry}</div>
+      </div>
+
+      <div style={{ fontSize: 10, color: "#9a9a9a", marginBottom: 6, display: "flex", gap: 14 }}>
+        <span>目標 <strong style={{ color: "#00ff9d" }}>{s.target}</strong></span>
+        <span>損切 <strong style={{ color: "#ff5566" }}>{s.stop}</strong></span>
+      </div>
+      <div style={{ fontSize: 10, color: "#787878", fontStyle: "italic" }}>{s.comment}</div>
+    </div>
+  );
 }
 
 function BriefingView({ briefing }) {
@@ -92,33 +107,6 @@ function BriefingView({ briefing }) {
         </div>
       )}
 
-      {briefing.stocks_jp?.length > 0 && (
-        <>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>
-            本日の注目銘柄
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-            {briefing.stocks_jp.map((s, i) => (
-              <div key={i} style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                  <div>
-                    <span style={{ fontSize: 9, color: "#e8e8e8", background: "#e8e8e818", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
-                    <div style={{ fontSize: 13, color: "#eeeeee", marginTop: 4 }}>{s.name}<span style={{ color: "#8a8a8a", fontSize: 10 }}> ({s.code})</span></div>
-                  </div>
-                  <div style={{ textAlign:"right" }}><div style={{ fontSize: 9, color:"#8a8a8a" }}>総合スコア</div><div style={{ fontSize: 14, color: "#ffd166", fontWeight:500 }}>{s.score}<span style={{fontSize:10,color:"#8a8a8a"}}>/10</span></div></div>
-                </div>
-                <div style={{ fontSize: 10, color: "#9a9a9a", marginBottom: 4 }}>エントリー: {s.entry}</div>
-                <div style={{ fontSize: 10, color: "#9a9a9a", marginBottom: 4, display: "flex", gap: 12 }}>
-                  <span>目標 <strong style={{color:"#00ff9d"}}>{s.target}</strong></span>
-                  <span>損切 <strong style={{color:"#ff5566"}}>{s.stop}</strong></span>
-                </div>
-                <div style={{ fontSize: 10, color: "#787878", fontStyle: "italic" }}>{s.comment}</div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
-
       {briefing.consideration?.main && (
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>かぶぼっちの考察</div>
@@ -138,6 +126,76 @@ function BriefingView({ briefing }) {
   );
 }
 
+function JpStocksView({ briefing }) {
+  const stocks = briefing?.stocks_jp || [];
+  return (
+    <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
+      {stocks.length > 0 ? (
+        stocks.map((s, i) => <StockCard key={i} s={s} />)
+      ) : (
+        <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分の銘柄情報はまだありません。</div>
+      )}
+    </div>
+  );
+}
+
+function UsStocksView({ briefing }) {
+  const s = briefing?.stock_us;
+  return (
+    <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
+      {s ? (
+        <StockCard s={{ ...s, code: s.ticker }} />
+      ) : (
+        <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分の銘柄情報はまだありません。</div>
+      )}
+    </div>
+  );
+}
+
+function groupByMonth(events) {
+  const groups = {};
+  (events || []).forEach(e => {
+    const month = (e.date || "").slice(0, 7) || "未定";
+    if (!groups[month]) groups[month] = [];
+    groups[month].push(e);
+  });
+  return groups;
+}
+
+function CalendarSection({ title, events }) {
+  const groups = groupByMonth(events);
+  const months = Object.keys(groups).sort();
+  if (months.length === 0) {
+    return (
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>{title}</div>
+        <div style={{ color: "#6a6a6a", fontSize: 11 }}>イベント情報はまだありません。</div>
+      </div>
+    );
+  }
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>{title}</div>
+      {months.map(month => (
+        <div key={month} style={{ marginBottom: 10 }}>
+          <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 6 }}>{month}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {groups[month].map((e, i) => (
+              <div key={i} style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px", display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <div style={{ fontSize: 10, color: "#9a9a9a", minWidth: 70 }}>{e.date}</div>
+                <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.text}</div>
+                {e.urgent && <div style={{ fontSize: 9, color: "#ff5566" }}>重要</div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function CalendarView({ briefing }) {
   if (!briefing) {
     return (
@@ -148,72 +206,16 @@ function CalendarView({ briefing }) {
   }
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>今週のイベントカレンダー</div>
-      {briefing.events?.length > 0 ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {briefing.events.map((e, i) => (
-            <div key={i} style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
-              <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>{e.date}</div>
-              <div style={{ fontSize: 12, color: "#eeeeee" }}>{e.text}</div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分のイベント情報はまだありません。</div>
-      )}
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 14 }}>月次イベントカレンダー</div>
+      <CalendarSection title="日本" events={briefing.events_jp} />
+      <CalendarSection title="米国" events={briefing.events_us} />
     </div>
   );
 }
 
 export default function SwingStation({ briefing }) {
   const [tab, setTab] = useState("briefing");
-  const [tvSymbolJp, setTvSymbolJp] = useState("CURRENCYCOM:JP225");
-  const [tvSymbolUs, setTvSymbolUs] = useState("SP:SPX");
-  const [tvInterval, setTvInterval] = useState("D");
-  const [customCode, setCustomCode] = useState("");
   const [todayInfo] = useState(getTodayInfo());
-  const [chartReady, setChartReady] = useState(false);
-  const tvRef = useRef(null);
-
-  const activeSymbol = tab === "jp" ? tvSymbolJp : tab === "us" ? tvSymbolUs : null;
-
-  useEffect(() => {
-    if ((tab !== "jp" && tab !== "us") || !tvRef.current) return;
-    const key = `${activeSymbol}_${tvInterval}`;
-    if (tvRef.current.dataset.key === key) return;
-    tvRef.current.dataset.key = key;
-    tvRef.current.innerHTML = "";
-    setChartReady(false);
-
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      autosize: true,
-      symbol: activeSymbol,
-      interval: tvInterval,
-      timezone: "Asia/Tokyo",
-      theme: "dark",
-      style: "1",
-      locale: "ja",
-      allow_symbol_change: true,
-      save_image: false,
-      studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "BB@tv-basicstudies"],
-      disabled_features: ["popup_hints"],
-    });
-    script.onload = () => setChartReady(true);
-    tvRef.current.appendChild(script);
-    setTimeout(() => setChartReady(true), 3000);
-  }, [tab, activeSymbol, tvInterval]);
-
-  const changeSymbolJp = useCallback((tv, code) => {
-    setTvSymbolJp(tv);
-    if (code) setCustomCode(code);
-  }, []);
-
-  const changeSymbolUs = useCallback((tv) => {
-    setTvSymbolUs(tv);
-  }, []);
 
   const B = ({ style, ...p }) => <button style={{ fontFamily: "inherit", cursor: "pointer", border: "none", ...style }} {...p} />;
 
@@ -234,7 +236,6 @@ export default function SwingStation({ briefing }) {
       <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#0a0a0a", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#d0d0d0" }}>
         <style>{`
           @keyframes ssP{0%,100%{opacity:1}50%{opacity:.2}}
-          @keyframes ssSpin{to{transform:rotate(360deg)}}
           *{box-sizing:border-box}
           html,body{height:100%;margin:0;padding:0}
           ::-webkit-scrollbar{width:3px}
@@ -274,83 +275,20 @@ export default function SwingStation({ briefing }) {
           ))}
         </div>
 
-        {/* Symbol bar (JP) */}
-        {tab === "jp" && (
-          <div style={{ display:"flex", gap:5, padding:"5px 10px", overflowX:"auto", background:"#0d0d0d", borderBottom:"1px solid #1f1f1f", flexShrink:0, alignItems:"center" }}>
-            {TV_SYMBOLS_JP.map((s, i) => (
-              <B key={i} onClick={() => changeSymbolJp(s.tv, s.code)} style={{
-                whiteSpace:"nowrap", padding:"4px 10px",
-                background: tvSymbolJp===s.tv ? "#2a2a2a" : "#161616",
-                border:`1px solid ${tvSymbolJp===s.tv ? "#e8e8e855" : "#262626"}`,
-                borderRadius:14, color: tvSymbolJp===s.tv ? "#e8e8e8" : "#707070",
-                fontSize:10, flexShrink:0,
-              }}>{s.label}</B>
-            ))}
-            <input
-              value={customCode}
-              onChange={e => setCustomCode(e.target.value.replace(/\D/g,"").slice(0,4))}
-              onKeyDown={e => {
-                if (e.key==="Enter" && customCode.length===4) {
-                  changeSymbolJp(`TYO:${customCode}`, customCode);
-                }
-              }}
-              placeholder="コード"
-              maxLength={4}
-              style={{ width:60, padding:"4px 8px", background:"#161616", border:"1px solid #262626", borderRadius:14, color:"#9a9a9a", fontSize:10, outline:"none", fontFamily:"inherit" }}
-            />
-          </div>
-        )}
-
-        {/* Symbol bar (US) */}
-        {tab === "us" && (
-          <div style={{ display:"flex", gap:5, padding:"5px 10px", overflowX:"auto", background:"#0d0d0d", borderBottom:"1px solid #1f1f1f", flexShrink:0, alignItems:"center" }}>
-            {TV_SYMBOLS_US.map((s, i) => (
-              <B key={i} onClick={() => changeSymbolUs(s.tv)} style={{
-                whiteSpace:"nowrap", padding:"4px 10px",
-                background: tvSymbolUs===s.tv ? "#2a2a2a" : "#161616",
-                border:`1px solid ${tvSymbolUs===s.tv ? "#e8e8e855" : "#262626"}`,
-                borderRadius:14, color: tvSymbolUs===s.tv ? "#e8e8e8" : "#707070",
-                fontSize:10, flexShrink:0,
-              }}>{s.label}</B>
-            ))}
-          </div>
-        )}
-
-        {(tab === "jp" || tab === "us") && (
-          <div style={{ display:"flex", gap:5, padding:"4px 10px", background:"#080808", borderBottom:"1px solid #1f1f1f", flexShrink:0, alignItems:"center" }}>
-            {TV_INTERVALS.map(iv => (
-              <B key={iv.val} onClick={() => setTvInterval(iv.val)} style={{
-                padding:"3px 11px",
-                background: tvInterval===iv.val ? "#2a2a2a" : "transparent",
-                border:`1px solid ${tvInterval===iv.val ? "#e8e8e855" : "#262626"}`,
-                borderRadius:10, color: tvInterval===iv.val ? "#e8e8e8" : "#5a5a5a",
-                fontSize:10,
-              }}>{iv.label}</B>
-            ))}
-            <div style={{ marginLeft:"auto", fontSize:8, color:"#5a5a5a" }}>RSI・MACD・BB</div>
-          </div>
-        )}
-
         {/* Content */}
         <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
-
           <div style={{ display:tab==="briefing"?"block":"none", height:"100%" }}>
             <BriefingView briefing={briefing} />
           </div>
-
-          <div style={{ display:(tab==="jp"||tab==="us")?"block":"none", height:"100%", padding:4 }}>
-            {!chartReady && (tab==="jp"||tab==="us") && (
-              <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", color:"#6a6a6a", fontSize:11, zIndex:1 }}>
-                チャート読み込み中...
-              </div>
-            )}
-            <div ref={tvRef} style={{ height:"100%", borderRadius:8, overflow:"hidden" }}/>
+          <div style={{ display:tab==="jp"?"block":"none", height:"100%" }}>
+            <JpStocksView briefing={briefing} />
           </div>
-
+          <div style={{ display:tab==="us"?"block":"none", height:"100%" }}>
+            <UsStocksView briefing={briefing} />
+          </div>
           <div style={{ display:tab==="calendar"?"block":"none", height:"100%" }}>
             <CalendarView briefing={briefing} />
           </div>
-
         </div>
       </div>
     </>
