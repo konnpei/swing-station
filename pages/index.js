@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Head from "next/head";
+import fs from "fs";
+import path from "path";
 
 const QUICK = [
   { label: "🗓️ 今週の戦略", text: "今週のスイングトレード戦略を教えて。日米の週足トレンドと最適エントリー曜日も。" },
@@ -28,6 +30,13 @@ const TV_INTERVALS = [
   { label: "30分", val: "30" },
   { label: "週足", val: "W" },
 ];
+
+const MODE_LABELS = {
+  normal: { label: "通常モード", color: "#3498db", emoji: "📊" },
+  surge: { label: "爆騰モード", color: "#2ecc71", emoji: "🚀" },
+  crash: { label: "暴落モード", color: "#e74c3c", emoji: "📉" },
+  ai: { label: "AIバブルモード", color: "#9b59b6", emoji: "🤖" },
+};
 
 function getTodayInfo() {
   const days = ["日", "月", "火", "水", "木", "金", "土"];
@@ -60,8 +69,102 @@ const Dots = () => (
   </span>
 );
 
-export default function SwingStation() {
-  const [tab, setTab] = useState("chat");
+function BriefingView({ briefing }) {
+  if (!briefing) {
+    return (
+      <div style={{ padding: 20, textAlign: "center", color: "#3a3a6a", fontSize: 12 }}>
+        朝刊データがまだありません。
+      </div>
+    );
+  }
+
+  const mode = MODE_LABELS[briefing.mode] || MODE_LABELS.normal;
+  const sign = briefing.nikkei_diff >= 0 ? "▲" : "▼";
+
+  return (
+    <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <div style={{
+        background: `${mode.color}18`, border: `1px solid ${mode.color}44`,
+        borderRadius: 10, padding: "10px 14px", marginBottom: 12,
+      }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: mode.color }}>
+          {mode.emoji} {mode.label} <span style={{ color: "#5a5a8a", fontWeight: 400, fontSize: 10 }}>{briefing.date}</span>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
+        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#5a5a8a" }}>日経平均</div>
+          <div style={{ fontSize: 15, color: "#e0e4f0", marginTop: 2 }}>{briefing.nikkei?.toLocaleString()}円</div>
+          <div style={{ fontSize: 10, color: briefing.nikkei_diff >= 0 ? "#00ff9d" : "#ff5566" }}>
+            {sign}{Math.abs(briefing.nikkei_diff)?.toLocaleString()}円 ({briefing.nikkei_pct?.toFixed(2)}%)
+          </div>
+        </div>
+        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#5a5a8a" }}>ドル円</div>
+          <div style={{ fontSize: 15, color: "#e0e4f0", marginTop: 2 }}>{briefing.usd_jpy}円</div>
+        </div>
+        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#5a5a8a" }}>SOX指数</div>
+          <div style={{ fontSize: 15, color: briefing.sox_pct >= 0 ? "#00ff9d" : "#ff5566", marginTop: 2 }}>{briefing.sox_pct?.toFixed(1)}%</div>
+        </div>
+        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#5a5a8a" }}>VIX</div>
+          <div style={{ fontSize: 15, color: "#e0e4f0", marginTop: 2 }}>{briefing.vix}</div>
+        </div>
+      </div>
+
+      {briefing.market_summary && (
+        <div style={{ fontSize: 11.5, lineHeight: 1.8, color: "#a0aac0", marginBottom: 16, padding: "0 2px" }}>
+          {briefing.market_summary}
+        </div>
+      )}
+
+      {briefing.stocks_jp?.length > 0 && (
+        <>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#7c83ff", marginBottom: 8 }}>
+            🎯 本日の注目銘柄
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+            {briefing.stocks_jp.map((s, i) => (
+              <div key={i} style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, padding: "10px 12px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                  <div>
+                    <span style={{ fontSize: 9, color: "#7c83ff", background: "#7c83ff18", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
+                    <div style={{ fontSize: 13, color: "#e0e4f0", marginTop: 4 }}>{s.name}<span style={{ color: "#5a5a8a", fontSize: 10 }}> ({s.code})</span></div>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#ffd166" }}>{s.score}/10</div>
+                </div>
+                <div style={{ fontSize: 10, color: "#7a8aaa", marginBottom: 4 }}>📌 {s.entry}</div>
+                <div style={{ fontSize: 10, color: "#7a8aaa", marginBottom: 4 }}>🎯 {s.target} 🛡️ {s.stop}</div>
+                <div style={{ fontSize: 10, color: "#5a6080", fontStyle: "italic" }}>💬 {s.comment}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {briefing.consideration?.main && (
+        <div style={{ background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#7c83ff", marginBottom: 6 }}>🧠 かぶぼっちの考察</div>
+          <div style={{ fontSize: 11, lineHeight: 1.7, color: "#a0aac0" }}>{briefing.consideration.main}</div>
+        </div>
+      )}
+
+      <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+        <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, color: "#7c83ff", fontSize: 11, textDecoration: "none" }}>📝 note</a>
+        <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#0c0e1e", border: "1px solid #1a1d2e", borderRadius: 10, color: "#7c83ff", fontSize: 11, textDecoration: "none" }}>𝕏 X</a>
+      </div>
+
+      <div style={{ fontSize: 9, color: "#3a3a6a", textAlign: "center", marginTop: 18 }}>
+        swing-station | かぶぼっち | ※投資勧誘ではありません
+      </div>
+    </div>
+  );
+}
+
+export default function SwingStation({ briefing }) {
+  const [tab, setTab] = useState("briefing");
   const [tvSymbol, setTvSymbol] = useState("TVC:NI225");
   const [tvInterval, setTvInterval] = useState("D");
   const [customCode, setCustomCode] = useState("");
@@ -190,50 +293,9 @@ export default function SwingStation() {
           </div>
         </div>
 
-        {/* Symbol bar */}
-        <div style={{ display:"flex", gap:5, padding:"5px 10px", overflowX:"auto", background:"#070810", borderBottom:"1px solid #141620", flexShrink:0, alignItems:"center" }}>
-          {TV_SYMBOLS.map((s, i) => (
-            <B key={i} onClick={() => changeSymbol(s.tv, s.code)} style={{
-              whiteSpace:"nowrap", padding:"4px 10px",
-              background: tvSymbol===s.tv ? "#1a1a3a" : "#0e0f20",
-              border:`1px solid ${tvSymbol===s.tv ? "#7c83ff44" : "#1a1d2e"}`,
-              borderRadius:14, color: tvSymbol===s.tv ? "#7c83ff" : "#4a5070",
-              fontSize:10, flexShrink:0,
-            }}>{s.label}</B>
-          ))}
-          <input
-            value={customCode}
-            onChange={e => setCustomCode(e.target.value.replace(/\D/g,"").slice(0,4))}
-            onKeyDown={e => {
-              if (e.key==="Enter" && customCode.length===4) {
-                changeSymbol(`TYO:${customCode}`, customCode);
-              }
-            }}
-            placeholder="コード"
-            maxLength={4}
-            style={{ width:60, padding:"4px 8px", background:"#0e0f20", border:"1px solid #1a1d2e", borderRadius:14, color:"#7a8aaa", fontSize:10, outline:"none", fontFamily:"inherit" }}
-            onFocus={e => e.target.style.borderColor="#7c83ff44"}
-            onBlur={e => e.target.style.borderColor="#1a1d2e"}
-          />
-        </div>
-
-        {/* Interval bar */}
-        <div style={{ display:"flex", gap:5, padding:"4px 10px", background:"#060710", borderBottom:"1px solid #141620", flexShrink:0, alignItems:"center" }}>
-          {TV_INTERVALS.map(iv => (
-            <B key={iv.val} onClick={() => { setTvInterval(iv.val); setTab("chart"); }} style={{
-              padding:"3px 11px",
-              background: tvInterval===iv.val ? "#1a1a3a" : "transparent",
-              border:`1px solid ${tvInterval===iv.val ? "#7c83ff44" : "#1a1d2e"}`,
-              borderRadius:10, color: tvInterval===iv.val ? "#7c83ff" : "#3a4060",
-              fontSize:10,
-            }}>{iv.label}</B>
-          ))}
-          <div style={{ marginLeft:"auto", fontSize:8, color:"#2a2a5a" }}>RSI・MACD・BB</div>
-        </div>
-
         {/* Tabs */}
         <div style={{ display:"flex", background:"#060710", borderBottom:"1px solid #141620", flexShrink:0 }}>
-          {[{id:"chart",label:"📊 チャート"},{id:"chat",label:"💬 AI分析"}].map(t => (
+          {[{id:"briefing",label:"📰 朝刊"},{id:"chart",label:"📊 チャート"},{id:"chat",label:"💬 AI分析"}].map(t => (
             <B key={t.id} onClick={() => setTab(t.id)} style={{
               flex:1, padding:"8px", fontSize:11,
               background: tab===t.id ? "#0c0e1e" : "transparent",
@@ -243,8 +305,57 @@ export default function SwingStation() {
           ))}
         </div>
 
+        {/* Symbol bar (only on chart tab) */}
+        {tab === "chart" && (
+          <div style={{ display:"flex", gap:5, padding:"5px 10px", overflowX:"auto", background:"#070810", borderBottom:"1px solid #141620", flexShrink:0, alignItems:"center" }}>
+            {TV_SYMBOLS.map((s, i) => (
+              <B key={i} onClick={() => changeSymbol(s.tv, s.code)} style={{
+                whiteSpace:"nowrap", padding:"4px 10px",
+                background: tvSymbol===s.tv ? "#1a1a3a" : "#0e0f20",
+                border:`1px solid ${tvSymbol===s.tv ? "#7c83ff44" : "#1a1d2e"}`,
+                borderRadius:14, color: tvSymbol===s.tv ? "#7c83ff" : "#4a5070",
+                fontSize:10, flexShrink:0,
+              }}>{s.label}</B>
+            ))}
+            <input
+              value={customCode}
+              onChange={e => setCustomCode(e.target.value.replace(/\D/g,"").slice(0,4))}
+              onKeyDown={e => {
+                if (e.key==="Enter" && customCode.length===4) {
+                  changeSymbol(`TYO:${customCode}`, customCode);
+                }
+              }}
+              placeholder="コード"
+              maxLength={4}
+              style={{ width:60, padding:"4px 8px", background:"#0e0f20", border:"1px solid #1a1d2e", borderRadius:14, color:"#7a8aaa", fontSize:10, outline:"none", fontFamily:"inherit" }}
+              onFocus={e => e.target.style.borderColor="#7c83ff44"}
+              onBlur={e => e.target.style.borderColor="#1a1d2e"}
+            />
+          </div>
+        )}
+
+        {tab === "chart" && (
+          <div style={{ display:"flex", gap:5, padding:"4px 10px", background:"#060710", borderBottom:"1px solid #141620", flexShrink:0, alignItems:"center" }}>
+            {TV_INTERVALS.map(iv => (
+              <B key={iv.val} onClick={() => { setTvInterval(iv.val); setTab("chart"); }} style={{
+                padding:"3px 11px",
+                background: tvInterval===iv.val ? "#1a1a3a" : "transparent",
+                border:`1px solid ${tvInterval===iv.val ? "#7c83ff44" : "#1a1d2e"}`,
+                borderRadius:10, color: tvInterval===iv.val ? "#7c83ff" : "#3a4060",
+                fontSize:10,
+              }}>{iv.label}</B>
+            ))}
+            <div style={{ marginLeft:"auto", fontSize:8, color:"#2a2a5a" }}>RSI・MACD・BB</div>
+          </div>
+        )}
+
         {/* Content */}
         <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
+
+          {/* Briefing */}
+          <div style={{ display:tab==="briefing"?"block":"none", height:"100%" }}>
+            <BriefingView briefing={briefing} />
+          </div>
 
           {/* Chart */}
           <div style={{ display:tab==="chart"?"block":"none", height:"100%", padding:4 }}>
@@ -325,4 +436,19 @@ export default function SwingStation() {
       </div>
     </>
   );
+}
+
+export async function getStaticProps() {
+  let briefing = null;
+  try {
+    const filePath = path.join(process.cwd(), "data", "latest.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    briefing = JSON.parse(raw);
+  } catch (e) {
+    briefing = null;
+  }
+  return {
+    props: { briefing },
+    revalidate: 600,
+  };
 }
