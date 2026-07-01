@@ -1022,6 +1022,20 @@ if __name__ == "__main__":
             r_put = requests.put(gh_url, headers={"Authorization": f"Bearer {gh_token}", "Content-Type": "application/json"}, json=body)
             print(f"data/latest.json updated: {r_put.status_code}")
 
+            # 履歴ファイルも保存（data/history/YYYY-MM-DD.json）
+            try:
+                from datetime import datetime as _dt
+                hist_date = _dt.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d")
+                hist_url = f"https://api.github.com/repos/konnpei/swing-station/contents/data/history/{hist_date}.json"
+                r_hist_check = requests.get(hist_url, headers={"Authorization": f"Bearer {gh_token}"})
+                hist_body = {"message": f"History: {hist_date}", "content": content_b64}
+                if r_hist_check.status_code == 200:
+                    hist_body["sha"] = r_hist_check.json().get("sha")
+                requests.put(hist_url, headers={"Authorization": f"Bearer {gh_token}", "Content-Type": "application/json"}, json=hist_body)
+                print(f"History saved: {hist_date}")
+            except Exception as he:
+                print(f"History save error: {he}")
+
             # Vercel再デプロイをトリガー
             vercel_hook = os.environ.get("VERCEL_DEPLOY_HOOK", "")
             if vercel_hook:
