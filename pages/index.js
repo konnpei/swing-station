@@ -230,6 +230,79 @@ function CalendarSection({ title, events }) {
   );
 }
 
+const MODE_COLORS = {
+  normal: "#888888", surge: "#00ff9d", crash: "#ff5566", ai: "#a78bfa"
+};
+
+function HistoryView({ history }) {
+  if (!history || history.length === 0) {
+    return <div style={{ padding: 20, color: "#6a6a6a", fontSize: 12 }}>履歴データがまだありません。明日以降蓄積されます。</div>;
+  }
+
+  // 銘柄出現頻度ランキング
+  const stockCount = {};
+  history.forEach(h => {
+    (h.stocks_jp || []).forEach(s => {
+      const key = `${s.name}（${s.code}）`;
+      stockCount[key] = (stockCount[key] || 0) + 1;
+    });
+  });
+  const topStocks = Object.entries(stockCount).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+  // モード統計
+  const modeStat = {};
+  history.forEach(h => { modeStat[h.mode] = (modeStat[h.mode] || 0) + 1; });
+
+  return (
+    <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+
+      {/* 相場モード統計 */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>直近の相場モード統計</div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {Object.entries(modeStat).map(([mode, count]) => (
+            <div key={mode} style={{ background: "#121212", border: `1px solid ${MODE_COLORS[mode] || "#262626"}44`, borderRadius: 8, padding: "6px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 10, color: MODE_COLORS[mode] || "#e8e8e8" }}>{mode}</div>
+              <div style={{ fontSize: 16, color: "#eeeeee", fontWeight: 700 }}>{count}日</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 日経平均推移 */}
+      <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>日経平均 直近推移</div>
+        {[...history].reverse().map((h, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0", borderBottom: "1px solid #1a1a1a" }}>
+            <div style={{ fontSize: 10, color: "#8a8a8a" }}>{h.date}</div>
+            <div style={{ fontSize: 11, color: "#eeeeee" }}>{h.nikkei?.toLocaleString()}円</div>
+            <div style={{ fontSize: 10, color: (h.nikkei_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>
+              {h.nikkei_pct >= 0 ? "+" : ""}{h.nikkei_pct?.toFixed(2)}%
+            </div>
+            <div style={{ fontSize: 9, color: MODE_COLORS[h.mode] || "#888" }}>{h.mode}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* 注目銘柄ランキング */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>注目銘柄 出現ランキング</div>
+        {topStocks.length === 0 ? (
+          <div style={{ color: "#6a6a6a", fontSize: 11 }}>データ蓄積中...</div>
+        ) : (
+          topStocks.map(([name, count], i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 12px", marginBottom: 6 }}>
+              <div style={{ fontSize: 11, color: "#e8e8e8" }}>{i+1}. {name}</div>
+              <div style={{ fontSize: 11, color: "#ffd166" }}>{count}回</div>
+            </div>
+          ))
+        )}
+      </div>
+
+    </div>
+  );
+}
+
 function CalendarView({ briefing }) {
   if (!briefing) {
     return (
@@ -249,6 +322,15 @@ function CalendarView({ briefing }) {
 
 export default function SwingStation({ briefing }) {
   const [tab, setTab] = useState("briefing");
+  const [history, setHistory] = useState([]);
+  const [historyTab, setHistoryTab] = useState("calendar");
+
+  useEffect(() => {
+    fetch("/api/history")
+      .then(r => r.json())
+      .then(d => setHistory(d.history || []))
+      .catch(() => {});
+  }, []);
   const [todayInfo] = useState(getTodayInfo());
 
   const B = ({ style, ...p }) => <button style={{ fontFamily: "inherit", cursor: "pointer", border: "none", ...style }} {...p} />;
@@ -257,7 +339,8 @@ export default function SwingStation({ briefing }) {
     { id: "briefing", label: "朝刊" },
     { id: "jp", label: "日本株" },
     { id: "us", label: "米国株" },
-    { id: "calendar", label: "カレンダー" },
+    { id: "calendar", label: "予定" },
+    { id: "history", label: "履歴" },
   ];
 
   return (
@@ -322,6 +405,9 @@ export default function SwingStation({ briefing }) {
           </div>
           <div style={{ display:tab==="calendar"?"block":"none", height:"100%" }}>
             <CalendarView briefing={briefing} />
+          </div>
+          <div style={{ display:tab==="history"?"block":"none", height:"100%" }}>
+            <HistoryView history={history} />
           </div>
         </div>
       </div>
