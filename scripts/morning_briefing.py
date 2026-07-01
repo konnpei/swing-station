@@ -257,6 +257,7 @@ def generate_content(data, mode):
     m = MODES[mode]
     sign = "▲" if data["diff"] >= 0 else "▼"
  
+    surges, drops = [], []
     print("Fetching surge/drop stocks...")
     surges, drops = fetch_surge_drop()
     surge_str = ""
