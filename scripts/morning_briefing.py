@@ -178,7 +178,28 @@ def fetch_market_data():
  
     except Exception as e:
         print(f"Market data fetch FAILED: {e}")
-        raise RuntimeError(f"市場データ取得失敗。処理を中止します: {e}")
+        print("Using fallback data...")
+        # フォールバック: 前回のlatest.jsonから取得を試みる
+        try:
+            import json as _json
+            with open("data/latest.json", "r", encoding="utf-8") as f:
+                prev = _json.load(f)
+            print(f"Fallback: using previous data from {prev.get('date')}")
+            ohlcv = [{"date": TODAY, "open": prev["nikkei"], "high": prev["nikkei"],
+                       "low": prev["nikkei"], "close": prev["nikkei"], "volume": 0}]
+            return {
+                "ohlcv": ohlcv,
+                "latest": {"close": prev["nikkei"], "open": prev["nikkei"],
+                           "high": prev["nikkei"], "low": prev["nikkei"]},
+                "diff": 0, "pct": 0.0,
+                "usd_jpy": prev.get("usd_jpy", 150.0),
+                "sox_pct": prev.get("sox_pct", 0.0),
+                "vix": prev.get("vix", 20.0),
+                "is_fallback": True
+            }
+        except Exception as e2:
+            print(f"Fallback also failed: {e2}")
+            raise RuntimeError(f"市場データ取得失敗: {e}")
  
  
 
