@@ -353,6 +353,6 @@ export async function getStaticProps() {
   }
   return {
     props: { briefing: briefing ?? null },
-    revalidate: 300,
+    revalidate: 1,
   };
 }
