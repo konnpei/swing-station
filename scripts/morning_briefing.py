@@ -173,6 +173,39 @@ def fetch_market_data():
         except:
             vix = 20.0
  
+        # TOPIX
+        topix, topix_pct = 0.0, 0.0
+        try:
+            topix_h = yf.Ticker("^TPX").history(period="3d")
+            if not topix_h.empty and len(topix_h) >= 2:
+                topix = round(float(topix_h["Close"].iloc[-1]), 1)
+                topix_prev = round(float(topix_h["Close"].iloc[-2]), 1)
+                topix_pct = round((topix - topix_prev) / topix_prev * 100, 2)
+        except:
+            pass
+
+        # NASDAQ
+        nasdaq, nasdaq_pct = 0.0, 0.0
+        try:
+            nasdaq_h = yf.Ticker("^IXIC").history(period="3d")
+            if not nasdaq_h.empty and len(nasdaq_h) >= 2:
+                nasdaq = round(float(nasdaq_h["Close"].iloc[-1]), 1)
+                nasdaq_prev = round(float(nasdaq_h["Close"].iloc[-2]), 1)
+                nasdaq_pct = round((nasdaq - nasdaq_prev) / nasdaq_prev * 100, 2)
+        except:
+            pass
+
+        # S&P500
+        sp500, sp500_pct = 0.0, 0.0
+        try:
+            sp500_h = yf.Ticker("^GSPC").history(period="3d")
+            if not sp500_h.empty and len(sp500_h) >= 2:
+                sp500 = round(float(sp500_h["Close"].iloc[-1]), 1)
+                sp500_prev = round(float(sp500_h["Close"].iloc[-2]), 1)
+                sp500_pct = round((sp500 - sp500_prev) / sp500_prev * 100, 2)
+        except:
+            pass
+
         return {"ohlcv":ohlcv, "latest":latest, "diff":diff, "pct":pct,
                 "usd_jpy":usd_jpy, "sox_pct":sox_pct, "vix":vix,
                 "topix":topix, "topix_pct":topix_pct,
