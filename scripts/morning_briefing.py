@@ -1021,6 +1021,15 @@ if __name__ == "__main__":
                 body["sha"] = sha_existing
             r_put = requests.put(gh_url, headers={"Authorization": f"Bearer {gh_token}", "Content-Type": "application/json"}, json=body)
             print(f"data/latest.json updated: {r_put.status_code}")
+
+            # Vercel再デプロイをトリガー
+            vercel_hook = os.environ.get("VERCEL_DEPLOY_HOOK", "")
+            if vercel_hook:
+                try:
+                    vr = requests.post(vercel_hook)
+                    print(f"Vercel redeploy triggered: {vr.status_code}")
+                except Exception as ve:
+                    print(f"Vercel trigger error: {ve}")
         except Exception as e:
             print(f"Failed to update data/latest.json: {e}")
     else:
