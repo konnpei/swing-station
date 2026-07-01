@@ -896,6 +896,12 @@ if __name__ == "__main__":
 
     print("Saving data/latest.json...")
     diff = data["diff"]
+    # surges/dropsをメインスコープで取得
+    try:
+        _surges, _drops = fetch_surge_drop()
+    except Exception as e:
+        print(f"Surge/drop fetch error: {e}")
+        _surges, _drops = [], []
     latest_json = {
         "date": f"{TODAY}",
         "mode": mode,
@@ -910,8 +916,8 @@ if __name__ == "__main__":
         "stocks_jp": content.get("stocks_jp", []),
         "stock_us": content.get("stock_us", {}),
         "consideration": content.get("consideration", {}),
-        "surges": surges,
-        "drops": drops,
+        "surges": _surges,
+        "drops": _drops,
         "events_jp": content.get("events_jp", []),
         "events_us": content.get("events_us", []),
         "x_main": content.get("x_main", ""),
