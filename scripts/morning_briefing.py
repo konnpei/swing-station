@@ -96,6 +96,42 @@ def fetch_market_news():
             unique.append(item)
     return unique[:10]
 
+
+# 監視銘柄リスト（主要日経225銘柄）
+WATCH_LIST = [
+    "7203.T","9984.T","6758.T","6861.T","8306.T","9432.T",
+    "4063.T","6954.T","8035.T","6367.T","8058.T","6098.T",
+    "7974.T","4568.T","9983.T","6501.T","7267.T","2914.T",
+    "4543.T","4519.T","6857.T","6920.T","4452.T","9433.T",
+    "8316.T","7751.T","4901.T","6702.T","9022.T","8802.T",
+]
+
+def fetch_surge_drop():
+    """前日比で急騰・急落した銘柄を抽出"""
+    import yfinance as yf
+    surges = []
+    drops = []
+    
+    for code in WATCH_LIST:
+        try:
+            hist = yf.Ticker(code).history(period="3d")
+            if len(hist) < 2:
+                continue
+            prev = float(hist["Close"].iloc[-2])
+            curr = float(hist["Close"].iloc[-1])
+            pct = (curr - prev) / prev * 100
+            name = code.replace(".T", "")
+            if pct >= 3.0:
+                surges.append({"code": name, "pct": round(pct, 1), "price": int(curr)})
+            elif pct <= -3.0:
+                drops.append({"code": name, "pct": round(pct, 1), "price": int(curr)})
+        except:
+            continue
+    
+    surges.sort(key=lambda x: x["pct"], reverse=True)
+    drops.sort(key=lambda x: x["pct"])
+    return surges[:5], drops[:5]
+
 def fetch_market_data():
     try:
         import yfinance as yf
@@ -221,6 +257,17 @@ def generate_content(data, mode):
     m = MODES[mode]
     sign = "▲" if data["diff"] >= 0 else "▼"
  
+    print("Fetching surge/drop stocks...")
+    surges, drops = fetch_surge_drop()
+    surge_str = ""
+    for s in surges:
+        surge_str += f"急騰 {s['code']}: +{s['pct']}% ({s['price']:,}円)\n"
+    for d in drops:
+        surge_str += f"急落 {d['code']}: {d['pct']}% ({d['price']:,}円)\n"
+    if not surge_str:
+        surge_str = "急騰・急落銘柄なし"
+    print(f"Surge/Drop: {len(surges)}騰/{len(drops)}落")
+
     print("Fetching market news...")
     market_news = fetch_market_news()
     news_str = ""
@@ -862,6 +909,8 @@ if __name__ == "__main__":
         "stocks_jp": content.get("stocks_jp", []),
         "stock_us": content.get("stock_us", {}),
         "consideration": content.get("consideration", {}),
+        "surges": surges,
+        "drops": drops,
         "events_jp": content.get("events_jp", []),
         "events_us": content.get("events_us", []),
         "x_main": content.get("x_main", ""),
