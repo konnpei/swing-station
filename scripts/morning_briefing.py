@@ -47,6 +47,55 @@ MODES = {
     "geopolitical": {"label":"地政学リスクモード", "color":"#f97316", "bg":(28,12,0),   "quote":"有事の金・円・原油。リスクオフの鉄則を忘れるな。"},
 }
  
+
+# 株価影響ニュースキーワード（これに引っかかるものを優先抽出）
+STOCK_KEYWORDS = [
+    "決算", "増益", "減益", "上方修正", "下方修正", "増配", "減配",
+    "自社株買い", "株式分割", "TOB", "買収", "合併", "業績",
+    "利上げ", "利下げ", "FOMC", "日銀", "円安", "円高",
+    "半導体", "AI", "チップ", "GPU", "受注", "契約",
+    "日経平均", "ナスダック", "SOX", "VIX", "急騰", "急落"
+]
+
+def fetch_market_news():
+    """Google News RSSから株価連動ニュースを抽出"""
+    import xml.etree.ElementTree as ET
+    import re
+
+    queries = [
+        "日本株+決算+業績",
+        "日経平均+株価+上方修正",
+        "増配+自社株買い+TOB",
+    ]
+
+    news_items = []
+    for q in queries:
+        try:
+            url = f"https://news.google.com/rss/search?q={q}&hl=ja&gl=JP&ceid=JP:ja"
+            r = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+            root = ET.fromstring(r.content)
+            for item in root.findall(".//item")[:5]:
+                title = item.find("title").text or ""
+                pub = item.find("pubDate").text or ""
+                # 株価連動キーワードが含まれるものだけ抽出
+                if any(kw in title for kw in STOCK_KEYWORDS):
+                    news_items.append({
+                        "title": title[:80],
+                        "date": pub[:16]
+                    })
+        except Exception as e:
+            print(f"News fetch error: {e}")
+            continue
+
+    # 重複除去して最大10件
+    seen = set()
+    unique = []
+    for item in news_items:
+        if item["title"] not in seen:
+            seen.add(item["title"])
+            unique.append(item)
+    return unique[:10]
+
 def fetch_market_data():
     try:
         import yfinance as yf
@@ -172,6 +221,15 @@ def generate_content(data, mode):
     m = MODES[mode]
     sign = "▲" if data["diff"] >= 0 else "▼"
  
+    print("Fetching market news...")
+    market_news = fetch_market_news()
+    news_str = ""
+    for n in market_news:
+        news_str += f"- {n['title']} ({n['date']})\n"
+    if not news_str:
+        news_str = "ニュース取得なし"
+    print(f"News fetched: {len(market_news)}件")
+
     print("Fetching individual stock data...")
     try:
         stocks = fetch_stock_technicals()
