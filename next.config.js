@@ -1,3 +1,3 @@
 /** @type {import('next').NextConfig} */
 module.exports = { reactStrictMode: true }
-// deploy: 20260701_1411
+// rebuild: 20260701_143718
