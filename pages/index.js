@@ -121,13 +121,15 @@ function BriefingView({ briefing }) {
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>本日の急騰・急落</div>
           {briefing.surges?.map((s, i) => (
-            <div key={i} style={{ fontSize: 11, color: "#00ff9d", marginBottom: 2 }}>
-              ▲ {s.code}  +{s.pct}%
+            <div key={i} style={{ display:"flex", justifyContent:"space-between", fontSize: 11, color: "#00ff9d", marginBottom: 4 }}>
+              <span>▲ {s.name || s.code}<span style={{color:"#8a8a8a", fontSize:10}}> ({s.code})</span></span>
+              <span>+{s.pct}%</span>
             </div>
           ))}
           {briefing.drops?.map((s, i) => (
-            <div key={i} style={{ fontSize: 11, color: "#ff5566", marginBottom: 2 }}>
-              ▼ {s.code}  {s.pct}%
+            <div key={i} style={{ display:"flex", justifyContent:"space-between", fontSize: 11, color: "#ff5566", marginBottom: 4 }}>
+              <span>▼ {s.name || s.code}<span style={{color:"#8a8a8a", fontSize:10}}> ({s.code})</span></span>
+              <span>{s.pct}%</span>
             </div>
           ))}
         </div>
