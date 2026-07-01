@@ -99,6 +99,16 @@ function BriefingView({ briefing }) {
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>VIX</div>
           <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.vix}</div>
         </div>
+        {briefing.nasdaq > 0 && <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>NASDAQ</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.nasdaq?.toLocaleString()}</div>
+          <div style={{ fontSize: 10, color: briefing.nasdaq_pct >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.nasdaq_pct?.toFixed(2)}%</div>
+        </div>}
+        {briefing.sp500 > 0 && <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>S&P500</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.sp500?.toLocaleString()}</div>
+          <div style={{ fontSize: 10, color: briefing.sp500_pct >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.sp500_pct?.toFixed(2)}%</div>
+        </div>}
       </div>
 
       {briefing.market_summary && (
@@ -107,10 +117,33 @@ function BriefingView({ briefing }) {
         </div>
       )}
 
+      {(briefing.surges?.length > 0 || briefing.drops?.length > 0) && (
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>本日の急騰・急落</div>
+          {briefing.surges?.map((s, i) => (
+            <div key={i} style={{ fontSize: 11, color: "#00ff9d", marginBottom: 2 }}>
+              ▲ {s.code}  +{s.pct}%
+            </div>
+          ))}
+          {briefing.drops?.map((s, i) => (
+            <div key={i} style={{ fontSize: 11, color: "#ff5566", marginBottom: 2 }}>
+              ▼ {s.code}  {s.pct}%
+            </div>
+          ))}
+        </div>
+      )}
+
       {briefing.consideration?.main && (
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>かぶぼっちの考察</div>
           <div style={{ fontSize: 11, lineHeight: 1.7, color: "#b8b8b8" }}>{briefing.consideration.main}</div>
+        </div>
+      )}
+
+      {briefing.note_body && (
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>note本文（コピペ用）</div>
+          <div style={{ fontSize: 10, color: "#b8b8b8", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 200, overflowY: "auto" }}>{briefing.note_body.slice(0, 500)}...</div>
         </div>
       )}
 
@@ -142,6 +175,7 @@ function JpStocksView({ briefing }) {
 
 function UsStocksView({ briefing }) {
   const s = briefing?.stock_us;
+  const xPosts = briefing?.x_posts || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
@@ -149,6 +183,17 @@ function UsStocksView({ briefing }) {
         <StockCard s={{ ...s, code: s.ticker }} />
       ) : (
         <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分の銘柄情報はまだありません。</div>
+      )}
+      {xPosts.length > 0 && (
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>X投稿文</div>
+          {xPosts.map((x, i) => (
+            <div key={i} style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 8 }}>
+              <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>投稿{i+1}</div>
+              <div style={{ fontSize: 11, color: "#e8e8e8", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{x}</div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
