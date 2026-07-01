@@ -97,14 +97,40 @@ def fetch_market_news():
     return unique[:10]
 
 
-# 監視銘柄リスト（主要日経225銘柄）
-WATCH_LIST = [
-    "7203.T","9984.T","6758.T","6861.T","8306.T","9432.T",
-    "4063.T","6954.T","8035.T","6367.T","8058.T","6098.T",
-    "7974.T","4568.T","9983.T","6501.T","7267.T","2914.T",
-    "4543.T","4519.T","6857.T","6920.T","4452.T","9433.T",
-    "8316.T","7751.T","4901.T","6702.T","9022.T","8802.T",
-]
+# 監視銘柄リスト（コード: 銘柄名）
+WATCH_MAP = {
+    "7203.T": "トヨタ自動車",
+    "9984.T": "ソフトバンクG",
+    "6758.T": "ソニーG",
+    "6861.T": "キーエンス",
+    "8306.T": "三菱UFJ",
+    "9432.T": "NTT",
+    "4063.T": "信越化学",
+    "6954.T": "ファナック",
+    "8035.T": "東京エレクトロン",
+    "6367.T": "ダイキン工業",
+    "8058.T": "三菱商事",
+    "6098.T": "リクルートH",
+    "7974.T": "任天堂",
+    "4568.T": "第一三共",
+    "9983.T": "ファーストリテイリング",
+    "6501.T": "日立製作所",
+    "7267.T": "ホンダ",
+    "2914.T": "JT",
+    "4543.T": "テルモ",
+    "4519.T": "中外製薬",
+    "6857.T": "アドバンテスト",
+    "6920.T": "レーザーテック",
+    "4452.T": "花王",
+    "9433.T": "KDDI",
+    "8316.T": "三井住友FG",
+    "7751.T": "キヤノン",
+    "4901.T": "富士フイルム",
+    "6702.T": "富士通",
+    "9022.T": "東海旅客鉄道",
+    "8802.T": "三菱地所",
+}
+WATCH_LIST = list(WATCH_MAP.keys())
 
 def fetch_surge_drop():
     """前日比で急騰・急落した銘柄を抽出"""
@@ -120,11 +146,12 @@ def fetch_surge_drop():
             prev = float(hist["Close"].iloc[-2])
             curr = float(hist["Close"].iloc[-1])
             pct = (curr - prev) / prev * 100
-            name = code.replace(".T", "")
+            name = WATCH_MAP.get(code, code.replace(".T", ""))
+            code_short = code.replace(".T", "")
             if pct >= 3.0:
-                surges.append({"code": name, "pct": round(pct, 1), "price": int(curr)})
+                surges.append({"code": code_short, "name": name, "pct": round(pct, 1), "price": int(curr)})
             elif pct <= -3.0:
-                drops.append({"code": name, "pct": round(pct, 1), "price": int(curr)})
+                drops.append({"code": code_short, "name": name, "pct": round(pct, 1), "price": int(curr)})
         except:
             continue
     
