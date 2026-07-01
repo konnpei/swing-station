@@ -377,9 +377,13 @@ Return ONLY valid JSON (no markdown, no backticks):
   "strategy": ["5 specific strategies with actions and rationale"],
   "events_jp": [{{"date": "YYYY-MM-DD", "text": "日本の経済イベント（日銀会合、決算発表、経済指標等）", "urgent": true}}],
   "events_us": [{{"date": "YYYY-MM-DD", "text": "米国の経済イベント（FOMC、雇用統計、CPI等）", "urgent": true}}],
-  "x_main": "main X post under 280 chars with emojis, 3 hashtags, note CTA",
-  "x_engage": "engagement post under 200 chars, question format",
-  "note_cta": "実際に公開しているもの・継続発信する内容のみをCTAに書くこと。「〜公開中」など存在しないコンテンツへの誘導は絶対禁止。「毎朝の相場分析や注目銘柄は継続して発信していきます」のような誠実な表現にすること。100文字以内。"
+  "x_posts": [
+    "X投稿1: 相場サマリー（280文字以内・絵文字・ハッシュタグ3つ・noteリンク誘導）",
+    "X投稿2: 注目銘柄フォーカス（280文字以内・かぶぼっち口調）",
+    "X投稿3: 問いかけ形式（200文字以内・フォロワー反応狙い）"
+  ],
+  "note_body": "note専用完全版（1500〜2500文字）。Discord要約と完全に別の文章で書く。構成：\n1. リード文（相場を一言で表す）\n2. 今日の相場ポイント（昨夜米国・為替・半導体・AI・今日のテーマ・注意点を300〜500文字）\n3. 注目銘柄（各銘柄：名前・コード・★評価・注目理由・エントリー条件・利確・損切・注意点）\n4. 今日の売買戦略（デイトレ・スイング・中長期）\n5. かぶぼっちコメント（人間味のある一言）\n6. 明日の注目ポイント3つ\nSEOキーワード自然に含める：日本株・米国株・スイングトレード・日経平均・半導体・AI",
+  "note_cta": "毎朝の相場分析と注目銘柄は継続発信中。フォローしてお待ちください📊"
 }}
  
 stocks_jpは5銘柄のみ。以下のパターンから5つ選ぶ:
