@@ -340,27 +340,19 @@ export default function SwingStation({ briefing }) {
   );
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   let briefing = null;
   try {
-    // GitHubのlatest.jsonを直接取得（常に最新）
-    const res = await fetch(
-      "https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest.json",
-      { next: { revalidate: 0 } }
-    );
-    if (res.ok) {
-      briefing = await res.json();
-    }
+    const filePath = path.join(process.cwd(), "data", "latest.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    briefing = JSON.parse(raw);
+    console.log("latest.json loaded:", briefing?.date, Object.keys(briefing || {}));
   } catch (e) {
-    // フォールバック: ローカルファイルから読む
-    try {
-      const raw = fs.readFileSync(path.join(process.cwd(), "data", "latest.json"), "utf-8");
-      briefing = JSON.parse(raw);
-    } catch (e2) {
-      briefing = null;
-    }
+    console.error("latest.json read error:", e.message);
+    briefing = null;
   }
   return {
-    props: { briefing: briefing || null },
+    props: { briefing: briefing ?? null },
+    revalidate: 300,
   };
 }
