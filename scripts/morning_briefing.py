@@ -188,16 +188,26 @@ def fetch_market_data():
             with open("data/latest.json", "r", encoding="utf-8") as f:
                 prev = _json.load(f)
             print(f"Fallback: using previous data from {prev.get('date')}")
-            ohlcv = [{"date": TODAY, "open": prev["nikkei"], "high": prev["nikkei"],
-                       "low": prev["nikkei"], "close": prev["nikkei"], "volume": 0}]
+            nikkei = prev.get("nikkei", 70000)
+            ohlcv = [
+                {"date": TODAY, "open": nikkei*0.995, "high": nikkei*1.005,
+                 "low": nikkei*0.99, "close": nikkei, "volume": 1000000},
+                {"date": TODAY, "open": nikkei*0.99, "high": nikkei*1.01,
+                 "low": nikkei*0.985, "close": nikkei, "volume": 1000000},
+            ]
             return {
                 "ohlcv": ohlcv,
-                "latest": {"close": prev["nikkei"], "open": prev["nikkei"],
-                           "high": prev["nikkei"], "low": prev["nikkei"]},
+                "latest": {"close": nikkei, "open": nikkei, "high": nikkei, "low": nikkei},
                 "diff": 0, "pct": 0.0,
                 "usd_jpy": prev.get("usd_jpy", 150.0),
                 "sox_pct": prev.get("sox_pct", 0.0),
                 "vix": prev.get("vix", 20.0),
+                "topix": prev.get("topix", 0.0),
+                "topix_pct": prev.get("topix_pct", 0.0),
+                "nasdaq": prev.get("nasdaq", 0.0),
+                "nasdaq_pct": prev.get("nasdaq_pct", 0.0),
+                "sp500": prev.get("sp500", 0.0),
+                "sp500_pct": prev.get("sp500_pct", 0.0),
                 "is_fallback": True
             }
         except Exception as e2:
