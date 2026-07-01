@@ -173,16 +173,19 @@ def fetch_market_data():
         except:
             vix = 20.0
  
-        # TOPIX
+        # TOPIX（998405.T優先、失敗時1308.T→1475.T）
         topix, topix_pct = 0.0, 0.0
-        try:
-            topix_h = yf.Ticker("^TPX").history(period="3d")
-            if not topix_h.empty and len(topix_h) >= 2:
-                topix = round(float(topix_h["Close"].iloc[-1]), 1)
-                topix_prev = round(float(topix_h["Close"].iloc[-2]), 1)
-                topix_pct = round((topix - topix_prev) / topix_prev * 100, 2)
-        except:
-            pass
+        for topix_symbol in ["998405.T", "1308.T", "1475.T"]:
+            try:
+                topix_h = yf.Ticker(topix_symbol).history(period="3d")
+                if not topix_h.empty and len(topix_h) >= 2:
+                    topix = round(float(topix_h["Close"].iloc[-1]), 1)
+                    topix_prev = round(float(topix_h["Close"].iloc[-2]), 1)
+                    topix_pct = round((topix - topix_prev) / topix_prev * 100, 2)
+                    print(f"TOPIX取得成功: {topix_symbol} = {topix}")
+                    break
+            except:
+                continue
 
         # NASDAQ
         nasdaq, nasdaq_pct = 0.0, 0.0
