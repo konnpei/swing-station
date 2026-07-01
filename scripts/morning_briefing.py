@@ -495,8 +495,10 @@ def generate_chart(data, mode):
     ax1.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{int(v):,}"))
     ax1.legend(loc="upper left", fontsize=9, facecolor="#1a2030", edgecolor=GRID, labelcolor=TEXT, prop=fp)
  
+    if len(closes) < 2:
+        closes = [closes[0], closes[0]] if closes else [70000, 70000]
     diff2 = closes[-1] - closes[-2]
-    pct2  = diff2 / closes[-2] * 100
+    pct2  = diff2 / closes[-2] * 100 if closes[-2] else 0.0
     sign2 = "▲" if diff2 >= 0 else "▼"
     ax1.set_title(
         f"日経平均  {closes[-1]:,}円   {sign2}{abs(int(diff2)):,}  ({pct2:+.2f}%)",
