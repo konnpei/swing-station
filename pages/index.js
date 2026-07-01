@@ -175,7 +175,6 @@ function JpStocksView({ briefing }) {
 
 function UsStocksView({ briefing }) {
   const s = briefing?.stock_us;
-  const xPosts = briefing?.x_posts || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
@@ -184,17 +183,7 @@ function UsStocksView({ briefing }) {
       ) : (
         <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分の銘柄情報はまだありません。</div>
       )}
-      {xPosts.length > 0 && (
-        <div style={{ marginTop: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>X投稿文</div>
-          {xPosts.map((x, i) => (
-            <div key={i} style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 8 }}>
-              <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>投稿{i+1}</div>
-              <div style={{ fontSize: 11, color: "#e8e8e8", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{x}</div>
-            </div>
-          ))}
-        </div>
-      )}
+
     </div>
   );
 }
