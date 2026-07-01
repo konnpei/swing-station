@@ -174,7 +174,10 @@ def fetch_market_data():
             vix = 20.0
  
         return {"ohlcv":ohlcv, "latest":latest, "diff":diff, "pct":pct,
-                "usd_jpy":usd_jpy, "sox_pct":sox_pct, "vix":vix}
+                "usd_jpy":usd_jpy, "sox_pct":sox_pct, "vix":vix,
+                "topix":topix, "topix_pct":topix_pct,
+                "nasdaq":nasdaq, "nasdaq_pct":nasdaq_pct,
+                "sp500":sp500, "sp500_pct":sp500_pct}
  
     except Exception as e:
         print(f"Market data fetch FAILED: {e}")
@@ -853,24 +856,26 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
         "chart":  ("chart.png",  chart_buf,  "image/png"),
     })
 
-    chunks = [note_text[i:i+1900] for i in range(0, len(note_text), 1900)]
+    # note専用本文をDiscordに送信
+    note_body = c.get("note_body", note_text)
+    chunks = [note_body[i:i+1900] for i in range(0, len(note_body), 1900)]
     for i, chunk in enumerate(chunks):
         prefix = "**📝 note本文(コピペして投稿)**\n```\n" if i == 0 else "```\n"
         suffix = "\n```" if i == len(chunks)-1 else "\n```(続く)"
         post_json({"content": prefix + chunk + suffix})
 
-    x_main   = c.get("x_main", "")
-    x_engage = c.get("x_engage", "")
-    post_json({
-        "embeds": [{
-            "title": "📱 X投稿文（コピペしてそのまま投稿）",
-            "color": color,
-            "fields": [
-                {"name": "メイン投稿", "value": f"```\n{x_main[:900]}\n```", "inline": False},
-                {"name": "エンゲージメント狙い", "value": f"```\n{x_engage[:400]}\n```", "inline": False},
-            ]
-        }]
-    })
+    x_posts = c.get("x_posts", [c.get("x_main", "")])
+    x_fields = []
+    for i, xp in enumerate(x_posts[:3], 1):
+        x_fields.append({"name": f"投稿{i}", "value": f"```\n{xp[:450]}\n```", "inline": False})
+    if x_fields:
+        post_json({
+            "embeds": [{
+                "title": "📱 X投稿文（コピペしてそのまま投稿）",
+                "color": color,
+                "fields": x_fields
+            }]
+        })
 
     print("Discord send complete!")
  
@@ -933,6 +938,12 @@ if __name__ == "__main__":
         "usd_jpy": data["usd_jpy"],
         "sox_pct": data["sox_pct"],
         "vix": data["vix"],
+        "topix": data.get("topix", 0.0),
+        "topix_pct": data.get("topix_pct", 0.0),
+        "nasdaq": data.get("nasdaq", 0.0),
+        "nasdaq_pct": data.get("nasdaq_pct", 0.0),
+        "sp500": data.get("sp500", 0.0),
+        "sp500_pct": data.get("sp500_pct", 0.0),
         "news": content.get("news", []),
         "stocks_jp": content.get("stocks_jp", []),
         "stock_us": content.get("stock_us", {}),
@@ -941,7 +952,8 @@ if __name__ == "__main__":
         "drops": _drops,
         "events_jp": content.get("events_jp", []),
         "events_us": content.get("events_us", []),
-        "x_main": content.get("x_main", ""),
+        "x_posts": content.get("x_posts", []),
+        "note_body": content.get("note_body", ""),
         "note_cta": content.get("note_cta", ""),
     }
 
