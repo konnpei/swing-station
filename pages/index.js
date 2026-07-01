@@ -99,16 +99,16 @@ function BriefingView({ briefing }) {
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>VIX</div>
           <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.vix}</div>
         </div>
-        {briefing.nasdaq > 0 && <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>NASDAQ</div>
-          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.nasdaq?.toLocaleString()}</div>
-          <div style={{ fontSize: 10, color: briefing.nasdaq_pct >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.nasdaq_pct?.toFixed(2)}%</div>
-        </div>}
-        {briefing.sp500 > 0 && <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.nasdaq ? briefing.nasdaq.toLocaleString() : "—"}</div>
+          <div style={{ fontSize: 10, color: (briefing.nasdaq_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.nasdaq_pct ? briefing.nasdaq_pct.toFixed(2) + "%" : "—"}</div>
+        </div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>S&P500</div>
-          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.sp500?.toLocaleString()}</div>
-          <div style={{ fontSize: 10, color: briefing.sp500_pct >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.sp500_pct?.toFixed(2)}%</div>
-        </div>}
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.sp500 ? briefing.sp500.toLocaleString() : "—"}</div>
+          <div style={{ fontSize: 10, color: (briefing.sp500_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.sp500_pct ? briefing.sp500_pct.toFixed(2) + "%" : "—"}</div>
+        </div>
       </div>
 
       {briefing.market_summary && (
