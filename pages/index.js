@@ -413,16 +413,16 @@ export default function SwingStation({ briefing }) {
 export async function getServerSideProps() {
   let briefing = null;
   try {
-    const token = process.env.GH_PAT;
+    // public raw URL から取得
     const res = await fetch(
-      "https://api.github.com/repos/konnpei/swing-station/contents/data/latest.json",
-      { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.v3.raw" } }
+      "https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest.json",
+      { cache: "no-store" }
     );
     if (res.ok) {
       briefing = await res.json();
     }
   } catch (e) {
-    console.error("GitHub fetch error:", e.message);
+    console.error("fetch error:", e.message);
   }
   return {
     props: { briefing: briefing ?? null },
