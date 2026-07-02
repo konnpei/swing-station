@@ -189,8 +189,13 @@ def fetch_market_data():
             usd_jpy = 155.0
  
         try:
-            sox_h = yf.Ticker("^SOX").history(period="8d")
-            sox_pct = (float(sox_h["Close"].iloc[-1]) - float(sox_h["Close"].iloc[-6])) / float(sox_h["Close"].iloc[-6]) * 100 if len(sox_h) >= 6 else 0.0
+            sox_h = yf.Ticker("^SOX").history(period="3d")
+            if len(sox_h) >= 2:
+                sox_curr = float(sox_h["Close"].iloc[-1])
+                sox_prev = float(sox_h["Close"].iloc[-2])
+                sox_pct = (sox_curr - sox_prev) / sox_prev * 100
+            else:
+                sox_pct = 0.0
         except:
             sox_pct = 0.0
  
@@ -662,7 +667,7 @@ def generate_banner(data, mode):
     metrics = [
         ("日経平均", f"{data['latest']['close']:,}円", f"{sign}{abs(int(diff)):,}"),
         ("ドル円",   f"{data['usd_jpy']}",              "もみ合い"),
-        ("SOX",      "先週比",                           f"{data['sox_pct']:+.1f}%"),
+        ("SOX",      "前日比",                           f"{data['sox_pct']:+.1f}%"),
         ("VIX",      f"{data['vix']}",                  "警戒" if data["vix"] >= 25 else "安定"),
     ]
     bx = 40
@@ -798,7 +803,7 @@ def generate_note(data, mode, c):
         f"|------|------|--------|\n"
         f"| 日経平均 | {data['latest']['close']:,}円 | {sign}{abs(int(diff)):,}円({dc}{pct:.2f}%)|\n"
         f"| ドル円 | {data['usd_jpy']}円 | - |\n"
-        f"| SOX指数 | - | 先週比{data['sox_pct']:+.1f}% |\n"
+        f"| SOX指数 | - | 前日比{data['sox_pct']:+.1f}% |\n"
         f"| VIX | {data['vix']} | {'⚠️警戒域' if data['vix'] >= 25 else '安定'} |\n\n"
         f"{c.get('market_summary', '')}\n\n"
         f"---\n\n"
