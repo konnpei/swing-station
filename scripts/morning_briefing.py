@@ -132,12 +132,31 @@ WATCH_MAP = {
 }
 WATCH_LIST = list(WATCH_MAP.keys())
 
-def fetch_surge_drop():
-    """前日比で急騰・急落した銘柄を抽出"""
+# セクター分類（ヒートマップ用）
+SECTOR_MAP = {
+    "7203": "自動車", "7267": "自動車",
+    "9984": "通信・IT", "9432": "通信・IT", "9433": "通信・IT", "6702": "通信・IT",
+    "6758": "電機", "6501": "電機", "7751": "電機", "4901": "電機",
+    "6861": "精密機器",
+    "8306": "金融", "8316": "金融",
+    "4063": "素材",
+    "6954": "機械", "6367": "機械",
+    "8035": "半導体", "6857": "半導体", "6920": "半導体",
+    "8058": "商社",
+    "6098": "サービス",
+    "7974": "ゲーム・娯楽",
+    "4568": "医薬品", "4519": "医薬品",
+    "9983": "小売",
+    "2914": "生活必需品", "4452": "生活必需品",
+    "4543": "医療機器",
+    "9022": "運輸",
+    "8802": "不動産",
+}
+
+def fetch_all_watch_changes():
+    """監視銘柄全30社の前日比を取得（急騰急落抽出・セクターヒートマップ両方の元データ）"""
     import yfinance as yf
-    surges = []
-    drops = []
-    
+    results = []
     for code in WATCH_LIST:
         try:
             hist = yf.Ticker(code).history(period="3d")
@@ -148,16 +167,49 @@ def fetch_surge_drop():
             pct = (curr - prev) / prev * 100
             name = WATCH_MAP.get(code, code.replace(".T", ""))
             code_short = code.replace(".T", "")
-            if pct >= 3.0:
-                surges.append({"code": code_short, "name": name, "pct": round(pct, 1), "price": int(curr)})
-            elif pct <= -3.0:
-                drops.append({"code": code_short, "name": name, "pct": round(pct, 1), "price": int(curr)})
+            results.append({
+                "code": code_short, "name": name,
+                "pct": round(pct, 2), "price": int(curr),
+                "sector": SECTOR_MAP.get(code_short, "その他"),
+            })
         except:
             continue
-    
+    return results
+
+def fetch_surge_drop(all_changes=None):
+    """前日比で急騰・急落した銘柄を抽出"""
+    changes = all_changes if all_changes is not None else fetch_all_watch_changes()
+    surges = [{"code": c["code"], "name": c["name"], "pct": c["pct"], "price": c["price"]}
+              for c in changes if c["pct"] >= 3.0]
+    drops = [{"code": c["code"], "name": c["name"], "pct": c["pct"], "price": c["price"]}
+             for c in changes if c["pct"] <= -3.0]
+
     surges.sort(key=lambda x: x["pct"], reverse=True)
     drops.sort(key=lambda x: x["pct"])
     return surges[:5], drops[:5]
+
+def build_sector_heatmap(all_changes=None):
+    """セクター別の値動きをヒートマップ用データに集計"""
+    changes = all_changes if all_changes is not None else fetch_all_watch_changes()
+    grouped = {}
+    for c in changes:
+        sec = c["sector"]
+        grouped.setdefault(sec, []).append(c)
+
+    heatmap = []
+    for sector, items in grouped.items():
+        avg_pct = sum(i["pct"] for i in items) / len(items)
+        top = sorted(items, key=lambda x: abs(x["pct"]), reverse=True)[0]
+        heatmap.append({
+            "sector": sector,
+            "avg_pct": round(avg_pct, 2),
+            "count": len(items),
+            "up": sum(1 for i in items if i["pct"] > 0),
+            "down": sum(1 for i in items if i["pct"] < 0),
+            "top_mover": {"name": top["name"], "code": top["code"], "pct": top["pct"]},
+        })
+    heatmap.sort(key=lambda x: x["avg_pct"], reverse=True)
+    return heatmap
 
 def fetch_market_data():
     try:
@@ -333,6 +385,43 @@ def fetch_stock_technicals():
             continue
     return results
 
+def compute_ai_score(tech):
+    """
+    テクニカル指標のみから機械的に算出するAIスコア（0-100）。
+    LLMが生成する主観的な「総合スコア」とは独立した、再現可能な定量スコア。
+    - トレンド（MA25乖離）
+    - RSI（過熱/売られすぎ）
+    - ボリンジャーバンド位置（逆張り妙味）
+    - 出来高（関心度）
+    """
+    score = 50.0
+
+    ma25_diff = tech.get("ma25_diff", 0)
+    score += max(-15, min(15, ma25_diff))
+
+    rsi = tech.get("rsi", 50)
+    if 40 <= rsi <= 60:
+        score += 5
+    elif rsi < 30:
+        score += 10  # 売られすぎ＝リバウンド期待
+    elif rsi > 70:
+        score -= 10  # 過熱感
+
+    bb_pos = tech.get("bb_pos", 50)
+    if bb_pos < 20:
+        score += 8  # バンド下限＝反発期待
+    elif bb_pos > 80:
+        score -= 8  # バンド上限＝過熱
+
+    vol_ratio = tech.get("vol_ratio", 1.0)
+    if vol_ratio > 1.5:
+        score += 7
+    elif vol_ratio < 0.7:
+        score -= 3
+
+    return max(0, min(100, round(score)))
+
+
 def detect_mode(data):
     pct = data["pct"]
     sox = data["sox_pct"]
@@ -408,7 +497,7 @@ You write morning briefings for Discord and note at 6:30 AM JST.
 - 日付: {TODAY} ({WEEKDAY_JP})
 - 日経225: {data["latest"]["close"]:,}円 ({sign}{abs(int(data["diff"])):,}円 / {data["pct"]:+.2f}%)
 - USD/JPY: {data["usd_jpy"]}
-- SOX指数: {data["sox_pct"]:+.1f}% 先週比
+- SOX指数: {data["sox_pct"]:+.1f}% 前日比
 - VIX: {data["vix"]}
 - 相場モード: {m["label"]}
 - Quote: {m["quote"]}
@@ -453,8 +542,8 @@ Return ONLY valid JSON (no markdown, no backticks):
     "action": "specific action for readers"
   }},
   "strategy": ["5 specific strategies with actions and rationale"],
-  "events_jp": [{{"date": "YYYY-MM-DD", "text": "日本の経済イベント（日銀会合、決算発表、経済指標等）", "urgent": true}}],
-  "events_us": [{{"date": "YYYY-MM-DD", "text": "米国の経済イベント（FOMC、雇用統計、CPI等）", "urgent": true}}],
+  "events_jp": [{{"date": "YYYY-MM-DD", "text": "日本の経済イベント（日銀会合、決算発表、経済指標等）", "importance": "high or medium or low", "urgent": true}}],
+  "events_us": [{{"date": "YYYY-MM-DD", "text": "米国の経済イベント（FOMC、雇用統計、CPI等）", "importance": "high or medium or low", "urgent": true}}],
   "x_posts": [
     "X投稿1: 相場サマリー（280文字以内・絵文字・ハッシュタグ3つ・noteリンク誘導）",
     "X投稿2: 注目銘柄フォーカス（280文字以内・かぶぼっち口調）",
@@ -467,6 +556,12 @@ Return ONLY valid JSON (no markdown, no backticks):
 stocks_jpは5銘柄のみ。以下のパターンから5つ選ぶ:
 イベントドリブン/暴落リバウンド/モメンタム/押し目買い/出来高急増/ギャップアップ/セクターローテーション/清原式割安/井村式急回復
 ※本日の相場モードに最も合う5パターンを選ぶこと
+
+events_jp/events_usのimportanceは3段階で厳密に付けること:
+- high: 日銀金融政策決定会合、FOMC、米雇用統計、CPI、主要企業の決算発表など相場全体を動かしうるイベント
+- medium: 個別統計や中堅企業決算など、注目はされるが相場全体への影響は限定的なイベント
+- low: 参考程度の経済指標や恒例行事
+urgentはimportanceが"high"の場合のみtrueにすること。
  
 All text content must be in Japanese. Return ONLY the JSON object."""
  
@@ -480,11 +575,22 @@ All text content must be in Japanese. Return ONLY the JSON object."""
     raw = re.sub(r"\s*```$", "", raw)
  
     try:
-        return json.loads(raw)
+        parsed = json.loads(raw)
     except json.JSONDecodeError as e:
         print(f"JSON parse error: {e}")
         print(f"Raw response: {raw[:500]}")
         raise
+
+    # 各銘柄にテクニカルベースのAIスコアを付与（LLMの主観スコアとは別軸）
+    tech_by_code = {s["code"]: s for s in stocks}
+    for s in parsed.get("stocks_jp", []):
+        t = tech_by_code.get(str(s.get("code", "")))
+        if t:
+            s["ai_score"] = compute_ai_score(t)
+            s["rsi"] = t.get("rsi")
+            s["vol_ratio"] = t.get("vol_ratio")
+
+    return parsed
  
  
 def generate_chart(data, mode):
@@ -1006,12 +1112,14 @@ if __name__ == "__main__":
 
     print("Saving data/latest.json...")
     diff = data["diff"]
-    # surges/dropsをメインスコープで取得
+    # surges/drops・セクターヒートマップをメインスコープで取得（1回のfetchで両方作る）
     try:
-        _surges, _drops = fetch_surge_drop()
+        _all_changes = fetch_all_watch_changes()
+        _surges, _drops = fetch_surge_drop(_all_changes)
+        _sector_heatmap = build_sector_heatmap(_all_changes)
     except Exception as e:
-        print(f"Surge/drop fetch error: {e}")
-        _surges, _drops = [], []
+        print(f"Surge/drop/heatmap fetch error: {e}")
+        _surges, _drops, _sector_heatmap = [], [], []
     latest_json = {
         "date": f"{TODAY}",
         "mode": mode,
@@ -1034,6 +1142,7 @@ if __name__ == "__main__":
         "consideration": content.get("consideration", {}),
         "surges": _surges,
         "drops": _drops,
+        "sector_heatmap": _sector_heatmap,
         "events_jp": content.get("events_jp", []),
         "events_us": content.get("events_us", []),
         "x_posts": content.get("x_posts", []),

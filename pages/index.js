@@ -29,6 +29,14 @@ function StockCard({ s }) {
         <div style={{ textAlign: "right" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>総合スコア</div>
           <div style={{ fontSize: 15, color: "#ffd166", fontWeight: 500 }}>{s.score}<span style={{ fontSize: 10, color: "#8a8a8a" }}>/10</span></div>
+          {typeof s.ai_score === "number" && (
+            <div style={{ marginTop: 4 }}>
+              <div style={{ fontSize: 9, color: "#8a8a8a" }}>AIスコア</div>
+              <div style={{ fontSize: 13, color: s.ai_score >= 60 ? "#00ff9d" : s.ai_score <= 40 ? "#ff5566" : "#e8e8e8", fontWeight: 500 }}>
+                {s.ai_score}<span style={{ fontSize: 9, color: "#8a8a8a" }}>/100</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -50,6 +58,11 @@ function StockCard({ s }) {
         <span>損切 <strong style={{ color: "#ff5566" }}>{s.stop}</strong></span>
       </div>
       <div style={{ fontSize: 10, color: "#787878", fontStyle: "italic" }}>{s.comment}</div>
+      {typeof s.ai_score === "number" && (
+        <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 6 }}>
+          ※AIスコアはRSI・移動平均乖離・出来高などテクニカル指標のみから機械的に算出（総合スコアとは別軸・投資判断の一助程度に）
+        </div>
+      )}
     </div>
   );
 }
@@ -152,10 +165,59 @@ function BriefingView({ briefing }) {
   );
 }
 
+function heatColor(pct) {
+  // -3%以下は濃い赤、+3%以上は濃い緑、0%付近はグレー寄りにグラデーション
+  const clamped = Math.max(-3, Math.min(3, pct));
+  if (clamped >= 0) {
+    const t = clamped / 3;
+    const bg = `rgba(0,255,157,${0.08 + t * 0.35})`;
+    const border = `rgba(0,255,157,${0.25 + t * 0.5})`;
+    return { bg, border, text: t > 0.4 ? "#00ff9d" : "#b8b8b8" };
+  }
+  const t = -clamped / 3;
+  const bg = `rgba(255,85,102,${0.08 + t * 0.35})`;
+  const border = `rgba(255,85,102,${0.25 + t * 0.5})`;
+  return { bg, border, text: t > 0.4 ? "#ff5566" : "#b8b8b8" };
+}
+
+function SectorHeatmap({ heatmap }) {
+  if (!heatmap || heatmap.length === 0) return null;
+  return (
+    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>セクター別ヒートマップ（前日比）</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 6 }}>
+        {heatmap.map((h, i) => {
+          const c = heatColor(h.avg_pct);
+          return (
+            <div key={i} style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 8, padding: "8px 10px" }}>
+              <div style={{ fontSize: 10, color: "#e8e8e8", fontWeight: 600, marginBottom: 3 }}>{h.sector}</div>
+              <div style={{ fontSize: 14, color: c.text, fontWeight: 700 }}>
+                {h.avg_pct >= 0 ? "+" : ""}{h.avg_pct.toFixed(2)}%
+              </div>
+              <div style={{ fontSize: 9, color: "#8a8a8a", marginTop: 2 }}>
+                {h.up}銘柄↑ / {h.down}銘柄↓ ({h.count}銘柄)
+              </div>
+              {h.top_mover && (
+                <div style={{ fontSize: 9, color: "#6a6a6a", marginTop: 2 }}>
+                  最大: {h.top_mover.name} {h.top_mover.pct >= 0 ? "+" : ""}{h.top_mover.pct}%
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
+        ※監視銘柄30社を業種で分類し、各セクターの平均騰落率を表示（個別銘柄の分散にご注意）
+      </div>
+    </div>
+  );
+}
+
 function JpStocksView({ briefing }) {
   const stocks = briefing?.stocks_jp || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <SectorHeatmap heatmap={briefing?.sector_heatmap} />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
       {stocks.length > 0 ? (
         stocks.map((s, i) => <StockCard key={i} s={s} />)
@@ -191,6 +253,22 @@ function groupByMonth(events) {
   return groups;
 }
 
+const IMPORTANCE_META = {
+  high:   { label: "最重要", color: "#ff5566", dot: "#ff5566", order: 0 },
+  medium: { label: "重要",   color: "#ffd166", dot: "#ffd166", order: 1 },
+  low:    { label: "参考",   color: "#8a8a8a", dot: "#4a4a4a", order: 2 },
+};
+const IMPORTANCE_KEYWORDS = ["日銀", "FOMC", "雇用統計", "CPI", "GDP", "決算", "金融政策"];
+
+function getImportance(e) {
+  if (e.importance === "high" || e.importance === "medium" || e.importance === "low") {
+    return e.importance;
+  }
+  if (e.urgent) return "high";
+  if (IMPORTANCE_KEYWORDS.some(k => (e.text || "").includes(k))) return "medium";
+  return "low";
+}
+
 function CalendarSection({ title, events }) {
   const groups = groupByMonth(events);
   const months = Object.keys(groups).sort();
@@ -205,20 +283,34 @@ function CalendarSection({ title, events }) {
   return (
     <div style={{ marginBottom: 18 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>{title}</div>
-      {months.map(month => (
-        <div key={month} style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 6 }}>{month}</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {groups[month].map((e, i) => (
-              <div key={i} style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px", display: "flex", gap: 10, alignItems: "flex-start" }}>
-                <div style={{ fontSize: 10, color: "#9a9a9a", minWidth: 70 }}>{e.date}</div>
-                <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.text}</div>
-                {e.urgent && <div style={{ fontSize: 9, color: "#ff5566" }}>重要</div>}
-              </div>
-            ))}
+      {months.map(month => {
+        const sorted = [...groups[month]].sort((a, b) => {
+          const ia = IMPORTANCE_META[getImportance(a)].order;
+          const ib = IMPORTANCE_META[getImportance(b)].order;
+          if (ia !== ib) return ia - ib;
+          return (a.date || "").localeCompare(b.date || "");
+        });
+        return (
+          <div key={month} style={{ marginBottom: 10 }}>
+            <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 6 }}>{month}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {sorted.map((e, i) => {
+                const imp = IMPORTANCE_META[getImportance(e)];
+                return (
+                  <div key={i} style={{
+                    background: "#121212", border: `1px solid ${imp.color}33`, borderLeft: `3px solid ${imp.color}`,
+                    borderRadius: 8, padding: "8px 10px", display: "flex", gap: 10, alignItems: "flex-start",
+                  }}>
+                    <div style={{ fontSize: 10, color: "#9a9a9a", minWidth: 70 }}>{e.date}</div>
+                    <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.text}</div>
+                    <div style={{ fontSize: 9, color: imp.color, whiteSpace: "nowrap" }}>{imp.label}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -360,6 +452,52 @@ function HistoryView({ history }) {
   );
 }
 
+const MONTHLY_FLOW = [
+  { m: 1,  label: "1月",  level: "medium", desc: "大発会・米雇用統計・FOMC" },
+  { m: 2,  label: "2月",  level: "high",   desc: "日本Q3決算ラッシュ" },
+  { m: 3,  label: "3月",  level: "high",   desc: "日銀会合・米メジャーSQ・期末" },
+  { m: 4,  label: "4月",  level: "medium", desc: "新年度入り・日銀会合" },
+  { m: 5,  label: "5月",  level: "high",   desc: "日本本決算発表ラッシュ・FOMC" },
+  { m: 6,  label: "6月",  level: "medium", desc: "株主総会シーズン・米メジャーSQ" },
+  { m: 7,  label: "7月",  level: "medium", desc: "日銀会合・日本Q1決算発表開始" },
+  { m: 8,  label: "8月",  level: "medium", desc: "日本Q1決算本格化・米国は薄商い" },
+  { m: 9,  label: "9月",  level: "high",   desc: "日銀会合・米メジャーSQ・中間配当権利落ち" },
+  { m: 10, label: "10月", level: "medium", desc: "米国Q3決算発表開始" },
+  { m: 11, label: "11月", level: "high",   desc: "日本中間決算ラッシュ・米決算本格化" },
+  { m: 12, label: "12月", level: "high",   desc: "米メジャーSQ・FOMC・掉尾の一振" },
+];
+
+function YearlyFlowView() {
+  const currentMonth = new Date().getMonth() + 1;
+  return (
+    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 18 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>年間の値動きが起こりやすい月（参考）</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6 }}>
+        {MONTHLY_FLOW.map(mo => {
+          const imp = IMPORTANCE_META[mo.level];
+          const isNow = mo.m === currentMonth;
+          return (
+            <div key={mo.m} style={{
+              background: isNow ? `${imp.color}18` : "#0d0d0d",
+              border: `1px solid ${isNow ? imp.color : "#262626"}`,
+              borderRadius: 8, padding: "7px 8px",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                <span style={{ fontSize: 11, color: "#e8e8e8", fontWeight: isNow ? 700 : 500 }}>{mo.label}</span>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: imp.dot, display: "inline-block" }} />
+              </div>
+              <div style={{ fontSize: 9, color: "#8a8a8a", lineHeight: 1.4 }}>{mo.desc}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
+        ※日本・米国の決算シーズンや金融政策イベントなど、例年起こりやすい傾向を示す一般的な参考情報です。特定の値動きを保証するものではありません。
+      </div>
+    </div>
+  );
+}
+
 function CalendarView({ briefing }) {
   if (!briefing) {
     return (
@@ -371,6 +509,7 @@ function CalendarView({ briefing }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 14 }}>月次イベントカレンダー</div>
+      <YearlyFlowView />
       <CalendarSection title="日本" events={briefing.events_jp} />
       <CalendarSection title="米国" events={briefing.events_us} />
     </div>
