@@ -227,10 +227,54 @@ const MODE_COLORS = {
   normal: "#888888", surge: "#00ff9d", crash: "#ff5566", ai: "#a78bfa"
 };
 
+function DayDetailView({ briefing, onClose }) {
+  const mode = MODE_LABELS[briefing.mode] || MODE_LABELS.normal;
+  return (
+    <div style={{ background: "#0d0d0d", border: `1px solid ${mode.color}44`, borderRadius: 10, marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", borderBottom: "1px solid #1a1a1a" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8" }}>{briefing.date} の朝刊</div>
+        <button onClick={onClose} style={{ background: "none", border: "1px solid #333", borderRadius: 6, color: "#8a8a8a", fontSize: 10, padding: "3px 8px", cursor: "pointer" }}>閉じる</button>
+      </div>
+      <div style={{ padding: "4px 4px 4px" }}>
+        <BriefingView briefing={briefing} />
+      </div>
+      {briefing.stocks_jp?.length > 0 && (
+        <div style={{ padding: "0 12px 12px" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", margin: "4px 0 8px" }}>この日の注目銘柄</div>
+          {briefing.stocks_jp.map((s, i) => <StockCard key={i} s={s} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HistoryView({ history }) {
+  const [selectedDate, setSelectedDate] = useState("");
+  const [dayData, setDayData] = useState(null);
+  const [dayLoading, setDayLoading] = useState(false);
+  const [dayError, setDayError] = useState("");
+
+  const loadDay = (fileDate) => {
+    if (!fileDate) return;
+    setSelectedDate(fileDate);
+    setDayLoading(true);
+    setDayError("");
+    setDayData(null);
+    fetch(`/api/history?date=${fileDate}`)
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (!ok) setDayError(d.error || "取得に失敗しました");
+        else setDayData(d.data);
+      })
+      .catch(() => setDayError("通信エラーが発生しました"))
+      .finally(() => setDayLoading(false));
+  };
+
   if (!history || history.length === 0) {
     return <div style={{ padding: 20, color: "#6a6a6a", fontSize: 12 }}>履歴データがまだありません。明日以降蓄積されます。</div>;
   }
+
+  const fileDates = history.map(h => h.fileDate).filter(Boolean).sort();
 
   // 銘柄出現頻度ランキング
   const stockCount = {};
@@ -248,6 +292,26 @@ function HistoryView({ history }) {
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+
+      {/* 日付ピッカー */}
+      <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>過去の朝刊を呼び出す</div>
+        <input
+          type="date"
+          value={selectedDate}
+          min={fileDates[0]}
+          max={fileDates[fileDates.length - 1]}
+          onChange={(e) => loadDay(e.target.value)}
+          style={{ background: "#0d0d0d", color: "#eeeeee", border: "1px solid #333", borderRadius: 6, padding: "6px 10px", fontSize: 12, colorScheme: "dark" }}
+        />
+        <div style={{ fontSize: 9, color: "#6a6a6a", marginTop: 6 }}>
+          保存期間: {fileDates[0]} 〜 {fileDates[fileDates.length - 1]}
+        </div>
+        {dayLoading && <div style={{ fontSize: 11, color: "#8a8a8a", marginTop: 8 }}>読み込み中...</div>}
+        {dayError && <div style={{ fontSize: 11, color: "#ff5566", marginTop: 8 }}>{dayError}</div>}
+      </div>
+
+      {dayData && <DayDetailView briefing={dayData} onClose={() => { setDayData(null); setSelectedDate(""); }} />}
 
       {/* 相場モード統計 */}
       <div style={{ marginBottom: 16 }}>
