@@ -467,30 +467,83 @@ const MONTHLY_FLOW = [
   { m: 12, label: "12月", level: "high",   desc: "米メジャーSQ・FOMC・掉尾の一振" },
 ];
 
-function YearlyFlowView() {
+function YearlyFlowView({ eventsJp, eventsUs }) {
   const currentMonth = new Date().getMonth() + 1;
+  const [openMonth, setOpenMonth] = useState(null);
+
+  const merged = [
+    ...(eventsJp || []).map(e => ({ ...e, source: "日本" })),
+    ...(eventsUs || []).map(e => ({ ...e, source: "米国" })),
+  ];
+
+  const eventsForMonth = (m) => {
+    const mm = String(m).padStart(2, "0");
+    return merged
+      .filter(e => (e.date || "").slice(5, 7) === mm)
+      .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+  };
+
   return (
     <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 18 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>年間の値動きが起こりやすい月（参考）</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>年間の値動きが起こりやすい月（参考・タップで日程を表示）</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6 }}>
         {MONTHLY_FLOW.map(mo => {
           const imp = IMPORTANCE_META[mo.level];
           const isNow = mo.m === currentMonth;
+          const isOpen = openMonth === mo.m;
           return (
-            <div key={mo.m} style={{
-              background: isNow ? `${imp.color}18` : "#0d0d0d",
-              border: `1px solid ${isNow ? imp.color : "#262626"}`,
-              borderRadius: 8, padding: "7px 8px",
-            }}>
+            <button
+              key={mo.m}
+              onClick={() => setOpenMonth(isOpen ? null : mo.m)}
+              style={{
+                background: isOpen ? `${imp.color}28` : isNow ? `${imp.color}18` : "#0d0d0d",
+                border: `1px solid ${isOpen ? imp.color : isNow ? imp.color : "#262626"}`,
+                borderRadius: 8, padding: "7px 8px", textAlign: "left",
+                fontFamily: "inherit", color: "inherit",
+              }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
                 <span style={{ fontSize: 11, color: "#e8e8e8", fontWeight: isNow ? 700 : 500 }}>{mo.label}</span>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: imp.dot, display: "inline-block" }} />
               </div>
               <div style={{ fontSize: 9, color: "#8a8a8a", lineHeight: 1.4 }}>{mo.desc}</div>
-            </div>
+            </button>
           );
         })}
       </div>
+
+      {openMonth && (() => {
+        const dayEvents = eventsForMonth(openMonth);
+        const mo = MONTHLY_FLOW.find(x => x.m === openMonth);
+        return (
+          <div style={{ marginTop: 10, background: "#0d0d0d", border: "1px solid #262626", borderRadius: 8, padding: "10px 12px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8" }}>{mo.label}の予定日</div>
+              <button onClick={() => setOpenMonth(null)} style={{ background: "none", border: "1px solid #333", borderRadius: 6, color: "#8a8a8a", fontSize: 9, padding: "3px 8px", cursor: "pointer", fontFamily: "inherit" }}>閉じる</button>
+            </div>
+            {dayEvents.length === 0 ? (
+              <div style={{ fontSize: 10, color: "#6a6a6a", lineHeight: 1.6 }}>
+                この月の具体的な日程データはまだありません。朝刊配信が近づくと下の「日本」「米国」欄に個別の日付が追加されます。
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {dayEvents.map((e, i) => {
+                  const imp = IMPORTANCE_META[getImportance(e)];
+                  return (
+                    <div key={i} style={{ background: "#121212", border: `1px solid ${imp.color}33`, borderLeft: `3px solid ${imp.color}`, borderRadius: 6, padding: "6px 8px", display: "flex", gap: 8, alignItems: "flex-start" }}>
+                      <div style={{ fontSize: 9, color: "#9a9a9a", minWidth: 62 }}>{e.date}</div>
+                      <div style={{ fontSize: 10, color: "#6a6a6a", minWidth: 26 }}>{e.source}</div>
+                      <div style={{ fontSize: 10, color: "#eeeeee", flex: 1 }}>{e.text}</div>
+                      <div style={{ fontSize: 9, color: imp.color, whiteSpace: "nowrap" }}>{imp.label}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
         ※日本・米国の決算シーズンや金融政策イベントなど、例年起こりやすい傾向を示す一般的な参考情報です。特定の値動きを保証するものではありません。
       </div>
@@ -509,7 +562,7 @@ function CalendarView({ briefing }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 14 }}>月次イベントカレンダー</div>
-      <YearlyFlowView />
+      <YearlyFlowView eventsJp={briefing.events_jp} eventsUs={briefing.events_us} />
       <CalendarSection title="日本" events={briefing.events_jp} />
       <CalendarSection title="米国" events={briefing.events_us} />
     </div>
