@@ -21,12 +21,12 @@ export default function handler(req, res) {
       return res.status(200).json({ date, data });
     }
 
-    // 既存: 履歴タブの統計表示用(直近30日分の要約)
+    // 既存: 履歴タブの統計表示用（最大400日分＝平日ベースでおよそ1年半）
     const files = fs.readdirSync(histDir)
       .filter(f => f.endsWith(".json"))
       .sort()
       .reverse()
-      .slice(0, 30);
+      .slice(0, 400);
 
     const history = files.map(file => {
       try {
@@ -41,6 +41,12 @@ export default function handler(req, res) {
           usd_jpy: d.usd_jpy,
           sox_pct: d.sox_pct,
           vix: d.vix,
+          topix: d.topix,
+          topix_pct: d.topix_pct,
+          nasdaq: d.nasdaq,
+          nasdaq_pct: d.nasdaq_pct,
+          sp500: d.sp500,
+          sp500_pct: d.sp500_pct,
           stocks_jp: (d.stocks_jp || []).map(s => ({ name: s.name, code: s.code, score: s.score })),
         };
       } catch (e) {

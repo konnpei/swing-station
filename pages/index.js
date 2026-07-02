@@ -180,16 +180,33 @@ function heatColor(pct) {
   return { bg, border, text: t > 0.4 ? "#ff5566" : "#b8b8b8" };
 }
 
-function SectorHeatmap({ heatmap }) {
+function SectorHeatmap({ heatmap, allChanges, currency }) {
+  const [openSector, setOpenSector] = useState(null);
   if (!heatmap || heatmap.length === 0) return null;
+
+  const stocksInSector = (sector) => {
+    return (allChanges || [])
+      .filter(c => c.sector === sector)
+      .sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct))
+      .slice(0, 10);
+  };
+
   return (
     <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>セクター別ヒートマップ（前日比）</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>セクター別ヒートマップ（前日比・タップで銘柄一覧）</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 6 }}>
         {heatmap.map((h, i) => {
           const c = heatColor(h.avg_pct);
+          const isOpen = openSector === h.sector;
           return (
-            <div key={i} style={{ background: c.bg, border: `1px solid ${c.border}`, borderRadius: 8, padding: "8px 10px" }}>
+            <button
+              key={i}
+              onClick={() => setOpenSector(isOpen ? null : h.sector)}
+              style={{
+                background: c.bg, border: `1px solid ${isOpen ? c.text : c.border}`, borderRadius: 8, padding: "8px 10px",
+                textAlign: "left", fontFamily: "inherit", color: "inherit", cursor: "pointer",
+              }}
+            >
               <div style={{ fontSize: 10, color: "#e8e8e8", fontWeight: 600, marginBottom: 3 }}>{h.sector}</div>
               <div style={{ fontSize: 14, color: c.text, fontWeight: 700 }}>
                 {h.avg_pct >= 0 ? "+" : ""}{h.avg_pct.toFixed(2)}%
@@ -202,13 +219,71 @@ function SectorHeatmap({ heatmap }) {
                   最大: {h.top_mover.name} {h.top_mover.pct >= 0 ? "+" : ""}{h.top_mover.pct}%
                 </div>
               )}
+            </button>
+          );
+        })}
+      </div>
+
+      {openSector && (() => {
+        const list = stocksInSector(openSector);
+        return (
+          <div style={{ marginTop: 10, background: "#0d0d0d", border: "1px solid #262626", borderRadius: 8, padding: "10px 12px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8" }}>{openSector} 上位銘柄</div>
+              <button onClick={() => setOpenSector(null)} style={{ background: "none", border: "1px solid #333", borderRadius: 6, color: "#8a8a8a", fontSize: 9, padding: "3px 8px", cursor: "pointer", fontFamily: "inherit" }}>閉じる</button>
+            </div>
+            {list.length === 0 ? (
+              <div style={{ fontSize: 10, color: "#6a6a6a" }}>この日はこのセクターの銘柄データがありません。</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {list.map((s, i) => {
+                  const up = s.pct >= 0;
+                  return (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 6px", background: "#121212", borderRadius: 6, border: `1px solid ${up ? "#00ff9d" : "#ff5566"}22` }}>
+                      <div style={{ fontSize: 9, color: "#6a6a6a", width: 16 }}>{i + 1}</div>
+                      <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{s.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({s.code})</span></div>
+                      <div style={{ fontSize: 9, color: "#6a6a6a" }}>{currency === "$" ? `$${s.price}` : `${s.price?.toLocaleString()}円`}</div>
+                      <div style={{ fontSize: 11, color: up ? "#00ff9d" : "#ff5566", fontWeight: 700, minWidth: 44, textAlign: "right" }}>
+                        {up ? "+" : ""}{s.pct}%
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
+        ※監視銘柄を業種で分類し、各セクターの平均騰落率を表示（個別銘柄の分散にご注意）
+      </div>
+    </div>
+  );
+}
+
+function TopMovers({ movers, currency }) {
+  if (!movers || movers.length === 0) return null;
+  return (
+    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>値動き上位10銘柄</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {movers.map((m, i) => {
+          const up = m.pct >= 0;
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 6px", background: "#0d0d0d", borderRadius: 6, border: `1px solid ${up ? "#00ff9d" : "#ff5566"}22` }}>
+              <div style={{ fontSize: 9, color: "#6a6a6a", width: 16 }}>{i + 1}</div>
+              <div style={{ fontSize: 10, color: "#8a8a8a", width: 48 }}>{m.sector}</div>
+              <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{m.name}</div>
+              <div style={{ fontSize: 9, color: "#6a6a6a" }}>{currency === "$" ? `$${m.price}` : `${m.price?.toLocaleString()}円`}</div>
+              <div style={{ fontSize: 11, color: up ? "#00ff9d" : "#ff5566", fontWeight: 700, minWidth: 44, textAlign: "right" }}>
+                {up ? "+" : ""}{m.pct}%
+              </div>
             </div>
           );
         })}
       </div>
-      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
-        ※監視銘柄30社を業種で分類し、各セクターの平均騰落率を表示（個別銘柄の分散にご注意）
-      </div>
+      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>※監視銘柄内での前日比の値動き（絶対値）が大きい順</div>
     </div>
   );
 }
@@ -217,7 +292,8 @@ function JpStocksView({ briefing }) {
   const stocks = briefing?.stocks_jp || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <SectorHeatmap heatmap={briefing?.sector_heatmap} />
+      <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" />
+      <TopMovers movers={briefing?.jp_top_movers} currency="¥" />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
       {stocks.length > 0 ? (
         stocks.map((s, i) => <StockCard key={i} s={s} />)
@@ -232,6 +308,8 @@ function UsStocksView({ briefing }) {
   const s = briefing?.stock_us;
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <SectorHeatmap heatmap={briefing?.us_sector_heatmap} allChanges={briefing?.us_all_changes} currency="$" />
+      <TopMovers movers={briefing?.us_top_movers} currency="$" />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
       {s ? (
         <StockCard s={{ ...s, code: s.ticker }} />
@@ -340,6 +418,84 @@ function DayDetailView({ briefing, onClose }) {
   );
 }
 
+function normalizeSeries(history, field) {
+  const pts = [...history]
+    .filter(h => h.fileDate && h[field])
+    .sort((a, b) => a.fileDate.localeCompare(b.fileDate));
+  if (pts.length === 0) return [];
+  const base = pts[0][field];
+  return pts.map(p => ({ fileDate: p.fileDate, date: p.date, value: (p[field] / base) * 100 }));
+}
+
+function IndexCompareChart({ history }) {
+  const W = 320, H = 160, PAD_L = 30, PAD_R = 8, PAD_T = 10, PAD_B = 18;
+
+  const series = [
+    { key: "nikkei", label: "日経225", color: "#e8e8e8", data: normalizeSeries(history, "nikkei") },
+    { key: "nasdaq", label: "NASDAQ", color: "#00ff9d", data: normalizeSeries(history, "nasdaq") },
+    { key: "sp500", label: "S&P500", color: "#ffd166", data: normalizeSeries(history, "sp500") },
+  ];
+
+  const allDates = [...new Set(history.filter(h => h.fileDate).map(h => h.fileDate))].sort();
+
+  if (allDates.length < 2 || series.every(s => s.data.length < 2)) {
+    return (
+      <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>年間チャート：日経225 / NASDAQ / S&P500</div>
+        <div style={{ fontSize: 10, color: "#6a6a6a" }}>データ蓄積中です。数日分たまるとチャートが表示されます。</div>
+      </div>
+    );
+  }
+
+  const xOf = (fileDate) => {
+    const i = allDates.indexOf(fileDate);
+    return PAD_L + (i / (allDates.length - 1)) * (W - PAD_L - PAD_R);
+  };
+
+  const allValues = series.flatMap(s => s.data.map(d => d.value));
+  const minV = Math.min(100, ...allValues);
+  const maxV = Math.max(100, ...allValues);
+  const spread = Math.max(1, maxV - minV);
+  const yOf = (v) => PAD_T + (1 - (v - minV) / spread) * (H - PAD_T - PAD_B);
+
+  const buildPath = (data) => data.map((d, i) => `${i === 0 ? "M" : "L"}${xOf(d.fileDate).toFixed(1)},${yOf(d.value).toFixed(1)}`).join(" ");
+  const gridYs = [minV, (minV + maxV) / 2, maxV];
+
+  return (
+    <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8" }}>年間チャート：日経225 / NASDAQ / S&P500</div>
+        <div style={{ display: "flex", gap: 10 }}>
+          {series.map(s => (
+            <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color, display: "inline-block" }} />
+              <span style={{ fontSize: 9, color: "#8a8a8a" }}>{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+        {gridYs.map((gv, i) => (
+          <g key={i}>
+            <line x1={PAD_L} x2={W - PAD_R} y1={yOf(gv)} y2={yOf(gv)} stroke="#262626" strokeWidth="1" />
+            <text x={2} y={yOf(gv) + 3} fontSize="7" fill="#6a6a6a">{gv.toFixed(0)}</text>
+          </g>
+        ))}
+        {series.map(s => s.data.length > 1 && (
+          <path key={s.key} d={buildPath(s.data)} fill="none" stroke={s.color} strokeWidth="1.5" />
+        ))}
+      </svg>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9, color: "#6a6a6a", marginTop: 4 }}>
+        <span>{allDates[0]}</span>
+        <span>{allDates[allDates.length - 1]}</span>
+      </div>
+      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 6 }}>
+        ※各指数ともデータ収集開始日を100として指数化した相対パフォーマンス比較です（実際の指数値ではありません）。日々の朝刊配信でデータが蓄積されるほど表示期間が伸びます。
+      </div>
+    </div>
+  );
+}
+
 function HistoryView({ history }) {
   const [selectedDate, setSelectedDate] = useState("");
   const [dayData, setDayData] = useState(null);
@@ -404,6 +560,8 @@ function HistoryView({ history }) {
       </div>
 
       {dayData && <DayDetailView briefing={dayData} onClose={() => { setDayData(null); setSelectedDate(""); }} />}
+
+      <IndexCompareChart history={history} />
 
       {/* 相場モード統計 */}
       <div style={{ marginBottom: 16 }}>

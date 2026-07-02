@@ -211,6 +211,56 @@ def build_sector_heatmap(all_changes=None):
     heatmap.sort(key=lambda x: x["avg_pct"], reverse=True)
     return heatmap
 
+def top_movers(all_changes, n=10):
+    """値動きの絶対値が大きい順にトップN銘柄を返す"""
+    return sorted(all_changes, key=lambda c: abs(c["pct"]), reverse=True)[:n]
+
+# 米国株ウォッチリスト（セクター別ヒートマップ・値動き上位抽出用）
+US_WATCH_MAP = {
+    "AAPL": "Apple", "MSFT": "Microsoft", "GOOGL": "Alphabet",
+    "NVDA": "NVIDIA", "AMD": "AMD", "AVGO": "Broadcom",
+    "AMZN": "Amazon", "TSLA": "Tesla", "WMT": "Walmart",
+    "META": "Meta Platforms", "NFLX": "Netflix", "DIS": "Disney",
+    "JPM": "JPMorgan Chase", "BAC": "Bank of America", "GS": "Goldman Sachs",
+    "JNJ": "Johnson & Johnson", "UNH": "UnitedHealth", "LLY": "Eli Lilly",
+    "XOM": "ExxonMobil", "CVX": "Chevron",
+    "KO": "Coca-Cola", "PG": "Procter & Gamble", "COST": "Costco",
+    "BA": "Boeing", "CAT": "Caterpillar", "GE": "GE Aerospace",
+}
+US_SECTOR_MAP = {
+    "AAPL": "テクノロジー", "MSFT": "テクノロジー", "GOOGL": "テクノロジー",
+    "NVDA": "半導体", "AMD": "半導体", "AVGO": "半導体",
+    "AMZN": "消費・EC", "TSLA": "消費・EC", "WMT": "消費・EC",
+    "META": "通信・メディア", "NFLX": "通信・メディア", "DIS": "通信・メディア",
+    "JPM": "金融", "BAC": "金融", "GS": "金融",
+    "JNJ": "ヘルスケア", "UNH": "ヘルスケア", "LLY": "ヘルスケア",
+    "XOM": "エネルギー", "CVX": "エネルギー",
+    "KO": "生活必需品", "PG": "生活必需品", "COST": "生活必需品",
+    "BA": "資本財", "CAT": "資本財", "GE": "資本財",
+}
+US_WATCH_LIST = list(US_WATCH_MAP.keys())
+
+def fetch_us_watch_changes():
+    """米国ウォッチリスト全銘柄の前日比を取得（セクターヒートマップ・値動き上位抽出用）"""
+    import yfinance as yf
+    results = []
+    for code in US_WATCH_LIST:
+        try:
+            hist = yf.Ticker(code).history(period="3d")
+            if len(hist) < 2:
+                continue
+            prev = float(hist["Close"].iloc[-2])
+            curr = float(hist["Close"].iloc[-1])
+            pct = (curr - prev) / prev * 100
+            results.append({
+                "code": code, "name": US_WATCH_MAP.get(code, code),
+                "pct": round(pct, 2), "price": round(curr, 2),
+                "sector": US_SECTOR_MAP.get(code, "その他"),
+            })
+        except:
+            continue
+    return results
+
 def fetch_market_data():
     try:
         import yfinance as yf
@@ -1117,9 +1167,17 @@ if __name__ == "__main__":
         _all_changes = fetch_all_watch_changes()
         _surges, _drops = fetch_surge_drop(_all_changes)
         _sector_heatmap = build_sector_heatmap(_all_changes)
+        _jp_top_movers = top_movers(_all_changes, 10)
     except Exception as e:
         print(f"Surge/drop/heatmap fetch error: {e}")
-        _surges, _drops, _sector_heatmap = [], [], []
+        _all_changes, _surges, _drops, _sector_heatmap, _jp_top_movers = [], [], [], [], []
+    try:
+        _us_changes = fetch_us_watch_changes()
+        _us_sector_heatmap = build_sector_heatmap(_us_changes)
+        _us_top_movers = top_movers(_us_changes, 10)
+    except Exception as e:
+        print(f"US watchlist fetch error: {e}")
+        _us_changes, _us_sector_heatmap, _us_top_movers = [], [], []
     latest_json = {
         "date": f"{TODAY}",
         "mode": mode,
@@ -1143,6 +1201,11 @@ if __name__ == "__main__":
         "surges": _surges,
         "drops": _drops,
         "sector_heatmap": _sector_heatmap,
+        "jp_top_movers": _jp_top_movers,
+        "jp_all_changes": _all_changes,
+        "us_sector_heatmap": _us_sector_heatmap,
+        "us_top_movers": _us_top_movers,
+        "us_all_changes": _us_changes,
         "events_jp": content.get("events_jp", []),
         "events_us": content.get("events_us", []),
         "x_posts": content.get("x_posts", []),
