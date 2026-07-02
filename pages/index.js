@@ -410,19 +410,21 @@ export default function SwingStation({ briefing }) {
   );
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   let briefing = null;
   try {
-    const filePath = path.join(process.cwd(), "data", "latest.json");
-    const raw = fs.readFileSync(filePath, "utf-8");
-    briefing = JSON.parse(raw);
-    console.log("latest.json loaded:", briefing?.date, Object.keys(briefing || {}));
+    const token = process.env.GH_PAT;
+    const res = await fetch(
+      "https://api.github.com/repos/konnpei/swing-station/contents/data/latest.json",
+      { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github.v3.raw" } }
+    );
+    if (res.ok) {
+      briefing = await res.json();
+    }
   } catch (e) {
-    console.error("latest.json read error:", e.message);
-    briefing = null;
+    console.error("GitHub fetch error:", e.message);
   }
   return {
     props: { briefing: briefing ?? null },
-    revalidate: 1,
   };
 }
