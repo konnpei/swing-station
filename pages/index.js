@@ -1,7 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Head from "next/head";
-import fs from "fs";
-import path from "path";
 
 const MODE_LABELS = {
   normal: { label: "通常モード", color: "#888888" },
@@ -315,8 +313,16 @@ function CalendarView({ briefing }) {
   );
 }
 
-export default function SwingStation({ briefing }) {
+export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
+  const [briefing, setBriefing] = useState(null);
+
+  useEffect(() => {
+    fetch("https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest.json?t=" + Date.now())
+      .then(r => r.json())
+      .then(d => setBriefing(d))
+      .catch(e => console.error("fetch error:", e));
+  }, []);
   const [history, setHistory] = useState([]);
   const [historyTab, setHistoryTab] = useState("calendar");
 
@@ -410,21 +416,4 @@ export default function SwingStation({ briefing }) {
   );
 }
 
-export async function getServerSideProps() {
-  let briefing = null;
-  try {
-    // public raw URL から取得
-    const res = await fetch(
-      "https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest.json",
-      { cache: "no-store" }
-    );
-    if (res.ok) {
-      briefing = await res.json();
-    }
-  } catch (e) {
-    console.error("fetch error:", e.message);
-  }
-  return {
-    props: { briefing: briefing ?? null },
-  };
-}
+
