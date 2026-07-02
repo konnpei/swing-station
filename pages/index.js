@@ -317,12 +317,14 @@ export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
   const [briefing, setBriefing] = useState(null);
 
-  useEffect(() => {
+  const loadData = () => {
     fetch("https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest.json?t=" + Date.now())
       .then(r => r.json())
       .then(d => setBriefing(d))
       .catch(e => console.error("fetch error:", e));
-  }, []);
+  };
+
+  useEffect(() => { loadData(); }, []);
   const [history, setHistory] = useState([]);
   const [historyTab, setHistoryTab] = useState("calendar");
 
@@ -363,8 +365,8 @@ export default function SwingStation() {
 
         {/* Header */}
         <div style={{ background:"#080808", borderBottom:"1px solid #262626", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
-          <img src="/logo.png" alt="かぶぼっち" style={{ width:30, height:30, borderRadius:"50%" }} />
-          <div style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2 }}>
+          <img src="/logo.png" alt="かぶぼっち" onClick={loadData} style={{ width:30, height:30, borderRadius:"50%", cursor:"pointer" }} />
+          <div onClick={loadData} style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2, cursor:"pointer" }}>
             KabuBocchi
           </div>
           <div style={{ fontSize:8, color:"#6a6a6a", marginLeft:2 }}>月〜金 数日〜1週間特化</div>
