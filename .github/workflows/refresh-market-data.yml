@@ -1,0 +1,22 @@
+name: Refresh Market Data Only
+
+# 市場データ（ヒートマップ・値動き上位銘柄・指数）だけを再取得してdata/latest.jsonを
+# 更新する軽量ワークフロー。Claude APIもDiscordも使わないため、手動で何度実行しても
+# コストや重複投稿の心配がない。手動実行のみ（定期実行はしない）。
+
+on:
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests yfinance pandas numpy
+      - run: python scripts/refresh_market_data.py
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
