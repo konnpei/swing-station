@@ -731,24 +731,43 @@ function CalendarView({ briefing }) {
 export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
   const [briefing, setBriefing] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   const loadData = () => {
+    setIsRefreshing(true);
     fetch("https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest.json?t=" + Date.now())
       .then(r => r.json())
-      .then(d => setBriefing(d))
-      .catch(e => console.error("fetch error:", e));
+      .then(d => {
+        setBriefing(d);
+        setLastUpdated(new Date());
+      })
+      .catch(e => console.error("fetch error:", e))
+      .finally(() => setIsRefreshing(false));
   };
 
-  useEffect(() => { loadData(); }, []);
-  const [history, setHistory] = useState([]);
-  const [historyTab, setHistoryTab] = useState("calendar");
-
-  useEffect(() => {
-    fetch("/api/history")
+  const loadHistory = () => {
+    fetch("/api/history?t=" + Date.now())
       .then(r => r.json())
       .then(d => setHistory(d.history || []))
       .catch(() => {});
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  // 5分ごとに自動で最新データを再取得
+  useEffect(() => {
+    const id = setInterval(() => {
+      loadData();
+      loadHistory();
+    }, 5 * 60 * 1000);
+    return () => clearInterval(id);
   }, []);
+
+  const [history, setHistory] = useState([]);
+  const [historyTab, setHistoryTab] = useState("calendar");
+
+  useEffect(() => { loadHistory(); }, []);
   const [todayInfo] = useState(getTodayInfo());
 
   const B = ({ style, ...p }) => <button style={{ fontFamily: "inherit", cursor: "pointer", border: "none", ...style }} {...p} />;
@@ -761,6 +780,10 @@ export default function SwingStation() {
     { id: "history", label: "履歴" },
   ];
 
+  const lastUpdatedLabel = lastUpdated
+    ? lastUpdated.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })
+    : "--:--";
+
   return (
     <>
       <Head>
@@ -771,6 +794,7 @@ export default function SwingStation() {
       <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#0a0a0a", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#d0d0d0" }}>
         <style>{`
           @keyframes ssP{0%,100%{opacity:1}50%{opacity:.2}}
+          @keyframes ssSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
           *{box-sizing:border-box}
           html,body{height:100%;margin:0;padding:0}
           ::-webkit-scrollbar{width:3px}
@@ -780,12 +804,27 @@ export default function SwingStation() {
 
         {/* Header */}
         <div style={{ background:"#080808", borderBottom:"1px solid #262626", padding:"8px 14px", display:"flex", alignItems:"center", gap:10, flexShrink:0 }}>
-          <img src="/logo.png" alt="かぶぼっち" onClick={loadData} style={{ width:30, height:30, borderRadius:"50%", cursor:"pointer" }} />
-          <div onClick={loadData} style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2, cursor:"pointer" }}>
+          <img src="/logo.png" alt="かぶぼっち" style={{ width:30, height:30, borderRadius:"50%" }} />
+          <div style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2 }}>
             KabuBocchi
           </div>
           <div style={{ fontSize:8, color:"#6a6a6a", marginLeft:2 }}>月〜金 数日〜1週間特化</div>
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
+            <button
+              onClick={() => { loadData(); loadHistory(); }}
+              disabled={isRefreshing}
+              title={`最終更新: ${lastUpdatedLabel}（5分ごとに自動更新）`}
+              style={{
+                display:"flex", alignItems:"center", gap:5, background:"#121212", border:"1px solid #262626",
+                borderRadius:8, padding:"3px 9px", fontFamily:"inherit", cursor: isRefreshing ? "default" : "pointer",
+              }}
+            >
+              <span style={{
+                display:"inline-block", width:9, height:9, fontSize:9, lineHeight:"9px", color:"#8a8a8a",
+                animation: isRefreshing ? "ssSpin 0.7s linear infinite" : "none",
+              }}>⟳</span>
+              <span style={{ fontSize:9, color:"#8a8a8a" }}>{isRefreshing ? "更新中" : lastUpdatedLabel}</span>
+            </button>
             <div style={{
               padding:"2px 8px", borderRadius:8, fontSize:9,
               background: todayInfo.isMarketOpen ? "#0a2a0a" : "#161616",
