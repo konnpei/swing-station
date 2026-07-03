@@ -288,6 +288,108 @@ function TopMovers({ movers, currency }) {
   );
 }
 
+function daysUntilLabel(d) {
+  if (d === null || d === undefined) return "";
+  if (d === 0) return "本日";
+  if (d === 1) return "明日";
+  if (d < 0) return `${Math.abs(d)}日前`;
+  return `${d}日後`;
+}
+
+function EarningsCalendarRow({ e, market }) {
+  const soon = e.days_until !== null && e.days_until !== undefined && e.days_until <= 3;
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 8, padding: "7px 9px",
+      background: soon ? "#1a1408" : "#121212", borderRadius: 6,
+      border: `1px solid ${soon ? "#ffd16644" : "#262626"}`, marginBottom: 5,
+    }}>
+      <div style={{ fontSize: 9, color: "#6a6a6a", width: 44 }}>{market}</div>
+      <div style={{ fontSize: 10, color: "#9a9a9a", width: 78 }}>{e.next_earnings_date}</div>
+      <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span></div>
+      <div style={{ fontSize: 9, color: soon ? "#ffd166" : "#8a8a8a", whiteSpace: "nowrap" }}>{daysUntilLabel(e.days_until)}</div>
+    </div>
+  );
+}
+
+function EarningsRankRow({ e, market }) {
+  const up = e.last_surprise_pct >= 0;
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 8, padding: "7px 9px",
+      background: "#121212", borderRadius: 6, border: `1px solid ${up ? "#00ff9d" : "#ff5566"}22`, marginBottom: 5,
+    }}>
+      <div style={{ fontSize: 9, color: "#6a6a6a", width: 44 }}>{market}</div>
+      <div style={{ fontSize: 10, color: "#9a9a9a", width: 78 }}>{e.last_earnings_date}</div>
+      <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span></div>
+      <div style={{ fontSize: 11, color: up ? "#00ff9d" : "#ff5566", fontWeight: 700, minWidth: 50, textAlign: "right" }}>
+        {up ? "+" : ""}{e.last_surprise_pct}%
+      </div>
+    </div>
+  );
+}
+
+function EarningsView({ briefing }) {
+  const jpCal = briefing?.jp_earnings_calendar || [];
+  const usCal = briefing?.us_earnings_calendar || [];
+  const jpRank = briefing?.jp_earnings_rank || { best: [], worst: [] };
+  const usRank = briefing?.us_earnings_rank || { best: [], worst: [] };
+
+  const calendar = [
+    ...jpCal.map(e => ({ ...e, market: "日本" })),
+    ...usCal.map(e => ({ ...e, market: "米国" })),
+  ].sort((a, b) => (a.next_earnings_date || "").localeCompare(b.next_earnings_date || ""));
+
+  const best = [
+    ...jpRank.best.map(e => ({ ...e, market: "日本" })),
+    ...usRank.best.map(e => ({ ...e, market: "米国" })),
+  ].sort((a, b) => b.last_surprise_pct - a.last_surprise_pct).slice(0, 10);
+
+  const worst = [
+    ...jpRank.worst.map(e => ({ ...e, market: "日本" })),
+    ...usRank.worst.map(e => ({ ...e, market: "米国" })),
+  ].sort((a, b) => a.last_surprise_pct - b.last_surprise_pct).slice(0, 10);
+
+  const hasAny = calendar.length > 0 || best.length > 0 || worst.length > 0;
+
+  return (
+    <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>決算</div>
+
+      {!hasAny && (
+        <div style={{ color: "#6a6a6a", fontSize: 11, marginBottom: 14 }}>
+          決算データはまだありません。「Refresh Earnings Data Only」ワークフローの実行後に表示されます。
+        </div>
+      )}
+
+      {calendar.length > 0 && (
+        <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>決算カレンダー（近い順）</div>
+          {calendar.map((e, i) => <EarningsCalendarRow key={i} e={e} market={e.market} />)}
+        </div>
+      )}
+
+      {best.length > 0 && (
+        <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>好決算ランキング（サプライズ%上位）</div>
+          {best.map((e, i) => <EarningsRankRow key={i} e={e} market={e.market} />)}
+        </div>
+      )}
+
+      {worst.length > 0 && (
+        <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>悪決算ランキング（サプライズ%下位）</div>
+          {worst.map((e, i) => <EarningsRankRow key={i} e={e} market={e.market} />)}
+        </div>
+      )}
+
+      <div style={{ fontSize: 9, color: "#5a5a5a" }}>
+        ※サプライズ%はEPS実績が市場予想（コンセンサス）をどれだけ上回った/下回ったかの割合です。監視銘柄56社が対象です。
+      </div>
+    </div>
+  );
+}
+
 function JpStocksView({ briefing }) {
   const stocks = briefing?.stocks_jp || [];
   return (
@@ -776,6 +878,7 @@ export default function SwingStation() {
     { id: "briefing", label: "朝刊" },
     { id: "jp", label: "日本株" },
     { id: "us", label: "米国株" },
+    { id: "earnings", label: "決算" },
     { id: "calendar", label: "予定" },
     { id: "history", label: "履歴" },
   ];
@@ -859,6 +962,9 @@ export default function SwingStation() {
           </div>
           <div style={{ display:tab==="us"?"block":"none", height:"100%" }}>
             <UsStocksView briefing={briefing} />
+          </div>
+          <div style={{ display:tab==="earnings"?"block":"none", height:"100%" }}>
+            <EarningsView briefing={briefing} />
           </div>
           <div style={{ display:tab==="calendar"?"block":"none", height:"100%" }}>
             <CalendarView briefing={briefing} />

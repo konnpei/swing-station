@@ -1,0 +1,22 @@
+name: Refresh Earnings Data Only
+
+# 決算カレンダー・決算サプライズランキングだけを再取得してdata/latest.jsonを更新する
+# 軽量ワークフロー。Refresh Market Data Onlyとは独立（API呼び出し集中を避けるため）。
+# Claude APIもDiscordも使わない。手動実行のみ。
+
+on:
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests yfinance pandas numpy
+      - run: python scripts/refresh_earnings.py
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}

@@ -324,3 +324,94 @@ def fetch_market_data():
             print(f"Fallback also failed: {e2}")
             raise RuntimeError(f"市場データ取得失敗: {e}")
  
+
+# ------------------------------------------------------------------
+# 決算カレンダー・決算サプライズランキング
+# ------------------------------------------------------------------
+
+def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=False):
+    """各銘柄の直近決算情報（次回決算日・前回決算のサプライズ%）を取得。
+    1銘柄1回のget_earnings_dates呼び出しで、直近の過去決算と次回予定日の
+    両方をまとめて取れるためAPI呼び出し数は最小限。"""
+    import yfinance as yf
+    import time
+    from datetime import datetime as _dt, timezone as _tz
+
+    now_utc = _dt.now(_tz.utc)
+    results = []
+    for code in ticker_list:
+        code_short = code.replace(".T", "") if strip_suffix else code
+        name = name_map.get(code, code_short)
+        sector = sector_map.get(code_short, "その他")
+
+        df = None
+        for attempt in range(2):
+            try:
+                df = yf.Ticker(code).get_earnings_dates(limit=8)
+                if df is not None and len(df) > 0:
+                    break
+            except Exception:
+                pass
+            time.sleep(0.3)
+        if df is None or len(df) == 0:
+            continue
+
+        try:
+            df = df.sort_index()  # 昇順（古い→新しい）に統一
+            idx_utc = df.index.tz_convert("UTC") if df.index.tz else df.index
+
+            next_date, next_days = None, None
+            last_date, last_surprise = None, None
+
+            # Surprise(%) 列を列名から安全に取得（yfinanceのバージョンで列位置が変わりうるため）
+            surprise_col = None
+            for c in df.columns:
+                if "Surprise" in str(c):
+                    surprise_col = c
+                    break
+
+            for ts in idx_utc:
+                ts_dt = ts.to_pydatetime()
+                if ts_dt >= now_utc:
+                    if next_date is None:
+                        next_date = ts_dt.strftime("%Y-%m-%d")
+                        next_days = (ts_dt.date() - now_utc.date()).days
+                else:
+                    last_date = ts_dt.strftime("%Y-%m-%d")
+                    if surprise_col is not None:
+                        val = df.loc[ts, surprise_col]
+                        if val is not None and val == val:  # NaN check
+                            last_surprise = round(float(val), 1)
+
+            if next_date or last_surprise is not None:
+                results.append({
+                    "code": code_short, "name": name, "sector": sector,
+                    "next_earnings_date": next_date, "days_until": next_days,
+                    "last_earnings_date": last_date, "last_surprise_pct": last_surprise,
+                })
+        except Exception:
+            continue
+    return results
+
+
+def build_earnings_calendar(earnings_list, n=15):
+    """次回決算日が近い順に並べたカレンダー"""
+    upcoming = [e for e in earnings_list if e.get("next_earnings_date")]
+    upcoming.sort(key=lambda e: e["next_earnings_date"])
+    return upcoming[:n]
+
+
+def build_earnings_rank(earnings_list, n=10):
+    """直近決算のサプライズ%が大きい順（好決算）・小さい順（悪決算）にランキング"""
+    with_surprise = [e for e in earnings_list if e.get("last_surprise_pct") is not None]
+    best = sorted(with_surprise, key=lambda e: e["last_surprise_pct"], reverse=True)[:n]
+    worst = sorted(with_surprise, key=lambda e: e["last_surprise_pct"])[:n]
+    return {"best": best, "worst": worst}
+
+
+def fetch_jp_earnings():
+    return _fetch_earnings_for_list(WATCH_LIST, WATCH_MAP, SECTOR_MAP, strip_suffix=True)
+
+
+def fetch_us_earnings():
+    return _fetch_earnings_for_list(US_WATCH_LIST, US_WATCH_MAP, US_SECTOR_MAP, strip_suffix=False)
