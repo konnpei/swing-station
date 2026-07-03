@@ -74,12 +74,21 @@ SECTOR_MAP = {
 def fetch_all_watch_changes():
     """監視銘柄全30社の前日比を取得（急騰急落抽出・セクターヒートマップ両方の元データ）"""
     import yfinance as yf
+    import time
     results = []
     for code in WATCH_LIST:
+        hist = None
+        for attempt in range(2):
+            try:
+                hist = yf.Ticker(code).history(period="3d")
+                if len(hist) >= 2:
+                    break
+            except:
+                pass
+            time.sleep(0.3)
+        if hist is None or len(hist) < 2:
+            continue
         try:
-            hist = yf.Ticker(code).history(period="3d")
-            if len(hist) < 2:
-                continue
             prev = float(hist["Close"].iloc[-2])
             curr = float(hist["Close"].iloc[-1])
             pct = (curr - prev) / prev * 100
@@ -161,12 +170,21 @@ US_WATCH_LIST = list(US_WATCH_MAP.keys())
 def fetch_us_watch_changes():
     """米国ウォッチリスト全銘柄の前日比を取得（セクターヒートマップ・値動き上位抽出用）"""
     import yfinance as yf
+    import time
     results = []
     for code in US_WATCH_LIST:
+        hist = None
+        for attempt in range(2):
+            try:
+                hist = yf.Ticker(code).history(period="3d")
+                if len(hist) >= 2:
+                    break
+            except:
+                pass
+            time.sleep(0.3)
+        if hist is None or len(hist) < 2:
+            continue
         try:
-            hist = yf.Ticker(code).history(period="3d")
-            if len(hist) < 2:
-                continue
             prev = float(hist["Close"].iloc[-2])
             curr = float(hist["Close"].iloc[-1])
             pct = (curr - prev) / prev * 100

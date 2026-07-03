@@ -898,6 +898,28 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"US watchlist fetch error: {e}")
         _us_changes, _us_sector_heatmap, _us_top_movers = [], [], []
+
+    # 取得が0件（レート制限等）の場合は、空データで前回の良いデータを上書きしないよう
+    # ローカルの前回データにフォールバックする
+    if not _all_changes or not _us_changes:
+        try:
+            with open("data/latest.json", "r", encoding="utf-8") as f:
+                _prev_latest = json.load(f)
+        except Exception:
+            _prev_latest = {}
+        if not _all_changes:
+            print("⚠ 日本株ウォッチリスト0件のため前回データを維持")
+            _surges = _prev_latest.get("surges", [])
+            _drops = _prev_latest.get("drops", [])
+            _sector_heatmap = _prev_latest.get("sector_heatmap", [])
+            _jp_top_movers = _prev_latest.get("jp_top_movers", [])
+            _all_changes = _prev_latest.get("jp_all_changes", [])
+        if not _us_changes:
+            print("⚠ 米国株ウォッチリスト0件のため前回データを維持")
+            _us_sector_heatmap = _prev_latest.get("us_sector_heatmap", [])
+            _us_top_movers = _prev_latest.get("us_top_movers", [])
+            _us_changes = _prev_latest.get("us_all_changes", [])
+
     latest_json = {
         "date": f"{TODAY}",
         "mode": mode,
