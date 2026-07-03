@@ -434,6 +434,7 @@ function IndexCompareChart({ history }) {
     { key: "nikkei", label: "日経225", color: "#e8e8e8", data: normalizeSeries(history, "nikkei") },
     { key: "nasdaq", label: "NASDAQ", color: "#00ff9d", data: normalizeSeries(history, "nasdaq") },
     { key: "sp500", label: "S&P500", color: "#ffd166", data: normalizeSeries(history, "sp500") },
+    { key: "sox", label: "SOX", color: "#ff5566", data: normalizeSeries(history, "sox") },
   ];
 
   const allDates = [...new Set(history.filter(h => h.fileDate).map(h => h.fileDate))].sort();
@@ -441,7 +442,7 @@ function IndexCompareChart({ history }) {
   if (allDates.length < 2 || series.every(s => s.data.length < 2)) {
     return (
       <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>年間チャート：日経225 / NASDAQ / S&P500</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>年間チャート：日経225 / NASDAQ / S&P500 / SOX</div>
         <div style={{ fontSize: 10, color: "#6a6a6a" }}>データ蓄積中です。数日分たまるとチャートが表示されます。</div>
       </div>
     );
@@ -464,7 +465,7 @@ function IndexCompareChart({ history }) {
   return (
     <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8" }}>年間チャート：日経225 / NASDAQ / S&P500</div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8" }}>年間チャート：日経225 / NASDAQ / S&P500 / SOX</div>
         <div style={{ display: "flex", gap: 10 }}>
           {series.map(s => (
             <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>

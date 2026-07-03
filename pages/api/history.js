@@ -40,6 +40,7 @@ export default function handler(req, res) {
           nikkei_pct: d.nikkei_pct,
           usd_jpy: d.usd_jpy,
           sox_pct: d.sox_pct,
+          sox: d.sox,
           vix: d.vix,
           topix: d.topix,
           topix_pct: d.topix_pct,

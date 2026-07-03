@@ -92,6 +92,7 @@ def main():
         "nikkei_pct": data["pct"],
         "usd_jpy": data["usd_jpy"],
         "sox_pct": data["sox_pct"],
+        "sox": data.get("sox", 0.0),
         "vix": data["vix"],
         "topix": data.get("topix", 0.0),
         "topix_pct": data.get("topix_pct", 0.0),

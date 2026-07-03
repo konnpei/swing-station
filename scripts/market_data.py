@@ -214,10 +214,13 @@ def fetch_market_data():
                 sox_curr = float(sox_h["Close"].iloc[-1])
                 sox_prev = float(sox_h["Close"].iloc[-2])
                 sox_pct = (sox_curr - sox_prev) / sox_prev * 100
+                sox = round(sox_curr, 1)
             else:
                 sox_pct = 0.0
+                sox = 0.0
         except:
             sox_pct = 0.0
+            sox = 0.0
  
         try:
             vix_h = yf.Ticker("^VIX").history(period="2d")
@@ -262,7 +265,7 @@ def fetch_market_data():
             pass
 
         return {"ohlcv":ohlcv, "latest":latest, "diff":diff, "pct":pct,
-                "usd_jpy":usd_jpy, "sox_pct":sox_pct, "vix":vix,
+                "usd_jpy":usd_jpy, "sox_pct":sox_pct, "sox":sox, "vix":vix,
                 "topix":topix, "topix_pct":topix_pct,
                 "nasdaq":nasdaq, "nasdaq_pct":nasdaq_pct,
                 "sp500":sp500, "sp500_pct":sp500_pct}
@@ -289,6 +292,7 @@ def fetch_market_data():
                 "diff": 0, "pct": 0.0,
                 "usd_jpy": prev.get("usd_jpy", 150.0),
                 "sox_pct": prev.get("sox_pct", 0.0),
+                "sox": prev.get("sox", 0.0),
                 "vix": prev.get("vix", 20.0),
                 "topix": prev.get("topix", 0.0),
                 "topix_pct": prev.get("topix_pct", 0.0),
