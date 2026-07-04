@@ -180,23 +180,27 @@ function heatColor(pct) {
   return { bg, border, text: t > 0.4 ? "#ff5566" : "#b8b8b8" };
 }
 
-function MiniSparkline({ series, color }) {
+function MiniSparkline({ series }) {
   if (!series || series.length < 2) return null;
-  const W = 90, H = 20;
+  const W = 90, H = 24, PAD = 2;
   const maxAbs = Math.max(1, ...series.map(s => Math.abs(s.pct)));
-  const barW = W / series.length;
+  const stepX = (W - PAD * 2) / (series.length - 1);
   const zeroY = H / 2;
-  const scale = (H / 2) / maxAbs;
+  const scale = (H / 2 - PAD) / maxAbs;
+  const yOf = (pct) => zeroY - pct * scale;
+
+  const points = series.map((s, i) => [PAD + i * stepX, yOf(s.pct)]);
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L${points[points.length - 1][0].toFixed(1)},${zeroY} L${points[0][0].toFixed(1)},${zeroY} Z`;
+
+  const trendUp = series[series.length - 1].pct >= series[0].pct;
+  const lineColor = trendUp ? "#00ff9d" : "#ff5566";
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 72, height: 16, display: "block", marginTop: 4 }}>
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 76, height: 20, display: "block", marginTop: 4 }}>
       <line x1={0} x2={W} y1={zeroY} y2={zeroY} stroke="#ffffff" strokeOpacity="0.15" strokeWidth="1" />
-      {series.map((s, i) => {
-        const h = Math.max(1, Math.abs(s.pct) * scale);
-        const x = i * barW + barW * 0.2;
-        const w = barW * 0.6;
-        const y = s.pct >= 0 ? zeroY - h : zeroY;
-        return <rect key={i} x={x} y={y} width={w} height={h} fill={s.pct >= 0 ? "#00ff9d" : "#ff5566"} opacity="0.8" />;
-      })}
+      <path d={areaPath} fill={lineColor} opacity="0.12" stroke="none" />
+      <path d={linePath} fill="none" stroke={lineColor} strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
 }
@@ -205,24 +209,27 @@ function SectorDailyChart({ series }) {
   if (!series || series.length < 2) {
     return <div style={{ fontSize: 10, color: "#6a6a6a", marginBottom: 10 }}>日足データがまだ十分にありません（複数日分たまると表示されます）。</div>;
   }
-  const W = 320, H = 90, PAD_L = 4, PAD_R = 4, PAD_T = 6, PAD_B = 16;
+  const W = 320, H = 90, PAD_L = 6, PAD_R = 6, PAD_T = 10, PAD_B = 16;
   const maxAbs = Math.max(1, ...series.map(s => Math.abs(s.pct)));
-  const barW = (W - PAD_L - PAD_R) / series.length;
+  const stepX = series.length > 1 ? (W - PAD_L - PAD_R) / (series.length - 1) : 0;
   const zeroY = PAD_T + (H - PAD_T - PAD_B) / 2;
   const scale = ((H - PAD_T - PAD_B) / 2) / maxAbs;
+  const yOf = (pct) => zeroY - pct * scale;
+
+  const points = series.map((s, i) => [PAD_L + i * stepX, yOf(s.pct)]);
+  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+  const areaPath = `${linePath} L${points[points.length - 1][0].toFixed(1)},${zeroY} L${points[0][0].toFixed(1)},${zeroY} Z`;
+  const trendUp = series[series.length - 1].pct >= series[0].pct;
+  const lineColor = trendUp ? "#00ff9d" : "#ff5566";
+
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>📈 セクター日足（平均騰落率）</div>
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
         <line x1={PAD_L} x2={W - PAD_R} y1={zeroY} y2={zeroY} stroke="#333" strokeWidth="1" />
-        {series.map((s, i) => {
-          const h = Math.max(1, Math.abs(s.pct) * scale);
-          const x = PAD_L + i * barW + barW * 0.15;
-          const w = barW * 0.7;
-          const y = s.pct >= 0 ? zeroY - h : zeroY;
-          const color = s.pct >= 0 ? "#00ff9d" : "#ff5566";
-          return <rect key={i} x={x} y={y} width={w} height={h} fill={color} opacity="0.85" />;
-        })}
+        <path d={areaPath} fill={lineColor} opacity="0.12" stroke="none" />
+        <path d={linePath} fill="none" stroke={lineColor} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+        {points.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="2" fill={lineColor} />)}
       </svg>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 8, color: "#5a5a5a", marginTop: 2 }}>
         <span>{series[0].date}</span>
