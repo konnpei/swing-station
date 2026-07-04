@@ -180,6 +180,27 @@ function heatColor(pct) {
   return { bg, border, text: t > 0.4 ? "#ff5566" : "#b8b8b8" };
 }
 
+function MiniSparkline({ series, color }) {
+  if (!series || series.length < 2) return null;
+  const W = 90, H = 20;
+  const maxAbs = Math.max(1, ...series.map(s => Math.abs(s.pct)));
+  const barW = W / series.length;
+  const zeroY = H / 2;
+  const scale = (H / 2) / maxAbs;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 72, height: 16, display: "block", marginTop: 4 }}>
+      <line x1={0} x2={W} y1={zeroY} y2={zeroY} stroke="#ffffff" strokeOpacity="0.15" strokeWidth="1" />
+      {series.map((s, i) => {
+        const h = Math.max(1, Math.abs(s.pct) * scale);
+        const x = i * barW + barW * 0.2;
+        const w = barW * 0.6;
+        const y = s.pct >= 0 ? zeroY - h : zeroY;
+        return <rect key={i} x={x} y={y} width={w} height={h} fill={s.pct >= 0 ? "#00ff9d" : "#ff5566"} opacity="0.8" />;
+      })}
+    </svg>
+  );
+}
+
 function SectorDailyChart({ series }) {
   if (!series || series.length < 2) {
     return <div style={{ fontSize: 10, color: "#6a6a6a", marginBottom: 10 }}>日足データがまだ十分にありません（複数日分たまると表示されます）。</div>;
@@ -261,6 +282,7 @@ function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey }) {
                   最大: {h.top_mover.name} {h.top_mover.pct >= 0 ? "+" : ""}{h.top_mover.pct}%
                 </div>
               )}
+              <MiniSparkline series={sectorDailySeries(h.sector)} />
             </button>
           );
         })}
