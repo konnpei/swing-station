@@ -180,7 +180,38 @@ function heatColor(pct) {
   return { bg, border, text: t > 0.4 ? "#ff5566" : "#b8b8b8" };
 }
 
-function SectorHeatmap({ heatmap, allChanges, currency }) {
+function SectorDailyChart({ series }) {
+  if (!series || series.length < 2) {
+    return <div style={{ fontSize: 10, color: "#6a6a6a", marginBottom: 10 }}>日足データがまだ十分にありません（複数日分たまると表示されます）。</div>;
+  }
+  const W = 320, H = 90, PAD_L = 4, PAD_R = 4, PAD_T = 6, PAD_B = 16;
+  const maxAbs = Math.max(1, ...series.map(s => Math.abs(s.pct)));
+  const barW = (W - PAD_L - PAD_R) / series.length;
+  const zeroY = PAD_T + (H - PAD_T - PAD_B) / 2;
+  const scale = ((H - PAD_T - PAD_B) / 2) / maxAbs;
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>📈 セクター日足（平均騰落率）</div>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", display: "block" }}>
+        <line x1={PAD_L} x2={W - PAD_R} y1={zeroY} y2={zeroY} stroke="#333" strokeWidth="1" />
+        {series.map((s, i) => {
+          const h = Math.max(1, Math.abs(s.pct) * scale);
+          const x = PAD_L + i * barW + barW * 0.15;
+          const w = barW * 0.7;
+          const y = s.pct >= 0 ? zeroY - h : zeroY;
+          const color = s.pct >= 0 ? "#00ff9d" : "#ff5566";
+          return <rect key={i} x={x} y={y} width={w} height={h} fill={color} opacity="0.85" />;
+        })}
+      </svg>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 8, color: "#5a5a5a", marginTop: 2 }}>
+        <span>{series[0].date}</span>
+        <span>{series[series.length - 1].date}</span>
+      </div>
+    </div>
+  );
+}
+
+function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey }) {
   const [openSector, setOpenSector] = useState(null);
   if (!heatmap || heatmap.length === 0) return null;
 
@@ -191,9 +222,20 @@ function SectorHeatmap({ heatmap, allChanges, currency }) {
       .slice(0, 10);
   };
 
+  const sectorDailySeries = (sector) => {
+    return [...(history || [])]
+      .filter(h => h.fileDate && Array.isArray(h[heatmapKey]))
+      .sort((a, b) => a.fileDate.localeCompare(b.fileDate))
+      .map(h => {
+        const found = h[heatmapKey].find(s => s.sector === sector);
+        return found ? { date: h.fileDate.slice(5), pct: found.avg_pct } : null;
+      })
+      .filter(Boolean);
+  };
+
   return (
     <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>セクター別ヒートマップ（前日比・タップで銘柄一覧）</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>セクター別ヒートマップ（前日比・タップで日足チャート＋銘柄一覧）</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 6 }}>
         {heatmap.map((h, i) => {
           const c = heatColor(h.avg_pct);
@@ -226,12 +268,14 @@ function SectorHeatmap({ heatmap, allChanges, currency }) {
 
       {openSector && (() => {
         const list = stocksInSector(openSector);
+        const series = sectorDailySeries(openSector);
         return (
           <div style={{ marginTop: 10, background: "#0d0d0d", border: "1px solid #262626", borderRadius: 8, padding: "10px 12px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8" }}>{openSector} 上位銘柄</div>
               <button onClick={() => setOpenSector(null)} style={{ background: "none", border: "1px solid #333", borderRadius: 6, color: "#8a8a8a", fontSize: 9, padding: "3px 8px", cursor: "pointer", fontFamily: "inherit" }}>閉じる</button>
             </div>
+            <SectorDailyChart series={series} />
             {list.length === 0 ? (
               <div style={{ fontSize: 10, color: "#6a6a6a" }}>この日はこのセクターの銘柄データがありません。</div>
             ) : (
@@ -390,11 +434,11 @@ function EarningsView({ briefing }) {
   );
 }
 
-function JpStocksView({ briefing }) {
+function JpStocksView({ briefing, history }) {
   const stocks = briefing?.stocks_jp || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" />
+      <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" history={history} heatmapKey="sector_heatmap" />
       <TopMovers movers={briefing?.jp_top_movers} currency="¥" />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
       {stocks.length > 0 ? (
@@ -406,11 +450,11 @@ function JpStocksView({ briefing }) {
   );
 }
 
-function UsStocksView({ briefing }) {
+function UsStocksView({ briefing, history }) {
   const s = briefing?.stock_us;
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <SectorHeatmap heatmap={briefing?.us_sector_heatmap} allChanges={briefing?.us_all_changes} currency="$" />
+      <SectorHeatmap heatmap={briefing?.us_sector_heatmap} allChanges={briefing?.us_all_changes} currency="$" history={history} heatmapKey="us_sector_heatmap" />
       <TopMovers movers={briefing?.us_top_movers} currency="$" />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
       {s ? (
@@ -958,10 +1002,10 @@ export default function SwingStation() {
             <BriefingView briefing={briefing} />
           </div>
           <div style={{ display:tab==="jp"?"block":"none", height:"100%" }}>
-            <JpStocksView briefing={briefing} />
+            <JpStocksView briefing={briefing} history={history} />
           </div>
           <div style={{ display:tab==="us"?"block":"none", height:"100%" }}>
-            <UsStocksView briefing={briefing} />
+            <UsStocksView briefing={briefing} history={history} />
           </div>
           <div style={{ display:tab==="earnings"?"block":"none", height:"100%" }}>
             <EarningsView briefing={briefing} />

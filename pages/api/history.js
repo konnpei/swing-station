@@ -48,6 +48,8 @@ export default function handler(req, res) {
           nasdaq_pct: d.nasdaq_pct,
           sp500: d.sp500,
           sp500_pct: d.sp500_pct,
+          sector_heatmap: d.sector_heatmap || [],
+          us_sector_heatmap: d.us_sector_heatmap || [],
           stocks_jp: (d.stocks_jp || []).map(s => ({ name: s.name, code: s.code, score: s.score })),
         };
       } catch (e) {
