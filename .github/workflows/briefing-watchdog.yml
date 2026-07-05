@@ -1,0 +1,24 @@
+name: Briefing Watchdog
+
+# 平日7:00 JST（想定実行6:30の30分後）に、その日のMorning Briefingが実際に
+# 実行されたか確認する。未実行ならworkflow_dispatchで自動的に再実行し、Discordに通知する。
+# GitHub Actionsのスケジュール実行は数分〜数十分遅れることがあるため、その保険。
+
+on:
+  schedule:
+    - cron: '0 22 * * 0-4'
+  workflow_dispatch:
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - run: python scripts/briefing_watchdog.py
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          DISCORD_WEBHOOK_MAIN: ${{ secrets.DISCORD_WEBHOOK_MAIN }}
