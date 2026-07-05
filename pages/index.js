@@ -15,7 +15,50 @@ function getTodayInfo() {
   const hour = now.getHours();
   const isMarketOpen = now.getDay() >= 1 && now.getDay() <= 5 && hour >= 9 && hour < 16;
   const isUSMarket = now.getDay() >= 1 && now.getDay() <= 5 && (hour >= 23 || hour < 6);
-  return { day, isMarketOpen, isUSMarket };
+  const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+  return { day, isMarketOpen, isUSMarket, isWeekend };
+}
+
+function nextMondayLabel() {
+  const now = new Date();
+  const daysUntilMonday = (8 - now.getDay()) % 7 || 7; // 日曜なら1日後、土曜なら2日後
+  const next = new Date(now);
+  next.setDate(now.getDate() + daysUntilMonday);
+  return `${next.getMonth() + 1}/${next.getDate()}(月)`;
+}
+
+function WeekendBanner({ todayInfo, briefingDate }) {
+  if (!todayInfo.isWeekend) return null;
+  return (
+    <div style={{
+      background: "#12141a", border: "1px solid #3a3f52", borderRadius: 10,
+      padding: "10px 14px", marginBottom: 12, display: "flex", alignItems: "center", gap: 8,
+    }}>
+      <span style={{ fontSize: 16 }}>🌙</span>
+      <div style={{ fontSize: 11, color: "#b8bcd0" }}>
+        市場休場中（{todayInfo.day}曜日）— 表示中のデータは{briefingDate || "直近営業日"}の朝刊です。次回更新は{nextMondayLabel()} 6:30
+      </div>
+    </div>
+  );
+}
+
+function daysSince(dateStr) {
+  if (!dateStr) return Infinity;
+  const [y, m, d] = dateStr.split("/").map(Number);
+  const then = new Date(y, m - 1, d);
+  const now = new Date();
+  return Math.floor((now - then) / (1000 * 60 * 60 * 24));
+}
+
+function WeeklyContentCard({ icon, label, data }) {
+  if (!data || daysSince(data.date) > 3) return null;
+  return (
+    <div style={{ background: "#121212", border: "1px solid #3a3f52", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
+      <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>{icon} {label} <span style={{ color: "#5a5a5a" }}>{data.date}</span></div>
+      <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>{data.title}</div>
+      <div style={{ fontSize: 11, color: "#c8c8c8", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{data.note_body}</div>
+    </div>
+  );
 }
 
 function StockCard({ s }) {
@@ -78,9 +121,13 @@ function BriefingView({ briefing }) {
 
   const mode = MODE_LABELS[briefing.mode] || MODE_LABELS.normal;
   const sign = briefing.nikkei_diff >= 0 ? "+" : "-";
+  const todayInfo = getTodayInfo();
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} />
+      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} />
+      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} />
       <div style={{
         background: "#121212", border: `1px solid ${mode.color}44`,
         borderRadius: 10, padding: "10px 14px", marginBottom: 12,

@@ -1,0 +1,23 @@
+name: Weekly Preview
+
+# 毎週日曜夜20:00 JST（日曜11:00 UTC）に実行。来週の注目ポイントを生成しDiscordに投稿する。
+
+on:
+  schedule:
+    - cron: '0 11 * * 0'
+  workflow_dispatch:
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install anthropic requests
+      - run: python scripts/weekly_preview.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK_MAIN: ${{ secrets.DISCORD_WEBHOOK_MAIN }}
+          GH_PAT: ${{ secrets.GH_PAT }}

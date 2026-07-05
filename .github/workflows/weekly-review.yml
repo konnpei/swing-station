@@ -1,0 +1,23 @@
+name: Weekly Review
+
+# 毎週土曜朝6:30 JST（金曜21:30 UTC）に実行。今週の振り返り記事を生成しDiscordに投稿する。
+
+on:
+  schedule:
+    - cron: '30 21 * * 5'
+  workflow_dispatch:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install anthropic requests
+      - run: python scripts/weekly_review.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK_MAIN: ${{ secrets.DISCORD_WEBHOOK_MAIN }}
+          GH_PAT: ${{ secrets.GH_PAT }}
