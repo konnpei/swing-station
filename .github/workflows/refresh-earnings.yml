@@ -2,9 +2,14 @@ name: Refresh Earnings Data Only
 
 # 決算カレンダー・決算サプライズランキングだけを再取得してdata/latest.jsonを更新する
 # 軽量ワークフロー。Refresh Market Data Onlyとは独立（API呼び出し集中を避けるため）。
-# Claude APIもDiscordも使わない。手動実行のみ。
+# Claude APIもDiscordも使わない。
+#
+# 平日9:00 JST（0:00 UTC）に実行。朝刊配信（5:30予定・実際は6:30前後着地）から
+# 十分間隔を空け、Yahoo Financeへの呼び出しが同じ時間帯に集中しないようにしている。
 
 on:
+  schedule:
+    - cron: '0 0 * * 1-5'
   workflow_dispatch:
 
 jobs:
