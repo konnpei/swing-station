@@ -1,12 +1,14 @@
 name: Briefing Watchdog
 
-# 平日7:00 JST（想定実行6:30の30分後）に、その日のMorning Briefingが実際に
+# 平日8:30 JST（想定実行6:30の2時間後）に、その日のMorning Briefingが実際に
 # 実行されたか確認する。未実行ならworkflow_dispatchで自動的に再実行し、Discordに通知する。
-# GitHub Actionsのスケジュール実行は数分〜数十分遅れることがあるため、その保険。
+# バッファを2時間と広めに取っているのは、GitHub Actionsのスケジュール実行が
+# 1時間近く遅れることがあり、短いバッファだと「単なる遅延」を「未実行」と誤判定して
+# 二重配信を招くため。
 
 on:
   schedule:
-    - cron: '0 22 * * 0-4'
+    - cron: '30 23 * * 0-4'
   workflow_dispatch:
 
 jobs:
