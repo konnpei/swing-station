@@ -70,15 +70,21 @@ function StockCard({ s }) {
           <div style={{ fontSize: 14, color: "#eeeeee", marginTop: 5, fontWeight: 500 }}>{s.name}<span style={{ color: "#8a8a8a", fontSize: 11 }}> ({s.code})</span></div>
         </div>
         <div style={{ textAlign: "right" }}>
-          <div style={{ fontSize: 9, color: "#8a8a8a" }}>総合スコア</div>
-          <div style={{ fontSize: 15, color: "#ffd166", fontWeight: 500 }}>{s.score}<span style={{ fontSize: 10, color: "#8a8a8a" }}>/10</span></div>
-          {typeof s.ai_score === "number" && (
-            <div style={{ marginTop: 4 }}>
-              <div style={{ fontSize: 9, color: "#8a8a8a" }}>AIスコア</div>
-              <div style={{ fontSize: 13, color: s.ai_score >= 60 ? "#00ff9d" : s.ai_score <= 40 ? "#ff5566" : "#e8e8e8", fontWeight: 500 }}>
-                {s.ai_score}<span style={{ fontSize: 9, color: "#8a8a8a" }}>/100</span>
-              </div>
-            </div>
+          {typeof s.ai_score === "number" ? (() => {
+            const combined = Math.round((s.score * 10 + s.ai_score) / 2);
+            const color = combined >= 60 ? "#00ff9d" : combined <= 40 ? "#ff5566" : "#ffd166";
+            return (
+              <>
+                <div style={{ fontSize: 9, color: "#8a8a8a" }}>統合スコア</div>
+                <div style={{ fontSize: 18, color, fontWeight: 700 }}>{combined}<span style={{ fontSize: 10, color: "#8a8a8a" }}>/100</span></div>
+                <div style={{ fontSize: 9, color: "#6a6a6a", marginTop: 3 }}>総合{s.score}/10 ・ AI{s.ai_score}/100</div>
+              </>
+            );
+          })() : (
+            <>
+              <div style={{ fontSize: 9, color: "#8a8a8a" }}>総合スコア</div>
+              <div style={{ fontSize: 15, color: "#ffd166", fontWeight: 500 }}>{s.score}<span style={{ fontSize: 10, color: "#8a8a8a" }}>/10</span></div>
+            </>
           )}
         </div>
       </div>
@@ -103,7 +109,9 @@ function StockCard({ s }) {
       <div style={{ fontSize: 10, color: "#787878", fontStyle: "italic" }}>{s.comment}</div>
       {typeof s.ai_score === "number" && (
         <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 6 }}>
-          ※AIスコアはRSI・移動平均乖離・出来高などテクニカル指標のみから機械的に算出（総合スコアとは別軸・投資判断の一助程度に）
+          ※統合スコアは、Claudeによる主観的な総合スコア（物語性・材料重視）とテクニカル指標のみで
+          機械的に算出したAIスコアの平均値です。内訳の乖離が大きい場合は材料とチャートの評価が
+          ズレている状態なので参考にしてください。
         </div>
       )}
     </div>
