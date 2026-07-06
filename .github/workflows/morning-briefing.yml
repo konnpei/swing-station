@@ -1,8 +1,12 @@
 name: Morning Briefing
 
+# 実行予定は5:30 JST（20:30 UTC）。GitHub Actionsのスケジュール実行は
+# 実測で平均1時間ほど遅れる傾向があるため、1時間早めに予約することで
+# 実際の着地が6:30 JST前後になるよう調整している。
+
 on:
   schedule:
-    - cron: '30 21 * * 0-4'
+    - cron: '30 20 * * 0-4'
   workflow_dispatch:
 
 jobs:

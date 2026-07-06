@@ -1,10 +1,10 @@
 """
 scripts/briefing_watchdog.py
 
-平日8:30 JST（想定実行時刻6:30の2時間後）に、その日のMorning Briefingが
-実際に実行されたかを確認する。GitHub Actionsのスケジュール実行は
-「best effort」でしばしば数分〜1時間近く遅れることがあるため、バッファを
-2時間と広めに取り、単なる遅延を「未実行」と誤判定して二重配信を招かないようにしている。
+平日7:30 JSTに、その日のMorning Briefingが実際に実行されたかを確認する。
+Morning Briefingの実行予定は5:30 JSTだが、GitHub Actionsのスケジュール実行は
+「best effort」でしばしば1時間近く遅れるため、実際の着地は6:30 JST前後を想定
+（=5:30予定から1時間のバッファを見込んで7:30にチェック）。
 
 - data/latest.json の "date" が今日の日付でなければ、Morning Briefingが
   まだ実行されていないと判断し、workflow_dispatchで自動的に再実行をトリガーする

@@ -1,10 +1,11 @@
 name: Weekly Review
 
-# 毎週土曜朝6:30 JST（金曜21:30 UTC）に実行。今週の振り返り記事を生成しDiscordに投稿する。
+# 実行予定は土曜5:30 JST（金曜20:30 UTC）。GitHub Actionsのスケジュール遅延（実測1時間程度）を
+# 見込んで1時間早めに予約し、実際の着地が6:30 JST前後になるよう調整している。
 
 on:
   schedule:
-    - cron: '30 21 * * 5'
+    - cron: '30 20 * * 5'
   workflow_dispatch:
 
 jobs:
