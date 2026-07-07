@@ -61,9 +61,16 @@ function WeeklyContentCard({ icon, label, data }) {
   );
 }
 
-function StockCard({ s }) {
+function StockCard({ s, highlighted }) {
   return (
-    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+    <div
+      id={`stock-${s.code}`}
+      style={{
+        background: "#121212", border: `1px solid ${highlighted ? "#ffd166" : "#262626"}`,
+        boxShadow: highlighted ? "0 0 0 2px #ffd16655" : "none",
+        borderRadius: 10, padding: "12px 14px", marginBottom: 10, scrollMarginTop: 60,
+      }}
+    >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
         <div>
           <span style={{ fontSize: 9, color: "#e8e8e8", background: "#e8e8e818", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
@@ -424,40 +431,67 @@ function daysUntilLabel(d) {
   return `${d}日後`;
 }
 
-function EarningsCalendarRow({ e, market }) {
+function earningsScore(pct) {
+  // サプライズ%は理論上±数千%まで振れうるので、tanhで0-100に滑らかに収める
+  if (typeof pct !== "number") return null;
+  return Math.round(50 + 50 * Math.tanh(pct / 50));
+}
+
+function EarningsScoreBadge({ pct }) {
+  const score = earningsScore(pct);
+  if (score === null) return null;
+  const color = score >= 60 ? "#00ff9d" : score <= 40 ? "#ff5566" : "#ffd166";
+  return (
+    <div style={{ textAlign: "right", minWidth: 44 }}>
+      <div style={{ fontSize: 12, color, fontWeight: 700 }}>{score}</div>
+      <div style={{ fontSize: 8, color: "#6a6a6a" }}>決算スコア</div>
+    </div>
+  );
+}
+
+function EarningsCalendarRow({ e, market, onJump }) {
   const soon = e.days_until !== null && e.days_until !== undefined && e.days_until <= 3;
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 8, padding: "7px 9px",
-      background: soon ? "#1a1408" : "#121212", borderRadius: 6,
-      border: `1px solid ${soon ? "#ffd16644" : "#262626"}`, marginBottom: 5,
-    }}>
+    <button
+      onClick={() => onJump(market === "日本" ? "jp" : "us", e.code)}
+      style={{
+        display: "flex", alignItems: "center", gap: 8, padding: "7px 9px", width: "100%",
+        background: soon ? "#1a1408" : "#121212", borderRadius: 6, textAlign: "left", fontFamily: "inherit", color: "inherit",
+        border: `1px solid ${soon ? "#ffd16644" : "#262626"}`, marginBottom: 5, cursor: "pointer",
+      }}
+    >
       <div style={{ fontSize: 9, color: "#6a6a6a", width: 44 }}>{market}</div>
       <div style={{ fontSize: 10, color: "#9a9a9a", width: 78 }}>{e.next_earnings_date}</div>
       <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span></div>
-      <div style={{ fontSize: 9, color: soon ? "#ffd166" : "#8a8a8a", whiteSpace: "nowrap" }}>{daysUntilLabel(e.days_until)}</div>
-    </div>
+      {typeof e.last_surprise_pct === "number" && <EarningsScoreBadge pct={e.last_surprise_pct} />}
+      <div style={{ fontSize: 9, color: soon ? "#ffd166" : "#8a8a8a", whiteSpace: "nowrap", minWidth: 40, textAlign: "right" }}>{daysUntilLabel(e.days_until)}</div>
+    </button>
   );
 }
 
-function EarningsRankRow({ e, market }) {
+function EarningsRankRow({ e, market, onJump }) {
   const up = e.last_surprise_pct >= 0;
   return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 8, padding: "7px 9px",
-      background: "#121212", borderRadius: 6, border: `1px solid ${up ? "#00ff9d" : "#ff5566"}22`, marginBottom: 5,
-    }}>
+    <button
+      onClick={() => onJump(market === "日本" ? "jp" : "us", e.code)}
+      style={{
+        display: "flex", alignItems: "center", gap: 8, padding: "7px 9px", width: "100%",
+        background: "#121212", borderRadius: 6, border: `1px solid ${up ? "#00ff9d" : "#ff5566"}22`, marginBottom: 5,
+        textAlign: "left", fontFamily: "inherit", color: "inherit", cursor: "pointer",
+      }}
+    >
       <div style={{ fontSize: 9, color: "#6a6a6a", width: 44 }}>{market}</div>
       <div style={{ fontSize: 10, color: "#9a9a9a", width: 78 }}>{e.last_earnings_date}</div>
       <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span></div>
+      <EarningsScoreBadge pct={e.last_surprise_pct} />
       <div style={{ fontSize: 11, color: up ? "#00ff9d" : "#ff5566", fontWeight: 700, minWidth: 50, textAlign: "right" }}>
         {up ? "+" : ""}{e.last_surprise_pct}%
       </div>
-    </div>
+    </button>
   );
 }
 
-function EarningsView({ briefing }) {
+function EarningsView({ briefing, onJump }) {
   const jpCal = briefing?.jp_earnings_calendar || [];
   const usCal = briefing?.us_earnings_calendar || [];
   const jpRank = briefing?.jp_earnings_rank || { best: [], worst: [] };
@@ -492,33 +526,33 @@ function EarningsView({ briefing }) {
 
       {calendar.length > 0 && (
         <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>決算カレンダー（近い順）</div>
-          {calendar.map((e, i) => <EarningsCalendarRow key={i} e={e} market={e.market} />)}
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>決算カレンダー（近い順・タップで銘柄詳細へ）</div>
+          {calendar.map((e, i) => <EarningsCalendarRow key={i} e={e} market={e.market} onJump={onJump} />)}
         </div>
       )}
 
       {best.length > 0 && (
         <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>好決算ランキング（サプライズ%上位）</div>
-          {best.map((e, i) => <EarningsRankRow key={i} e={e} market={e.market} />)}
+          {best.map((e, i) => <EarningsRankRow key={i} e={e} market={e.market} onJump={onJump} />)}
         </div>
       )}
 
       {worst.length > 0 && (
         <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>悪決算ランキング（サプライズ%下位）</div>
-          {worst.map((e, i) => <EarningsRankRow key={i} e={e} market={e.market} />)}
+          {worst.map((e, i) => <EarningsRankRow key={i} e={e} market={e.market} onJump={onJump} />)}
         </div>
       )}
 
       <div style={{ fontSize: 9, color: "#5a5a5a" }}>
-        ※サプライズ%はEPS実績が市場予想（コンセンサス）をどれだけ上回った/下回ったかの割合です。監視銘柄（日本株・米国株）が対象です。
+        ※決算スコアはサプライズ%（EPS実績が市場予想をどれだけ上回った/下回ったか）を0〜100に換算した参考値です。監視銘柄（日本株・米国株）が対象です。銘柄名をタップすると日本株/米国株タブの詳細に移動します（その日の注目銘柄に選ばれていない場合は一覧のみの表示になります）。
       </div>
     </div>
   );
 }
 
-function JpStocksView({ briefing, history }) {
+function JpStocksView({ briefing, history, highlightCode }) {
   const stocks = briefing?.stocks_jp || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
@@ -526,7 +560,7 @@ function JpStocksView({ briefing, history }) {
       <TopMovers movers={briefing?.jp_top_movers} currency="¥" />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
       {stocks.length > 0 ? (
-        stocks.map((s, i) => <StockCard key={i} s={s} />)
+        stocks.map((s, i) => <StockCard key={i} s={s} highlighted={highlightCode === String(s.code)} />)
       ) : (
         <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分の銘柄情報はまだありません。</div>
       )}
@@ -534,7 +568,7 @@ function JpStocksView({ briefing, history }) {
   );
 }
 
-function UsStocksView({ briefing, history }) {
+function UsStocksView({ briefing, history, highlightCode }) {
   const s = briefing?.stock_us;
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
@@ -542,7 +576,7 @@ function UsStocksView({ briefing, history }) {
       <TopMovers movers={briefing?.us_top_movers} currency="$" />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
       {s ? (
-        <StockCard s={{ ...s, code: s.ticker }} />
+        <StockCard s={{ ...s, code: s.ticker }} highlighted={highlightCode === String(s.ticker)} />
       ) : (
         <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分の銘柄情報はまだありません。</div>
       )}
@@ -960,6 +994,21 @@ function CalendarView({ briefing }) {
 
 export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
+  const [highlightTarget, setHighlightTarget] = useState(null); // { market: 'jp'|'us', code: string }
+
+  const jumpToStock = (market, code) => {
+    setTab(market);
+    setHighlightTarget({ market, code: String(code) });
+  };
+
+  useEffect(() => {
+    if (!highlightTarget) return;
+    const t = setTimeout(() => {
+      const el = document.getElementById(`stock-${highlightTarget.code}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
+    return () => clearTimeout(t);
+  }, [highlightTarget, tab]);
   const [briefing, setBriefing] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -1086,13 +1135,13 @@ export default function SwingStation() {
             <BriefingView briefing={briefing} />
           </div>
           <div style={{ display:tab==="jp"?"block":"none", height:"100%" }}>
-            <JpStocksView briefing={briefing} history={history} />
+            <JpStocksView briefing={briefing} history={history} highlightCode={highlightTarget?.market === "jp" ? highlightTarget.code : null} />
           </div>
           <div style={{ display:tab==="us"?"block":"none", height:"100%" }}>
-            <UsStocksView briefing={briefing} history={history} />
+            <UsStocksView briefing={briefing} history={history} highlightCode={highlightTarget?.market === "us" ? highlightTarget.code : null} />
           </div>
           <div style={{ display:tab==="earnings"?"block":"none", height:"100%" }}>
-            <EarningsView briefing={briefing} />
+            <EarningsView briefing={briefing} onJump={jumpToStock} />
           </div>
           <div style={{ display:tab==="calendar"?"block":"none", height:"100%" }}>
             <CalendarView briefing={briefing} />
