@@ -983,6 +983,20 @@ if __name__ == "__main__":
             except Exception as he:
                 print(f"History save error: {he}")
 
+            # 日経チャート画像もサイト表示用に保存（data/latest_chart.png）
+            try:
+                chart_buf.seek(0)
+                chart_png_b64 = base64.b64encode(chart_buf.read()).decode("ascii")
+                chart_url = "https://api.github.com/repos/konnpei/swing-station/contents/data/latest_chart.png"
+                r_chart_check = requests.get(chart_url, headers={"Authorization": f"Bearer {gh_token}"})
+                chart_body = {"message": f"Update chart {TODAY}", "content": chart_png_b64}
+                if r_chart_check.status_code == 200:
+                    chart_body["sha"] = r_chart_check.json().get("sha")
+                r_chart_put = requests.put(chart_url, headers={"Authorization": f"Bearer {gh_token}", "Content-Type": "application/json"}, json=chart_body)
+                print(f"data/latest_chart.png updated: {r_chart_put.status_code}")
+            except Exception as ce:
+                print(f"Chart image save error: {ce}")
+
             # Vercel再デプロイをトリガー
             vercel_hook = os.environ.get("VERCEL_DEPLOY_HOOK", "")
             if vercel_hook:

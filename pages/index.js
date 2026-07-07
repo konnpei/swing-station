@@ -190,6 +190,17 @@ function BriefingView({ briefing }) {
         </div>
       )}
 
+      {briefing.date && (
+        <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: 8 }}>
+          <img
+            src={`https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest_chart.png?d=${encodeURIComponent(briefing.date)}`}
+            alt="日経225チャート（ローソク足・MA・MACD）"
+            style={{ width: "100%", height: "auto", display: "block", borderRadius: 6 }}
+            onError={(ev) => { ev.target.style.display = "none"; }}
+          />
+        </div>
+      )}
+
       {(briefing.surges?.length > 0 || briefing.drops?.length > 0) && (
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>本日の急騰・急落</div>
