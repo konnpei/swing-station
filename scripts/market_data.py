@@ -397,7 +397,7 @@ def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=Fal
 
         try:
             df = df.sort_index()  # 昇順（古い→新しい）に統一
-            idx_utc = df.index.tz_convert("UTC") if df.index.tz else df.index
+            idx_utc = df.index.tz_convert("UTC") if df.index.tz is not None else df.index.tz_localize("UTC")
 
             next_date, next_days = None, None
             last_date, last_surprise = None, None
@@ -428,7 +428,8 @@ def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=Fal
                     "next_earnings_date": next_date, "days_until": next_days,
                     "last_earnings_date": last_date, "last_surprise_pct": last_surprise,
                 })
-        except Exception:
+        except Exception as e:
+            print(f"  {code} 決算データ解析エラー: {e}")
             continue
     return results
 
