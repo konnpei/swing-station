@@ -368,7 +368,7 @@ def fetch_market_data():
 # 決算カレンダー・決算サプライズランキング
 # ------------------------------------------------------------------
 
-def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=False):
+def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=False, debug_log=None):
     """各銘柄の直近決算情報（次回決算日・前回決算のサプライズ%）を取得。
     1銘柄1回のget_earnings_dates呼び出しで、直近の過去決算と次回予定日の
     両方をまとめて取れるためAPI呼び出し数は最小限。"""
@@ -378,22 +378,33 @@ def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=Fal
 
     now_utc = _dt.now(_tz.utc)
     results = []
-    for code in ticker_list:
+    for i, code in enumerate(ticker_list):
         code_short = code.replace(".T", "") if strip_suffix else code
         name = name_map.get(code, code_short)
         sector = sector_map.get(code_short, "その他")
 
         df = None
+        fetch_error = None
         for attempt in range(2):
             try:
                 df = yf.Ticker(code).get_earnings_dates(limit=8)
                 if df is not None and len(df) > 0:
                     break
-            except Exception:
-                pass
+            except Exception as e:
+                fetch_error = str(e)
             time.sleep(0.3)
         if df is None or len(df) == 0:
+            if debug_log is not None and i < 3:
+                debug_log.append({"code": code, "stage": "fetch", "error": fetch_error, "df_len": 0 if df is None else len(df)})
             continue
+
+        if debug_log is not None and i < 3:
+            debug_log.append({
+                "code": code, "stage": "fetched_ok",
+                "columns": [str(c) for c in df.columns],
+                "index_tz": str(df.index.tz),
+                "sample_index": [str(x) for x in df.index[:3]],
+            })
 
         try:
             df = df.sort_index()  # 昇順（古い→新しい）に統一
@@ -430,6 +441,8 @@ def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=Fal
                 })
         except Exception as e:
             print(f"  {code} 決算データ解析エラー: {e}")
+            if debug_log is not None and i < 3:
+                debug_log.append({"code": code, "stage": "parse_error", "error": str(e)})
             continue
     return results
 
@@ -449,9 +462,9 @@ def build_earnings_rank(earnings_list, n=10):
     return {"best": best, "worst": worst}
 
 
-def fetch_jp_earnings():
-    return _fetch_earnings_for_list(WATCH_LIST, WATCH_MAP, SECTOR_MAP, strip_suffix=True)
+def fetch_jp_earnings(debug_log=None):
+    return _fetch_earnings_for_list(WATCH_LIST, WATCH_MAP, SECTOR_MAP, strip_suffix=True, debug_log=debug_log)
 
 
-def fetch_us_earnings():
-    return _fetch_earnings_for_list(US_WATCH_LIST, US_WATCH_MAP, US_SECTOR_MAP, strip_suffix=False)
+def fetch_us_earnings(debug_log=None):
+    return _fetch_earnings_for_list(US_WATCH_LIST, US_WATCH_MAP, US_SECTOR_MAP, strip_suffix=False, debug_log=debug_log)

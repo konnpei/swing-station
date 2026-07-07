@@ -59,12 +59,13 @@ def main():
         print("GH_PAT not set. 終了します。")
         return
 
+    _debug_log = []
     print("日本株の決算情報取得中...")
-    jp_earnings = fetch_jp_earnings()
+    jp_earnings = fetch_jp_earnings(debug_log=_debug_log)
     print(f"  取得件数: {len(jp_earnings)}")
 
     print("米国株の決算情報取得中...")
-    us_earnings = fetch_us_earnings()
+    us_earnings = fetch_us_earnings(debug_log=_debug_log)
     print(f"  取得件数: {len(us_earnings)}")
 
     print("data/latest.json 読み込み中...")
@@ -93,6 +94,7 @@ def main():
         "us_earnings_calendar": us_calendar,
         "us_earnings_rank": us_rank,
         "earnings_refreshed_at": NOW.isoformat(),
+        "earnings_debug_TEMP": _debug_log,
     })
 
     print("data/latest.json 更新中...")
