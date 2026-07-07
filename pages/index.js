@@ -432,7 +432,8 @@ function daysUntilLabel(d) {
 }
 
 function earningsScore(pct) {
-  // サプライズ%は理論上±数千%まで振れうるので、tanhで0-100に滑らかに収める
+  // サプライズ%は理論上±数千%まで振れうる（特に予想が赤字→黒字転換等で符号が変わると
+  // 計算上意味のない極端な値になる）ので、tanhで0-100に滑らかに収める
   if (typeof pct !== "number") return null;
   return Math.round(50 + 50 * Math.tanh(pct / 50));
 }
@@ -440,11 +441,12 @@ function earningsScore(pct) {
 function EarningsScoreBadge({ pct }) {
   const score = earningsScore(pct);
   if (score === null) return null;
+  const extreme = Math.abs(pct) > 300;
   const color = score >= 60 ? "#00ff9d" : score <= 40 ? "#ff5566" : "#ffd166";
   return (
-    <div style={{ textAlign: "right", minWidth: 44 }}>
-      <div style={{ fontSize: 12, color, fontWeight: 700 }}>{score}</div>
-      <div style={{ fontSize: 8, color: "#6a6a6a" }}>決算スコア</div>
+    <div style={{ textAlign: "right", minWidth: 48 }}>
+      <div style={{ fontSize: 13, color, fontWeight: 700 }}>{score}</div>
+      <div style={{ fontSize: 8, color: "#6a6a6a" }}>{extreme ? "予想転換※" : "決算スコア"}</div>
     </div>
   );
 }
@@ -460,33 +462,13 @@ function EarningsCalendarRow({ e, market, onJump }) {
         border: `1px solid ${soon ? "#ffd16644" : "#262626"}`, marginBottom: 5, cursor: "pointer",
       }}
     >
-      <div style={{ fontSize: 9, color: "#6a6a6a", width: 44 }}>{market}</div>
-      <div style={{ fontSize: 10, color: "#9a9a9a", width: 78 }}>{e.next_earnings_date}</div>
-      <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span></div>
-      {typeof e.last_surprise_pct === "number" && <EarningsScoreBadge pct={e.last_surprise_pct} />}
-      <div style={{ fontSize: 9, color: soon ? "#ffd166" : "#8a8a8a", whiteSpace: "nowrap", minWidth: 40, textAlign: "right" }}>{daysUntilLabel(e.days_until)}</div>
-    </button>
-  );
-}
-
-function EarningsRankRow({ e, market, onJump }) {
-  const up = e.last_surprise_pct >= 0;
-  return (
-    <button
-      onClick={() => onJump(market === "日本" ? "jp" : "us", e.code)}
-      style={{
-        display: "flex", alignItems: "center", gap: 8, padding: "7px 9px", width: "100%",
-        background: "#121212", borderRadius: 6, border: `1px solid ${up ? "#00ff9d" : "#ff5566"}22`, marginBottom: 5,
-        textAlign: "left", fontFamily: "inherit", color: "inherit", cursor: "pointer",
-      }}
-    >
-      <div style={{ fontSize: 9, color: "#6a6a6a", width: 44 }}>{market}</div>
-      <div style={{ fontSize: 10, color: "#9a9a9a", width: 78 }}>{e.last_earnings_date}</div>
-      <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span></div>
-      <EarningsScoreBadge pct={e.last_surprise_pct} />
-      <div style={{ fontSize: 11, color: up ? "#00ff9d" : "#ff5566", fontWeight: 700, minWidth: 50, textAlign: "right" }}>
-        {up ? "+" : ""}{e.last_surprise_pct}%
+      <div style={{ fontSize: 9, color: "#6a6a6a", width: 40 }}>{market}</div>
+      <div style={{ fontSize: 10, color: "#9a9a9a", width: 72 }}>{e.next_earnings_date}</div>
+      <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>
+        {e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span>
+        {soon && <span style={{ color: "#ffd166", fontSize: 9, marginLeft: 6 }}>{daysUntilLabel(e.days_until)}</span>}
       </div>
+      <EarningsScoreBadge pct={e.last_surprise_pct} />
     </button>
   );
 }
@@ -494,25 +476,14 @@ function EarningsRankRow({ e, market, onJump }) {
 function EarningsView({ briefing, onJump }) {
   const jpCal = briefing?.jp_earnings_calendar || [];
   const usCal = briefing?.us_earnings_calendar || [];
-  const jpRank = briefing?.jp_earnings_rank || { best: [], worst: [] };
-  const usRank = briefing?.us_earnings_rank || { best: [], worst: [] };
 
   const calendar = [
     ...jpCal.map(e => ({ ...e, market: "日本" })),
     ...usCal.map(e => ({ ...e, market: "米国" })),
   ].sort((a, b) => (a.next_earnings_date || "").localeCompare(b.next_earnings_date || ""));
 
-  const best = [
-    ...jpRank.best.map(e => ({ ...e, market: "日本" })),
-    ...usRank.best.map(e => ({ ...e, market: "米国" })),
-  ].sort((a, b) => b.last_surprise_pct - a.last_surprise_pct).slice(0, 10);
-
-  const worst = [
-    ...jpRank.worst.map(e => ({ ...e, market: "日本" })),
-    ...usRank.worst.map(e => ({ ...e, market: "米国" })),
-  ].sort((a, b) => a.last_surprise_pct - b.last_surprise_pct).slice(0, 10);
-
-  const hasAny = calendar.length > 0 || best.length > 0 || worst.length > 0;
+  const hasAny = calendar.length > 0;
+  const hasExtreme = calendar.some(e => typeof e.last_surprise_pct === "number" && Math.abs(e.last_surprise_pct) > 300);
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
@@ -526,27 +497,15 @@ function EarningsView({ briefing, onJump }) {
 
       {calendar.length > 0 && (
         <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>決算カレンダー（近い順・タップで銘柄詳細へ）</div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>決算カレンダー（日付順・タップで銘柄詳細へ）</div>
           {calendar.map((e, i) => <EarningsCalendarRow key={i} e={e} market={e.market} onJump={onJump} />)}
         </div>
       )}
 
-      {best.length > 0 && (
-        <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>好決算ランキング（サプライズ%上位）</div>
-          {best.map((e, i) => <EarningsRankRow key={i} e={e} market={e.market} onJump={onJump} />)}
-        </div>
-      )}
-
-      {worst.length > 0 && (
-        <div style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>悪決算ランキング（サプライズ%下位）</div>
-          {worst.map((e, i) => <EarningsRankRow key={i} e={e} market={e.market} onJump={onJump} />)}
-        </div>
-      )}
-
       <div style={{ fontSize: 9, color: "#5a5a5a" }}>
-        ※決算スコアはサプライズ%（EPS実績が市場予想をどれだけ上回った/下回ったか）を0〜100に換算した参考値です。監視銘柄（日本株・米国株）が対象です。銘柄名をタップすると日本株/米国株タブの詳細に移動します（その日の注目銘柄に選ばれていない場合は一覧のみの表示になります）。
+        ※決算スコアは前回決算のサプライズ%（EPS実績が市場予想をどれだけ上回った/下回ったか）を0〜100に換算した参考値です。
+        {hasExtreme && " 「予想転換※」は、予想が赤字→黒字（またはその逆）に転換したことでサプライズ%の計算が数学的に極端な値になっているケースです。スコア自体は参考程度に。"}
+        {" "}銘柄名をタップすると日本株/米国株タブの詳細に移動します（その日の注目銘柄に選ばれていない場合は一覧のみの表示になります）。
       </div>
     </div>
   );
