@@ -319,6 +319,7 @@ Return ONLY valid JSON (no markdown, no backticks):
     "X投稿2: 注目銘柄フォーカス（280文字以内・かぶぼっち口調）",
     "X投稿3: 問いかけ形式（200文字以内・フォロワー反応狙い）"
   ],
+  "x_teaser_3line": "note記事の宣伝用にXへ投稿する短いテキスト。ちょうど3行、各行1文程度。note本文で一番おいしい部分（今日のテーマ・一番動いた銘柄等）を凝縮する。絵文字は可、ハッシュタグやリンクは含めない（別途本文に付け足すため）",
   "note_body": "note専用完全版（1500〜2500文字）。Discord要約と完全に別の文章で書く。構成：\n1. リード文（相場を一言で表す）\n2. 今日の相場ポイント（昨夜米国・為替・半導体・AI・今日のテーマ・注意点を300〜500文字）\n3. 注目銘柄（各銘柄：名前・コード・★評価・注目理由・エントリー条件・利確・損切・注意点）\n4. 今日の売買戦略（デイトレ・スイング・中長期）\n5. かぶぼっちコメント（人間味のある一言）\n6. 明日の注目ポイント3つ\nSEOキーワード自然に含める：日本株・米国株・スイングトレード・日経平均・半導体・AI",
   "note_cta": "毎朝の相場分析と注目銘柄は継続発信中。フォローしてお待ちください📊"
 }}
@@ -816,13 +817,18 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
         "chart":  ("chart.png",  chart_buf,  "image/png"),
     })
 
-    # note専用本文をDiscordに送信
+    # note専用本文をDiscordに送信（コードブロックなしの通常テキストでコピペしやすく）
+    _y, _m, _d = TODAY.split("/")
+    title_line = f"📰 **KABU BOCCHI 朝刊｜{_y}年{int(_m)}月{int(_d)}日**\n\n"
     note_body = c.get("note_body", note_text)
     chunks = [note_body[i:i+1900] for i in range(0, len(note_body), 1900)]
     for i, chunk in enumerate(chunks):
-        prefix = "**📝 note本文(コピペして投稿)**\n```\n" if i == 0 else "```\n"
-        suffix = "\n```" if i == len(chunks)-1 else "\n```(続く)"
-        post_json({"content": prefix + chunk + suffix})
+        prefix = "**📝 note本文(コピペして投稿)**\n\n" + title_line if i == 0 else ""
+        post_json({"content": prefix + chunk})
+
+    x_teaser = c.get("x_teaser_3line", "")
+    if x_teaser:
+        post_json({"content": f"**📱 X告知用（3行）**\n\n{x_teaser}"})
 
     x_posts = c.get("x_posts", [c.get("x_main", "")])
     x_fields = []
@@ -952,6 +958,7 @@ if __name__ == "__main__":
         "events_jp": content.get("events_jp", []),
         "events_us": content.get("events_us", []),
         "x_posts": content.get("x_posts", []),
+        "x_teaser_3line": content.get("x_teaser_3line", ""),
         "note_body": content.get("note_body", ""),
         "note_cta": content.get("note_cta", ""),
     }
