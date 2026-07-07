@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install requests yfinance pandas numpy
+      - run: pip install requests yfinance pandas numpy lxml
       - run: python scripts/refresh_earnings.py
         env:
           GH_PAT: ${{ secrets.GH_PAT }}

@@ -94,7 +94,6 @@ def main():
         "us_earnings_calendar": us_calendar,
         "us_earnings_rank": us_rank,
         "earnings_refreshed_at": NOW.isoformat(),
-        "earnings_debug_TEMP": _debug_log,
     })
 
     print("data/latest.json 更新中...")
