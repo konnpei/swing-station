@@ -975,7 +975,20 @@ if __name__ == "__main__":
             gh_url = "https://api.github.com/repos/konnpei/swing-station/contents/data/latest.json"
             r_existing = requests.get(gh_url, headers={"Authorization": f"Bearer {gh_token}"})
             sha_existing = r_existing.json().get("sha") if r_existing.status_code == 200 else None
-            content_b64 = base64.b64encode(json.dumps(latest_json, ensure_ascii=False, indent=2).encode("utf-8")).decode("ascii")
+
+            # 既存のlatest.jsonをベースにマージする。refresh_earnings.py/weekly_review.py/
+            # weekly_preview.py等の軽量スクリプトが追加したフィールド（jp_earnings_calendar,
+            # weekly_review 等）をこの完全上書き処理で消してしまわないようにするため。
+            merged_json = {}
+            if r_existing.status_code == 200:
+                try:
+                    existing_content = base64.b64decode(r_existing.json()["content"]).decode("utf-8")
+                    merged_json = json.loads(existing_content)
+                except Exception as merge_err:
+                    print(f"既存latest.jsonの読み込みに失敗（新規として続行）: {merge_err}")
+            merged_json.update(latest_json)
+
+            content_b64 = base64.b64encode(json.dumps(merged_json, ensure_ascii=False, indent=2).encode("utf-8")).decode("ascii")
             body = {"message": f"Update latest.json {TODAY}", "content": content_b64}
             if sha_existing:
                 body["sha"] = sha_existing
