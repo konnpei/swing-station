@@ -176,6 +176,11 @@ function BriefingView({ briefing }) {
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>VIX</div>
           <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.vix}</div>
+          {typeof briefing.vix_pct === "number" && (
+            <div style={{ fontSize: 10, color: briefing.vix_pct >= 0 ? "#ff5566" : "#00ff9d" }}>
+              {briefing.vix_pct >= 0 ? "+" : ""}{briefing.vix_pct.toFixed(2)}%
+            </div>
+          )}
         </div>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>TOPIX</div>
@@ -191,6 +196,16 @@ function BriefingView({ briefing }) {
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>S&P500</div>
           <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.sp500 ? briefing.sp500.toLocaleString() : "—"}</div>
           <div style={{ fontSize: 10, color: (briefing.sp500_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.sp500_pct ? briefing.sp500_pct.toFixed(2) + "%" : "—"}</div>
+        </div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>米10年債利回り</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.us10y ? `${briefing.us10y}%` : "—"}</div>
+          <div style={{ fontSize: 10, color: (briefing.us10y_diff || 0) >= 0 ? "#ff5566" : "#00ff9d" }}>{typeof briefing.us10y_diff === "number" ? (briefing.us10y_diff >= 0 ? "+" : "") + briefing.us10y_diff.toFixed(2) + "pt" : "—"}</div>
+        </div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>Fear&Greed</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{typeof briefing.fear_greed_value === "number" ? Math.round(briefing.fear_greed_value) : "—"}</div>
+          <div style={{ fontSize: 10, color: "#8a8a8a" }}>{briefing.fear_greed_label || ""}</div>
         </div>
       </div>
 

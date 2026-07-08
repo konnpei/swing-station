@@ -286,10 +286,37 @@ def fetch_market_data():
             sox = 0.0
  
         try:
-            vix_h = yf.Ticker("^VIX").history(period="2d")
+            vix_h = yf.Ticker("^VIX").history(period="3d")
             vix = round(float(vix_h["Close"].iloc[-1]), 1)
+            if len(vix_h) >= 2:
+                vix_prev = float(vix_h["Close"].iloc[-2])
+                vix_pct = round((vix - vix_prev) / vix_prev * 100, 2)
+            else:
+                vix_pct = 0.0
         except:
             vix = 20.0
+            vix_pct = 0.0
+
+        try:
+            us10y_h = yf.Ticker("^TNX").history(period="3d")
+            us10y = round(float(us10y_h["Close"].iloc[-1]), 2)
+            if len(us10y_h) >= 2:
+                us10y_prev = float(us10y_h["Close"].iloc[-2])
+                us10y_diff = round(us10y - us10y_prev, 2)
+            else:
+                us10y_diff = 0.0
+        except:
+            us10y = 0.0
+            us10y_diff = 0.0
+
+        try:
+            import fear_and_greed
+            fg = fear_and_greed.get()
+            fear_greed_value = round(fg.value, 1)
+            fear_greed_label = fg.description
+        except:
+            fear_greed_value = None
+            fear_greed_label = None
  
         # TOPIX（998405.T優先、失敗時1308.T→1475.T）
         topix, topix_pct = 0.0, 0.0
@@ -328,7 +355,9 @@ def fetch_market_data():
             pass
 
         return {"ohlcv":ohlcv, "latest":latest, "diff":diff, "pct":pct,
-                "usd_jpy":usd_jpy, "usd_jpy_pct":usd_jpy_pct, "sox_pct":sox_pct, "sox":sox, "vix":vix,
+                "usd_jpy":usd_jpy, "usd_jpy_pct":usd_jpy_pct, "sox_pct":sox_pct, "sox":sox,
+                "vix":vix, "vix_pct":vix_pct, "us10y":us10y, "us10y_diff":us10y_diff,
+                "fear_greed_value":fear_greed_value, "fear_greed_label":fear_greed_label,
                 "topix":topix, "topix_pct":topix_pct,
                 "nasdaq":nasdaq, "nasdaq_pct":nasdaq_pct,
                 "sp500":sp500, "sp500_pct":sp500_pct}
@@ -358,6 +387,11 @@ def fetch_market_data():
                 "sox_pct": prev.get("sox_pct", 0.0),
                 "sox": prev.get("sox", 0.0),
                 "vix": prev.get("vix", 20.0),
+                "vix_pct": prev.get("vix_pct", 0.0),
+                "us10y": prev.get("us10y", 0.0),
+                "us10y_diff": prev.get("us10y_diff", 0.0),
+                "fear_greed_value": prev.get("fear_greed_value"),
+                "fear_greed_label": prev.get("fear_greed_label"),
                 "topix": prev.get("topix", 0.0),
                 "topix_pct": prev.get("topix_pct", 0.0),
                 "nasdaq": prev.get("nasdaq", 0.0),
