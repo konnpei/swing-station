@@ -943,6 +943,8 @@ if __name__ == "__main__":
         "us10y_diff": data.get("us10y_diff", 0.0),
         "fear_greed_value": data.get("fear_greed_value"),
         "fear_greed_label": data.get("fear_greed_label"),
+        "fear_greed_prev": data.get("fear_greed_prev"),
+        "fear_greed_diff": data.get("fear_greed_diff"),
         "btc": data.get("btc", 0.0), "btc_pct": data.get("btc_pct", 0.0),
         "dxy": data.get("dxy", 0.0), "dxy_pct": data.get("dxy_pct", 0.0),
         "gold": data.get("gold", 0.0), "gold_pct": data.get("gold_pct", 0.0),

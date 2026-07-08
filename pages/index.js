@@ -125,6 +125,60 @@ function StockCard({ s, highlighted }) {
   );
 }
 
+const FG_LABEL_JP = {
+  "extreme fear": "極度の恐怖", "fear": "恐怖", "neutral": "中立", "greed": "強欲", "extreme greed": "極度の強欲",
+};
+
+function FearGreedGauge({ value, label, diff }) {
+  if (typeof value !== "number") {
+    return (
+      <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 14, textAlign: "center", color: "#6a6a6a", fontSize: 11 }}>
+        Fear &amp; Greed指数はまだ取得できていません
+      </div>
+    );
+  }
+  const cx = 100, cy = 95, r = 80;
+  const clamped = Math.max(0, Math.min(100, value));
+  const angle = 180 - (clamped / 100) * 180;
+  const rad = (angle * Math.PI) / 180;
+  const needleLen = 68;
+  const nx = cx + needleLen * Math.cos(rad);
+  const ny = cy - needleLen * Math.sin(rad);
+  const labelJp = FG_LABEL_JP[(label || "").toLowerCase()] || label || "";
+  const diffColor = typeof diff === "number" ? (diff >= 0 ? "#00ff9d" : "#ff5566") : "#8a8a8a";
+
+  return (
+    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 14px 6px", marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 4 }}>Fear &amp; Greed指数</div>
+      <svg viewBox="0 0 200 112" style={{ width: "100%", maxWidth: 260, height: "auto", display: "block", margin: "0 auto" }}>
+        <defs>
+          <linearGradient id="fgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ff5566" />
+            <stop offset="25%" stopColor="#ff9955" />
+            <stop offset="50%" stopColor="#ffd166" />
+            <stop offset="75%" stopColor="#a8e063" />
+            <stop offset="100%" stopColor="#00ff9d" />
+          </linearGradient>
+        </defs>
+        <path d={`M 20 ${cy} A ${r} ${r} 0 0 1 180 ${cy}`} fill="none" stroke="url(#fgGrad)" strokeWidth="14" strokeLinecap="round" />
+        <line x1={cx} y1={cy} x2={nx} y2={ny} stroke="#eeeeee" strokeWidth="3" strokeLinecap="round" />
+        <circle cx={cx} cy={cy} r="5" fill="#eeeeee" />
+        <text x={14} y={cy + 18} fontSize="9" fill="#6a6a6a">恐怖</text>
+        <text x={162} y={cy + 18} fontSize="9" fill="#6a6a6a">強欲</text>
+      </svg>
+      <div style={{ textAlign: "center", marginTop: -8, paddingBottom: 8 }}>
+        <span style={{ fontSize: 22, fontWeight: 700, color: "#eeeeee" }}>{Math.round(value)}</span>
+        <span style={{ fontSize: 12, color: "#8a8a8a", marginLeft: 6 }}>{labelJp}</span>
+        {typeof diff === "number" && (
+          <span style={{ fontSize: 11, color: diffColor, marginLeft: 8 }}>
+            {diff >= 0 ? "▲" : "▼"} {Math.abs(diff).toFixed(1)}（前日比）
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function BriefingView({ briefing }) {
   if (!briefing) {
     return (
@@ -203,11 +257,6 @@ function BriefingView({ briefing }) {
           <div style={{ fontSize: 10, color: (briefing.us10y_diff || 0) >= 0 ? "#ff5566" : "#00ff9d" }}>{typeof briefing.us10y_diff === "number" ? (briefing.us10y_diff >= 0 ? "+" : "") + briefing.us10y_diff.toFixed(2) + "pt" : "—"}</div>
         </div>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#8a8a8a" }}>Fear&Greed</div>
-          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{typeof briefing.fear_greed_value === "number" ? Math.round(briefing.fear_greed_value) : "—"}</div>
-          <div style={{ fontSize: 10, color: "#8a8a8a" }}>{briefing.fear_greed_label || ""}</div>
-        </div>
-        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>ビットコイン</div>
           <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.btc ? `$${briefing.btc.toLocaleString()}` : "—"}</div>
           <div style={{ fontSize: 10, color: (briefing.btc_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.btc_pct ? (briefing.btc_pct >= 0 ? "+" : "") + briefing.btc_pct.toFixed(2) + "%" : "—"}</div>
@@ -224,6 +273,7 @@ function BriefingView({ briefing }) {
         </div>
       </div>
 
+      <FearGreedGauge value={briefing.fear_greed_value} label={briefing.fear_greed_label} diff={briefing.fear_greed_diff} />
       {briefing.market_summary && (
         <div style={{ fontSize: 11.5, lineHeight: 1.8, color: "#b8b8b8", marginBottom: 16, padding: "0 2px" }}>
           {briefing.market_summary}

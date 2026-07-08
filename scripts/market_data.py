@@ -239,6 +239,7 @@ def fetch_us_watch_changes():
 def fetch_market_data():
     try:
         import yfinance as yf
+        import requests
         hist = yf.Ticker("^N225").history(period="20d")
         if hist.empty:
             raise ValueError("no data")
@@ -310,13 +311,19 @@ def fetch_market_data():
             us10y_diff = 0.0
 
         try:
-            import fear_and_greed
-            fg = fear_and_greed.get()
-            fear_greed_value = round(fg.value, 1)
-            fear_greed_label = fg.description
-        except:
+            fg_headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+            fg_r = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata", headers=fg_headers, timeout=10)
+            fg_r.raise_for_status()
+            fg_data = fg_r.json()["fear_and_greed"]
+            fear_greed_value = round(float(fg_data["score"]), 1)
+            fear_greed_label = fg_data["rating"]
+            fear_greed_prev = round(float(fg_data["previous_close"]), 1)
+            fear_greed_diff = round(fear_greed_value - fear_greed_prev, 1)
+        except Exception:
             fear_greed_value = None
             fear_greed_label = None
+            fear_greed_prev = None
+            fear_greed_diff = None
 
         try:
             btc_h = yf.Ticker("BTC-USD").history(period="3d")
@@ -394,6 +401,7 @@ def fetch_market_data():
                 "usd_jpy":usd_jpy, "usd_jpy_pct":usd_jpy_pct, "sox_pct":sox_pct, "sox":sox,
                 "vix":vix, "vix_pct":vix_pct, "us10y":us10y, "us10y_diff":us10y_diff,
                 "fear_greed_value":fear_greed_value, "fear_greed_label":fear_greed_label,
+                "fear_greed_prev":fear_greed_prev, "fear_greed_diff":fear_greed_diff,
                 "btc":btc, "btc_pct":btc_pct, "dxy":dxy, "dxy_pct":dxy_pct, "gold":gold, "gold_pct":gold_pct,
                 "topix":topix, "topix_pct":topix_pct,
                 "nasdaq":nasdaq, "nasdaq_pct":nasdaq_pct,
@@ -429,6 +437,8 @@ def fetch_market_data():
                 "us10y_diff": prev.get("us10y_diff", 0.0),
                 "fear_greed_value": prev.get("fear_greed_value"),
                 "fear_greed_label": prev.get("fear_greed_label"),
+                "fear_greed_prev": prev.get("fear_greed_prev"),
+                "fear_greed_diff": prev.get("fear_greed_diff"),
                 "btc": prev.get("btc", 0.0), "btc_pct": prev.get("btc_pct", 0.0),
                 "dxy": prev.get("dxy", 0.0), "dxy_pct": prev.get("dxy_pct", 0.0),
                 "gold": prev.get("gold", 0.0), "gold_pct": prev.get("gold_pct", 0.0),
