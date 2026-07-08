@@ -163,6 +163,11 @@ function BriefingView({ briefing }) {
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>ドル円</div>
           <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.usd_jpy}円</div>
+          {typeof briefing.usd_jpy_pct === "number" && (
+            <div style={{ fontSize: 10, color: briefing.usd_jpy_pct >= 0 ? "#00ff9d" : "#ff5566" }}>
+              {briefing.usd_jpy_pct >= 0 ? "+" : ""}{briefing.usd_jpy_pct.toFixed(2)}%
+            </div>
+          )}
         </div>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>SOX指数</div>
@@ -171,6 +176,11 @@ function BriefingView({ briefing }) {
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>VIX</div>
           <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.vix}</div>
+        </div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>TOPIX</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.topix ? briefing.topix.toLocaleString() : "—"}</div>
+          <div style={{ fontSize: 10, color: (briefing.topix_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.topix_pct ? (briefing.topix_pct >= 0 ? "+" : "") + briefing.topix_pct.toFixed(2) + "%" : "—"}</div>
         </div>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>NASDAQ</div>

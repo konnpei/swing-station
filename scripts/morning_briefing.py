@@ -934,6 +934,7 @@ if __name__ == "__main__":
         "nikkei_diff": int(diff),
         "nikkei_pct": data["pct"],
         "usd_jpy": data["usd_jpy"],
+        "usd_jpy_pct": data.get("usd_jpy_pct", 0.0),
         "sox_pct": data["sox_pct"],
         "sox": data.get("sox", 0.0),
         "vix": data["vix"],

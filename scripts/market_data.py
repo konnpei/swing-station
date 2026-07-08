@@ -260,10 +260,16 @@ def fetch_market_data():
         pct    = diff / prev["close"] * 100
  
         try:
-            fx = yf.Ticker("USDJPY=X").history(period="2d")
+            fx = yf.Ticker("USDJPY=X").history(period="3d")
             usd_jpy = round(float(fx["Close"].iloc[-1]), 2)
+            if len(fx) >= 2:
+                usd_jpy_prev = float(fx["Close"].iloc[-2])
+                usd_jpy_pct = round((usd_jpy - usd_jpy_prev) / usd_jpy_prev * 100, 2)
+            else:
+                usd_jpy_pct = 0.0
         except:
             usd_jpy = 155.0
+            usd_jpy_pct = 0.0
  
         try:
             sox_h = yf.Ticker("^SOX").history(period="3d")
@@ -322,7 +328,7 @@ def fetch_market_data():
             pass
 
         return {"ohlcv":ohlcv, "latest":latest, "diff":diff, "pct":pct,
-                "usd_jpy":usd_jpy, "sox_pct":sox_pct, "sox":sox, "vix":vix,
+                "usd_jpy":usd_jpy, "usd_jpy_pct":usd_jpy_pct, "sox_pct":sox_pct, "sox":sox, "vix":vix,
                 "topix":topix, "topix_pct":topix_pct,
                 "nasdaq":nasdaq, "nasdaq_pct":nasdaq_pct,
                 "sp500":sp500, "sp500_pct":sp500_pct}
@@ -348,6 +354,7 @@ def fetch_market_data():
                 "latest": {"close": nikkei, "open": nikkei, "high": nikkei, "low": nikkei},
                 "diff": 0, "pct": 0.0,
                 "usd_jpy": prev.get("usd_jpy", 150.0),
+                "usd_jpy_pct": prev.get("usd_jpy_pct", 0.0),
                 "sox_pct": prev.get("sox_pct", 0.0),
                 "sox": prev.get("sox", 0.0),
                 "vix": prev.get("vix", 20.0),
