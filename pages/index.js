@@ -207,6 +207,21 @@ function BriefingView({ briefing }) {
           <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{typeof briefing.fear_greed_value === "number" ? Math.round(briefing.fear_greed_value) : "—"}</div>
           <div style={{ fontSize: 10, color: "#8a8a8a" }}>{briefing.fear_greed_label || ""}</div>
         </div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>ビットコイン</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.btc ? `$${briefing.btc.toLocaleString()}` : "—"}</div>
+          <div style={{ fontSize: 10, color: (briefing.btc_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.btc_pct ? (briefing.btc_pct >= 0 ? "+" : "") + briefing.btc_pct.toFixed(2) + "%" : "—"}</div>
+        </div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>ドル指数(DXY)</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.dxy || "—"}</div>
+          <div style={{ fontSize: 10, color: (briefing.dxy_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.dxy_pct ? (briefing.dxy_pct >= 0 ? "+" : "") + briefing.dxy_pct.toFixed(2) + "%" : "—"}</div>
+        </div>
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#8a8a8a" }}>金（ゴールド）</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.gold ? `$${briefing.gold.toLocaleString()}` : "—"}</div>
+          <div style={{ fontSize: 10, color: (briefing.gold_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.gold_pct ? (briefing.gold_pct >= 0 ? "+" : "") + briefing.gold_pct.toFixed(2) + "%" : "—"}</div>
+        </div>
       </div>
 
       {briefing.market_summary && (

@@ -317,6 +317,42 @@ def fetch_market_data():
         except:
             fear_greed_value = None
             fear_greed_label = None
+
+        try:
+            btc_h = yf.Ticker("BTC-USD").history(period="3d")
+            btc = round(float(btc_h["Close"].iloc[-1]), 0)
+            if len(btc_h) >= 2:
+                btc_prev = float(btc_h["Close"].iloc[-2])
+                btc_pct = round((btc - btc_prev) / btc_prev * 100, 2)
+            else:
+                btc_pct = 0.0
+        except:
+            btc = 0.0
+            btc_pct = 0.0
+
+        try:
+            dxy_h = yf.Ticker("DX-Y.NYB").history(period="3d")
+            dxy = round(float(dxy_h["Close"].iloc[-1]), 2)
+            if len(dxy_h) >= 2:
+                dxy_prev = float(dxy_h["Close"].iloc[-2])
+                dxy_pct = round((dxy - dxy_prev) / dxy_prev * 100, 2)
+            else:
+                dxy_pct = 0.0
+        except:
+            dxy = 0.0
+            dxy_pct = 0.0
+
+        try:
+            gold_h = yf.Ticker("GC=F").history(period="3d")
+            gold = round(float(gold_h["Close"].iloc[-1]), 1)
+            if len(gold_h) >= 2:
+                gold_prev = float(gold_h["Close"].iloc[-2])
+                gold_pct = round((gold - gold_prev) / gold_prev * 100, 2)
+            else:
+                gold_pct = 0.0
+        except:
+            gold = 0.0
+            gold_pct = 0.0
  
         # TOPIX（998405.T優先、失敗時1308.T→1475.T）
         topix, topix_pct = 0.0, 0.0
@@ -358,6 +394,7 @@ def fetch_market_data():
                 "usd_jpy":usd_jpy, "usd_jpy_pct":usd_jpy_pct, "sox_pct":sox_pct, "sox":sox,
                 "vix":vix, "vix_pct":vix_pct, "us10y":us10y, "us10y_diff":us10y_diff,
                 "fear_greed_value":fear_greed_value, "fear_greed_label":fear_greed_label,
+                "btc":btc, "btc_pct":btc_pct, "dxy":dxy, "dxy_pct":dxy_pct, "gold":gold, "gold_pct":gold_pct,
                 "topix":topix, "topix_pct":topix_pct,
                 "nasdaq":nasdaq, "nasdaq_pct":nasdaq_pct,
                 "sp500":sp500, "sp500_pct":sp500_pct}
@@ -392,6 +429,9 @@ def fetch_market_data():
                 "us10y_diff": prev.get("us10y_diff", 0.0),
                 "fear_greed_value": prev.get("fear_greed_value"),
                 "fear_greed_label": prev.get("fear_greed_label"),
+                "btc": prev.get("btc", 0.0), "btc_pct": prev.get("btc_pct", 0.0),
+                "dxy": prev.get("dxy", 0.0), "dxy_pct": prev.get("dxy_pct", 0.0),
+                "gold": prev.get("gold", 0.0), "gold_pct": prev.get("gold_pct", 0.0),
                 "topix": prev.get("topix", 0.0),
                 "topix_pct": prev.get("topix_pct", 0.0),
                 "nasdaq": prev.get("nasdaq", 0.0),
