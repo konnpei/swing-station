@@ -102,7 +102,7 @@ from market_data import (
     WATCH_MAP, WATCH_LIST, SECTOR_MAP,
     fetch_all_watch_changes, fetch_surge_drop, build_sector_heatmap, top_movers,
     US_WATCH_MAP, US_SECTOR_MAP, US_WATCH_LIST, fetch_us_watch_changes,
-    fetch_market_data,
+    fetch_market_data, compute_ai_score,
 )
  
 
@@ -154,43 +154,6 @@ def fetch_stock_technicals():
             print(f"yfinance error {code}: {e}")
             continue
     return results
-
-def compute_ai_score(tech):
-    """
-    テクニカル指標のみから機械的に算出するAIスコア（0-100）。
-    LLMが生成する主観的な「総合スコア」とは独立した、再現可能な定量スコア。
-    - トレンド（MA25乖離）
-    - RSI（過熱/売られすぎ）
-    - ボリンジャーバンド位置（逆張り妙味）
-    - 出来高（関心度）
-    """
-    score = 50.0
-
-    ma25_diff = tech.get("ma25_diff", 0)
-    score += max(-15, min(15, ma25_diff))
-
-    rsi = tech.get("rsi", 50)
-    if 40 <= rsi <= 60:
-        score += 5
-    elif rsi < 30:
-        score += 10  # 売られすぎ＝リバウンド期待
-    elif rsi > 70:
-        score -= 10  # 過熱感
-
-    bb_pos = tech.get("bb_pos", 50)
-    if bb_pos < 20:
-        score += 8  # バンド下限＝反発期待
-    elif bb_pos > 80:
-        score -= 8  # バンド上限＝過熱
-
-    vol_ratio = tech.get("vol_ratio", 1.0)
-    if vol_ratio > 1.5:
-        score += 7
-    elif vol_ratio < 0.7:
-        score -= 3
-
-    return max(0, min(100, round(score)))
-
 
 def detect_mode(data):
     pct = data["pct"]

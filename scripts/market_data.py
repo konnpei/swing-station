@@ -559,3 +559,102 @@ def fetch_jp_earnings(debug_log=None):
 
 def fetch_us_earnings(debug_log=None):
     return _fetch_earnings_for_list(US_WATCH_LIST, US_WATCH_MAP, US_SECTOR_MAP, strip_suffix=False, debug_log=debug_log)
+
+# ------------------------------------------------------------------
+# テクニカルスクリーナー（リアルタイム買い候補リストアップ用）
+# Claude APIを使わず、RSI/MA25乖離/BB位置/出来高だけから機械的にスコア化する。
+# ------------------------------------------------------------------
+
+def compute_ai_score(tech):
+    """
+    テクニカル指標のみから機械的に算出するAIスコア（0-100）。
+    LLMが生成する主観的な「総合スコア」とは独立した、再現可能な定量スコア。
+    - トレンド（MA25乖離）
+    - RSI（過熱/売られすぎ）
+    - ボリンジャーバンド位置（逆張り妙味）
+    - 出来高（関心度）
+    """
+    score = 50.0
+
+    ma25_diff = tech.get("ma25_diff", 0)
+    score += max(-15, min(15, ma25_diff))
+
+    rsi = tech.get("rsi", 50)
+    if 40 <= rsi <= 60:
+        score += 5
+    elif rsi < 30:
+        score += 10  # 売られすぎ＝リバウンド期待
+    elif rsi > 70:
+        score -= 10  # 過熱感
+
+    bb_pos = tech.get("bb_pos", 50)
+    if bb_pos < 20:
+        score += 8  # バンド下限＝反発期待
+    elif bb_pos > 80:
+        score -= 8  # バンド上限＝過熱
+
+    vol_ratio = tech.get("vol_ratio", 1.0)
+    if vol_ratio > 1.5:
+        score += 7
+    elif vol_ratio < 0.7:
+        score -= 3
+
+    return max(0, min(100, round(score)))
+
+
+def fetch_technicals_for_list(ticker_list, name_map, sector_map, strip_suffix=False):
+    """監視銘柄リストの各銘柄についてRSI/MA25乖離/BB位置/出来高比を計算し、
+    compute_ai_score()でスコア化する。Claude APIは使わない純計算。"""
+    import yfinance as yf
+    results = []
+    for code in ticker_list:
+        code_short = code.replace(".T", "") if strip_suffix else code
+        name = name_map.get(code, code_short)
+        sector = sector_map.get(code_short, "その他")
+        try:
+            ticker = yf.Ticker(code)
+            hist = ticker.history(period="60d")
+            if hist.empty or len(hist) < 25:
+                continue
+            close = hist["Close"]
+            volume = hist["Volume"]
+            current = float(close.iloc[-1])
+            prev = float(close.iloc[-2])
+            change_pct = (current - prev) / prev * 100
+            ma25 = float(close.tail(25).mean())
+            ma25_diff = (current - ma25) / ma25 * 100
+            std25 = float(close.tail(25).std())
+            bb_upper = ma25 + 2 * std25
+            bb_lower = ma25 - 2 * std25
+            bb_pos = (current - bb_lower) / (bb_upper - bb_lower) * 100 if bb_upper != bb_lower else 50
+            delta = close.diff().tail(15)
+            gain = delta.clip(lower=0).mean()
+            loss = (-delta.clip(upper=0)).mean()
+            rsi = round(100 - (100 / (1 + gain / loss)), 1) if loss != 0 else 50
+            vol_ratio = round(float(volume.tail(5).mean()) / float(volume.tail(20).mean()), 2) if float(volume.tail(20).mean()) > 0 else 1.0
+
+            tech = {
+                "code": code_short, "name": name, "sector": sector,
+                "price": round(current, 2), "change_pct": round(change_pct, 2),
+                "ma25_diff": round(ma25_diff, 1), "bb_pos": round(bb_pos, 1),
+                "rsi": rsi, "vol_ratio": vol_ratio,
+            }
+            tech["ai_score"] = compute_ai_score(tech)
+            results.append(tech)
+        except Exception:
+            continue
+    return results
+
+
+def build_screener(technicals_list, n=10):
+    """AIスコア上位・下位（＝買い候補/要警戒候補）を抽出"""
+    ranked = sorted(technicals_list, key=lambda t: t["ai_score"], reverse=True)
+    return {"top": ranked[:n], "bottom": ranked[-n:][::-1] if len(ranked) >= n else []}
+
+
+def fetch_jp_screener():
+    return fetch_technicals_for_list(WATCH_LIST, WATCH_MAP, SECTOR_MAP, strip_suffix=True)
+
+
+def fetch_us_screener():
+    return fetch_technicals_for_list(US_WATCH_LIST, US_WATCH_MAP, US_SECTOR_MAP, strip_suffix=False)

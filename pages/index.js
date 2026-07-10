@@ -612,12 +612,47 @@ function EarningsView({ briefing, onJump }) {
   );
 }
 
+function ScreenerRow({ t, currency }) {
+  const color = t.ai_score >= 60 ? "#00ff9d" : t.ai_score <= 40 ? "#ff5566" : "#ffd166";
+  const up = t.change_pct >= 0;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "#0d0d0d", borderRadius: 6, border: `1px solid ${color}33`, marginBottom: 5 }}>
+      <div style={{ fontSize: 9, color: "#6a6a6a", width: 44 }}>{t.sector}</div>
+      <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{t.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({t.code})</span></div>
+      <div style={{ fontSize: 9, color: up ? "#00ff9d" : "#ff5566" }}>{up ? "+" : ""}{t.change_pct}%</div>
+      <div style={{ fontSize: 13, color, fontWeight: 700, minWidth: 26, textAlign: "right" }}>{t.ai_score}</div>
+    </div>
+  );
+}
+
+function ScreenerPanel({ screener, currency, refreshedAt }) {
+  const top = screener?.top || [];
+  if (top.length === 0) {
+    return (
+      <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 14, color: "#6a6a6a", fontSize: 11 }}>
+        スクリーナーデータはまだありません。「Refresh Screener Only」ワークフローの実行後に表示されます。
+      </div>
+    );
+  }
+  return (
+    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>テクニカルスクリーナー（AIスコア上位）</div>
+      {top.map((t, i) => <ScreenerRow key={i} t={t} currency={currency} />)}
+      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
+        ※RSI・MA25乖離・BB位置・出来高だけから機械的に算出したスコアです（Claudeの主観判断は含みません）。投資助言ではなく一次スクリーニングの参考情報です。
+        {refreshedAt && ` 最終更新: ${new Date(refreshedAt).toLocaleString("ja-JP")}`}
+      </div>
+    </div>
+  );
+}
+
 function JpStocksView({ briefing, history, highlightCode }) {
   const stocks = briefing?.stocks_jp || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" history={history} heatmapKey="sector_heatmap" />
       <TopMovers movers={briefing?.jp_top_movers} currency="¥" />
+      <ScreenerPanel screener={briefing?.jp_screener} currency="¥" refreshedAt={briefing?.screener_refreshed_at} />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
       {stocks.length > 0 ? (
         stocks.map((s, i) => <StockCard key={i} s={s} highlighted={highlightCode === String(s.code)} />)
@@ -634,6 +669,7 @@ function UsStocksView({ briefing, history, highlightCode }) {
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <SectorHeatmap heatmap={briefing?.us_sector_heatmap} allChanges={briefing?.us_all_changes} currency="$" history={history} heatmapKey="us_sector_heatmap" />
       <TopMovers movers={briefing?.us_top_movers} currency="$" />
+      <ScreenerPanel screener={briefing?.us_screener} currency="$" refreshedAt={briefing?.screener_refreshed_at} />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
       {s ? (
         <StockCard s={{ ...s, code: s.ticker }} highlighted={highlightCode === String(s.ticker)} />
