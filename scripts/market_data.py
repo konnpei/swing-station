@@ -646,10 +646,17 @@ def fetch_technicals_for_list(ticker_list, name_map, sector_map, strip_suffix=Fa
     return results
 
 
-def build_screener(technicals_list, n=10):
-    """AIスコア上位・下位（＝買い候補/要警戒候補）を抽出"""
+def build_screener(technicals_list, n=10, high_conviction_threshold=90):
+    """AIスコア上位・下位（＝買い候補/要警戒候補）を抽出。
+    high_convictionは、複数の強気シグナル（MA25乖離・RSI売られすぎ・BB下限・出来高急増）が
+    ほぼ同時に揃った、極めて限定的な高確度候補のみを抽出する（該当なしの日の方が多い想定）。"""
     ranked = sorted(technicals_list, key=lambda t: t["ai_score"], reverse=True)
-    return {"top": ranked[:n], "bottom": ranked[-n:][::-1] if len(ranked) >= n else []}
+    high_conviction = [t for t in ranked if t["ai_score"] >= high_conviction_threshold]
+    return {
+        "top": ranked[:n],
+        "bottom": ranked[-n:][::-1] if len(ranked) >= n else [],
+        "high_conviction": high_conviction,
+    }
 
 
 def fetch_jp_screener():

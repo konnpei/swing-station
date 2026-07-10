@@ -625,6 +625,26 @@ function ScreenerRow({ t, currency }) {
   );
 }
 
+function HighConvictionPanel({ screener, currency, refreshedAt }) {
+  const hc = screener?.high_conviction || [];
+  return (
+    <div style={{ background: "#151008", border: "1px solid #ffd16655", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#ffd166", marginBottom: 8 }}>🎯 高確度候補（AIスコア90以上のみ）</div>
+      {hc.length === 0 ? (
+        <div style={{ fontSize: 11, color: "#8a8a8a", lineHeight: 1.6 }}>
+          本日は90点以上の高確度候補はありません。複数の強気シグナル（売られすぎ・バンド下限・出来高急増・トレンド）がほぼ同時に揃う日は稀なので、これは正常な状態です。
+        </div>
+      ) : (
+        hc.map((t, i) => <ScreenerRow key={i} t={t} currency={currency} />)
+      )}
+      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
+        ※MA25乖離・RSI売られすぎ・BB下限・出来高急増がほぼ全て重なった、極めて限定的な高確度シグナルのみを表示します。投資助言ではありません。
+        {refreshedAt && ` 最終更新: ${new Date(refreshedAt).toLocaleString("ja-JP")}`}
+      </div>
+    </div>
+  );
+}
+
 function ScreenerPanel({ screener, currency, refreshedAt }) {
   const top = screener?.top || [];
   if (top.length === 0) {
@@ -635,14 +655,17 @@ function ScreenerPanel({ screener, currency, refreshedAt }) {
     );
   }
   return (
-    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>テクニカルスクリーナー（AIスコア上位）</div>
-      {top.map((t, i) => <ScreenerRow key={i} t={t} currency={currency} />)}
-      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
-        ※RSI・MA25乖離・BB位置・出来高だけから機械的に算出したスコアです（Claudeの主観判断は含みません）。投資助言ではなく一次スクリーニングの参考情報です。
-        {refreshedAt && ` 最終更新: ${new Date(refreshedAt).toLocaleString("ja-JP")}`}
+    <>
+      <HighConvictionPanel screener={screener} currency={currency} refreshedAt={refreshedAt} />
+      <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>テクニカルスクリーナー（AIスコア上位・参考値）</div>
+        {top.map((t, i) => <ScreenerRow key={i} t={t} currency={currency} />)}
+        <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
+          ※RSI・MA25乖離・BB位置・出来高だけから機械的に算出したスコアです（Claudeの主観判断は含みません）。投資助言ではなく一次スクリーニングの参考情報です。
+          {refreshedAt && ` 最終更新: ${new Date(refreshedAt).toLocaleString("ja-JP")}`}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
