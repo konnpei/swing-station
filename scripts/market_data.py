@@ -599,6 +599,15 @@ def compute_ai_score(tech):
     elif vol_ratio < 0.7:
         score -= 3
 
+    # モメンタムボーナス（本日の値動きが大きいほど加点、段階的に積み上げ）
+    change_pct = tech.get("change_pct", 0)
+    if change_pct >= 15:
+        score += 15  # +4+6+5（ストップ高接近級）
+    elif change_pct >= 10:
+        score += 10  # +4+6
+    elif change_pct >= 5:
+        score += 4
+
     return max(0, min(100, round(score)))
 
 
@@ -648,13 +657,16 @@ def fetch_technicals_for_list(ticker_list, name_map, sector_map, strip_suffix=Fa
 
 def build_screener(technicals_list, n=10, high_conviction_threshold=90):
     """AIスコア上位・下位（＝買い候補/要警戒候補）を抽出。
-    high_convictionは、複数の強気シグナル（MA25乖離・RSI売られすぎ・BB下限・出来高急増）が
-    ほぼ同時に揃った、極めて限定的な高確度候補のみを抽出する（該当なしの日の方が多い想定）。"""
-    ranked = sorted(technicals_list, key=lambda t: t["ai_score"], reverse=True)
-    high_conviction = [t for t in ranked if t["ai_score"] >= high_conviction_threshold]
+    top/high_convictionは、スコアが0以下（買い根拠が実質無い）候補を除外する
+    （「要警戒」bottomリストは目的が逆なのでこの除外を適用しない）。
+    high_convictionは、複数の強気シグナル（MA25乖離・RSI売られすぎ・BB下限・出来高急増・
+    モメンタム）がほぼ同時に揃った、極めて限定的な高確度候補のみを抽出する（該当なしの日の方が多い想定）。"""
+    all_ranked = sorted(technicals_list, key=lambda t: t["ai_score"], reverse=True)
+    buy_candidates = [t for t in all_ranked if t["ai_score"] > 0]
+    high_conviction = [t for t in buy_candidates if t["ai_score"] >= high_conviction_threshold]
     return {
-        "top": ranked[:n],
-        "bottom": ranked[-n:][::-1] if len(ranked) >= n else [],
+        "top": buy_candidates[:n],
+        "bottom": all_ranked[-n:][::-1] if len(all_ranked) >= n else [],
         "high_conviction": high_conviction,
     }
 
