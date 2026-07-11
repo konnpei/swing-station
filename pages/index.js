@@ -225,7 +225,8 @@ function BriefingView({ briefing }) {
         </div>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>SOX指数</div>
-          <div style={{ fontSize: 15, color: briefing.sox_pct >= 0 ? "#00ff9d" : "#ff5566", marginTop: 2 }}>{briefing.sox_pct?.toFixed(1)}%</div>
+          <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{briefing.sox ? briefing.sox.toLocaleString() : "—"}</div>
+          <div style={{ fontSize: 10, color: (briefing.sox_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{typeof briefing.sox_pct === "number" ? (briefing.sox_pct >= 0 ? "+" : "") + briefing.sox_pct.toFixed(2) + "%" : "—"}</div>
         </div>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>VIX</div>
