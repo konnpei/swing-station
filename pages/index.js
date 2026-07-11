@@ -284,7 +284,7 @@ function BriefingView({ briefing }) {
       {briefing.date && (
         <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: 8 }}>
           <img
-            src={`https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest_chart.png?d=${encodeURIComponent(briefing.date)}`}
+            src={`/api/chart?d=${encodeURIComponent(briefing.date)}`}
             alt="日経225チャート（ローソク足・MA・MACD）"
             style={{ width: "100%", height: "auto", display: "block", borderRadius: 6 }}
             onError={(ev) => { ev.target.style.display = "none"; }}
@@ -1135,7 +1135,7 @@ export default function SwingStation() {
 
   const loadData = () => {
     setIsRefreshing(true);
-    fetch("https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest.json?t=" + Date.now())
+    fetch("/api/latest?t=" + Date.now())
       .then(r => r.json())
       .then(d => {
         setBriefing(d);
