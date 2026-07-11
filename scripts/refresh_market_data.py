@@ -14,7 +14,6 @@ GitHub Actions（workflow_dispatch）から呼び出す想定。
 
 必要な環境変数:
   GH_PAT             - data/latest.json をGitHub API経由で更新するために必須
-  VERCEL_DEPLOY_HOOK - 任意。設定されていればVercelの再デプロイをトリガー
 """
 import os, json, base64
 import requests
@@ -145,13 +144,9 @@ def main():
     print("data/latest.json 更新中...")
     gh_put_json("data/latest.json", latest, sha, f"Refresh market data only {TODAY} (no Discord/no LLM)")
 
-    vercel_hook = os.environ.get("VERCEL_DEPLOY_HOOK", "")
-    if vercel_hook:
-        try:
-            vr = requests.post(vercel_hook)
-            print(f"Vercel redeploy triggered: {vr.status_code}")
-        except Exception as ve:
-            print(f"Vercel trigger error: {ve}")
+    # 注: data/latest.json のコミット(gh_put_json)自体がVercelのGit連携による
+    # 自動デプロイをトリガーするため、以前ここにあったVERCEL_DEPLOY_HOOK経由の
+    # 明示的な再デプロイ呼び出しは二重デプロイの原因になっていたので削除した。
 
     print("完了。Discord投稿・note生成・Claude API呼び出しは一切行っていません。")
 

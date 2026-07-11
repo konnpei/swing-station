@@ -991,14 +991,9 @@ if __name__ == "__main__":
             except Exception as ce:
                 print(f"Chart image save error: {ce}")
 
-            # Vercel再デプロイをトリガー
-            vercel_hook = os.environ.get("VERCEL_DEPLOY_HOOK", "")
-            if vercel_hook:
-                try:
-                    vr = requests.post(vercel_hook)
-                    print(f"Vercel redeploy triggered: {vr.status_code}")
-                except Exception as ve:
-                    print(f"Vercel trigger error: {ve}")
+            # 注: data/latest.json / latest_chart.png のコミット自体がVercelのGit連携
+            # による自動デプロイをトリガーするため、明示的なVERCEL_DEPLOY_HOOK呼び出し
+            # は不要（二重デプロイの原因になるため削除した）。
         except Exception as e:
             print(f"Failed to update data/latest.json: {e}")
     else:
