@@ -199,7 +199,7 @@ async function sendDiscord(item, analysis) {
 // ---- メインハンドラ ----
 export default async function handler(req, res) {
   // 認証
-  if (CRON_SECRET && req.headers.authorization !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || req.headers.authorization !== `Bearer ${CRON_SECRET}`) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 

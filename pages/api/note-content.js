@@ -115,15 +115,10 @@ function extractJSON(text) {
 }
 
 export default async function handler(req, res) {
-  // 認証チェック
-  if (req.method !== "POST") {
-    const authHeader = req.headers.authorization;
-    if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      // GETの場合は認証なしでも許可（テスト用）
-      if (req.method !== "GET") {
-        return res.status(401).end();
-      }
-    }
+  // 認証チェック（GET/POST問わず常にCRON_SECRETを要求）
+  const authHeader = req.headers.authorization;
+  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).end();
   }
 
   try {
