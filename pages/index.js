@@ -1181,7 +1181,9 @@ const MONTHLY_FLOW = [
 
 function YearlyFlowView({ eventsJp, eventsUs }) {
   const currentMonth = new Date().getMonth() + 1;
+  const nextMonth = (currentMonth % 12) + 1;
   const [openMonth, setOpenMonth] = useState(null);
+  const [showAll, setShowAll] = useState(false);
 
   const merged = [
     ...(eventsJp || []).map(e => ({ ...e, source: "日本" })),
@@ -1195,11 +1197,25 @@ function YearlyFlowView({ eventsJp, eventsUs }) {
       .sort((a, b) => (a.date || "").localeCompare(b.date || ""));
   };
 
+  const visibleMonths = showAll
+    ? MONTHLY_FLOW
+    : MONTHLY_FLOW.filter(mo => mo.m === currentMonth || mo.m === nextMonth);
+
   return (
     <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 18 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>年間の値動きが起こりやすい月（参考・タップで日程を表示）</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 6 }}>
-        {MONTHLY_FLOW.map(mo => {
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8" }}>
+          {showAll ? "年間の値動きが起こりやすい月（参考・タップで日程を表示）" : "直近の値動きが起こりやすい月（参考・タップで日程を表示）"}
+        </div>
+        <button
+          onClick={() => { setShowAll(!showAll); setOpenMonth(null); }}
+          style={{ background: "none", border: "1px solid #333", borderRadius: 6, color: "#8a8a8a", fontSize: 9, padding: "3px 8px", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}
+        >
+          {showAll ? "直近だけに戻す" : "年間スケジュールを見る"}
+        </button>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: showAll ? "repeat(3,1fr)" : "repeat(2,1fr)", gap: 6 }}>
+        {visibleMonths.map(mo => {
           const imp = IMPORTANCE_META[mo.level];
           const isNow = mo.m === currentMonth;
           const isOpen = openMonth === mo.m;
