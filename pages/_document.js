@@ -1,19 +1,17 @@
 import { Html, Head, Main, NextScript } from "next/document";
 
-const dashboardScript = `
-(function () {
+function dashboardBootstrap() {
   const ID = "market-dashboard-overlay";
   const STYLE_ID = "market-dashboard-style";
-
-  function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
-  function num(v, fallback) { return typeof v === "number" && Number.isFinite(v) ? v : fallback; }
+  const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+  const num = (v, fallback = 0) => typeof v === "number" && Number.isFinite(v) ? v : fallback;
 
   function scoreMarket(d) {
     if (typeof d.market_score === "number") return clamp(Math.round(d.market_score), 0, 100);
     let score = 50;
-    score += clamp(num(d.nikkei_pct, 0) * 5, -16, 16);
-    score += clamp(num(d.sox_pct, 0) * 6, -18, 18);
-    score += clamp(num(d.nasdaq_pct, 0) * 3, -8, 8);
+    score += clamp(num(d.nikkei_pct) * 5, -16, 16);
+    score += clamp(num(d.sox_pct) * 6, -18, 18);
+    score += clamp(num(d.nasdaq_pct) * 3, -8, 8);
     score -= clamp((num(d.vix, 20) - 20) * 1.4, -10, 18);
     return clamp(Math.round(score), 0, 100);
   }
@@ -26,70 +24,68 @@ const dashboardScript = `
     return { label: "強く守る日", sub: "強い警戒", color: "#ff5566" };
   }
 
-  function cleanLine(s, max) {
-    const t = String(s || "").replace(/\\s+/g, " ").trim();
-    if (!t) return "";
-    return t.length > max ? t.slice(0, max - 1) + "…" : t;
+  function cleanLine(value, max = 43) {
+    const text = String(value || "").replace(/\s+/g, " ").trim();
+    return text.length > max ? text.slice(0, max - 1) + "…" : text;
   }
 
   function strategies(d) {
     if (Array.isArray(d.strategy_lines) && d.strategy_lines.length) {
-      return d.strategy_lines.slice(0, 3).map(x => cleanLine(x, 43));
+      return d.strategy_lines.slice(0, 3).map((x) => cleanLine(x));
     }
     const c = d.consideration || {};
-    const candidates = [c.point, c.action, d.market_summary].map(x => cleanLine(x, 43)).filter(Boolean);
+    const candidates = [c.point, c.action, d.market_summary].map((x) => cleanLine(x)).filter(Boolean);
     const defaults = [
-      num(d.sox_pct, 0) > 1 ? "全体指数より半導体の相対的な強さを優先" : "寄り付き直後は方向を決めず、指数の反応を確認",
-      num(d.nikkei_pct, 0) < -1 ? "急落局面では一括買いを避け、分割で検討" : "急騰銘柄を追わず、押し目まで待つ",
-      num(d.vix, 20) >= 25 ? "VIX高水準のためポジションを小さく管理" : "過熱銘柄は利確、売られすぎは分割検討"
+      num(d.sox_pct) > 1 ? "全体指数より半導体の相対的な強さを優先" : "寄り付き直後は方向を決めず、指数の反応を確認",
+      num(d.nikkei_pct) < -1 ? "急落局面では一括買いを避け、分割で検討" : "急騰銘柄を追わず、押し目まで待つ",
+      num(d.vix, 20) >= 25 ? "VIX高水準のためポジションを小さく管理" : "過熱銘柄は利確、売られすぎは分割検討",
     ];
     return [...candidates, ...defaults].slice(0, 3);
   }
 
-  function parseDate(s) {
-    if (!s) return null;
-    const normalized = String(s).replace(/\\//g, "-");
-    const dt = new Date(normalized.length === 10 ? normalized + "T00:00:00+09:00" : normalized);
-    return Number.isNaN(dt.getTime()) ? null : dt;
+  function parseDate(value) {
+    if (!value) return null;
+    const normalized = String(value).replace(/\//g, "-");
+    const date = new Date(normalized.length === 10 ? normalized + "T00:00:00+09:00" : normalized);
+    return Number.isNaN(date.getTime()) ? null : date;
   }
 
   function nextEvent(d) {
     const direct = Array.isArray(d.today_events) ? d.today_events : [];
     const merged = direct.length ? direct : [
-      ...(Array.isArray(d.events_jp) ? d.events_jp.map(e => ({ ...e, region: e.region || "日本" })) : []),
-      ...(Array.isArray(d.events_us) ? d.events_us.map(e => ({ ...e, region: e.region || "米国" })) : [])
+      ...(Array.isArray(d.events_jp) ? d.events_jp.map((e) => ({ ...e, region: e.region || "日本" })) : []),
+      ...(Array.isArray(d.events_us) ? d.events_us.map((e) => ({ ...e, region: e.region || "米国" })) : []),
     ];
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const upcoming = merged.map(e => ({ ...e, _date: parseDate(e.date) })).filter(e => !e._date || e._date >= start)
-      .sort((a, b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0));
-    return upcoming[0] || null;
+    return merged
+      .map((e) => ({ ...e, _date: parseDate(e.date) }))
+      .filter((e) => !e._date || e._date >= start)
+      .sort((a, b) => (a._date?.getTime() || 0) - (b._date?.getTime() || 0))[0] || null;
   }
 
-  function el(tag, attrs, text) {
+  function create(tag, className, text) {
     const node = document.createElement(tag);
-    if (attrs) Object.entries(attrs).forEach(([k, v]) => {
-      if (k === "class") node.className = v;
-      else node.setAttribute(k, v);
-    });
+    if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
   }
 
   function addStyles() {
     if (document.getElementById(STYLE_ID)) return;
-    const style = el("style", { id: STYLE_ID });
+    const style = create("style");
+    style.id = STYLE_ID;
     style.textContent = `
       #${ID}{margin:0 0 14px;display:grid;grid-template-columns:minmax(210px,.82fr) minmax(260px,1.18fr);gap:10px;color:#e8e8e8;font-family:'JetBrains Mono','Courier New',monospace}
       #${ID} .md-card{background:linear-gradient(145deg,#151515,#0d0d0d);border:1px solid #2d2d2d;border-radius:14px;overflow:hidden;box-shadow:0 10px 30px #0006}
       #${ID} .md-score{grid-row:span 2;padding:14px;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:278px}
       #${ID} .md-kicker{font-size:10px;letter-spacing:.12em;color:#8a8a8a;margin-bottom:8px;font-weight:700}
-      #${ID} .md-ring{--score:50;--accent:#ffd166;width:166px;height:166px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--score)*1%),#242424 0);position:relative;filter:drop-shadow(0 0 13px color-mix(in srgb,var(--accent) 38%,transparent))}
+      #${ID} .md-ring{width:166px;height:166px;border-radius:50%;display:grid;place-items:center;position:relative}
       #${ID} .md-ring:after{content:'';position:absolute;inset:13px;border-radius:50%;background:#0e0e0e;border:1px solid #303030}
       #${ID} .md-ring-inner{position:relative;z-index:1;text-align:center}
-      #${ID} .md-number{font-family:'Orbitron',monospace;font-size:47px;line-height:1;font-weight:900;color:var(--accent)}
+      #${ID} .md-number{font-family:'Orbitron',monospace;font-size:47px;line-height:1;font-weight:900}
       #${ID} .md-denom{font-size:10px;color:#777;margin-top:4px}
-      #${ID} .md-action{font-size:22px;font-weight:900;margin-top:12px;color:var(--accent);text-shadow:0 0 16px color-mix(in srgb,var(--accent) 40%,transparent)}
+      #${ID} .md-action{font-size:22px;font-weight:900;margin-top:12px}
       #${ID} .md-sub{font-size:10px;color:#8a8a8a;margin-top:3px}
       #${ID} .md-reasons{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:13px}
       #${ID} .md-reason{background:#151515;border:1px solid #282828;border-radius:7px;padding:7px 4px;text-align:center;font-size:9px;color:#999}
@@ -110,17 +106,14 @@ const dashboardScript = `
     document.head.appendChild(style);
   }
 
-  function findBriefingRoot() {
-    const buttons = Array.from(document.querySelectorAll("button"));
-    const tab = buttons.find(b => b.textContent.trim() === "朝刊");
-    const tabs = tab && tab.parentElement;
-    const content = tabs && tabs.nextElementSibling;
-    const pane = content && content.firstElementChild;
-    return pane && pane.firstElementChild;
+  function findRoot() {
+    const tab = Array.from(document.querySelectorAll("button")).find((b) => b.textContent.trim() === "朝刊");
+    const content = tab?.parentElement?.nextElementSibling;
+    return content?.firstElementChild?.firstElementChild || null;
   }
 
   function render(d) {
-    const root = findBriefingRoot();
+    const root = findRoot();
     if (!root || document.getElementById(ID)) return false;
     addStyles();
     const score = scoreMarket(d);
@@ -128,53 +121,61 @@ const dashboardScript = `
     const lines = strategies(d);
     const event = nextEvent(d);
 
-    const wrap = el("section", { id: ID, "aria-label": "今日の相場ダッシュボード" });
-    const scoreCard = el("div", { class: "md-card md-score" });
-    scoreCard.appendChild(el("div", { class: "md-kicker" }, "TODAY'S MARKET SCORE"));
-    const ring = el("div", { class: "md-ring", style: "--score:" + score + ";--accent:" + meta.color });
-    const inner = el("div", { class: "md-ring-inner" });
-    inner.appendChild(el("div", { class: "md-number" }, String(score)));
-    inner.appendChild(el("div", { class: "md-denom" }, "/ 100"));
+    const wrap = create("section");
+    wrap.id = ID;
+    wrap.setAttribute("aria-label", "今日の相場ダッシュボード");
+
+    const scoreCard = create("div", "md-card md-score");
+    scoreCard.appendChild(create("div", "md-kicker", "TODAY'S MARKET SCORE"));
+    const ring = create("div", "md-ring");
+    ring.style.background = `conic-gradient(${meta.color} ${score}%,#242424 0)`;
+    ring.style.filter = `drop-shadow(0 0 13px ${meta.color}66)`;
+    const inner = create("div", "md-ring-inner");
+    const number = create("div", "md-number", String(score));
+    number.style.color = meta.color;
+    inner.appendChild(number);
+    inner.appendChild(create("div", "md-denom", "/ 100"));
     ring.appendChild(inner);
     scoreCard.appendChild(ring);
-    scoreCard.appendChild(el("div", { class: "md-action", style: "--accent:" + meta.color + ";color:" + meta.color }, meta.label));
-    scoreCard.appendChild(el("div", { class: "md-sub" }, meta.sub + "｜指数からの参考判定"));
-    const reasons = el("div", { class: "md-reasons" });
-    [["日経", num(d.nikkei_pct, 0), "%"],["SOX", num(d.sox_pct, 0), "%"],["VIX", num(d.vix, 0), ""]].forEach(([name, value, unit]) => {
-      const box = el("div", { class: "md-reason" }, name);
-      const sign = unit && value > 0 ? "+" : "";
-      box.appendChild(el("strong", null, sign + Number(value).toFixed(unit ? 1 : 1) + unit));
+    const action = create("div", "md-action", meta.label);
+    action.style.color = meta.color;
+    scoreCard.appendChild(action);
+    scoreCard.appendChild(create("div", "md-sub", `${meta.sub}｜指数からの参考判定`));
+    const reasons = create("div", "md-reasons");
+    [["日経", num(d.nikkei_pct), "%"], ["SOX", num(d.sox_pct), "%"], ["VIX", num(d.vix), ""]].forEach(([name, value, unit]) => {
+      const box = create("div", "md-reason", name);
+      box.appendChild(create("strong", "", `${unit && value > 0 ? "+" : ""}${Number(value).toFixed(1)}${unit}`));
       reasons.appendChild(box);
     });
     scoreCard.appendChild(reasons);
 
-    const strategyCard = el("div", { class: "md-card md-panel" });
-    strategyCard.appendChild(el("div", { class: "md-title" }, "今日の3行戦略"));
-    const lineWrap = el("div", { class: "md-lines" });
-    lines.forEach((line, i) => {
-      const row = el("div", { class: "md-line" });
-      row.appendChild(el("div", { class: "md-index" }, String(i + 1)));
-      row.appendChild(el("div", null, line));
+    const strategyCard = create("div", "md-card md-panel");
+    strategyCard.appendChild(create("div", "md-title", "今日の3行戦略"));
+    const lineWrap = create("div", "md-lines");
+    lines.forEach((line, index) => {
+      const row = create("div", "md-line");
+      row.appendChild(create("div", "md-index", String(index + 1)));
+      row.appendChild(create("div", "", line));
       lineWrap.appendChild(row);
     });
     strategyCard.appendChild(lineWrap);
 
-    const eventCard = el("div", { class: "md-card md-panel" });
-    eventCard.appendChild(el("div", { class: "md-title" }, "今日は何の日？"));
-    const eventBox = el("div", { class: "md-event" });
+    const eventCard = create("div", "md-card md-panel");
+    eventCard.appendChild(create("div", "md-title", "今日は何の日？"));
+    const eventBox = create("div", "md-event");
     if (event) {
-      const date = event.date ? String(event.date).replace(/^\\d{4}[-/]/, "").replace("-", "/") : (event.time || "本日");
-      eventBox.appendChild(el("div", { class: "md-date" }, date));
-      const info = el("div");
-      info.appendChild(el("div", { class: "md-event-title" }, event.title || event.text || "重要イベント"));
-      info.appendChild(el("div", { class: "md-event-meta" }, [event.region, event.time].filter(Boolean).join(" ・ ") || "市場予定"));
+      const dateLabel = event.date ? String(event.date).replace(/^\d{4}[-/]/, "").replace("-", "/") : (event.time || "本日");
+      eventBox.appendChild(create("div", "md-date", dateLabel));
+      const info = create("div");
+      info.appendChild(create("div", "md-event-title", event.title || event.text || "重要イベント"));
+      info.appendChild(create("div", "md-event-meta", [event.region, event.time].filter(Boolean).join(" ・ ") || "市場予定"));
       eventBox.appendChild(info);
-      eventBox.appendChild(el("div", { class: "md-badge" }, event.importance === "high" ? "最重要" : event.importance === "low" ? "参考" : "重要"));
+      eventBox.appendChild(create("div", "md-badge", event.importance === "high" ? "最重要" : event.importance === "low" ? "参考" : "重要"));
     } else {
-      eventBox.appendChild(el("div", { class: "md-date" }, "—"));
-      const info = el("div");
-      info.appendChild(el("div", { class: "md-event-title" }, "直近の重要イベントは登録されていません"));
-      info.appendChild(el("div", { class: "md-event-meta" }, "予定タブで月間スケジュールを確認"));
+      eventBox.appendChild(create("div", "md-date", "—"));
+      const info = create("div");
+      info.appendChild(create("div", "md-event-title", "直近の重要イベントは登録されていません"));
+      info.appendChild(create("div", "md-event-meta", "予定タブで月間スケジュールを確認"));
       eventBox.appendChild(info);
     }
     eventCard.appendChild(eventBox);
@@ -183,38 +184,38 @@ const dashboardScript = `
     wrap.appendChild(strategyCard);
     wrap.appendChild(eventCard);
 
-    const modeCard = Array.from(root.children).find(x => (x.textContent || "").includes("モード"));
-    if (modeCard && modeCard.nextSibling) root.insertBefore(wrap, modeCard.nextSibling);
+    const modeCard = Array.from(root.children).find((node) => (node.textContent || "").includes("モード"));
+    if (modeCard?.nextSibling) root.insertBefore(wrap, modeCard.nextSibling);
     else root.insertBefore(wrap, root.firstChild);
     return true;
   }
 
   async function mount() {
     try {
-      const r = await fetch("/api/latest?t=" + Date.now(), { cache: "no-store" });
-      if (!r.ok) return;
-      const d = await r.json();
+      const response = await fetch(`/api/latest?t=${Date.now()}`, { cache: "no-store" });
+      if (!response.ok) return;
+      const data = await response.json();
       let attempts = 0;
       const timer = setInterval(() => {
         attempts += 1;
-        if (render(d) || attempts > 40) clearInterval(timer);
+        if (render(data) || attempts > 40) clearInterval(timer);
       }, 250);
     } catch (_) {}
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount);
   else mount();
-})();
-`;
+}
 
 export default function Document() {
+  const script = `(${dashboardBootstrap.toString()})();`;
   return (
     <Html lang="ja">
       <Head />
       <body>
         <Main />
         <NextScript />
-        <script dangerouslySetInnerHTML={{ __html: dashboardScript }} />
+        <script dangerouslySetInnerHTML={{ __html: script }} />
       </body>
     </Html>
   );
