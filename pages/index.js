@@ -223,7 +223,7 @@ function marketScoreMeta(score) {
   return { label: "無理をしない", sub: "強い警戒", color: "#ff5566" };
 }
 
-function shortText(text, max = 44) {
+function shortText(text, max = 120) {
   if (!text) return "";
   const clean = String(text).replace(/\s+/g, " ").trim();
   return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
