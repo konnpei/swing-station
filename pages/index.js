@@ -349,8 +349,6 @@ function BriefingView({ briefing }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} />
-      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} />
-      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} />
       <div style={{
         background: "#121212", border: `1px solid ${mode.color}44`,
         borderRadius: 10, padding: "10px 14px", marginBottom: 12,
@@ -361,6 +359,9 @@ function BriefingView({ briefing }) {
       </div>
 
       <MarketDashboard briefing={briefing} />
+
+      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} />
+      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
