@@ -1,0 +1,47 @@
+name: Apply Market Dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/add-market-dashboard.js
+      - .github/workflows/apply-market-dashboard.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-build-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Apply safe dashboard patch
+        run: node scripts/add-market-dashboard.js
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Build
+        run: npm run build
+
+      - name: Commit patched page
+        run: |
+          if git diff --quiet -- pages/index.js; then
+            echo "No page changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pages/index.js
+          git commit -m "Add visual market dashboard"
+          git push
