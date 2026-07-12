@@ -360,9 +360,6 @@ function BriefingView({ briefing }) {
 
       <MarketDashboard briefing={briefing} />
 
-      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} />
-      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} />
-
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>日経平均</div>
@@ -448,6 +445,9 @@ function BriefingView({ briefing }) {
           />
         </div>
       )}
+
+      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} />
+      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} />
 
       {(briefing.surges?.length > 0 || briefing.drops?.length > 0) && (
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
