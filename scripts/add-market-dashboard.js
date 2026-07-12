@@ -146,7 +146,7 @@ function MarketDashboard({ briefing }) {
   );
 }
 
-`;
+`.replace(/\\`/g, '`').replace(/\\\$/g, '$');
 
 src = src.replace(componentAnchor, component + componentAnchor);
 
