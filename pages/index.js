@@ -50,13 +50,34 @@ function daysSince(dateStr) {
   return Math.floor((now - then) / (1000 * 60 * 60 * 24));
 }
 
+function renderInlineBold(text, keyPrefix) {
+  const parts = String(text).split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") && part.length > 4
+      ? <strong key={`${keyPrefix}-b${i}`} style={{ color: "#f0f0f0" }}>{part.slice(2, -2)}</strong>
+      : <span key={`${keyPrefix}-t${i}`}>{part}</span>
+  );
+}
+
+function renderMarkdownLite(text) {
+  if (!text) return null;
+  return String(text).split("\n").map((line, i) => {
+    const t = line.trim();
+    if (t.startsWith("### ")) return <div key={i} style={{ fontSize: 12, fontWeight: 800, color: "#f0f0f0", marginTop: 10, marginBottom: 4 }}>{renderInlineBold(t.slice(4), i)}</div>;
+    if (t.startsWith("## ")) return <div key={i} style={{ fontSize: 13, fontWeight: 800, color: "#f0f0f0", marginTop: 12, marginBottom: 5 }}>{renderInlineBold(t.slice(3), i)}</div>;
+    if (t.startsWith("# ")) return <div key={i} style={{ fontSize: 14, fontWeight: 800, color: "#ffffff", marginTop: 12, marginBottom: 6 }}>{renderInlineBold(t.slice(2), i)}</div>;
+    if (t === "") return <div key={i} style={{ height: 6 }} />;
+    return <div key={i} style={{ marginBottom: 2 }}>{renderInlineBold(line, i)}</div>;
+  });
+}
+
 function WeeklyContentCard({ icon, label, data }) {
   if (!data || daysSince(data.date) > 3) return null;
   return (
     <div style={{ background: "#121212", border: "1px solid #3a3f52", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
       <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>{icon} {label} <span style={{ color: "#5a5a5a" }}>{data.date}</span></div>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>{data.title}</div>
-      <div style={{ fontSize: 11, color: "#c8c8c8", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{data.note_body}</div>
+      <div style={{ fontSize: 11, color: "#c8c8c8", lineHeight: 1.7 }}>{renderMarkdownLite(data.note_body)}</div>
     </div>
   );
 }
