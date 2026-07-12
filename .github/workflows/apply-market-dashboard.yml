@@ -43,6 +43,17 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add pages/index.js
           git commit -m "Add visual market dashboard"
-          git push
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "Push succeeded."
+              exit 0
+            fi
+            echo "Push rejected, retrying with rebase (attempt $i)..."
+            git fetch origin main
+            git rebase origin/main
+            sleep 3
+          done
+          echo "Push failed after retries."
+          exit 1
 
 # trigger: 2026-07-12
