@@ -1,16 +1,19 @@
-import fs from "fs";
-import path from "path";
+// GitHub上の最新data/latest.jsonをリクエストのたびに取得する。
+// Vercelビルド時点の静的ファイルを読む方式（旧実装）だと、GitHub Actionsが
+// データを更新してもVercelが再ビルドするまでサイトに反映されないため、
+// 常にGitHubから直接取得する方式に変更している。
 
-export default function handler(req, res) {
+const RAW_URL = "https://raw.githubusercontent.com/konnpei/swing-station/main/data/latest.json";
+
+export default async function handler(req, res) {
   try {
-    const filePath = path.join(process.cwd(), "data", "latest.json");
-
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "latest.json が見つかりません" });
+    const r = await fetch(`${RAW_URL}?t=${Date.now()}`, {
+      headers: { "Cache-Control": "no-cache" },
+    });
+    if (!r.ok) {
+      return res.status(r.status).json({ error: `GitHub取得失敗: ${r.status}` });
     }
-
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const data = JSON.parse(raw);
+    const data = await r.json();
 
     // フロントの5分ごとポーリングに配慮したキャッシュ設定
     res.setHeader("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=120");

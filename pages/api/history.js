@@ -1,37 +1,47 @@
-import fs from "fs";
-import path from "path";
+// GitHub上のdata/history/を毎回取得する（Vercelビルド時点の静的ファイルではなく常に最新）。
+// 一覧取得はGitHub Contents APIを1回、各ファイルの中身はraw.githubusercontent.com経由で取得する。
 
-export default function handler(req, res) {
+const REPO = "konnpei/swing-station";
+const CONTENTS_URL = `https://api.github.com/repos/${REPO}/contents/data/history`;
+const RAW_BASE = `https://raw.githubusercontent.com/${REPO}/main/data/history`;
+
+async function fetchJson(url) {
+  const r = await fetch(url, { headers: { "Cache-Control": "no-cache" } });
+  if (!r.ok) throw new Error(`fetch failed: ${r.status}`);
+  return r.json();
+}
+
+export default async function handler(req, res) {
   try {
-    const histDir = path.join(process.cwd(), "data", "history");
     const { date } = req.query;
-
-    if (!fs.existsSync(histDir)) {
-      return res.status(200).json({ history: [] });
-    }
 
     // 特定日の朝刊フル詳細を返す(日付ピッカー用)
     if (date) {
-      const filePath = path.join(histDir, `${date}.json`);
-      if (!fs.existsSync(filePath)) {
+      const r = await fetch(`${RAW_BASE}/${date}.json?t=${Date.now()}`);
+      if (!r.ok) {
         return res.status(404).json({ error: `${date} のデータが見つかりません` });
       }
-      const raw = fs.readFileSync(filePath, "utf-8");
-      const data = JSON.parse(raw);
+      const data = await r.json();
       return res.status(200).json({ date, data });
     }
 
     // 既存: 履歴タブの統計表示用（最大400日分＝平日ベースでおよそ1年半）
-    const files = fs.readdirSync(histDir)
-      .filter(f => f.endsWith(".json"))
-      .sort()
-      .reverse()
-      .slice(0, 400);
+    let files;
+    try {
+      const listing = await fetchJson(CONTENTS_URL);
+      files = listing
+        .map(f => f.name)
+        .filter(n => n.endsWith(".json"))
+        .sort()
+        .reverse()
+        .slice(0, 400);
+    } catch (e) {
+      return res.status(200).json({ history: [] });
+    }
 
-    const history = files.map(file => {
+    const results = await Promise.all(files.map(async file => {
       try {
-        const rawFile = fs.readFileSync(path.join(histDir, file), "utf-8");
-        const d = JSON.parse(rawFile);
+        const d = await fetchJson(`${RAW_BASE}/${file}`);
         return {
           date: d.date,
           fileDate: file.replace(".json", ""),
@@ -55,8 +65,10 @@ export default function handler(req, res) {
       } catch (e) {
         return null;
       }
-    }).filter(Boolean);
+    }));
 
+    const history = results.filter(Boolean);
+    res.setHeader("Cache-Control", "public, max-age=0, s-maxage=60, stale-while-revalidate=120");
     res.status(200).json({ history });
   } catch (e) {
     res.status(500).json({ error: e.message, history: [] });
