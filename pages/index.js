@@ -360,6 +360,9 @@ function BriefingView({ briefing }) {
 
       <MarketDashboard briefing={briefing} />
 
+      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} />
+      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} />
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#8a8a8a" }}>日経平均</div>
@@ -470,9 +473,6 @@ function BriefingView({ briefing }) {
           <div style={{ fontSize: 11, lineHeight: 1.7, color: "#b8b8b8" }}>{briefing.consideration.main}</div>
         </div>
       )}
-
-      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} />
-      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} />
 
       <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
         <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#121212", border: "1px solid #262626", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>note</a>
@@ -690,6 +690,17 @@ function daysUntilLabel(d) {
   return `${d}日後`;
 }
 
+function daysUntilFromDate(dateStr) {
+  if (!dateStr) return null;
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  const target = new Date(y, m - 1, d);
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target - now) / (1000 * 60 * 60 * 24));
+}
+
 function earningsScore(pct) {
   // サプライズ%は理論上±数千%まで振れうる（特に予想が赤字→黒字転換等で符号が変わると
   // 計算上意味のない極端な値になる）ので、tanhで0-100に滑らかに収める
@@ -711,7 +722,8 @@ function EarningsScoreBadge({ pct }) {
 }
 
 function EarningsCalendarRow({ e, market, onJump }) {
-  const soon = e.days_until !== null && e.days_until !== undefined && e.days_until <= 3;
+  const daysUntil = daysUntilFromDate(e.next_earnings_date);
+  const soon = daysUntil !== null && daysUntil <= 3;
   return (
     <button
       onClick={() => onJump(market === "日本" ? "jp" : "us", e.code)}
@@ -725,7 +737,7 @@ function EarningsCalendarRow({ e, market, onJump }) {
       <div style={{ fontSize: 10, color: "#9a9a9a", width: 72 }}>{e.next_earnings_date}</div>
       <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>
         {e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span>
-        {soon && <span style={{ color: "#ffd166", fontSize: 9, marginLeft: 6 }}>{daysUntilLabel(e.days_until)}</span>}
+        {soon && <span style={{ color: "#ffd166", fontSize: 9, marginLeft: 6 }}>{daysUntilLabel(daysUntil)}</span>}
       </div>
       <EarningsScoreBadge pct={e.last_surprise_pct} />
     </button>
