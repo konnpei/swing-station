@@ -71,14 +71,15 @@ def main():
     print("data/latest.json 読み込み中...")
     latest, sha = gh_get_json("data/latest.json")
 
-    # 取得0件の場合は前回データを維持（空データで上書きしない）
-    if jp_earnings:
-        jp_calendar = build_earnings_calendar(jp_earnings)
-        jp_rank = build_earnings_rank(jp_earnings)
-    else:
-        print("⚠ 日本株決算情報0件のため前回データを維持")
-        jp_calendar = latest.get("jp_earnings_calendar", [])
-        jp_rank = latest.get("jp_earnings_rank", {"best": [], "worst": []})
+    # 日本株はJ-Quants(/equities/earnings-calendar)が「翌営業日に決算発表がある
+    # 銘柄」のみを返す仕様のため、0件は「明日決算発表がある監視銘柄がない」という
+    # 正常な結果であることが多い。米国株と違い、0件でも前回データは維持せず
+    # 常に上書きする（前回データを維持すると、既に発表済みの古い予定日が
+    # 残ってしまうため）。サプライズ%データが無いため jp_rank は常に空になる。
+    jp_calendar = build_earnings_calendar(jp_earnings)
+    jp_rank = build_earnings_rank(jp_earnings)
+    if not jp_earnings:
+        print("  本日・明日決算発表の監視銘柄なし（正常）")
 
     if us_earnings:
         us_calendar = build_earnings_calendar(us_earnings)
@@ -108,3 +109,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
