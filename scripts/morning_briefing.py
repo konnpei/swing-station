@@ -73,19 +73,27 @@ def fetch_market_news():
         try:
             url = f"https://news.google.com/rss/search?q={q}&hl=ja&gl=JP&ceid=JP:ja"
             r = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+            r.raise_for_status()
             root = ET.fromstring(r.content)
-            for item in root.findall(".//item")[:5]:
-                title = item.find("title").text or ""
-                pub = item.find("pubDate").text or ""
+        except Exception as e:
+            print(f"News fetch error: {e}")
+            continue
+
+        for item in root.findall(".//item")[:5]:
+            try:
+                title_el = item.find("title")
+                pub_el = item.find("pubDate")
+                title = title_el.text if title_el is not None and title_el.text else ""
+                pub = pub_el.text if pub_el is not None and pub_el.text else ""
                 # 株価連動キーワードが含まれるものだけ抽出
                 if any(kw in title for kw in STOCK_KEYWORDS):
                     news_items.append({
                         "title": title[:80],
                         "date": pub[:16]
                     })
-        except Exception as e:
-            print(f"News fetch error: {e}")
-            continue
+            except Exception as e:
+                print(f"News item parse error: {e}")
+                continue
 
     # 重複除去して最大10件
     seen = set()
@@ -308,17 +316,19 @@ All text content must be in Japanese. Return ONLY the JSON object."""
  
     response = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=8192,
+        max_tokens=16000,
         messages=[{"role": "user", "content": prompt}]
     )
+    if response.stop_reason == "max_tokens":
+        print("Warning: response hit max_tokens and was truncated")
     raw = response.content[0].text.strip()
     raw = re.sub(r"^```json\s*", "", raw)
     raw = re.sub(r"\s*```$", "", raw)
- 
+
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError as e:
-        print(f"JSON parse error: {e}")
+        print(f"JSON parse error: {e} (stop_reason={response.stop_reason})")
         print(f"Raw response: {raw[:500]}")
         raise
 

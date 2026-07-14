@@ -244,7 +244,14 @@ def fetch_market_data():
         hist = yf.Ticker("^N225").history(period="20d")
         if hist.empty:
             raise ValueError("no data")
- 
+
+        # yfinanceは直近営業日のデータが未確定（NaN）で返ってくることがあり、
+        # int(nan)がValueErrorになるため、OHLCが欠損している行は除外する
+        hist = hist.dropna(subset=["Open", "High", "Low", "Close"])
+        hist["Volume"] = hist["Volume"].fillna(0)
+        if hist.empty:
+            raise ValueError("no valid data after removing NaN rows")
+
         ohlcv = []
         for date, row in hist.tail(10).iterrows():
             ohlcv.append({
