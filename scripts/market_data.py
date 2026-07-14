@@ -554,7 +554,94 @@ def build_earnings_rank(earnings_list, n=10):
     return {"best": best, "worst": worst}
 
 
+def fetch_jp_earnings_jquants(debug_log=None):
+    """
+    J-Quants API (/equities/earnings-calendar) を使って、監視銘柄のうち
+    翌営業日に決算発表予定の銘柄を取得する。
+
+    重要な制約（JPXの仕様に起因、こちら側で変更不可）:
+    - このAPIは「翌営業日に決算発表を行う銘柄」のみを返す。米国株のように
+      数週間先までの決算カレンダーは取得できない。
+    - 3月期・9月期決算の会社のみが対象。
+    - REITは対象外。
+    - サプライズ%（前回決算の良し悪し）はこのAPIには含まれないため、
+      last_surprise_pct は常にNoneになる（決算ランキング機能は日本株では使えない）。
+
+    戻り値:
+    - APIキー未設定 or 取得失敗 → None（呼び出し元でyfinance版にフォールバック）
+    - 取得成功（該当銘柄が0件でも） → リスト（空リストもあり得る。これは
+      「明日決算発表がある監視銘柄がない」という正常な結果）
+    """
+    import requests
+
+    api_key = os.environ.get("JQUANTS_API_KEY", "")
+    if not api_key:
+        if debug_log is not None:
+            debug_log.append({"stage": "jquants_no_key"})
+        return None
+
+    # WATCH_LISTの"7203.T"形式 → J-Quantsの5桁コード"72030"形式に変換
+    code_map = {}
+    for code in WATCH_LIST:
+        code_short = code.replace(".T", "")
+        jq_code = f"{code_short}0"
+        code_map[jq_code] = (code_short, WATCH_MAP.get(code, code_short), SECTOR_MAP.get(code_short, "その他"))
+
+    try:
+        resp = requests.get(
+            "https://api.jquants.com/v2/equities/earnings-calendar",
+            headers={"x-api-key": api_key},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        payload = resp.json()
+    except Exception as e:
+        if debug_log is not None:
+            debug_log.append({"stage": "jquants_fetch_error", "error": str(e)})
+        return None
+
+    rows = payload.get("data", [])
+    if debug_log is not None:
+        debug_log.append({"stage": "jquants_fetched_ok", "row_count": len(rows)})
+
+    from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+    jst = _tz(_td(hours=9))
+    today = _dt.now(jst).date()
+
+    results = []
+    for row in rows:
+        jq_code = str(row.get("Code", ""))
+        if jq_code not in code_map:
+            continue
+        date_str = row.get("Date", "")
+        if not date_str:
+            continue
+        try:
+            ann_date = _dt.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        code_short, name, sector = code_map[jq_code]
+        results.append({
+            "code": code_short, "name": name, "sector": sector,
+            "next_earnings_date": date_str,
+            "days_until": (ann_date - today).days,
+            "last_earnings_date": None, "last_surprise_pct": None,
+        })
+    return results
+
+
 def fetch_jp_earnings(debug_log=None):
+    """
+    日本株の決算情報を取得する。J-Quants APIを優先し、キー未設定/取得失敗時のみ
+    yfinance版（get_earnings_dates）にフォールバックする。
+
+    注: yfinance版は日本株の決算日程データをほぼ返さないことが判明済み
+    （Yahoo Financeの日本株カバレッジの限界）。J-Quants導入前はこれが原因で
+    日本株の決算カレンダーが常に空になっていた。
+    """
+    jq_result = fetch_jp_earnings_jquants(debug_log=debug_log)
+    if jq_result is not None:
+        return jq_result
     return _fetch_earnings_for_list(WATCH_LIST, WATCH_MAP, SECTOR_MAP, strip_suffix=True, debug_log=debug_log)
 
 
@@ -678,3 +765,4 @@ def fetch_jp_screener():
 
 def fetch_us_screener():
     return fetch_technicals_for_list(US_WATCH_LIST, US_WATCH_MAP, US_SECTOR_MAP, strip_suffix=False)
+
