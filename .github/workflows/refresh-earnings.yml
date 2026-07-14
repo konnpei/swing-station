@@ -25,3 +25,4 @@ jobs:
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+          JQUANTS_API_KEY: ${{ secrets.JQUANTS_API_KEY }}
