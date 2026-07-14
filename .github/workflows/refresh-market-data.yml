@@ -2,9 +2,11 @@ name: Refresh Market Data Only
 
 # 市場データ（ヒートマップ・値動き上位銘柄・指数）だけを再取得してdata/latest.jsonを
 # 更新する軽量ワークフロー。Claude APIもDiscordも使わないため、手動で何度実行しても
-# コストや重複投稿の心配がない。手動実行のみ（定期実行はしない）。
+# コストや重複投稿の心配がない。
 
 on:
+  schedule:
+    - cron: '0 20 * * 0-4'
   workflow_dispatch:
 
 jobs:
