@@ -1,0 +1,26 @@
+name: Track Record
+
+# 朝刊で推奨した日本株のtarget/stop成否を、推奨から5営業日後に自動判定し、
+# data/track_record.jsonに記録する軽量ワークフロー。Claude APIもDiscordも
+# 使わないため、手動で何度実行してもコストや重複記録の心配がない
+# （同じ推奨日+銘柄コードの組は判定済みとしてスキップされる）。
+#
+# このデータは非公開データとして扱う（サイト・Discordには一切表示・投稿しない）。
+
+on:
+  schedule:
+    - cron: '0 21 * * 0-4'
+  workflow_dispatch:
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests yfinance pandas numpy
+      - run: python scripts/track_record.py
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
