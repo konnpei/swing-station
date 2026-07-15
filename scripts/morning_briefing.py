@@ -163,6 +163,13 @@ def fetch_stock_technicals():
             continue
     return results
 
+def format_strategy_item(s):
+    if isinstance(s, str):
+        return s
+    if isinstance(s, dict):
+        return s.get("name", "") + "：" + s.get("action", s.get("rationale", str(s)))
+    return str(s)
+
 def detect_mode(data):
     pct = data["pct"]
     sox = data["sox_pct"]
@@ -634,13 +641,7 @@ def generate_note(data, mode, c):
     earnings_md = "".join(earnings_lines) if earnings_lines else "本日は主要な決算発表なし。"
  
     consider = c.get("consideration", {})
-    def fmt_strategy(s):
-        if isinstance(s, str):
-            return s
-        if isinstance(s, dict):
-            return s.get("name", "") + "：" + s.get("action", s.get("rationale", str(s)))
-        return str(s)
-    strategy_lines = ["- " + fmt_strategy(s) for s in c.get("strategy", [])]
+    strategy_lines = ["- " + format_strategy_item(s) for s in c.get("strategy", [])]
     strategy_md = "\n".join(strategy_lines)
  
     events_lines = ["| 日時 | イベント | 重要度 |", "|------|---------|--------|"]
@@ -938,6 +939,7 @@ if __name__ == "__main__":
         "stocks_jp": content.get("stocks_jp", []),
         "stock_us": content.get("stock_us", {}),
         "consideration": content.get("consideration", {}),
+        "strategy_lines": [format_strategy_item(s) for s in content.get("strategy", [])],
         "surges": _surges,
         "drops": _drops,
         "sector_heatmap": _sector_heatmap,
