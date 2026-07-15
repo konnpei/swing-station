@@ -1,5 +1,7 @@
 # swing-station ホームページ作り替え依頼（ChatGPTへ）
 
+> ⚠️ このドキュメントはホームページ作り替えを依頼した当時（作成時点）の内容であり、現状の実装とは異なる場合があります。最新の状態はCLAUDE.mdおよびリポジトリ本体を参照してください。
+
 ## やりたいこと
 - 今日の朝刊・注目銘柄・相場モード・バナー画像を表示
 - note / X / Discordリンクを設置
@@ -8,7 +10,7 @@
 ## 技術構成
 - Next.js 14 / React 18
 - Vercel: swing-station-app.vercel.app
-- GitHub: konnpei/swing-station（プライベート）
+- GitHub: konnpei/swing-station（現在はパブリック）
 
 ## 朝刊JSON形式（data/latest.jsonに保存予定）
 
