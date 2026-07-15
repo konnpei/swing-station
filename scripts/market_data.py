@@ -252,6 +252,17 @@ def fetch_market_data():
         if hist.empty:
             raise ValueError("no valid data after removing NaN rows")
 
+        # 鮮度チェック: 取得できた最新データが古すぎる場合（取得失敗・キャッシュ等）は
+        # 気付けずに数日古い日経指数を表示し続けてしまうため、フォールバックへ倒す。
+        # 日本のゴールデンウィーク等の連休を考慮し、閾値は7日（1週間）とする。
+        latest_trading_date = hist.index[-1].date()
+        days_since_latest = (NOW.date() - latest_trading_date).days
+        if days_since_latest > 7:
+            raise ValueError(
+                f"^N225 data is stale: latest trading date={latest_trading_date}, "
+                f"{days_since_latest} days old"
+            )
+
         ohlcv = []
         for date, row in hist.tail(10).iterrows():
             ohlcv.append({
