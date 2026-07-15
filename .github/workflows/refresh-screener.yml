@@ -2,9 +2,10 @@ name: Refresh Screener Only
 
 # 監視銘柄全体をRSI/MA25乖離/BB位置/出来高でスコア化する軽量スクリーナー。
 # Claude APIもDiscordも使わないため、何度実行してもコストや重複投稿の心配がない。
-# 手動実行のみ（定期実行はしない）。
 
 on:
+  schedule:
+    - cron: '0 20 * * 0-4'
   workflow_dispatch:
 
 jobs:
