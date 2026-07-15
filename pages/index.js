@@ -229,6 +229,16 @@ function shortText(text, max = 120) {
   return clean.length > max ? clean.slice(0, max - 1) + "…" : clean;
 }
 
+function finiteNumber(value) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function formatSignedPct(value, digits = 2) {
+  const n = finiteNumber(value);
+  if (n === null) return "—";
+  return `${n >= 0 ? "+" : ""}${n.toFixed(digits)}%`;
+}
+
 function strategyLines(briefing) {
   if (Array.isArray(briefing.strategy_lines) && briefing.strategy_lines.length) {
     return briefing.strategy_lines.slice(0, 3).map(x => shortText(x));
@@ -577,7 +587,8 @@ function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey }) {
       .sort((a, b) => a.fileDate.localeCompare(b.fileDate))
       .map(h => {
         const found = h[heatmapKey].find(s => s.sector === sector);
-        return found ? { date: h.fileDate.slice(5), pct: found.avg_pct } : null;
+        const pct = found ? finiteNumber(found.avg_pct) : null;
+        return pct !== null ? { date: h.fileDate.slice(5), pct } : null;
       })
       .filter(Boolean);
   };
@@ -587,7 +598,8 @@ function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey }) {
       <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>セクター別ヒートマップ（前日比・タップで日足チャート＋銘柄一覧）</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 6 }}>
         {heatmap.map((h, i) => {
-          const c = heatColor(h.avg_pct);
+          const avgPct = finiteNumber(h.avg_pct);
+          const c = heatColor(avgPct ?? 0);
           const isOpen = openSector === h.sector;
           return (
             <button
@@ -600,14 +612,14 @@ function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey }) {
             >
               <div style={{ fontSize: 10, color: "#e8e8e8", fontWeight: 600, marginBottom: 3 }}>{h.sector}</div>
               <div style={{ fontSize: 14, color: c.text, fontWeight: 700 }}>
-                {h.avg_pct >= 0 ? "+" : ""}{h.avg_pct.toFixed(2)}%
+                {formatSignedPct(avgPct)}
               </div>
               <div style={{ fontSize: 9, color: "#8a8a8a", marginTop: 2 }}>
                 {h.up}銘柄↑ / {h.down}銘柄↓ ({h.count}銘柄)
               </div>
               {h.top_mover && (
                 <div style={{ fontSize: 9, color: "#6a6a6a", marginTop: 2 }}>
-                  最大: {h.top_mover.name} {h.top_mover.pct >= 0 ? "+" : ""}{h.top_mover.pct}%
+                  最大: {h.top_mover.name} {formatSignedPct(h.top_mover.pct)}
                 </div>
               )}
               <MiniSparkline series={sectorDailySeries(h.sector)} />
