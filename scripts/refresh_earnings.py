@@ -16,7 +16,7 @@ from datetime import datetime, timezone, timedelta
 
 from market_data import (
     fetch_jp_earnings, fetch_us_earnings,
-    build_earnings_calendar, build_earnings_rank,
+    build_earnings_calendar, build_earnings_rank, sanitize_for_json,
 )
 
 JST = timezone(timedelta(hours=9))
@@ -40,7 +40,7 @@ def gh_get_json(path):
 def gh_put_json(path, obj, sha, message):
     url = f"https://api.github.com/repos/{REPO}/contents/{path}"
     content_b64 = base64.b64encode(
-        json.dumps(obj, ensure_ascii=False, indent=2).encode("utf-8")
+        json.dumps(sanitize_for_json(obj), ensure_ascii=False, indent=2).encode("utf-8")
     ).decode("ascii")
     body = {"message": message, "content": content_b64, "sha": sha}
     r = requests.put(

@@ -110,7 +110,7 @@ from market_data import (
     WATCH_MAP, WATCH_LIST, SECTOR_MAP,
     fetch_all_watch_changes, fetch_surge_drop, build_sector_heatmap, top_movers,
     US_WATCH_MAP, US_SECTOR_MAP, US_WATCH_LIST, fetch_us_watch_changes,
-    fetch_market_data, compute_ai_score,
+    fetch_market_data, compute_ai_score, sanitize_for_json,
 )
  
 
@@ -975,7 +975,7 @@ if __name__ == "__main__":
                     print(f"既存latest.jsonの読み込みに失敗（新規として続行）: {merge_err}")
             merged_json.update(latest_json)
 
-            content_b64 = base64.b64encode(json.dumps(merged_json, ensure_ascii=False, indent=2).encode("utf-8")).decode("ascii")
+            content_b64 = base64.b64encode(json.dumps(sanitize_for_json(merged_json), ensure_ascii=False, indent=2).encode("utf-8")).decode("ascii")
             body = {"message": f"Update latest.json {TODAY}", "content": content_b64}
             if sha_existing:
                 body["sha"] = sha_existing
