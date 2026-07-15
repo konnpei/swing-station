@@ -9,6 +9,7 @@ import os, json, glob, base64
 from datetime import datetime, timezone, timedelta
 import requests
 from anthropic import Anthropic
+from market_data import sanitize_for_json
 
 JST = timezone(timedelta(hours=9))
 NOW = datetime.now(JST)
@@ -118,7 +119,7 @@ def gh_put_json(path, obj, message):
     url = f"https://api.github.com/repos/{REPO}/contents/{path}"
     r = requests.get(url, headers={"Authorization": f"Bearer {GH_PAT}"})
     sha = r.json().get("sha") if r.status_code == 200 else None
-    content_b64 = base64.b64encode(json.dumps(obj, ensure_ascii=False, indent=2).encode("utf-8")).decode("ascii")
+    content_b64 = base64.b64encode(json.dumps(sanitize_for_json(obj), ensure_ascii=False, indent=2).encode("utf-8")).decode("ascii")
     body = {"message": message, "content": content_b64}
     if sha:
         body["sha"] = sha
