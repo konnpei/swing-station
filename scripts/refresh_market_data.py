@@ -109,6 +109,7 @@ def main():
         "nikkei": data["latest"]["close"],
         "nikkei_diff": int(data["diff"]),
         "nikkei_pct": data["pct"],
+        "nikkei_data_stale": data.get("nikkei_data_stale", False),
         "usd_jpy": data["usd_jpy"],
         "usd_jpy_pct": data.get("usd_jpy_pct", 0.0),
         "sox_pct": data["sox_pct"],
