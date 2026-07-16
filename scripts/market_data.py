@@ -298,6 +298,20 @@ def fetch_market_data():
         prev   = ohlcv[-2]
         diff   = latest["close"] - prev["close"]
         pct    = diff / prev["close"] * 100
+
+        # 追加の鮮度フラグ: 上の7日ルールは「処理を止めるべき致命的な古さ」の閾値。
+        # これとは別に、もっと早い段階（2営業日ズレ）で気付けるよう、処理は止めずに
+        # フラグだけ立てる軽量チェックを追加する。^N225はYahoo Finance側の反映遅延で、
+        # 7日には満たないが前回実行時と同じデータを返してくることがあるため。
+        expected_date = NOW.date() - timedelta(days=1)
+        while expected_date.weekday() >= 5:  # 土日はスキップ（祝日は未対応の簡易チェック）
+            expected_date -= timedelta(days=1)
+        nikkei_data_stale = (expected_date - latest_trading_date).days >= 2
+        if nikkei_data_stale:
+            print(
+                f"⚠ 日経225データが古い可能性: 取得できた最新日={latest_trading_date}, "
+                f"想定される最新営業日={expected_date}"
+            )
  
         try:
             fx = yf.Ticker("USDJPY=X").history(period="3d")
@@ -437,6 +451,7 @@ def fetch_market_data():
             pass
 
         return {"ohlcv":ohlcv, "latest":latest, "diff":diff, "pct":pct,
+                "nikkei_data_stale": nikkei_data_stale,
                 "usd_jpy":usd_jpy, "usd_jpy_pct":usd_jpy_pct, "sox_pct":sox_pct, "sox":sox,
                 "vix":vix, "vix_pct":vix_pct, "us10y":us10y, "us10y_diff":us10y_diff,
                 "fear_greed_value":fear_greed_value, "fear_greed_label":fear_greed_label,
@@ -487,6 +502,7 @@ def fetch_market_data():
                 "nasdaq_pct": prev.get("nasdaq_pct", 0.0),
                 "sp500": prev.get("sp500", 0.0),
                 "sp500_pct": prev.get("sp500_pct", 0.0),
+                "nikkei_data_stale": True,
                 "is_fallback": True
             }
         except Exception as e2:
