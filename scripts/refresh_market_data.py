@@ -82,25 +82,39 @@ def main():
     print("data/latest.json 読み込み中...")
     latest, sha = gh_get_json("data/latest.json")
 
+    # jp_sector_heatmap_refreshed_at / us_sector_heatmap_refreshed_at は
+    # 「実際に新しいデータで更新できた時刻」のみを記録する（取得0件でフォールバック
+    # した回は更新しない）。market_data_refreshed_at は「スクリプトが実行された時刻」
+    # であり、これまでフロントエンドがこの値だけをバッジ表示に使っていたため、
+    # 「更新時刻は新しいのに中身は前回のまま」という見た目になっていた。
+    jp_sector_heatmap_refreshed_at = latest.get("jp_sector_heatmap_refreshed_at")
+    us_sector_heatmap_refreshed_at = latest.get("us_sector_heatmap_refreshed_at")
+
     # 監視銘柄の取得が（レート制限等で）全滅した場合、空データで既存の良いデータを
     # 上書きしないよう、失敗時は前回値を維持する。
     if jp_changes:
         surges_out, drops_out = surges, drops
         sector_heatmap_out, jp_top_out, jp_changes_out = sector_heatmap, jp_top, jp_changes
+        jp_sector_heatmap_stale = False
+        jp_sector_heatmap_refreshed_at = NOW.isoformat()
     else:
         print("⚠ 日本株ウォッチリスト取得が0件のため、前回のsector_heatmap/jp_top_movers/jp_all_changesを維持します")
         surges_out, drops_out = latest.get("surges", []), latest.get("drops", [])
         sector_heatmap_out = latest.get("sector_heatmap", [])
         jp_top_out = latest.get("jp_top_movers", [])
         jp_changes_out = latest.get("jp_all_changes", [])
+        jp_sector_heatmap_stale = True
 
     if us_changes:
         us_sector_heatmap_out, us_top_out, us_changes_out = us_sector_heatmap, us_top, us_changes
+        us_sector_heatmap_stale = False
+        us_sector_heatmap_refreshed_at = NOW.isoformat()
     else:
         print("⚠ 米国株ウォッチリスト取得が0件のため、前回のus_sector_heatmap/us_top_movers/us_all_changesを維持します")
         us_sector_heatmap_out = latest.get("us_sector_heatmap", [])
         us_top_out = latest.get("us_top_movers", [])
         us_changes_out = latest.get("us_all_changes", [])
+        us_sector_heatmap_stale = True
 
     # 市場指数・ヒートマップ・値動き上位系のみ上書き。
     # stocks_jp / stock_us / note_body / x_posts / events_jp / events_us 等の
@@ -136,9 +150,13 @@ def main():
         "sector_heatmap": sector_heatmap_out,
         "jp_top_movers": jp_top_out,
         "jp_all_changes": jp_changes_out,
+        "jp_sector_heatmap_stale": jp_sector_heatmap_stale,
+        "jp_sector_heatmap_refreshed_at": jp_sector_heatmap_refreshed_at,
         "us_sector_heatmap": us_sector_heatmap_out,
         "us_top_movers": us_top_out,
         "us_all_changes": us_changes_out,
+        "us_sector_heatmap_stale": us_sector_heatmap_stale,
+        "us_sector_heatmap_refreshed_at": us_sector_heatmap_refreshed_at,
         "market_data_refreshed_at": NOW.isoformat(),
     })
 

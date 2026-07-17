@@ -520,9 +520,18 @@ def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=Fal
     両方をまとめて取れるためAPI呼び出し数は最小限。"""
     import yfinance as yf
     import time
-    from datetime import datetime as _dt, timezone as _tz
+    from datetime import datetime as _dt, timezone as _tz, timedelta as _td
 
     now_utc = _dt.now(_tz.utc)
+    _jst = _tz(_td(hours=9))
+    today_jst = now_utc.astimezone(_jst).date()
+    # 「next」判定は発表の正確な時刻ではなく、JST暦日ベースで行う。
+    # 発表当日はもちろん、フロントエンドが「N日前」タグで表示するグレース期間
+    # （発表翌日まで）は引き続き next_earnings_date として残す。これがないと、
+    # 発表の正確なタイムスタンプ（例: 米国市場引け後 = JST未明）を実行時刻が
+    # 跨いだ瞬間に next→last へ切り替わってしまい、同じ暦日の途中でも
+    # カレンダーから消えるという不具合が起きる。
+    EARNINGS_GRACE_DAYS = 1
     results = []
     for i, code in enumerate(ticker_list):
         code_short = code.replace(".T", "") if strip_suffix else code
@@ -568,10 +577,18 @@ def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=Fal
 
             for ts in idx_utc:
                 ts_dt = ts.to_pydatetime()
-                if ts_dt >= now_utc:
-                    if next_date is None:
+                ts_jst_date = ts_dt.astimezone(_jst).date()
+                days_from_today = (ts_jst_date - today_jst).days
+                if days_from_today >= -EARNINGS_GRACE_DAYS:
+                    # 未来の予定日、または発表からグレース期間内（当日〜翌日）はnext扱い。
+                    if next_date is None or days_from_today > next_days:
                         next_date = ts_dt.strftime("%Y-%m-%d")
-                        next_days = (ts_dt.date() - now_utc.date()).days
+                        next_days = days_from_today
+                    if days_from_today < 0 and surprise_col is not None:
+                        val = df.loc[ts, surprise_col]
+                        if val is not None and val == val:  # NaN check
+                            last_surprise = round(float(val), 1)
+                            last_date = ts_dt.strftime("%Y-%m-%d")
                 else:
                     last_date = ts_dt.strftime("%Y-%m-%d")
                     if surprise_col is not None:
