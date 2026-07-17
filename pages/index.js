@@ -1383,7 +1383,7 @@ export default function SwingStation() {
   ];
 
   const lastUpdatedLabel = lastUpdated
-    ? lastUpdated.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })
+    ? `${lastUpdated.toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" })} ${lastUpdated.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
     : "--:--";
 
   return (
