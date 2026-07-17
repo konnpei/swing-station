@@ -570,7 +570,7 @@ function SectorDailyChart({ series }) {
   );
 }
 
-function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey }) {
+function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey, refreshedAt, stale }) {
   const [openSector, setOpenSector] = useState(null);
   if (!heatmap || heatmap.length === 0) return null;
 
@@ -663,6 +663,8 @@ function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey }) {
 
       <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
         ※監視銘柄を業種で分類し、各セクターの平均騰落率を表示（個別銘柄の分散にご注意）
+        {refreshedAt && ` 最終更新: ${new Date(refreshedAt).toLocaleString("ja-JP")}`}
+        {stale && <span style={{ color: "#ff9955" }}>（取得失敗のため前回値を表示中）</span>}
       </div>
     </div>
   );
@@ -855,7 +857,7 @@ function JpStocksView({ briefing, history, highlightCode }) {
   const stocks = briefing?.stocks_jp || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" history={history} heatmapKey="sector_heatmap" />
+      <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" history={history} heatmapKey="sector_heatmap" refreshedAt={briefing?.jp_sector_heatmap_refreshed_at} stale={briefing?.jp_sector_heatmap_stale} />
       <TopMovers movers={briefing?.jp_top_movers} currency="¥" />
       <ScreenerPanel screener={briefing?.jp_screener} currency="¥" refreshedAt={briefing?.screener_refreshed_at} />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
@@ -872,7 +874,7 @@ function UsStocksView({ briefing, history, highlightCode }) {
   const s = briefing?.stock_us;
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <SectorHeatmap heatmap={briefing?.us_sector_heatmap} allChanges={briefing?.us_all_changes} currency="$" history={history} heatmapKey="us_sector_heatmap" />
+      <SectorHeatmap heatmap={briefing?.us_sector_heatmap} allChanges={briefing?.us_all_changes} currency="$" history={history} heatmapKey="us_sector_heatmap" refreshedAt={briefing?.us_sector_heatmap_refreshed_at} stale={briefing?.us_sector_heatmap_stale} />
       <TopMovers movers={briefing?.us_top_movers} currency="$" />
       <ScreenerPanel screener={briefing?.us_screener} currency="$" refreshedAt={briefing?.screener_refreshed_at} />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
