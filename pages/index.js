@@ -364,7 +364,10 @@ function BriefingView({ briefing }) {
         borderRadius: 10, padding: "10px 14px", marginBottom: 12,
       }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: mode.color }}>
-          {mode.label} <span style={{ color: "#8a8a8a", fontWeight: 400, fontSize: 10 }}>{briefing.date}</span>
+          {mode.label} <span style={{ color: "#8a8a8a", fontWeight: 400, fontSize: 10 }}>
+            {briefing.date}
+            {briefing.market_data_refreshed_at && ` ${new Date(briefing.market_data_refreshed_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 更新`}
+          </span>
         </div>
       </div>
 
