@@ -16,6 +16,7 @@ from datetime import datetime, timezone, timedelta
  
 import requests
 import anthropic
+import jpholiday
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -30,7 +31,32 @@ NOW     = datetime.now(JST)
 TODAY   = NOW.strftime("%Y/%m/%d")
 WEEKDAY = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][NOW.weekday()]
 WEEKDAY_JP = ["月","火","水","木","金","土","日"][NOW.weekday()]
- 
+
+
+def is_business_day(d):
+    """東証の営業日判定(土日・日本の祝日を除く)。年末年始(12/31-1/3)は
+    祝日データベースに含まれないため別途除外する。"""
+    if d.weekday() >= 5:
+        return False
+    if jpholiday.is_holiday(d):
+        return False
+    if (d.month == 12 and d.day == 31) or (d.month == 1 and d.day <= 3):
+        return False
+    return True
+
+
+def next_business_day(d):
+    nd = d + timedelta(days=1)
+    while not is_business_day(nd):
+        nd += timedelta(days=1)
+    return nd
+
+
+IS_TRADING_DAY  = is_business_day(NOW.date())
+NEXT_TRADING_DAY = next_business_day(NOW.date())
+NEXT_TRADING_DAY_STR = NEXT_TRADING_DAY.strftime("%Y/%m/%d")
+NEXT_TRADING_DAY_JP  = ["月","火","水","木","金","土","日"][NEXT_TRADING_DAY.weekday()]
+
 ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
 
 DISCORD_WEBHOOK   = os.environ["DISCORD_WEBHOOK_MAIN"]
@@ -236,6 +262,83 @@ def generate_content(data, mode):
     if not stocks_str:
         stocks_str = "株価データ取得失敗。銘柄は上記リストから選択し、価格は書かないこと。"
 
+    if IS_TRADING_DAY:
+        day_type_notice = f"""【重要・時系列の注意】この記事は東証の取引開始（9:00 JST）より前、{TODAY}の朝6:30頃に生成されている。
+つまり上記の日経225の数値は「前営業日の終値」であり、本日の取引はまだ一切始まっていない。
+「本日上昇スタートを切った」「今日は上げている」のように、まるで今日の取引がすでに動いているかのような
+書き方は事実誤認になるため絶対禁止。正しくは「前営業日は+1.2%で終えた」「金曜の終値を受けて」のように、
+過去形・見通し形で書くこと。本日の相場については「今日はどう動くか」という予想・注目点として書き、
+断定はしないこと。
+
+【重要・本日は営業日】{TODAY}（{WEEKDAY_JP}）は東証の営業日。今日これから取引が行われる前提で、
+今日の売買戦略・今日の注目銘柄・寄り付き/前場/後場の見どころを中心に書くこと。"""
+        stocks_jp_field = (
+            '"stocks_jp": [\n'
+            '    {"pattern": "pattern name", "code": "stock code", "name": "stock name", "score": 8,\n'
+            '      "entry": "entry price range", "target": "+3%", "stop": "-2%",\n'
+            '      "reason": "2-3 sentences with specific data and chart basis, 今日の値動きで注目すべき理由",\n'
+            '      "comment": "kabubocchi one-liner"}\n'
+            '  ],'
+        )
+        consideration_field = (
+            '"consideration": {\n'
+            '    "main": "400字。今日の寄り付き・前場・後場でそれぞれ何に注目すべきかを含めた考察",\n'
+            '    "point": "single most important thing for today\'s session - punchy one-liner",\n'
+            '    "action": "specific action for readers during today\'s session"\n'
+            '  },'
+        )
+        strategy_field = '"strategy": ["5 specific strategies for TODAY\'S session (デイトレ・スイング・中長期) with actions and rationale"],'
+        note_body_field = (
+            '"note_body": "note専用完全版（1500〜2500文字）。Discord要約と完全に別の文章で書く。構成：\\n'
+            '1. リード文（相場を一言で表す）\\n'
+            '2. 今日の相場ポイント（昨夜米国・為替・半導体・AI・今日のテーマ・注意点を300〜500文字）\\n'
+            '3. 今日の注目銘柄（各銘柄：名前・コード・★評価・注目理由・エントリー条件・利確・損切・注意点）\\n'
+            '4. 寄り付き・前場・後場コメント（それぞれの時間帯で見るべきポイント）\\n'
+            '5. 今日の売買戦略（デイトレ・スイング・中長期）\\n'
+            '6. かぶぼっちコメント（人間味のある一言）\\n'
+            '【重要】日本株・米国株・スイングトレード・日経平均・半導体・AIというキーワードを本文の文章の中に自然に登場させること。'
+            'ただし「SEOキーワード：」のような見出しやラベルとして本文末尾や途中に列挙してはならない。'
+            '読者に見える形でキーワードを箇条書き・タグ的に貼り付けるのは禁止。あくまで文章の一部として自然に溶け込ませること。",'
+        )
+    else:
+        holiday_name = jpholiday.is_holiday_name(NOW.date()) or ("土曜" if NOW.weekday() == 5 else "日曜")
+        day_type_notice = f"""【重要・本日は休場日】{TODAY}（{WEEKDAY_JP}）は{holiday_name}のため東証は休場で、本日の取引は行われない。
+次の営業日は{NEXT_TRADING_DAY_STR}（{NEXT_TRADING_DAY_JP}）。
+「今日上昇スタート」「今日はどう動くか」など、本日中に取引が行われる前提の書き方は事実誤認になるため絶対禁止。
+上記の日経225の数値は直近の前営業日終値として、今週の振り返り・分析の材料として扱うこと。
+「今日の売買戦略」「今日の注目銘柄」「寄り付き・前場・後場」のような当日限定の内容ではなく、
+今週の振り返りと注目ポイント・監視リスト（保有/様子見中の銘柄の状況）・次の営業日（{NEXT_TRADING_DAY_STR}）に向けた戦略・
+初心者/中級者向けの学習コンテンツ・直近の値動きを使った過去データ分析、を中心に書くこと。"""
+        stocks_jp_field = (
+            '"stocks_jp": [\n'
+            '    {"pattern": "pattern name", "code": "stock code", "name": "stock name", "score": 8,\n'
+            '      "entry": "次の営業日にこの水準に来たら注目、という条件ベースの目安", "target": "+3%", "stop": "-2%",\n'
+            '      "reason": "2-3 sentences。今週このように動いた背景と、監視を続ける理由",\n'
+            '      "comment": "kabubocchi one-liner"}\n'
+            '  ],'
+        )
+        consideration_field = (
+            '"consideration": {\n'
+            '    "main": "400字。今週の相場を振り返り、値動きの背景をかぶぼっち視点で解説する過去データ分析・学習コンテンツ的な考察",\n'
+            '    "point": "休場日に読者が意識すべき最も重要なこと - punchy one-liner",\n'
+            f'    "action": "次の営業日（{NEXT_TRADING_DAY_STR}）に向けて休場日中にやっておくべき具体的な準備"\n'
+            '  },'
+        )
+        strategy_field = f'"strategy": ["次の営業日（{NEXT_TRADING_DAY_STR}）に向けた5つの具体的な戦略・準備（監視ライン設定・資金配分見直し等）とその根拠"],'
+        note_body_field = (
+            '"note_body": "note専用完全版（1500〜2500文字）。Discord要約と完全に別の文章で書く。構成：\\n'
+            '1. リード文（休場日であることと今週の相場を一言で表す）\\n'
+            '2. 今週の注目ポイント（今週動いたテーマ・為替・半導体・AI等を300〜500文字で振り返る）\\n'
+            '3. 監視リスト（保有中/様子見中の銘柄が今週どう動いたか、次の営業日に何を確認すべきか）\\n'
+            f'4. 来週（次の営業日 {NEXT_TRADING_DAY_STR}）の戦略（デイトレ・スイング・中長期）\\n'
+            '5. 学習コンテンツ（初心者〜中級者向けに、直近の相場から学べる一つのトレード知識をやさしく解説）\\n'
+            '6. 過去データ分析（直近の値動きやテクニカル指標から読み取れる傾向を、断定を避けつつ解説）\\n'
+            '7. かぶぼっちコメント（人間味のある一言）\\n'
+            '【重要】日本株・米国株・スイングトレード・日経平均・半導体・AIというキーワードを本文の文章の中に自然に登場させること。'
+            'ただし「SEOキーワード：」のような見出しやラベルとして本文末尾や途中に列挙してはならない。'
+            '読者に見える形でキーワードを箇条書き・タグ的に貼り付けるのは禁止。あくまで文章の一部として自然に溶け込ませること。",'
+        )
+
     prompt = f"""You are kabubocchi, a popular swing trader content creator in Japan.
 You write morning briefings for Discord and note at 6:30 AM JST.
 
@@ -250,12 +353,7 @@ You write morning briefings for Discord and note at 6:30 AM JST.
 - 相場モード: {m["label"]}
 - Quote: {m["quote"]}
 
-【重要・時系列の注意】この記事は東証の取引開始（9:00 JST）より前、{TODAY}の朝6:30頃に生成されている。
-つまり上記の日経225の数値は「前営業日の終値」であり、本日の取引はまだ一切始まっていない。
-「本日上昇スタートを切った」「今日は上げている」のように、まるで今日の取引がすでに動いているかのような
-書き方は事実誤認になるため絶対禁止。正しくは「前営業日は+1.2%で終えた」「金曜の終値を受けて」のように、
-過去形・見通し形で書くこと。本日の相場については「今日はどう動くか」という予想・注目点として書き、
-断定はしないこと。
+{day_type_notice}
 
 実際の個別銘柄データ（エントリー価格は必ずこのデータを元に設定すること）:
 {stocks_str}
@@ -282,21 +380,12 @@ Return ONLY valid JSON (no markdown, no backticks):
   "news": [
     {{"tag": "日本 or 米国 or 警戒 or チャンス", "headline": "catchy headline in Japanese", "body": "2-3 sentences with wit and insight"}}
   ],
-  "stocks_jp": [
-    {{"pattern": "pattern name", "code": "stock code", "name": "stock name", "score": 8,
-      "entry": "entry price range", "target": "+3%", "stop": "-2%",
-      "reason": "2-3 sentences with specific data and chart basis",
-      "comment": "kabubocchi one-liner"}}
-  ],
+  {stocks_jp_field}
   "stock_us": {{"pattern": "バフェット式", "ticker": "$XXX", "name": "name", "score": 8,
     "entry": "price range", "target": "+3%", "stop": "-2%",
     "reason": "2-3 sentences", "comment": "kabubocchi one-liner"}},
-  "consideration": {{
-    "main": "400 char kabubocchi analysis with metaphors and specific advice",
-    "point": "single most important thing today - punchy one-liner",
-    "action": "specific action for readers"
-  }},
-  "strategy": ["5 specific strategies with actions and rationale"],
+  {consideration_field}
+  {strategy_field}
   "events_jp": [{{"date": "YYYY-MM-DD", "text": "日本の経済イベント（日銀会合、決算発表、経済指標等）", "importance": "high or medium or low", "urgent": true}}],
   "events_us": [{{"date": "YYYY-MM-DD", "text": "米国の経済イベント（FOMC、雇用統計、CPI等）", "importance": "high or medium or low", "urgent": true}}],
   "x_posts": [
@@ -305,7 +394,7 @@ Return ONLY valid JSON (no markdown, no backticks):
     "X投稿3: 問いかけ形式（200文字以内・フォロワー反応狙い）。選択肢やコメントしたくなる質問を入れる。noteリンク誘導は本文に入れない"
   ],
   "x_teaser_3line": "note記事の宣伝用にXへ投稿する短いテキスト。note記事の見出しをそのまま転載しない。1行目で『自分が今一番気になっていること・迷っていること』を一人称で率直に書き、2行目でそれに対する自分なりの仮の答えや視点を短く添え、3行目は『これで合ってるか正直自信ない』『外れてたら教えてほしい』のような軽い問いかけで締める。ちょうど3行、各行1文程度。絵文字は可、ハッシュタグやリンクは含めない（別途本文に付け足すため）",
-  "note_body": "note専用完全版（1500〜2500文字）。Discord要約と完全に別の文章で書く。構成：\n1. リード文（相場を一言で表す）\n2. 今日の相場ポイント（昨夜米国・為替・半導体・AI・今日のテーマ・注意点を300〜500文字）\n3. 注目銘柄（各銘柄：名前・コード・★評価・注目理由・エントリー条件・利確・損切・注意点）\n4. 今日の売買戦略（デイトレ・スイング・中長期）\n5. かぶぼっちコメント（人間味のある一言）\n6. 明日の注目ポイント3つ\n【重要】日本株・米国株・スイングトレード・日経平均・半導体・AIというキーワードを本文の文章の中に自然に登場させること。ただし「SEOキーワード：」のような見出しやラベルとして本文末尾や途中に列挙してはならない。読者に見える形でキーワードを箇条書き・タグ的に貼り付けるのは禁止。あくまで文章の一部として自然に溶け込ませること。",
+  {note_body_field}
   "note_cta": "毎朝の相場分析と注目銘柄は継続発信中。フォローしてお待ちください📊"
 }}
  
@@ -651,12 +740,27 @@ def generate_note(data, mode, c):
         urgent = "⚠️ 超重要" if e.get("urgent") else "👀 注目"
         events_lines.append(f"| {date} | {text} | {urgent} |")
     events_md = "\n".join(events_lines)
- 
+
+    if IS_TRADING_DAY:
+        header_title      = f"{emoji} swing-station 朝刊|{TODAY}({WEEKDAY_JP})【{m['label']}】"
+        stocks_section_h  = "## 🎯 本日の注目銘柄 5選"
+        point_h           = "**⚡ 今日の相場で一番重要なこと**"
+        action_h          = "**📋 かぶぼっちからのアクション提案**"
+        strategy_h        = "## ⚡ 今日の戦略まとめ"
+        events_h          = "## 📅 今週のイベントカレンダー"
+    else:
+        header_title      = f"{emoji} swing-station 朝刊|{TODAY}({WEEKDAY_JP})【休場日】"
+        stocks_section_h  = "## 👀 監視リスト"
+        point_h           = "**⚡ 休場日に意識すべきこと**"
+        action_h          = "**📋 かぶぼっちからのアクション提案**"
+        strategy_h        = f"## ⚡ 来週（次の営業日 {NEXT_TRADING_DAY_STR}）の戦略まとめ"
+        events_h          = "## 📅 今週のイベントカレンダー"
+
     note = (
-        f"{emoji} swing-station 朝刊|{TODAY}({WEEKDAY_JP})【{m['label']}】\n\n"
+        f"{header_title}\n\n"
         f"> {m['quote']}\n\n"
         f"---\n\n"
-        f"## 📊 本日の主要指標\n\n"
+        f"## 📊 主要指標（直近の終値）\n\n"
         f"| 指標 | 数値 | 前日比 |\n"
         f"|------|------|--------|\n"
         f"| 日経平均 | {data['latest']['close']:,}円 | {sign}{abs(int(diff)):,}円({dc}{pct:.2f}%)|\n"
@@ -667,7 +771,7 @@ def generate_note(data, mode, c):
         f"---\n\n"
         f"## 📰 主要ニュース\n{news_md}\n"
         f"---\n\n"
-        f"## 🎯 本日の注目銘柄 5選\n\n"
+        f"{stocks_section_h}\n\n"
         f"### 🇯🇵 日本株(4銘柄)\n{stocks_jp_md}\n"
         f"### 🇺🇸 米国株(1銘柄)\n{us_md}\n"
         f"---\n\n"
@@ -676,14 +780,14 @@ def generate_note(data, mode, c):
         f"## 🧠 かぶぼっちの総合考察\n\n"
         f"{consider.get('main', '')}\n\n"
         f"---\n\n"
-        f"**⚡ 今日の相場で一番重要なこと**\n\n"
+        f"{point_h}\n\n"
         f"> {consider.get('point', '')}\n\n"
-        f"**📋 かぶぼっちからのアクション提案**\n\n"
+        f"{action_h}\n\n"
         f"{consider.get('action', '')}\n\n"
         f"---\n\n"
-        f"## ⚡ 今日の戦略まとめ\n\n{strategy_md}\n\n"
+        f"{strategy_h}\n\n{strategy_md}\n\n"
         f"---\n\n"
-        f"## 📅 今週のイベントカレンダー\n\n{events_md}\n\n"
+        f"{events_h}\n\n{events_md}\n\n"
         f"---\n\n"
         f"{c.get('note_cta', '詳細はnoteマガジンで！')}\n\n"
         f"---\n\n"
@@ -909,6 +1013,8 @@ if __name__ == "__main__":
 
     latest_json = {
         "date": f"{TODAY}",
+        "is_trading_day": IS_TRADING_DAY,
+        "next_trading_day": NEXT_TRADING_DAY_STR,
         "mode": mode,
         "market_summary": content.get("market_summary", ""),
         "nikkei": data["latest"]["close"],
