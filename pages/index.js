@@ -1383,7 +1383,7 @@ export default function SwingStation() {
   ];
 
   const lastUpdatedLabel = lastUpdated
-    ? `${lastUpdated.toLocaleDateString("ja-JP", { month: "2-digit", day: "2-digit" })} ${lastUpdated.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
+    ? `${lastUpdated.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" })} ${lastUpdated.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
     : "--:--";
 
   return (
@@ -1415,7 +1415,7 @@ export default function SwingStation() {
             <button
               onClick={() => { loadData(); loadHistory(); }}
               disabled={isRefreshing}
-              title={`最終更新: ${lastUpdatedLabel}（5分ごとに自動更新）`}
+              title={`最終更新日: ${lastUpdatedLabel}（5分ごとに自動更新）`}
               style={{
                 display:"flex", alignItems:"center", gap:5, background:"#121212", border:"1px solid #262626",
                 borderRadius:8, padding:"3px 9px", fontFamily:"inherit", cursor: isRefreshing ? "default" : "pointer",
@@ -1425,7 +1425,7 @@ export default function SwingStation() {
                 display:"inline-block", width:9, height:9, fontSize:9, lineHeight:"9px", color:"#8a8a8a",
                 animation: isRefreshing ? "ssSpin 0.7s linear infinite" : "none",
               }}>⟳</span>
-              <span style={{ fontSize:9, color:"#8a8a8a" }}>{isRefreshing ? "更新中" : lastUpdatedLabel}</span>
+              <span style={{ fontSize:9, color:"#8a8a8a" }}>{isRefreshing ? "更新中" : `最終更新日: ${lastUpdatedLabel}`}</span>
             </button>
             <div style={{
               padding:"2px 8px", borderRadius:8, fontSize:9,
