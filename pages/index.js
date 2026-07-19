@@ -1410,7 +1410,7 @@ export default function SwingStation() {
           <div style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2 }}>
             KabuBocchi
           </div>
-          <div style={{ fontSize:8, color:"#6a6a6a", marginLeft:2 }}>月〜金 数日〜1週間特化</div>
+          <div style={{ fontSize:8, color:"#6a6a6a", marginLeft:2 }}>数日〜1週間の押し目スイング特化</div>
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
             <button
               onClick={() => { loadData(); loadHistory(); }}
