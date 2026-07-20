@@ -8,14 +8,18 @@ const MODE_LABELS = {
   ai: { label: "AIバブルモード", color: "#cccccc" },
 };
 
-function getTodayInfo() {
+function getTodayInfo(isTradingDay) {
   const days = ["日", "月", "火", "水", "木", "金", "土"];
   const now = new Date();
   const day = days[now.getDay()];
   const hour = now.getHours();
-  const isMarketOpen = now.getDay() >= 1 && now.getDay() <= 5 && hour >= 9 && hour < 16;
-  const isUSMarket = now.getDay() >= 1 && now.getDay() <= 5 && (hour >= 23 || hour < 6);
-  const isWeekend = now.getDay() === 0 || now.getDay() === 6;
+  const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+  // is_trading_day はサーバー側で日本の祝日も加味して判定済み（backend: is_business_day）。
+  // 値が取得できていない場合のみ、クライアント側の曜日判定にフォールバックする。
+  const tradingDay = typeof isTradingDay === "boolean" ? isTradingDay : isWeekday;
+  const isMarketOpen = tradingDay && hour >= 9 && hour < 16;
+  const isUSMarket = tradingDay && (hour >= 23 || hour < 6);
+  const isWeekend = !tradingDay;
   return { day, isMarketOpen, isUSMarket, isWeekend };
 }
 
@@ -27,7 +31,7 @@ function nextMondayLabel() {
   return `${next.getMonth() + 1}/${next.getDate()}(月)`;
 }
 
-function WeekendBanner({ todayInfo, briefingDate }) {
+function WeekendBanner({ todayInfo, briefingDate, nextTradingDay }) {
   if (!todayInfo.isWeekend) return null;
   return (
     <div style={{
@@ -36,7 +40,7 @@ function WeekendBanner({ todayInfo, briefingDate }) {
     }}>
       <span style={{ fontSize: 16 }}>🌙</span>
       <div style={{ fontSize: 11, color: "#b8bcd0" }}>
-        市場休場中（{todayInfo.day}曜日）— 表示中のデータは{briefingDate || "直近営業日"}の朝刊です。次回更新は{nextMondayLabel()} 6:30
+        市場休場中（{todayInfo.day}曜日）— 表示中のデータは{briefingDate || "直近営業日"}の朝刊です。次回更新は{nextTradingDay || nextMondayLabel()} 6:30
       </div>
     </div>
   );
@@ -354,11 +358,11 @@ function BriefingView({ briefing }) {
 
   const mode = MODE_LABELS[briefing.mode] || MODE_LABELS.normal;
   const sign = briefing.nikkei_diff >= 0 ? "+" : "-";
-  const todayInfo = getTodayInfo();
+  const todayInfo = getTodayInfo(briefing.is_trading_day);
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} />
+      <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} nextTradingDay={briefing.next_trading_day} />
       <div style={{
         background: "#121212", border: `1px solid ${mode.color}44`,
         borderRadius: 10, padding: "10px 14px", marginBottom: 12,
@@ -1369,7 +1373,7 @@ export default function SwingStation() {
   const [historyTab, setHistoryTab] = useState("calendar");
 
   useEffect(() => { loadHistory(); }, []);
-  const [todayInfo] = useState(getTodayInfo());
+  const todayInfo = getTodayInfo(briefing?.is_trading_day);
 
   const B = ({ style, ...p }) => <button style={{ fontFamily: "inherit", cursor: "pointer", border: "none", ...style }} {...p} />;
 
