@@ -8,6 +8,16 @@ const MODE_LABELS = {
   ai: { label: "AIバブルモード", color: "#cccccc" },
 };
 
+const DISCLAIMER_TEXT = "本サイトは一般的な市場情報およびAIによる機械的な分析結果を提供するものであり、特定の金融商品の売買を推奨・勧誘するものではありません。掲載情報の正確性・完全性・将来の成果を保証するものではありません。投資に関する最終判断は、ご自身の責任で行ってください。";
+
+function ComplianceNote() {
+  return (
+    <div style={{ fontSize: 9, color: "#5a5a5a", lineHeight: 1.5, marginBottom: 12 }}>
+      ※{DISCLAIMER_TEXT}
+    </div>
+  );
+}
+
 function getTodayInfo(isTradingDay) {
   const days = ["日", "月", "火", "水", "木", "金", "土"];
   const now = new Date();
@@ -131,12 +141,12 @@ function StockCard({ s, highlighted }) {
       <div style={{ marginBottom: 8, padding: "8px 10px", background: "#0d0d0d", borderRadius: 8 }}>
         <div style={{ fontSize: 9, color: "#8a8a8a", marginBottom: 3 }}>チャート分析</div>
         <div style={{ fontSize: 11, color: "#b8b8b8", lineHeight: 1.6 }}>{s.reason}</div>
-        <div style={{ fontSize: 10, color: "#9a9a9a", marginTop: 6 }}>エントリー条件: {s.entry}</div>
+        <div style={{ fontSize: 10, color: "#9a9a9a", marginTop: 6 }}>注目価格帯: {s.entry}</div>
       </div>
 
       <div style={{ fontSize: 10, color: "#9a9a9a", marginBottom: 6, display: "flex", gap: 14 }}>
-        <span>目標 <strong style={{ color: "#00ff9d" }}>{s.target}</strong></span>
-        <span>損切 <strong style={{ color: "#ff5566" }}>{s.stop}</strong></span>
+        <span>参考上昇幅 <strong style={{ color: "#00ff9d" }}>{s.target}</strong></span>
+        <span>参考下落幅 <strong style={{ color: "#ff5566" }}>{s.stop}</strong></span>
       </div>
       <div style={{ fontSize: 10, color: "#787878", fontStyle: "italic" }}>{s.comment}</div>
       {typeof s.ai_score === "number" && (
@@ -146,6 +156,9 @@ function StockCard({ s, highlighted }) {
           ズレている状態なので参考にしてください。
         </div>
       )}
+      <div style={{ fontSize: 8, color: "#4a4a4a", marginTop: 6 }}>
+        ※AIが公開データを基に一定条件で抽出した参考情報です。売買を推奨するものではありません。
+      </div>
     </div>
   );
 }
@@ -979,6 +992,7 @@ function JpStocksView({ briefing, history, highlightCode }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
+      <ComplianceNote />
       {stocks.length > 0 ? (
         stocks.map((s, i) => <StockCard key={i} s={s} highlighted={highlightCode === String(s.code)} />)
       ) : (
@@ -996,6 +1010,7 @@ function UsStocksView({ briefing, history, highlightCode }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
+      <ComplianceNote />
       {s ? (
         <StockCard s={{ ...s, code: s.ticker }} highlighted={highlightCode === String(s.ticker)} />
       ) : (
@@ -1625,7 +1640,7 @@ export default function SwingStation() {
           background:"#080808", borderTop:"1px solid #262626", padding:"6px 14px",
           flexShrink:0, fontSize:8, color:"#6a6a6a", lineHeight:1.4,
         }}>
-          ※本サイトは情報提供を目的としており、投資勧誘・助言ではありません。投資判断はご自身の責任でお願いします。
+          ※{DISCLAIMER_TEXT}
         </div>
       </div>
     </>

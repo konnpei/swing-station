@@ -738,9 +738,9 @@ def generate_note(data, mode, c):
             f"\n**{i}. {name}（{code}）** [{pattern}] {sc}/10\n"
             f"| 項目 | 内容 |\n"
             f"|------|------|\n"
-            f"| 📌 エントリー | {entry} |\n"
-            f"| 🎯 目標 | {target} |\n"
-            f"| 🛡️ 損切 | {stop} |\n"
+            f"| 📌 注目価格帯 | {entry} |\n"
+            f"| 🎯 参考上昇幅 | {target} |\n"
+            f"| 🛡️ 参考下落幅 | {stop} |\n"
             f"| 📝 根拠 | {reason} |\n"
             f"\n> 💬 _{comment}_\n"
         )
@@ -753,9 +753,9 @@ def generate_note(data, mode, c):
         f"\n**10. {us.get('name','')}（{us.get('ticker','')}）** [{us.get('pattern','')}] {sc}/10\n"
         f"| 項目 | 内容 |\n"
         f"|------|------|\n"
-        f"| 📌 エントリー | {us.get('entry','')} |\n"
-        f"| 🎯 目標 | {us.get('target','')} |\n"
-        f"| 🛡️ 損切 | {us.get('stop','')} |\n"
+        f"| 📌 注目価格帯 | {us.get('entry','')} |\n"
+        f"| 🎯 参考上昇幅 | {us.get('target','')} |\n"
+        f"| 🛡️ 参考下落幅 | {us.get('stop','')} |\n"
         f"| 📝 根拠 | {us.get('reason','')} |\n"
         f"\n> 💬 _{us.get('comment','')}_\n"
     ) if us else ""
@@ -775,7 +775,7 @@ def generate_note(data, mode, c):
         line = (
             f"\n### {ticker}|{name} - {beat}\n"
             f"**{hl}**\n{analysis}\n"
-            f"- エントリー:{entry} | 目標1:{t1} | 目標2:{t2} | 損切:{stop}\n"
+            f"- 注目価格帯:{entry} | 参考上昇幅1:{t1} | 参考上昇幅2:{t2} | 参考下落幅:{stop}\n"
             f"> 💬 かぶぼっち:{comment}\n"
         )
         earnings_lines.append(line)
@@ -843,7 +843,7 @@ def generate_note(data, mode, c):
         f"---\n\n"
         f"{c.get('note_cta', '詳細はnoteマガジンで！')}\n\n"
         f"---\n\n"
-        f"⚠️ 本記事は情報提供のみを目的としており、投資勧誘ではありません。\n"
+        f"⚠️ 本サイトは一般的な市場情報およびAIによる機械的な分析結果を提供するものであり、特定の金融商品の売買を推奨・勧誘するものではありません。掲載情報の正確性・完全性・将来の成果を保証するものではありません。投資に関する最終判断は、ご自身の責任で行ってください。\n"
         f"📡 swing-station|かぶぼっち|毎朝6:30自動配信\n"
     )
     return note
@@ -910,7 +910,7 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
                 f"{c.get('market_summary', '')}"
             ),
             "color": color,
-            "footer": {"text": "swing-station | かぶぼっち | ※投資勧誘ではありません"}
+            "footer": {"text": "swing-station | かぶぼっち | ※特定の金融商品の売買を推奨・勧誘するものではありません"}
         }]
     }
     post_json(embed_main)
@@ -969,7 +969,9 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
     note_suffix = (
         headlines_block + "\n\n---\n"
         "いいね・フォローお願いします🙏\n"
-        "※本記事は情報提供を目的としたものであり、投資勧誘・助言ではありません。投資判断はご自身の責任でお願いします。"
+        "※本サイトは一般的な市場情報およびAIによる機械的な分析結果を提供するものであり、"
+        "特定の金融商品の売買を推奨・勧誘するものではありません。掲載情報の正確性・完全性・"
+        "将来の成果を保証するものではありません。投資に関する最終判断は、ご自身の責任で行ってください。"
     )
     note_body = c.get("note_body", note_text)
     max_body_len = 1900 - len(note_prefix) - len(note_suffix)
