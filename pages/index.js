@@ -1394,6 +1394,40 @@ function CalendarView({ briefing }) {
   );
 }
 
+function EventsView({ briefing, onJump }) {
+  const [sub, setSub] = useState("earnings");
+  const subTabs = [
+    { id: "earnings", label: "決算" },
+    { id: "calendar", label: "予定" },
+  ];
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", gap: 8, padding: "10px 14px 0", flexShrink: 0 }}>
+        {subTabs.map(t => (
+          <button
+            key={t.id}
+            onClick={() => setSub(t.id)}
+            style={{
+              flex: 1, padding: "6px 0", fontSize: 11, borderRadius: 6, fontFamily: "inherit", cursor: "pointer",
+              background: sub === t.id ? "#121212" : "transparent",
+              border: `1px solid ${sub === t.id ? "#444444" : "#262626"}`,
+              color: sub === t.id ? "#e8e8e8" : "#5a5a5a",
+            }}
+          >{t.label}</button>
+        ))}
+      </div>
+      <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+        <div style={{ display: sub === "earnings" ? "block" : "none", height: "100%" }}>
+          <EarningsView briefing={briefing} onJump={onJump} />
+        </div>
+        <div style={{ display: sub === "calendar" ? "block" : "none", height: "100%" }}>
+          <CalendarView briefing={briefing} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
   const [highlightTarget, setHighlightTarget] = useState(null); // { market: 'jp'|'us', code: string }
@@ -1457,8 +1491,7 @@ export default function SwingStation() {
     { id: "briefing", label: "朝刊" },
     { id: "jp", label: "日本株" },
     { id: "us", label: "米国株" },
-    { id: "earnings", label: "決算" },
-    { id: "calendar", label: "予定" },
+    { id: "events", label: "イベント" },
     { id: "history", label: "履歴" },
   ];
 
@@ -1542,11 +1575,8 @@ export default function SwingStation() {
           <div style={{ display:tab==="us"?"block":"none", height:"100%" }}>
             <UsStocksView briefing={briefing} history={history} highlightCode={highlightTarget?.market === "us" ? highlightTarget.code : null} />
           </div>
-          <div style={{ display:tab==="earnings"?"block":"none", height:"100%" }}>
-            <EarningsView briefing={briefing} onJump={jumpToStock} />
-          </div>
-          <div style={{ display:tab==="calendar"?"block":"none", height:"100%" }}>
-            <CalendarView briefing={briefing} />
+          <div style={{ display:tab==="events"?"block":"none", height:"100%" }}>
+            <EventsView briefing={briefing} onJump={jumpToStock} />
           </div>
           <div style={{ display:tab==="history"?"block":"none", height:"100%" }}>
             <HistoryView history={history} />
