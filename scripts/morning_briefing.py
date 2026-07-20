@@ -927,10 +927,13 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
         )
         post_json({"content": f"**📱 X告知用（3行＋いいね・フォロー案内＋注記）**\n\n{x_teaser_full}"})
 
+    # 個別銘柄・騰落率に言及する投稿のため、短い注記を必ず末尾に付与する。
+    X_POST_DISCLAIMER = "\n※投資助言ではありません"
     x_posts = c.get("x_posts", [c.get("x_main", "")])
     x_fields = []
     for i, xp in enumerate(x_posts[:3], 1):
-        x_fields.append({"name": f"投稿{i}", "value": f"```\n{xp[:450]}\n```", "inline": False})
+        xp_full = xp + X_POST_DISCLAIMER
+        x_fields.append({"name": f"投稿{i}", "value": f"```\n{xp_full[:450]}\n```", "inline": False})
     if x_fields:
         post_json({
             "embeds": [{
