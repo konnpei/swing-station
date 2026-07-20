@@ -392,6 +392,43 @@ function EarningsStraddleWarning({ briefing, onJump }) {
   );
 }
 
+function MacroEventWarning({ briefing, days = 3 }) {
+  const all = [
+    ...(briefing?.events_jp || []).map(e => ({ ...e, region: "日本" })),
+    ...(briefing?.events_us || []).map(e => ({ ...e, region: "米国" })),
+  ].filter(e => e.date && getImportance(e) === "high");
+
+  const upcoming = all
+    .map(e => ({ ...e, daysUntil: daysUntilFromDate(e.date) }))
+    .filter(e => e.daysUntil !== null && e.daysUntil >= 0 && e.daysUntil <= days)
+    .sort((a, b) => a.daysUntil - b.daysUntil);
+
+  if (upcoming.length === 0) return null;
+
+  return (
+    <div style={{
+      background: "#1a0e0e", border: "1px solid #ff556655", borderRadius: 10,
+      padding: "10px 14px", marginBottom: 12,
+    }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#ff5566", marginBottom: 6 }}>
+        📢 マクロイベント注意（3営業日以内・最重要）
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {upcoming.map((e, i) => (
+          <div key={i} style={{
+            display: "flex", alignItems: "center", gap: 8, padding: "6px 8px",
+            background: "#121212", border: "1px solid #ff556633", borderRadius: 6,
+          }}>
+            <span style={{ fontSize: 9, color: "#8a8a8a", width: 32, flexShrink: 0 }}>{e.region}</span>
+            <span style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{e.text}</span>
+            <span style={{ fontSize: 9, color: "#ff5566", flexShrink: 0 }}>{daysUntilLabel(e.daysUntil)}（{e.date}）</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TopHeadlines({ headlines }) {
   if (!headlines || headlines.length === 0) return null;
   return (
@@ -438,6 +475,7 @@ function BriefingView({ briefing, onJump }) {
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} nextTradingDay={briefing.next_trading_day} />
       <EarningsStraddleWarning briefing={briefing} onJump={onJump} />
+      <MacroEventWarning briefing={briefing} />
       <TopHeadlines headlines={briefing.top_news_headlines} />
       <div style={{
         background: "#121212", border: `1px solid ${mode.color}44`,
