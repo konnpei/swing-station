@@ -940,15 +940,15 @@ function JpStocksView({ briefing, history, highlightCode }) {
   const stocks = briefing?.stocks_jp || [];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" history={history} heatmapKey="sector_heatmap" refreshedAt={briefing?.jp_sector_heatmap_refreshed_at} stale={briefing?.jp_sector_heatmap_stale} />
-      <TopMovers movers={briefing?.jp_top_movers} currency="¥" />
-      <ScreenerPanel screener={briefing?.jp_screener} currency="¥" refreshedAt={briefing?.screener_refreshed_at} />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
       {stocks.length > 0 ? (
         stocks.map((s, i) => <StockCard key={i} s={s} highlighted={highlightCode === String(s.code)} />)
       ) : (
-        <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分の銘柄情報はまだありません。</div>
+        <div style={{ color: "#6a6a6a", fontSize: 11, marginBottom: 14 }}>本日分の銘柄情報はまだありません。</div>
       )}
+      <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" history={history} heatmapKey="sector_heatmap" refreshedAt={briefing?.jp_sector_heatmap_refreshed_at} stale={briefing?.jp_sector_heatmap_stale} />
+      <TopMovers movers={briefing?.jp_top_movers} currency="¥" />
+      <ScreenerPanel screener={briefing?.jp_screener} currency="¥" refreshedAt={briefing?.screener_refreshed_at} />
     </div>
   );
 }
@@ -957,16 +957,15 @@ function UsStocksView({ briefing, history, highlightCode }) {
   const s = briefing?.stock_us;
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
-      <SectorHeatmap heatmap={briefing?.us_sector_heatmap} allChanges={briefing?.us_all_changes} currency="$" history={history} heatmapKey="us_sector_heatmap" refreshedAt={briefing?.us_sector_heatmap_refreshed_at} stale={briefing?.us_sector_heatmap_stale} />
-      <TopMovers movers={briefing?.us_top_movers} currency="$" />
-      <ScreenerPanel screener={briefing?.us_screener} currency="$" refreshedAt={briefing?.screener_refreshed_at} />
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
       {s ? (
         <StockCard s={{ ...s, code: s.ticker }} highlighted={highlightCode === String(s.ticker)} />
       ) : (
-        <div style={{ color: "#6a6a6a", fontSize: 11 }}>本日分の銘柄情報はまだありません。</div>
+        <div style={{ color: "#6a6a6a", fontSize: 11, marginBottom: 14 }}>本日分の銘柄情報はまだありません。</div>
       )}
-
+      <SectorHeatmap heatmap={briefing?.us_sector_heatmap} allChanges={briefing?.us_all_changes} currency="$" history={history} heatmapKey="us_sector_heatmap" refreshedAt={briefing?.us_sector_heatmap_refreshed_at} stale={briefing?.us_sector_heatmap_stale} />
+      <TopMovers movers={briefing?.us_top_movers} currency="$" />
+      <ScreenerPanel screener={briefing?.us_screener} currency="$" refreshedAt={briefing?.screener_refreshed_at} />
     </div>
   );
 }
