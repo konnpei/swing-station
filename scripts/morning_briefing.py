@@ -903,9 +903,16 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
     })
 
     # note専用本文をDiscordに送信（コードブロックなしの通常テキストでコピペしやすく）
+    # note_body(Claude生成)にはフォロー導線と投資助言でない旨の注記が含まれないため、
+    # 固定文言として末尾に必ず付与する（LLM任せにせず毎回確実に表示するため）。
     _y, _m, _d = TODAY.split("/")
     title_line = f"📰 **KABU BOCCHI 朝刊｜{_y}年{int(_m)}月{int(_d)}日**\n\n"
     note_body = c.get("note_body", note_text)
+    note_body += (
+        "\n\n---\n"
+        "いいね・フォローお願いします🙏\n"
+        "※本記事は情報提供を目的としたものであり、投資勧誘・助言ではありません。投資判断はご自身の責任でお願いします。"
+    )
     chunks = [note_body[i:i+1900] for i in range(0, len(note_body), 1900)]
     for i, chunk in enumerate(chunks):
         prefix = "**📝 note本文(コピペして投稿)**\n\n" + title_line if i == 0 else ""
@@ -913,7 +920,12 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
 
     x_teaser = c.get("x_teaser_3line", "")
     if x_teaser:
-        post_json({"content": f"**📱 X告知用（3行）**\n\n{x_teaser}"})
+        x_teaser_full = (
+            f"{x_teaser}\n\n"
+            "いいね・フォローよろしくお願いします🙏\n"
+            "※投資助言ではありません。投資判断は自己責任でお願いします。"
+        )
+        post_json({"content": f"**📱 X告知用（3行＋いいね・フォロー案内＋注記）**\n\n{x_teaser_full}"})
 
     x_posts = c.get("x_posts", [c.get("x_main", "")])
     x_fields = []
