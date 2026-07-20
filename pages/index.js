@@ -392,6 +392,35 @@ function EarningsStraddleWarning({ briefing, onJump }) {
   );
 }
 
+function TopHeadlines({ headlines }) {
+  if (!headlines || headlines.length === 0) return null;
+  return (
+    <div style={{
+      background: "#121212", border: "1px solid #262626", borderRadius: 10,
+      padding: "10px 14px", marginBottom: 12,
+    }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>📡 経済ニュース速報（ブルームバーグ・日経）</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {headlines.map((h, i) => {
+          const line = (
+            <>
+              <span style={{ color: "#6a6a6a" }}>[{h.source}]</span> {h.title}
+            </>
+          );
+          return h.link ? (
+            <a key={i} href={h.link} target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 10, color: "#9a9a9a", textDecoration: "none" }}>
+              {line}
+            </a>
+          ) : (
+            <div key={i} style={{ fontSize: 10, color: "#9a9a9a" }}>{line}</div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function BriefingView({ briefing, onJump }) {
   if (!briefing) {
     return (
@@ -409,6 +438,7 @@ function BriefingView({ briefing, onJump }) {
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} nextTradingDay={briefing.next_trading_day} />
       <EarningsStraddleWarning briefing={briefing} onJump={onJump} />
+      <TopHeadlines headlines={briefing.top_news_headlines} />
       <div style={{
         background: "#121212", border: `1px solid ${mode.color}44`,
         borderRadius: 10, padding: "10px 14px", marginBottom: 12,
