@@ -1522,6 +1522,14 @@ export default function SwingStation() {
             <HistoryView history={history} />
           </div>
         </div>
+
+        {/* Footer */}
+        <div style={{
+          background:"#080808", borderTop:"1px solid #262626", padding:"6px 14px",
+          flexShrink:0, fontSize:8, color:"#6a6a6a", lineHeight:1.4,
+        }}>
+          ※本サイトは情報提供を目的としており、投資勧誘・助言ではありません。投資判断はご自身の責任でお願いします。
+        </div>
       </div>
     </>
   );
