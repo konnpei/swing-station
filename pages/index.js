@@ -347,7 +347,52 @@ function MarketDashboard({ briefing }) {
   );
 }
 
-function BriefingView({ briefing }) {
+function EarningsStraddleWarning({ briefing, onJump }) {
+  if (!onJump) return null;
+  const jpCal = briefing?.jp_earnings_calendar || [];
+  const usCal = briefing?.us_earnings_calendar || [];
+  const upcoming = [
+    ...jpCal.map(e => ({ ...e, market: "jp", marketLabel: "日本" })),
+    ...usCal.map(e => ({ ...e, market: "us", marketLabel: "米国" })),
+  ]
+    .map(e => ({ ...e, daysUntil: daysUntilFromDate(e.next_earnings_date) }))
+    .filter(e => e.daysUntil !== null && e.daysUntil >= 0 && e.daysUntil <= 3)
+    .sort((a, b) => a.daysUntil - b.daysUntil);
+
+  if (upcoming.length === 0) return null;
+
+  return (
+    <div style={{
+      background: "#1a1408", border: "1px solid #ffd16655", borderRadius: 10,
+      padding: "10px 14px", marginBottom: 12,
+    }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#ffd166", marginBottom: 6 }}>
+        ⚠️ 決算またぎ警告（3営業日以内に決算予定の監視銘柄）
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+        {upcoming.map((e, i) => (
+          <button
+            key={i}
+            onClick={() => onJump(e.market, e.code)}
+            style={{
+              display: "flex", alignItems: "center", gap: 8, padding: "6px 8px",
+              background: "#121212", border: "1px solid #ffd16633", borderRadius: 6,
+              textAlign: "left", fontFamily: "inherit", color: "inherit", cursor: "pointer", width: "100%",
+            }}
+          >
+            <span style={{ fontSize: 9, color: "#8a8a8a", width: 32, flexShrink: 0 }}>{e.marketLabel}</span>
+            <span style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>
+              {e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span>
+            </span>
+            <span style={{ fontSize: 9, color: "#ffd166", flexShrink: 0 }}>{daysUntilLabel(e.daysUntil)}（{e.next_earnings_date}）</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BriefingView({ briefing, onJump }) {
   if (!briefing) {
     return (
       <div style={{ padding: 20, textAlign: "center", color: "#6a6a6a", fontSize: 12 }}>
@@ -363,6 +408,7 @@ function BriefingView({ briefing }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} nextTradingDay={briefing.next_trading_day} />
+      <EarningsStraddleWarning briefing={briefing} onJump={onJump} />
       <div style={{
         background: "#121212", border: `1px solid ${mode.color}44`,
         borderRadius: 10, padding: "10px 14px", marginBottom: 12,
@@ -1458,7 +1504,7 @@ export default function SwingStation() {
         {/* Content */}
         <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
           <div style={{ display:tab==="briefing"?"block":"none", height:"100%" }}>
-            <BriefingView briefing={briefing} />
+            <BriefingView briefing={briefing} onJump={jumpToStock} />
           </div>
           <div style={{ display:tab==="jp"?"block":"none", height:"100%" }}>
             <JpStocksView briefing={briefing} history={history} highlightCode={highlightTarget?.market === "jp" ? highlightTarget.code : null} />
