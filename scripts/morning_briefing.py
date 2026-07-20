@@ -289,7 +289,7 @@ def generate_content(data, mode):
         )
         strategy_field = '"strategy": ["5 specific strategies for TODAY\'S session (デイトレ・スイング・中長期) with actions and rationale"],'
         note_body_field = (
-            '"note_body": "note専用完全版（1500〜2500文字）。Discord要約と完全に別の文章で書く。構成：\\n'
+            '"note_body": "note専用完全版（1000〜1400文字。Discordに1メッセージで収まる長さを厳守すること）。Discord要約と完全に別の文章で書く。構成：\\n'
             '1. リード文（相場を一言で表す）\\n'
             '2. 今日の相場ポイント（昨夜米国・為替・半導体・AI・今日のテーマ・注意点を300〜500文字）\\n'
             '3. 今日の注目銘柄（各銘柄：名前・コード・★評価・注目理由・エントリー条件・利確・損切・注意点）\\n'
@@ -326,7 +326,7 @@ def generate_content(data, mode):
         )
         strategy_field = f'"strategy": ["次の営業日（{NEXT_TRADING_DAY_STR}）に向けた5つの具体的な戦略・準備（監視ライン設定・資金配分見直し等）とその根拠"],'
         note_body_field = (
-            '"note_body": "note専用完全版（1500〜2500文字）。Discord要約と完全に別の文章で書く。構成：\\n'
+            '"note_body": "note専用完全版（1000〜1400文字。Discordに1メッセージで収まる長さを厳守すること）。Discord要約と完全に別の文章で書く。構成：\\n'
             '1. リード文（休場日であることと今週の相場を一言で表す）\\n'
             '2. 今週の注目ポイント（今週動いたテーマ・為替・半導体・AI等を300〜500文字で振り返る）\\n'
             '3. 監視リスト（保有中/様子見中の銘柄が今週どう動いたか、次の営業日に何を確認すべきか）\\n'
@@ -905,18 +905,20 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode):
     # note専用本文をDiscordに送信（コードブロックなしの通常テキストでコピペしやすく）
     # note_body(Claude生成)にはフォロー導線と投資助言でない旨の注記が含まれないため、
     # 固定文言として末尾に必ず付与する（LLM任せにせず毎回確実に表示するため）。
+    # Discordの1メッセージ上限(2000字)に収め、2通に分割されないようにする。
     _y, _m, _d = TODAY.split("/")
     title_line = f"📰 **KABU BOCCHI 朝刊｜{_y}年{int(_m)}月{int(_d)}日**\n\n"
-    note_body = c.get("note_body", note_text)
-    note_body += (
+    note_prefix = "**📝 note本文(コピペして投稿)**\n\n" + title_line
+    note_suffix = (
         "\n\n---\n"
         "いいね・フォローお願いします🙏\n"
         "※本記事は情報提供を目的としたものであり、投資勧誘・助言ではありません。投資判断はご自身の責任でお願いします。"
     )
-    chunks = [note_body[i:i+1900] for i in range(0, len(note_body), 1900)]
-    for i, chunk in enumerate(chunks):
-        prefix = "**📝 note本文(コピペして投稿)**\n\n" + title_line if i == 0 else ""
-        post_json({"content": prefix + chunk})
+    note_body = c.get("note_body", note_text)
+    max_body_len = 1900 - len(note_prefix) - len(note_suffix)
+    if len(note_body) > max_body_len:
+        note_body = note_body[:max_body_len].rstrip() + "…"
+    post_json({"content": note_prefix + note_body + note_suffix})
 
     x_teaser = c.get("x_teaser_3line", "")
     if x_teaser:
