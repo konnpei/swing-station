@@ -85,8 +85,8 @@ function renderMarkdownLite(text) {
   });
 }
 
-function WeeklyContentCard({ icon, label, data }) {
-  if (!data || daysSince(data.date) > 3) return null;
+function WeeklyContentCard({ icon, label, data, ignoreStaleness }) {
+  if (!data || (!ignoreStaleness && daysSince(data.date) > 3)) return null;
   return (
     <div style={{ background: "#121212", border: "1px solid #3a3f52", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
       <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>{icon} {label} <span style={{ color: "#5a5a5a" }}>{data.date}</span></div>
@@ -521,7 +521,7 @@ function TopHeadlines({ headlines }) {
   );
 }
 
-function BriefingView({ briefing, onJump }) {
+function BriefingView({ briefing, onJump, ignoreStaleness }) {
   if (!briefing) {
     return (
       <div style={{ padding: 20, textAlign: "center", color: "#6a6a6a", fontSize: 12 }}>
@@ -642,8 +642,8 @@ function BriefingView({ briefing, onJump }) {
         </div>
       )}
 
-      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} />
-      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} />
+      <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} ignoreStaleness={ignoreStaleness} />
+      <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} ignoreStaleness={ignoreStaleness} />
 
       {(briefing.surges?.length > 0 || briefing.drops?.length > 0) && (
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
@@ -1160,7 +1160,7 @@ function DayDetailView({ briefing, onClose }) {
         <button onClick={onClose} style={{ background: "none", border: "1px solid #333", borderRadius: 6, color: "#8a8a8a", fontSize: 10, padding: "3px 8px", cursor: "pointer" }}>閉じる</button>
       </div>
       <div style={{ padding: "4px 4px 4px" }}>
-        <BriefingView briefing={briefing} />
+        <BriefingView briefing={briefing} ignoreStaleness={true} />
       </div>
       {briefing.stocks_jp?.length > 0 && (
         <div style={{ padding: "0 12px 12px" }}>
