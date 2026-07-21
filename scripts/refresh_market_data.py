@@ -20,7 +20,7 @@ import requests
 from datetime import datetime, timezone, timedelta
 
 from market_data import (
-    fetch_market_data,
+    fetch_market_data, fetch_volume_history,
     fetch_all_watch_changes, fetch_surge_drop, build_sector_heatmap, top_movers,
     fetch_us_watch_changes, sanitize_for_json,
 )
@@ -67,6 +67,13 @@ def main():
 
     print("市場データ取得中...")
     data = fetch_market_data()
+
+    print("主要指数の出来高取得中...")
+    try:
+        market_volume = fetch_volume_history()
+    except Exception as e:
+        print(f"⚠ 出来高取得エラー: {e}")
+        market_volume = []
 
     print("日本株ウォッチリスト取得中...")
     jp_changes = fetch_all_watch_changes()
@@ -158,6 +165,8 @@ def main():
         "us_sector_heatmap_stale": us_sector_heatmap_stale,
         "us_sector_heatmap_refreshed_at": us_sector_heatmap_refreshed_at,
         "market_data_refreshed_at": NOW.isoformat(),
+        "market_volume": market_volume if market_volume else latest.get("market_volume", []),
+        "market_volume_refreshed_at": NOW.isoformat() if market_volume else latest.get("market_volume_refreshed_at"),
     })
 
     print("data/latest.json 更新中...")

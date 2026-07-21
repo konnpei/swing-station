@@ -257,6 +257,68 @@ def fetch_us_watch_changes():
             continue
     return results
 
+# 主要指数そのものには株式のような出来高がないため、先物または代替ETF/構成銘柄の
+# 出来高で代替する。実機検証済み（2026/07時点でYahoo Financeから安定して非ゼロの
+# 出来高が取得できることを確認）。TOPIX先物・SOX先物はYahoo Finance上に銘柄が
+# 存在しないため、ETFで代替している。
+VOLUME_TARGETS = [
+    {"key": "nikkei225_futures", "label": "日経225先物", "symbol": "NKD=F"},
+    {"key": "topix_etf", "label": "TOPIX連動ETF", "symbol": "1306.T"},
+    {"key": "nasdaq100_futures", "label": "NASDAQ100先物", "symbol": "NQ=F"},
+    {"key": "sp500_futures", "label": "S&P500先物", "symbol": "ES=F"},
+    {"key": "semiconductor_etf", "label": "半導体ETF(SMH)", "symbol": "SMH"},
+    {"key": "kospi", "label": "KOSPI", "symbol": "^KS11"},
+]
+
+
+def judge_volume(avg20d_pct):
+    if avg20d_pct is None:
+        return "取得不可"
+    if avg20d_pct >= 130:
+        return "商い活発"
+    if avg20d_pct >= 80:
+        return "通常"
+    return "薄商い"
+
+
+def fetch_volume_history():
+    """主要指数の先物/代替銘柄の出来高（当日・前日比・20営業日平均比）を取得する。"""
+    import yfinance as yf
+
+    items = []
+    for t in VOLUME_TARGETS:
+        item = {**t, "source": "Yahoo Finance (yfinance)"}
+        try:
+            hist = yf.Ticker(t["symbol"]).history(period="35d")
+            hist = hist[hist["Volume"] > 0]
+            if hist.empty:
+                item.update(volume=None, volume_prev_pct=None, avg20d=None,
+                            avg20d_pct=None, judgement="取得不可")
+                items.append(item)
+                continue
+
+            latest_vol = int(hist["Volume"].iloc[-1])
+            prev_rows = hist.iloc[:-1]
+            prev_vol = int(prev_rows["Volume"].iloc[-1]) if len(prev_rows) >= 1 else None
+            avg20_series = prev_rows["Volume"].tail(20)
+            # 5日未満しかない場合は「20営業日平均」として意味をなさないため出さない
+            avg20d = int(avg20_series.mean()) if len(avg20_series) >= 5 else None
+
+            volume_prev_pct = round((latest_vol - prev_vol) / prev_vol * 100, 1) if prev_vol else None
+            avg20d_pct = round(latest_vol / avg20d * 100, 1) if avg20d else None
+
+            item.update(
+                volume=latest_vol, volume_prev_pct=volume_prev_pct,
+                avg20d=avg20d, avg20d_pct=avg20d_pct,
+                judgement=judge_volume(avg20d_pct),
+            )
+        except Exception as e:
+            item.update(volume=None, volume_prev_pct=None, avg20d=None,
+                        avg20d_pct=None, judgement="取得不可", error=str(e))
+        items.append(item)
+    return items
+
+
 def fetch_market_data():
     try:
         import yfinance as yf
