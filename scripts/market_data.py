@@ -303,8 +303,12 @@ def fetch_market_data():
         # これとは別に、もっと早い段階（2営業日ズレ）で気付けるよう、処理は止めずに
         # フラグだけ立てる軽量チェックを追加する。^N225はYahoo Finance側の反映遅延で、
         # 7日には満たないが前回実行時と同じデータを返してくることがあるため。
+        # 土日に加えて日本の祝日もスキップしないと、祝日明けに「データが古い」という
+        # 誤検知（偽アラート）が発生する（例: 海の日翌日に前営業日=金曜のデータを
+        # 「本来は月曜のはず」と誤判定してしまう）。
+        import jpholiday
         expected_date = NOW.date() - timedelta(days=1)
-        while expected_date.weekday() >= 5:  # 土日はスキップ（祝日は未対応の簡易チェック）
+        while expected_date.weekday() >= 5 or jpholiday.is_holiday(expected_date):
             expected_date -= timedelta(days=1)
         nikkei_data_stale = (expected_date - latest_trading_date).days >= 2
         if nikkei_data_stale:
