@@ -989,20 +989,16 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
         post_json({"content": f"**📱 X告知用（3行＋いいね・フォロー案内＋注記）**\n\n{x_teaser_full}"})
 
     # 個別銘柄・騰落率に言及する投稿のため、短い注記を必ず末尾に付与する。
+    # 埋め込み(embed)だとスマホでコピペしづらいため、note本文・X告知用と同じ
+    # 通常テキストメッセージとして送る。
     X_POST_DISCLAIMER = "\n※投資助言ではありません"
     x_posts = c.get("x_posts", [c.get("x_main", "")])
-    x_fields = []
+    x_posts_lines = []
     for i, xp in enumerate(x_posts[:3], 1):
         xp_full = xp + X_POST_DISCLAIMER
-        x_fields.append({"name": f"投稿{i}", "value": f"```\n{xp_full[:450]}\n```", "inline": False})
-    if x_fields:
-        post_json({
-            "embeds": [{
-                "title": "📱 X投稿文（コピペしてそのまま投稿）",
-                "color": color,
-                "fields": x_fields
-            }]
-        })
+        x_posts_lines.append(f"【投稿{i}】\n{xp_full[:450]}")
+    if x_posts_lines:
+        post_json({"content": "**📱 X投稿文（コピペしてそのまま投稿）**\n\n" + "\n\n---\n\n".join(x_posts_lines)})
 
     print("Discord send complete!")
  
