@@ -584,7 +584,7 @@ def generate_chart(data, mode):
  
     vcols = [GREEN if closes[i] >= opens[i] else RED for i in range(len(x))]
     ax2.bar(x, vols, color=vcols, alpha=0.65, width=0.7)
-    ax2.set_ylabel("出来高", color=TEXT, fontsize=8, fontproperties=fp)
+    ax2.set_ylabel("出来高(億株)", color=TEXT, fontsize=8, fontproperties=fp)
     ax2.tick_params(labelbottom=False)
  
     mcols = [GREEN if v >= 0 else RED for v in macd]

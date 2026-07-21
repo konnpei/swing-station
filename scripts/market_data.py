@@ -353,7 +353,7 @@ def fetch_market_data():
                 "high":   int(row["High"]),
                 "low":    int(row["Low"]),
                 "close":  int(row["Close"]),
-                "volume": max(1, int(row["Volume"] / 1e8)),
+                "volume": round(row["Volume"] / 1e8, 2),
             })
  
         latest = ohlcv[-1]
