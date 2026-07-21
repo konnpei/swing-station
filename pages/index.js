@@ -425,7 +425,12 @@ function VolumeMonitor({ items, refreshedAt }) {
             <div style={{ fontSize: 10, color: "#8a8a8a" }}>
               {it.label}<span style={{ color: "#5a5a5a", fontSize: 8 }}> ({it.symbol})</span>
             </div>
-            <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{formatVolume(it.volume)}</div>
+            <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>
+              {formatVolume(it.volume)}
+              {typeof it.volume === "number" && it.volume >= 10000 && (
+                <span style={{ fontSize: 9, color: "#6a6a6a", marginLeft: 5 }}>({it.volume.toLocaleString()})</span>
+              )}
+            </div>
             {it.volume !== null && it.volume !== undefined ? (
               <>
                 <div style={{ fontSize: 9, color: (it.volume_prev_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>
