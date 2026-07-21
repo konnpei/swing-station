@@ -532,7 +532,7 @@ def generate_chart(data, mode):
     RED   = "#ef4444"
  
     fig = plt.figure(figsize=(12, 8), facecolor=BG)
-    gs  = GridSpec(3, 1, figure=fig, hspace=0.06, height_ratios=[3, 1, 1.2])
+    gs  = GridSpec(3, 1, figure=fig, hspace=0.06, height_ratios=[3, 1, 1])
     ax1 = fig.add_subplot(gs[0])
     ax2 = fig.add_subplot(gs[1], sharex=ax1)
     ax3 = fig.add_subplot(gs[2], sharex=ax1)
