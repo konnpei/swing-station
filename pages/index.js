@@ -405,6 +405,51 @@ function EarningsStraddleWarning({ briefing, onJump }) {
   );
 }
 
+function formatVolume(v) {
+  if (v === null || v === undefined) return "—";
+  if (v >= 10000) return `${(v / 10000).toFixed(1)}万`;
+  return v.toLocaleString();
+}
+
+function VolumeMonitor({ items, refreshedAt }) {
+  if (!items || items.length === 0) return null;
+  const judgeColor = (j) => (
+    j === "商い活発" ? "#00ff9d" : j === "通常" ? "#ffd166" : j === "薄商い" ? "#ff9955" : "#6a6a6a"
+  );
+  return (
+    <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>主要指数 出来高モニター（先物・代替ETF）</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 6 }}>
+        {items.map((it, i) => (
+          <div key={i} style={{ background: "#0d0d0d", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
+            <div style={{ fontSize: 10, color: "#8a8a8a" }}>
+              {it.label}<span style={{ color: "#5a5a5a", fontSize: 8 }}> ({it.symbol})</span>
+            </div>
+            <div style={{ fontSize: 15, color: "#eeeeee", marginTop: 2 }}>{formatVolume(it.volume)}</div>
+            {it.volume !== null && it.volume !== undefined ? (
+              <>
+                <div style={{ fontSize: 9, color: (it.volume_prev_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>
+                  前日比 {typeof it.volume_prev_pct === "number" ? (it.volume_prev_pct >= 0 ? "+" : "") + it.volume_prev_pct + "%" : "—"}
+                </div>
+                <div style={{ fontSize: 9, color: "#8a8a8a" }}>
+                  20日平均比 {typeof it.avg20d_pct === "number" ? `${it.avg20d_pct}%` : "—"}
+                </div>
+              </>
+            ) : null}
+            <div style={{ fontSize: 9, color: judgeColor(it.judgement), fontWeight: 700, marginTop: 3 }}>
+              {it.judgement}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 8, color: "#5a5a5a", marginTop: 8 }}>
+        ※指数そのものには出来高がないため、先物または代替ETF/構成銘柄の出来高で代用しています（データ元: Yahoo Finance）。
+        {refreshedAt && ` 最終更新: ${new Date(refreshedAt).toLocaleString("ja-JP")}`}
+      </div>
+    </div>
+  );
+}
+
 function MacroEventWarning({ briefing, days = 3 }) {
   const all = [
     ...(briefing?.events_jp || []).map(e => ({ ...e, region: "日本" })),
@@ -571,6 +616,8 @@ function BriefingView({ briefing, onJump }) {
           <div style={{ fontSize: 10, color: (briefing.gold_pct || 0) >= 0 ? "#00ff9d" : "#ff5566" }}>{briefing.gold_pct ? (briefing.gold_pct >= 0 ? "+" : "") + briefing.gold_pct.toFixed(2) + "%" : "—"}</div>
         </div>
       </div>
+
+      <VolumeMonitor items={briefing.market_volume} refreshedAt={briefing.market_volume_refreshed_at} />
 
       <FearGreedGauge value={briefing.fear_greed_value} label={briefing.fear_greed_label} diff={briefing.fear_greed_diff} />
       {briefing.market_summary && (
