@@ -1,0 +1,1880 @@
+{
+  "generated_at": "2026-07-21T22:38:50.463691+09:00",
+  "method": "WebSearch/WebFetch経由でのAI調査（一次PDFは環境制約により直接確認できず、複数の二次ソースを突き合わせて作成）",
+  "coverage": "67社（監視銘柄の日本株全銘柄）",
+  "caveat": "数値は複数ソースのクロスチェックによるものであり、一次資料（決算短信PDF原本）での最終確認を推奨します。各社レコードのnotesフィールドに個別の確度・注意点を記載しています。",
+  "companies": [
+    {
+      "code": "1605",
+      "name": "INPEX",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": 501800,
+        "yoy_pct": -6.5,
+        "unit": "百万円（IFRS、2026年12月期第1四半期）"
+      },
+      "operating_profit": {
+        "actual": 278200,
+        "yoy_pct": -14.1,
+        "unit": "百万円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": null
+      },
+      "net_profit": {
+        "actual": 109400,
+        "yoy_pct": -13.4,
+        "unit": "百万円（親会社所有者帰属）"
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "第1四半期決算と同時に2026年12月期（通期）業績予想を上方修正。純利益予想を従来の3,300億円から3,500億〜4,500億円のレンジへ引き上げ。中東情勢緊迫化による原油高が要因。年間配当予想も54円→108円へ倍増。",
+      "management_comment": "第1四半期実績は原油・ガス販売価格の下落により減収減益だったが、その後の原油価格上昇を織り込み通期は大幅増益を見込む形で予想を引き上げた。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260512526353/",
+      "notes": "IFRS採用のため『経常利益』はnull。四半期実績（Q1）であり通期実績ではない点に注意。"
+    },
+    {
+      "code": "1801",
+      "name": "大成建設",
+      "report_date": "2026-05-14",
+      "revenue": {
+        "actual": 2089000,
+        "yoy_pct": -3.0,
+        "unit": "百万円"
+      },
+      "operating_profit": {
+        "actual": 187900,
+        "yoy_pct": 56.4,
+        "unit": "百万円"
+      },
+      "ordinary_profit": {
+        "actual": 195777,
+        "yoy_pct": 45.6,
+        "unit": "百万円"
+      },
+      "net_profit": {
+        "actual": 170000,
+        "yoy_pct": 37.3,
+        "unit": "百万円"
+      },
+      "guidance_revision": "上方修正（会計年度途中）→実績はさらに上振れ",
+      "guidance_note": "2025年11月11日開示（2Q決算時）に通期純利益予想を800億円→1,370億円へ上方修正（+71%超）。本決算実績（純利益1,700億円）は修正後予想も上回り過去最高益を更新。2027年3月期は経常利益1,870億円（-4.5%）、純利益は-11.2%予想と減益見通し。",
+      "management_comment": "国内土木・建築事業における追加変更工事の獲得と原価低減による利益率改善が増益の主因。売上高は減収となったが利益率改善で大幅増益を達成。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260511523850/",
+      "notes": "一次情報PDFはWebFetchが403で直接閲覧できず、WebSearchスニペットによる確認のみ。"
+    },
+    {
+      "code": "2502",
+      "name": "アサヒグループホールディングス",
+      "report_date": "2026-07-08",
+      "revenue": {
+        "actual": "約2兆8946億円",
+        "yoy_pct": "-1.5%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "1858億円",
+        "yoy_pct": "-30.9%（会社独自指標の事業利益は2629億円、-7.8%）"
+      },
+      "ordinary_profit": {
+        "actual": "1792.81億円（税引前利益で代替、IFRS）",
+        "yoy_pct": "-32.9%"
+      },
+      "net_profit": {
+        "actual": "1215億円",
+        "yoy_pct": "-36.7%"
+      },
+      "guidance_revision": "該当なし（本決算は2025年12月期通期実績の確定発表、同時に次期予想公表）",
+      "guidance_note": "2026年12月期予想: 売上収益3兆2200億円(+11.2%、創業来初の3兆円超)、純利益1940億円(+59.6%、市場コンセンサスを上回る強気計画)。",
+      "management_comment": "2025年9月29日発生のサイバー攻撃によるシステム障害で日本国内の受注・出荷が制約され、営業減益要因約400億円弱・障害関連費用約170億円が発生。2026年12月期は反転攻勢をかける方針。",
+      "source_url": "https://www.asahigroup-holdings.com/newsroom/detail/20260708-0101.html",
+      "notes": "重要: これは『2026年第1四半期決算』ではなく『2025年12月期(通期)決算』。サイバー攻撃の影響で本決算発表が通常より大幅に遅延（本来2月発表予定が2026年7月8日発表）。次のQ1決算は本稿時点(2026年7月21日)で未発表・発表日未定。一次PDF未閲覧。"
+    },
+    {
+      "code": "2503",
+      "name": "キリンホールディングス",
+      "report_date": "2026-05-14",
+      "revenue": {
+        "actual": "5730億円",
+        "yoy_pct": "+5.0%",
+        "unit": "円（IFRS、売上収益）"
+      },
+      "operating_profit": {
+        "actual": "499億円（事業利益）",
+        "yoy_pct": "+37.7%〜+38%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "270億円",
+        "yoy_pct": "+11.3%"
+      },
+      "guidance_revision": "据え置き",
+      "guidance_note": "2026年12月期通期予想は据え置き。売上収益2兆4,800億円(+1.9%)、事業利益2,350億円(-6.7%)、純利益1,560億円(+5.7%)。Q1純利益は好調だが通期進捗率17.4%で5年平均並みのため上方修正は見送り。",
+      "management_comment": "酒類・飲料・医薬（協和キリン）が牽引し、売上収益・事業利益とも1-3月期として過去最高を更新。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260512525279/",
+      "notes": "IFRS採用のため『経常利益』はnull。一次PDF未閲覧、WebSearch経由の複数報道要約から取得。"
+    },
+    {
+      "code": "2801",
+      "name": "キッコーマン",
+      "report_date": "2026-04-24",
+      "revenue": {
+        "actual": "7,455億3,900万円",
+        "yoy_pct": "+5.2%",
+        "unit": "円（IFRS、売上収益、2026年3月期通期）"
+      },
+      "operating_profit": {
+        "actual": "795億1,200万円（事業利益）",
+        "yoy_pct": "+2.9%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "616億1,500万円",
+        "yoy_pct": "-0.1%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期の新規予想：売上収益7,991億円(+7.2%)、事業利益823億円(+3.5%)、配当は年25円据え置き。今期実績の予想対比修正有無は未確認。",
+      "management_comment": "海外食料品卸売事業(+6.2%)が全体を牽引し、売上・事業利益とも過去最高を更新。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260423508872/",
+      "notes": "IFRS採用のため『経常利益』はnull。一次PDF未閲覧、WebSearch要約に基づく。"
+    },
+    {
+      "code": "2914",
+      "name": "JT",
+      "report_date": "2026-05-08",
+      "revenue": {
+        "actual": "9239.6億円",
+        "yoy_pct": 15.2,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "3045.5億円",
+        "yoy_pct": 24.7,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "1970.4億円",
+        "yoy_pct": 25.1,
+        "unit": "円"
+      },
+      "guidance_revision": "据え置き",
+      "guidance_note": "2026年12月期通期予想は据え置き（売上収益3兆6970億円 前期比+6.6%、営業利益9210億円 同+6.2%）。年間配当予想242円も据え置き。",
+      "management_comment": "医薬事業売却の影響を除き、たばこ事業を中心に大幅な増収増益。修正後営業利益で年平均一桁台半ば〜高い成長率を目指す方針を維持。",
+      "source_url": "https://www.nikkei.com/article/DGXZRST0519418Y6A500C2000000/",
+      "notes": "IFRS決算のため経常利益はnull。通期純利益予想の金額について検索結果で桁の誤記（5.7兆円等）とみられる記述があったため、当該数値はguidance_noteに含めず記載を避けた。"
+    },
+    {
+      "code": "3382",
+      "name": "セブン&アイ・ホールディングス",
+      "report_date": "2026-07-09",
+      "revenue": {
+        "actual": "2兆3788億1900万円",
+        "yoy_pct": "-14.3%",
+        "unit": "円（ヨーク・HD/セブン銀行の連結除外影響）"
+      },
+      "operating_profit": {
+        "actual": "1050億3900万円",
+        "yoy_pct": "+61.4%"
+      },
+      "ordinary_profit": {
+        "actual": "約1007億円",
+        "yoy_pct": "+89.1%"
+      },
+      "net_profit": {
+        "actual": "約606億円",
+        "yoy_pct": "+95.3%"
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "2027年2月期通期の経常利益計画を3670億円→3900億円、純利益計画を2700億円→2780億円に上方修正。ただし通期では依然前期比減益見通し。",
+      "management_comment": "海外コンビニ事業、特に北米のガソリン収益増加が大幅増益を牽引。国内セブン-イレブンは既存店売上高が前年同期比2.0%増。",
+      "source_url": "https://www.7andi.com/company/news/release/202607091530.html",
+      "notes": "一次PDF未閲覧、ニュース要約から作成。営業利益前年比は複数説あり前年同期実績からの逆算で61.4%増を採用。"
+    },
+    {
+      "code": "3407",
+      "name": "旭化成",
+      "report_date": "2026-05-12",
+      "revenue": {
+        "actual": "3兆745億円",
+        "yoy_pct": "約+1.2%（前期比372億円増収）",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "2,312億円",
+        "yoy_pct": "約+9.1%（前期比193億円増益）"
+      },
+      "ordinary_profit": {
+        "actual": "2,304億円",
+        "yoy_pct": "+19.1%"
+      },
+      "net_profit": {
+        "actual": "1,588億円",
+        "yoy_pct": null
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は経常利益2,475億円（+7.4%）を初期予想として公表し、2期連続の最高益更新を見込む。配当は前期を2円増額し、次期も2円増配予定。",
+      "management_comment": "2期連続で経常利益が過去最高を更新。増収増益を達成した。",
+      "source_url": "https://s.minkabu.jp/news/4507083",
+      "notes": "純利益のYoY%は検索結果から確認できず、nullとした。一次PDF（asahi-kasei.com）は未確認（WebFetch不可）。"
+    },
+    {
+      "code": "3436",
+      "name": "SUMCO",
+      "report_date": "2026-05-12",
+      "revenue": {
+        "actual": "1,014億200万円",
+        "yoy_pct": "-1.0%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "▲52億7,300万円（営業損失）",
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "▲79億6,500万円（経常損失）",
+        "yoy_pct": "前年同期は48.9億円の黒字から赤字転落"
+      },
+      "net_profit": {
+        "actual": "▲84億6,900万円（四半期純損失）",
+        "yoy_pct": null
+      },
+      "guidance_revision": "不明（通期予想は非開示、上期のみ開示）",
+      "guidance_note": "2026年12月期は通期業績予想を非開示とし、上期（1-6月）累計のみ開示：売上高2,134億円（+3.9%）、営業損失77億円、経常損失144億円（前年同期は47.2億円の黒字）、純損失154億円を予想。配当は上期10円実施予定、期末配当は未定。",
+      "management_comment": "300mmシリコンウェーハはAI・データセンター向け先端ロジック・メモリー需要が好調だが非先端品は顧客の在庫適正化が継続。200mm以下は最終製品需要の停滞により低調な出荷が続いている。",
+      "source_url": "https://japanir.jp/company/company-3436/ir/3436-20260512-01_wp_financial_summary/",
+      "notes": "同社は暦年（12月期）決算のため、直近の決算短信は2026年12月期第1四半期（四半期決算）。一次PDFは未確認（WebFetch不可）。"
+    },
+    {
+      "code": "4063",
+      "name": "信越化学工業",
+      "report_date": "2026-04-28",
+      "revenue": {
+        "actual": "約2兆5000億円（正確な数値は未確認）",
+        "yoy_pct": null,
+        "unit": "円(日本基準)"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "7082億円",
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "4744億円",
+        "yoy_pct": null
+      },
+      "guidance_revision": "予想未定（特殊対応）",
+      "guidance_note": "2027年3月期の連結業績及び配当予想は「開示が可能となった時点で速やかに開示する」として通期予想を非開示（未定）とした。理由として中東情勢に起因するエネルギー・基礎資材の供給制約と価格変動リスクを挙げている。",
+      "management_comment": "地政学リスク（中東情勢）による原材料・エネルギー価格の不確実性を理由に、通期業績予想の開示を異例の形で見送った。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260428512667/ ; https://www.shinetsu.co.jp/wp-content/uploads/2025/07/20260428_con_J.pdf",
+      "notes": "売上高・各利益項目の前期比%が検索結果から確認できず、null。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFで確認できなかった。次期予想を非開示とした点は複数ソースで一致しており確度が高い。"
+    },
+    {
+      "code": "4188",
+      "name": "三菱ケミカルグループ",
+      "report_date": "2026-05-13（2026-06-22に一部訂正を開示）",
+      "revenue": {
+        "actual": "3兆7,040億円",
+        "yoy_pct": "-6.2%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "2,250億円（コア営業利益）",
+        "yoy_pct": "-1.7%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "118億円",
+        "yoy_pct": "-73.7%（前期比332億円減）"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は初期予想として売上収益3兆8,000億円（+2.6%）、コア営業利益3,050億円（+35.6%）を公表。配当は前期・次期とも1株当たり年間32円で据え置き。2026年6月22日に決算短信・決算説明資料の一部訂正を開示しているが、訂正の具体的内容は検索結果から確認できず。",
+      "management_comment": "コークス事業撤退に伴う損失や特別退職金の計上により当期純利益が大幅減益となった。",
+      "source_url": "https://www.mcgc.com/ir/pdf/02624/02882.pdf",
+      "notes": "IFRS決算のためordinary_profitはnull。6月22日訂正の内容は未確認（一次資料へのWebFetchがブロックされたため）。"
+    },
+    {
+      "code": "4307",
+      "name": "野村総合研究所",
+      "report_date": "2026-04-24",
+      "revenue": {
+        "actual": "814,708百万円",
+        "yoy_pct": "+6.5%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "58,273百万円",
+        "yoy_pct": "-56.8%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "15,257百万円",
+        "yoy_pct": "-83.7%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は初期予想として売上収益850,000百万円、営業利益175,000百万円、純利益119,000百万円（前期比7.8倍）を提示。当期分について公式な業績予想修正発表は確認できず。",
+      "management_comment": "国内事業は案件活況と生産革新効果により全セグメントで増収増益となったが、豪州・北米事業でのれん等に係る減損損失を計上し、営業利益・純利益は大幅減益。次期中期経営計画ではAIによるビジネス変革や人的資本投資の拡大を重視するとしている（代表取締役社長 柳澤花芽）。",
+      "source_url": "https://ir.nri.com/jp/ir/library/financial/main/00/teaserItems1/01114/linkList/03/link/20260424_financialresultspresentaionwithnote.pdf",
+      "notes": "IFRS決算のため日本基準の「経常利益」に相当する開示はなく、ordinary_profitはnullとした。数値はWebSearchによる二次情報の要約に基づき、PDF原本は直接確認できていない（WebFetchが環境上ブロックされたため）。"
+    },
+    {
+      "code": "4452",
+      "name": "花王",
+      "report_date": "2026-05-12",
+      "revenue": {
+        "actual": "413.2億円",
+        "yoy_pct": 6.0,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "44.9億円",
+        "yoy_pct": 45.3,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": "45.98億円（税引前利益）",
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "30.9億円",
+        "yoy_pct": 35.7,
+        "unit": "円"
+      },
+      "guidance_revision": "据え置き",
+      "guidance_note": "2026年12月期通期予想：売上高1兆7500億円(+3.6%)、営業利益1820億円(+11.3%)、税引前利益1850億円(+8.9%)を据え置き。",
+      "management_comment": "1-3月期は営業利益45.3%増と大幅増益で好スタート。通期業績予想は据え置き。",
+      "source_url": "https://minkabu.jp/stock/4452/news/4507780",
+      "notes": "IFRS会計基準のため経常利益に相当する数値は税引前利益として記載。revenue/operating_profitの実額表記は検索結果の単位（億円）をそのまま反映しており、桁の誤記の可能性に留意（花王の四半期売上高としては413億円は小さすぎる可能性があり、4132億円の誤記の可能性あり。一次資料未確認のため数値はそのまま採用しつつ注記）。"
+    },
+    {
+      "code": "4502",
+      "name": "武田薬品工業",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": "4兆5,057億20百万円",
+        "yoy_pct": "-1.7%",
+        "unit": "円（IFRS連結売上収益、2026年3月期通期）"
+      },
+      "operating_profit": {
+        "actual": "4,087億61百万円",
+        "yoy_pct": "+19.3%"
+      },
+      "ordinary_profit": {
+        "actual": "2,601億89百万円（税引前利益で代替）",
+        "yoy_pct": "+48.6%"
+      },
+      "net_profit": {
+        "actual": "1,917億62百万円",
+        "yoy_pct": "+77.7%"
+      },
+      "guidance_revision": "会計年度中に下方修正あり（パイプライン開発中止に伴う減損等）。最終実績は下方修正後の予想を上回り着地。",
+      "guidance_note": "次期(2027年3月期)予想は売上収益4兆6,400億円(+3%)、営業利益4,200億円(+3%)、純利益1,660億円(-13%、事業構造再編費用計上のため)。年間配当204円（4円増配）。",
+      "management_comment": "CEOは新製品上市による成長フェーズへの移行期にあるとコメント。細胞療法プラットフォーム開発中止に伴う減損とユーロ高影響で下期に通期見通しを下方修正したが、主力薬の特許切れ影響を吸収し営業増益を確保。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260513528342/",
+      "notes": "IFRS企業のため経常利益はnull、税引前利益で代替。一次PDF未閲覧、複数二次ソースを突き合わせた。"
+    },
+    {
+      "code": "4519",
+      "name": "中外製薬",
+      "report_date": "2026-04-24",
+      "revenue": {
+        "actual": "3217億円",
+        "yoy_pct": 11.5,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "1633億円（Core営業利益）",
+        "yoy_pct": 17.1,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "1154.18億円",
+        "yoy_pct": 18.7,
+        "unit": "円"
+      },
+      "guidance_revision": "据え置き",
+      "guidance_note": "2026年12月期Core通期予想は修正なし：売上収益1兆3450億円(+6.9%)、Core営業利益6700億円(+7.5%)、Core当期利益4850億円(+7.5%)。進捗率は各指標で約24%。",
+      "management_comment": "Core営業利益率50.8%の高水準を維持。第1四半期時点の進捗は順調で、通期予想を据え置き。",
+      "source_url": "https://www.chugai-pharm.co.jp/news/detail/20260424170002_1583.html",
+      "notes": "IFRS決算のため経常利益はnull。開示はCoreベースの数値が中心。"
+    },
+    {
+      "code": "4523",
+      "name": "エーザイ",
+      "report_date": "2026-05-15",
+      "revenue": {
+        "actual": "825,378百万円",
+        "yoy_pct": "+4.6%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "約441億円",
+        "yoy_pct": "-18.8%"
+      },
+      "ordinary_profit": {
+        "actual": "509.99億円（税引前利益で代替、IFRS）",
+        "yoy_pct": "-16.5%"
+      },
+      "net_profit": {
+        "actual": "約385億円",
+        "yoy_pct": "約-17.0%"
+      },
+      "guidance_revision": "該当なし（本決算で実績確定、同時に次期予想公表）",
+      "guidance_note": "2027年3月期予想: 営業利益700億円(+58.6%)、純利益523億円(+35.6%)、3期連続増収計画。医薬品事業売上は前期比8.2%増で過去最高。",
+      "management_comment": "レケンビ、レンビマ等の主要品目が伸長し、コア営業利益は前期比2倍超の501億円に拡大。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260514534104/",
+      "notes": "純利益実績値は情報源間で385億円(-17.0%)と415億円(-10.6%)の食い違いあり、確度は中程度。一次PDF未閲覧。"
+    },
+    {
+      "code": "4543",
+      "name": "テルモ",
+      "report_date": "2026-05-15",
+      "revenue": {
+        "actual": "1兆1319億円",
+        "yoy_pct": 9.2,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "1763億円",
+        "yoy_pct": 11.8,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "1359億円",
+        "yoy_pct": 16.2,
+        "unit": "円"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "本発表は2026年3月期の通期実績確定と2027年3月期予想の同時公表であり、期中修正の有無は確認できず。2027年3月期予想：売上収益1兆2390億円(+9.5%)、営業利益2245億円(+27.3%)、当期利益1653億円(+21.6%)。",
+      "management_comment": "米州を中心に主要事業が成長し、血液・細胞テクノロジー分野の売上が15.4%増と好調。次期も増収増益で最高益更新を目指す方針。",
+      "source_url": "https://www.terumo.co.jp/system/files/document/2026-05/Presentation_02_26Q4_J.pdf",
+      "notes": "IFRS決算のため経常利益はnull。"
+    },
+    {
+      "code": "4568",
+      "name": "第一三共",
+      "report_date": "2026-05-11",
+      "revenue": {
+        "actual": "2兆1230億円",
+        "yoy_pct": "+12.6%",
+        "unit": "円(IFRS)"
+      },
+      "operating_profit": {
+        "actual": "2290億円",
+        "yoy_pct": "-31.0%（コア営業利益は+15.1%だが一時費用計上により実績営業利益は減益）"
+      },
+      "ordinary_profit": {
+        "actual": "コア営業利益3599億円",
+        "yoy_pct": "+15.1%"
+      },
+      "net_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "guidance_revision": "下方修正（期中）＋新規開示（次期予想）",
+      "guidance_note": "2026年3月期の通期純利益予想を2880億円から2600億円に下方修正（がん領域のパイプライン開発遅延等が要因）。2027年3月期予想: 売上高2兆2800億円(+7.4%)、コア営業利益3600億円(横ばい)、純利益は横ばいの2600億円。",
+      "management_comment": "主力抗がん剤エンハーツ・ダトポタマブの伸びが業績を牽引する一方、がん領域における一部パイプラインの開発遅れにより特別損失を計上し、通期純利益予想を下方修正した。",
+      "source_url": "https://www.daiichisankyo.co.jp/files/investors/library/quarterly_result/2025/FY2025Q4_Financial_Results_J.pdf ; https://www.nikkei.com/article/DGXZQOUB113EG0R10C26A5000000/ ; https://www.nikkei.com/article/DGXZRST0504962V10C26A4000000/",
+      "notes": "2026年3月期実績の親会社帰属当期純利益（確定値）が検索結果から明確に確認できずnullとした。「2495億円損失」という報道見出しも見られたが、これがFY2026実績の当期純利益（赤字）を指すのか、特定セグメントの一時損失を指すのか特定できなかったため採用を見送った。要一次資料確認。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFを直接確認できなかった。"
+    },
+    {
+      "code": "4689",
+      "name": "LINEヤフー",
+      "report_date": "2026-05-08",
+      "revenue": {
+        "actual": "2兆363.66億円",
+        "yoy_pct": 6.2,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "3413.22億円",
+        "yoy_pct": 8.3,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "1936.92億円",
+        "yoy_pct": 26.2,
+        "unit": "円"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "本発表は2026年3月期の通期実績確定と2027年3月期予想の同時公表。2027年3月期は売上収益2兆2400億円(+10.0%)を予想する一方、営業利益・経常利益・純利益の予想は非開示とした。年間配当は前期比3.7円増の11円に大幅増配予定。決算短信は後日、PayPay取扱高（19.3兆円→19.4兆円）について一部訂正が出ている（損益数値への影響は確認できず）。",
+      "management_comment": "PayPay連結効果やBEENOS・LINE MANの連結化により6期連続増収、3年ぶりに最高益を更新。",
+      "source_url": "https://www.nikkei.com/article/DGXZQOUB081GW0Y6A500C2000000/",
+      "notes": "IFRS決算のため経常利益はnull。次期利益予想は会社側が非開示としているため、通期業績予想の修正有無は評価不能（不明）とした。"
+    },
+    {
+      "code": "4755",
+      "name": "楽天グループ",
+      "report_date": "2026-05-14",
+      "revenue": {
+        "actual": "6436億円",
+        "yoy_pct": "+14.4%",
+        "unit": "円（IFRS連結売上収益）"
+      },
+      "operating_profit": {
+        "actual": "303億円の黒字（前年同期は154億円の損失）",
+        "yoy_pct": "黒字転換のためYoY%算出不可"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "▲186億円（四半期純損失）",
+        "yoy_pct": "前年同期▲734億円から赤字幅約74.7%縮小"
+      },
+      "guidance_revision": "不明（具体的な数値の通期業績予想は非開示）",
+      "guidance_note": "楽天は業績の不確実性を理由に具体的な数値予想を開示しない方針。売上収益(証券サービス除く)について「一桁後半の成長率」を目指すという定性的目標のみ開示。",
+      "management_comment": "三木谷浩史会長兼社長は楽天モバイルの回線数目標として「早期に2000万回線」を掲げ、市場シェア獲得を優先する方針を強調。モバイル事業はMNO本格参入後初めて四半期(EBITDA)黒字化を達成。",
+      "source_url": "https://corp.rakuten.co.jp/news/press/2026/0514_01.html",
+      "notes": "IFRS採用のため『経常利益』はnull。一次PDF未閲覧、複数二次ソースを突き合わせた。"
+    },
+    {
+      "code": "4901",
+      "name": "富士フイルム",
+      "report_date": "2026-05-12",
+      "revenue": {
+        "actual": "3兆3570億円",
+        "yoy_pct": 5.0,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "3502億円",
+        "yoy_pct": 6.1,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "2767億円",
+        "yoy_pct": 6.0,
+        "unit": "円"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "本発表は2026年3月期の通期実績確定と2027年3月期予想の同時公表であり、期中修正の有無は確認できず。2027年3月期予想：売上高3兆4700億円(+3.4%)、営業利益3650億円(+4.2%)、税引前利益3750億円(+2.3%)、当期純利益2800億円(+1.2%)。",
+      "management_comment": "半導体材料やデジタルカメラの販売、バイオ医薬品CDMO事業のデンマーク新設備稼働が寄与し、7期連続で最高益を更新。17期連続増配となる配当75円/株を予定。",
+      "source_url": "https://kabutan.jp/news/?b=k202605120070",
+      "notes": "米国会計基準のため経常利益はnull。"
+    },
+    {
+      "code": "5020",
+      "name": "ENEOSホールディングス",
+      "report_date": "2026-05-14",
+      "revenue": {
+        "actual": 11765500,
+        "yoy_pct": -4.5,
+        "unit": "百万円（売上収益、IFRS）"
+      },
+      "operating_profit": {
+        "actual": 466600,
+        "yoy_pct": 339.8,
+        "unit": "百万円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": null
+      },
+      "net_profit": {
+        "actual": 258700,
+        "yoy_pct": 14.4,
+        "unit": "百万円（親会社所有者帰属）"
+      },
+      "guidance_revision": "上方修正（会計年度途中）→実績は修正後予想も大幅超過",
+      "guidance_note": "2025年11月12日開示（2Q決算時）に通期純利益予想を1,850億円→1,350億円へ下方修正（-27.0%）。しかし5月14日の本決算実績（純利益2,587億円）は下方修正後の予想を大きく上回った。2027年3月期は売上収益12兆8,500億円（+9.2%）、営業利益6,100億円（+30.7%）を予想。",
+      "management_comment": "石油製品セグメントの大幅増益が牽引し、通期は市場予想を大きく上回る増益決算となった。次期は石油・天然ガス開発を含め更なる増益を見込む。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260512526455/",
+      "notes": "IFRS採用のため『経常利益』の開示区分がなくnullとした。公式PDFは403で直接閲覧できずWebSearchスニペットによる相互確認。"
+    },
+    {
+      "code": "5401",
+      "name": "日本製鉄",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": "7兆2,563億円",
+        "yoy_pct": "+10.7%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "6,504億円",
+        "yoy_pct": "約-18.1%（前期7,937億円）"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "171億円",
+        "yoy_pct": "-95.1%（前期3,502億円）"
+      },
+      "guidance_revision": "上方修正（従来の700億円赤字予想から黒字に転換して着地）",
+      "guidance_note": "従来予想は700億円の最終赤字であったが、実績は171億円の黒字で着地。2027年3月期は純利益2,200億円（前期比約13倍）を初期予想として公表。期末配当は1株12円（2025年10月の株式分割考慮後）。",
+      "management_comment": "米国USスチール買収によりグローバル粗鋼生産能力が拡大し増収。在庫評価益の改善により最終損益が一転して黒字化した。",
+      "source_url": "https://www.nikkei.com/article/DGXZQOUB125OX0S6A510C2000000/",
+      "notes": "IFRS決算のためordinary_profitはnull。同社は独自KPIとして『事業利益』5,141億円（前期6,832億円、約-24.8%）も開示しており、これは一般的な営業利益とは定義が異なる。数値はWebSearch要約に基づき、一次PDFは未確認（WebFetch不可）。"
+    },
+    {
+      "code": "6098",
+      "name": "リクルートホールディングス",
+      "report_date": "2026-05-15",
+      "revenue": {
+        "actual": "3兆6973億5100万円（売上収益）",
+        "yoy_pct": "+3.9%",
+        "unit": "円(IFRS)"
+      },
+      "operating_profit": {
+        "actual": "6305億6700万円",
+        "yoy_pct": "+28.5%"
+      },
+      "ordinary_profit": {
+        "actual": "6446億1800万円（経常利益）",
+        "yoy_pct": "+22.3%"
+      },
+      "net_profit": {
+        "actual": "4969億円（連結最終利益）",
+        "yoy_pct": "+21.6%（アナリスト予想を上回る）"
+      },
+      "guidance_revision": "新規開示（次期予想）",
+      "guidance_note": "2027年3月期予想: 純利益+25.4%（市場予想平均を上回る水準）を新規開示。",
+      "management_comment": "HRテクノロジー事業における人員削減とAI活用による業務効率化が利益率を押し上げ、営業利益の伸びが売上成長を大きく上回った。",
+      "source_url": "https://file.recruit-holdings.com/files/ja/Recruit_202603Q4_earnings_jp.pdf ; https://www.nikkei.com/article/DGXZRST0516040R00C26A5000000/ ; https://recruit-holdings.com/ja/newsroom/20260515_q4_fy2025_financial_results_index/",
+      "notes": "IFRSにおける経常利益相当項目として報道ベースの「経常利益」表記をそのまま採用した（IFRS本来の科目体系とは異なる可能性あり、要確認）。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFを直接確認できなかった。"
+    },
+    {
+      "code": "6273",
+      "name": "SMC",
+      "report_date": "2026-05-14",
+      "revenue": {
+        "actual": "8,425億4,100万円",
+        "yoy_pct": "+6.4%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "1,905億5,800万円",
+        "yoy_pct": "+0.2%"
+      },
+      "ordinary_profit": {
+        "actual": "2,355億9,100万円",
+        "yoy_pct": "+12.2%"
+      },
+      "net_profit": {
+        "actual": "1,673億200万円",
+        "yoy_pct": "+7%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は初期予想として売上高1兆円（+18.7%）、営業利益2,190億円（+14.9%）を公表。配当は2026年3月期・2027年3月期ともに年間1,000円を予定。",
+      "management_comment": "中東情勢の緊迫化や米国関税政策の影響で不透明な経営環境が継続。半導体・電機関連は中華圏が好調を維持し、日本・北米・韓国は年度後半から需要が回復した。",
+      "source_url": "https://x.com/kessan_db/status/2058467097064427609",
+      "notes": "官報決算データベース（X/Twitter）の要約数値を採用。一次PDF(smcworld.com)はWebFetch不可のため直接確認できず。"
+    },
+    {
+      "code": "6301",
+      "name": "コマツ",
+      "report_date": "2026-04-28",
+      "revenue": {
+        "actual": "4兆1,327億円",
+        "yoy_pct": "+0.7%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "5,673億円",
+        "yoy_pct": "-13.7%"
+      },
+      "ordinary_profit": {
+        "actual": "5,372億円（税引前利益）",
+        "yoy_pct": "-11.2%"
+      },
+      "net_profit": {
+        "actual": "3,763億円",
+        "yoy_pct": "-14.4%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は初期予想として売上高4兆1,180億円（-0.4%）、営業利益5,080億円（-10.5%）、税引前利益4,660億円（-13.3%）を公表し、減収減益を見込む。",
+      "management_comment": "原材料価格の高騰や物流費の上昇などが利益を圧迫し減益となった。",
+      "source_url": "https://kabutan.jp/news/?b=k202604280044",
+      "notes": "米国基準（US GAAP）のため日本基準の『経常利益』に相当する開示はなく、ordinary_profit欄には税引前利益を代替値として記載。一次PDFは未確認（WebFetch不可）。"
+    },
+    {
+      "code": "6367",
+      "name": "ダイキン工業",
+      "report_date": "2026-05-12",
+      "revenue": {
+        "actual": "5兆150億3600万円",
+        "yoy_pct": "+5.5%",
+        "unit": "円(日本基準)"
+      },
+      "operating_profit": {
+        "actual": "4149億9100万円",
+        "yoy_pct": "+3.3%"
+      },
+      "ordinary_profit": {
+        "actual": "4081億7100万円",
+        "yoy_pct": "+11.4%"
+      },
+      "net_profit": {
+        "actual": "2752億2900万円（親会社株主帰属）",
+        "yoy_pct": "+4.0%"
+      },
+      "guidance_revision": "新規開示（次期予想・増配）",
+      "guidance_note": "2027年3月期予想: 売上高5兆1500億円(+2.7%)、営業利益4360億円(+5.1%)、純利益2780億円(+1.0%)。年間配当を前期比15円増の340円とし、次期は年間360円へさらに増配予定。",
+      "management_comment": "増収増益を達成。次期も増配を継続する計画。",
+      "source_url": "https://x.com/kessan_db/status/2054901660607304185 ; https://www.daikin.co.jp/press/2026/20260512_7 ; https://www.nikkei.com/nkd/disclosure/tdnr/20260511523610/",
+      "notes": "WebFetchが日本ドメイン(daikin.co.jp)へのアクセスを拒否(403)したため一次PDFを直接確認できず、報道・SNS要約（官報決算データベース等）から採取。"
+    },
+    {
+      "code": "6501",
+      "name": "日立製作所",
+      "report_date": "2026-04-27",
+      "revenue": {
+        "actual": "10兆5867億円",
+        "yoy_pct": "+8.2%",
+        "unit": "円(IFRS)"
+      },
+      "operating_profit": {
+        "actual": "1兆1992億円（調整後営業利益）",
+        "yoy_pct": "+23.4%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "8023億円（親会社株主帰属）",
+        "yoy_pct": "+30.3%"
+      },
+      "guidance_revision": "新規開示（次期予想・増配・自社株買い）",
+      "guidance_note": "2027年3月期予想: 売上収益11兆1000億円(+4.8%)、純利益8500億円(+5.9%)。年間配当を43.00円から50.00円に増配。上限5000億円・発行済株式数の3.56%（1億6000万株）の自社株買いを取締役会で承認。",
+      "management_comment": "Lumada事業の拡大に加え、エネルギー・デジタルシステム&サービス・モビリティ各セグメントの好調が成長を牽引した。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260427511808/ ; https://japanir.jp/company/company-6501/ir/6501-20260427-02_wp_financial_summary/",
+      "notes": "IFRS決算のため経常利益の概念なし。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFを直接確認できなかった。"
+    },
+    {
+      "code": "6503",
+      "name": "三菱電機",
+      "report_date": "2026-04-28",
+      "revenue": {
+        "actual": "5兆8,947億円",
+        "yoy_pct": "+6.8%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "4,330億円",
+        "yoy_pct": "+10.5%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "4,077億円",
+        "yoy_pct": "+25.8%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は初期予想として売上高6兆2,000億円（+5.2%）、営業利益5,900億円（+17.7%）、純利益4,750億円（+16.5%）を公表し、5期連続の最高益更新を見込む。2026年6月11日に決算短信の一部訂正を開示しているが、訂正内容の詳細は確認できず。",
+      "management_comment": "4期連続で最高益を更新。インダストリー・モビリティ、インフラ、ライフの主要セグメントがいずれも増収増益に寄与した。",
+      "source_url": "https://www.automation-news.jp/2026/05/104016/",
+      "notes": "IFRS決算のためordinary_profitはnull。6月11日の訂正版一次資料は未確認（WebFetch不可のため）。数値はWebSearch要約ベース。"
+    },
+    {
+      "code": "6702",
+      "name": "富士通",
+      "report_date": "2026-04-28",
+      "revenue": {
+        "actual": "3兆5029億円",
+        "yoy_pct": -1.3,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "3483億円",
+        "yoy_pct": 31.4,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "4494億円",
+        "yoy_pct": 104.5,
+        "unit": "円"
+      },
+      "guidance_revision": "上方修正（期中）",
+      "guidance_note": "2026年3月期第3四半期決算時点で年間見通しの全指標を上方修正済み。今回は通期実績確定と2027年3月期予想の同時公表。2027年3月期予想：売上収益3兆5100億円(+0.2%)、調整後営業利益4250億円(+9%)、当期利益は非継続事業利益の反動により3100億円(-31.0%)を見込む。",
+      "management_comment": "サービスソリューションが牽引し減収増益。当期利益は非継続事業関連の利益等により104.5%の大幅増加。",
+      "source_url": "https://aty800.com/highest-goal/strategy/fiscal-year/fujitsu-4q2025accounts.html",
+      "notes": "IFRS決算のため経常利益はnull。"
+    },
+    {
+      "code": "6723",
+      "name": "ルネサスエレクトロニクス",
+      "report_date": "2026-04-24",
+      "revenue": {
+        "actual": "3,803億円",
+        "yoy_pct": "+23.2%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "906億円",
+        "yoy_pct": "+320.7%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "681億円",
+        "yoy_pct": "+2.6倍"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2026年12月期第1四半期（1-3月）決算。通期業績予想の修正有無は検索結果からは確認できず。",
+      "management_comment": "自動車向けおよび産業・インフラ・IoT向け事業の両セグメントで需要が増加し、大幅増益となった。",
+      "source_url": "https://kabutan.jp/news/?b=k202604240001",
+      "notes": "同社は暦年（12月期）決算のため、直近の決算短信は2026年12月期第1四半期（本決算ではなく四半期決算）。IFRS決算のためordinary_profitはnull。一次PDFは未確認（WebFetch不可）。"
+    },
+    {
+      "code": "6752",
+      "name": "パナソニックホールディングス",
+      "report_date": "2026-05-12",
+      "revenue": {
+        "actual": "8兆487億円",
+        "yoy_pct": "-4.8%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "2,364億円",
+        "yoy_pct": "-44.6%"
+      },
+      "ordinary_profit": {
+        "actual": "2,631億円",
+        "yoy_pct": "-45.9%"
+      },
+      "net_profit": {
+        "actual": "1,895億円",
+        "yoy_pct": "-48.2%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は初期予想として売上高7兆6,000億円（+5.6%）、営業利益5,500億円（+132.6%）、純利益4,200億円（+121.6%）を公表。ただし市場予想平均は下回ったと報じられている。",
+      "management_comment": "減収の主因はオートモーティブ事業の非連結化。減益はインフレによる固定費増、戦略投資拡大、グループ経営改革に伴う構造改革費用の計上が影響。次期は構造改革効果により大幅増益を見込む。",
+      "source_url": "https://news.panasonic.com/jp/press/jn260512-3",
+      "notes": "ordinary_profitはIFRS上の税引前利益等の代替値の可能性があり、日本基準の経常利益とは定義が異なる場合がある点に留意。一次PDFは未確認（WebFetch不可）。"
+    },
+    {
+      "code": "6758",
+      "name": "ソニーグループ",
+      "report_date": "2026-05-08",
+      "revenue": {
+        "actual": "12兆4796億円",
+        "yoy_pct": "+3.7%",
+        "unit": "円(IFRS)"
+      },
+      "operating_profit": {
+        "actual": "1兆4475億円",
+        "yoy_pct": "+13.4%（過去最高）"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "1兆308億円",
+        "yoy_pct": "-3.4%（一部報道では-9.7%との表記もあり要確認）"
+      },
+      "guidance_revision": "上方修正（期中3回）",
+      "guidance_note": "2026年3月期は期中に3回の通期予想上方修正を実施し、営業利益は過去最高で着地。2027年3月期は最終利益+12.5%の1兆1600億円を見込み、2期ぶり最高益更新の見通しとの報道あり（要一次資料確認）。",
+      "management_comment": "音楽・半導体（イメージセンサー）・ゲーム事業が牽引し営業利益は過去最高を更新。一方、ソニー・ホンダモビリティによるEV発売中止に伴い449億円の損失を計上したことが純利益の押し下げ要因となった。",
+      "source_url": "https://monoist.itmedia.co.jp/mn/articles/2508/08/news055.html ; https://www.sbbit.jp/article/cont1/185323 ; https://gamebiz.jp/news/428371 ; https://www.nikkei.com/nkd/disclosure/tdnr/20260507518952/",
+      "notes": "純利益の前期比について検索結果間で-3.4%と-9.7%という異なる数値の言及があり（後者はgamebiz記事の別セグメント/別期間の数値の可能性）、確度が低いため両方併記。WebFetchが日本ドメインへのアクセスを拒否されたため一次短信PDFで確定できず。数値の再確認を推奨。"
+    },
+    {
+      "code": "6857",
+      "name": "アドバンテスト",
+      "report_date": "2026-04-27",
+      "revenue": {
+        "actual": "1兆1286億円",
+        "yoy_pct": 44.7,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "4991億円",
+        "yoy_pct": 118.8,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "3754億円",
+        "yoy_pct": 132.9,
+        "unit": "円"
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "2026年3月期は期中に複数回（報道によれば3回）通期予想を上方修正し、売上高が初の1兆円超えで着地。営業利益率43.2%は過去最高水準。2027年3月期予想：売上高1兆4200億円(+25.8%)、営業利益6275億円(+25.7%)。",
+      "management_comment": "AI関連半導体向けテスタ需要の拡大を背景に、サプライチェーン拡大・生産数量増加により高水準の需要継続を見込むとコメント。大幅増配と1500億円規模の自社株買いも発表。",
+      "source_url": "https://media.rakuten-sec.net/articles/-/51389",
+      "notes": "IFRS決算のため経常利益はnull。"
+    },
+    {
+      "code": "6861",
+      "name": "キーエンス",
+      "report_date": "2026-04-24",
+      "revenue": {
+        "actual": "1,169,289百万円（1兆1692億円）",
+        "yoy_pct": "+10.4%",
+        "unit": "円(日本基準)"
+      },
+      "operating_profit": {
+        "actual": "595,759百万円（5957億円）",
+        "yoy_pct": "+8.4%"
+      },
+      "ordinary_profit": {
+        "actual": "635,756百万円（6357億円）",
+        "yoy_pct": "+13.3%"
+      },
+      "net_profit": {
+        "actual": "445,185百万円（4451億円）",
+        "yoy_pct": "+11.7%（5年連続最高益）"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "キーエンスは伝統的に業績予想（次期売上高・利益予想）を開示しない方針であり、次期予想の修正有無については検索範囲内で確認できず。",
+      "management_comment": "国内向け新商品投入効果に加え、北中南米・アジア地域も堅調に推移し、5年連続で過去最高益を更新。",
+      "source_url": "https://www.automation-news.jp/2026/05/104013/ ; https://www.automation-news.jp/2026/05/104357/ ; https://www.nikkei.com/article/DGXZQOUF219QC0R20C26A4000000/",
+      "notes": "WebFetchが日本ドメイン（keyence.co.jp含む）へのアクセスをプロキシポリシーで拒否(403)したため公式PDFを直接確認できず、報道記事の要約から採取。"
+    },
+    {
+      "code": "6920",
+      "name": "レーザーテック",
+      "report_date": "2026-04-30",
+      "revenue": {
+        "actual": "1695.39億円（Q3累計）",
+        "yoy_pct": 0.4,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "781.91億円（Q3累計）",
+        "yoy_pct": -1.4,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": "804.49億円（Q3累計）",
+        "yoy_pct": 6.7,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "568.23億円（Q3累計）",
+        "yoy_pct": 7.8,
+        "unit": "円"
+      },
+      "guidance_revision": "据え置き",
+      "guidance_note": "2026年6月期通期業績予想は2026年1月30日公表から変更なし。ただし受注高予想は1700億〜2200億円から2000億〜2400億円へ上方修正（ACTIS A200HiT等の新規受注による）。",
+      "management_comment": "四半期売上高の伸びは鈍化したが、新製品の新規受注により受注高見通しを上方修正。通期業績予想自体は据え置き。",
+      "source_url": "https://finance.yahoo.co.jp/news/detail/57ff4bc6ddb22e04876ebed498ec27170fb86072",
+      "notes": "日本基準・第3四半期累計（本決算ではない）。本決算（2026年6月期通期）は未発表。"
+    },
+    {
+      "code": "6954",
+      "name": "ファナック",
+      "report_date": "2026-04-24",
+      "revenue": {
+        "actual": "857,831百万円（8578億円）",
+        "yoy_pct": "+7.6%",
+        "unit": "円(日本基準)"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "227,485百万円（2274億円）",
+        "yoy_pct": "+15.6%"
+      },
+      "net_profit": {
+        "actual": "166,543百万円（1665億円、親会社株主帰属）",
+        "yoy_pct": "+12.9%"
+      },
+      "guidance_revision": "新規開示（次期予想）",
+      "guidance_note": "2027年3月期予想: 売上高9096億円(+6.0%)、営業利益2122億円(+15.5%)、経常利益2570億円(+13.0%)、純利益1849億円(+11.0%)を新規開示。",
+      "management_comment": "ロボット・工作機械需要の回復により増収増益。次期も引き続き増益基調を予想。",
+      "source_url": "https://www.fanuc.co.jp/ja/ir/announce/pdf/2026/financialresult202603.pdf ; https://japanir.jp/company/company-6954/ir/6954-20260424-01_wp_financial_summary/",
+      "notes": "実績の営業利益（単独項目）は検索結果から確認できずnull（経常利益は確認済み）。WebFetchが日本ドメイン(fanuc.co.jp)へのアクセスを拒否(403)したため一次PDFを直接確認できず。"
+    },
+    {
+      "code": "7201",
+      "name": "日産自動車",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": "12兆79億円",
+        "yoy_pct": -4.9,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "580.05億円",
+        "yoy_pct": -16.9,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": "10.81億円",
+        "yoy_pct": -99.5,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "-5330.95億円（純損失）",
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "当初通期最終赤字予想6500億円を期中に5500億円の赤字へ上方修正。実績はそれをさらに上回り5330.95億円の赤字（前期は6708.98億円の赤字）で着地。2027年3月期は200億円の黒字転換を予想。",
+      "management_comment": "前期の純損失6708億円から損失を縮小。経営陣は『峠は越えた』との認識を示している。",
+      "source_url": "https://www.nikkei.com/article/DGXZRST0511164X20C26A4000000/",
+      "notes": "純利益は前期が赤字のためyoy_pctは意味をなさず null とした（赤字幅は縮小、前年▲6708.98億円→今期▲5330.95億円）。数値の一部はX（官報ブログ）による決算短信引用。"
+    },
+    {
+      "code": "7203",
+      "name": "トヨタ自動車",
+      "report_date": "2026-05-08",
+      "revenue": {
+        "actual": "50兆6849億円",
+        "yoy_pct": "+5.5%",
+        "unit": "円(IFRS 営業収益)"
+      },
+      "operating_profit": {
+        "actual": "3兆7662億円",
+        "yoy_pct": "-21.5%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "3兆8480億円(親会社の所有者に帰属する当期利益)",
+        "yoy_pct": "-19.2%"
+      },
+      "guidance_revision": "新規開示（次期予想）",
+      "guidance_note": "2027年3月期予想を新規開示。営業利益3兆円（前期比-20.3%、3期連続減益見通し）、売上高は過去最高の51兆円（+0.6%）を予想。中東情勢混乱の影響額6,700億円、米国関税影響1兆3,800億円を織り込む。",
+      "management_comment": "中東情勢や米国関税などのマイナス要因を原価改善で吸収しきれず3期連続の営業減益を見込むが、ハイブリッド車を中心に電動車販売は堅調と説明。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260506517369/ ; https://response.jp/article/2026/05/08/411031.html ; https://stockexpress.jp/toyota20260508/",
+      "notes": "IFRS決算のため経常利益の概念なし。WebFetchが組織のプロキシポリシーにより日本国内ドメイン（トヨタ公式IR PDF、日経電子版等）へのアクセスを一律拒否(403)されたため、原本PDFを直接確認できず、WebSearchのスニペット・複数報道の要約から数値を採取した。数値は複数ソースで一致しているが、可能であれば一次資料での再確認を推奨。"
+    },
+    {
+      "code": "7267",
+      "name": "本田技研工業",
+      "report_date": "2026-05-14",
+      "revenue": {
+        "actual": "21兆7966億1000万円",
+        "yoy_pct": "-0.5%",
+        "unit": "円(IFRS)"
+      },
+      "operating_profit": {
+        "actual": "▲4143億4600万円（上場以来初の営業赤字）",
+        "yoy_pct": "前期1兆2134億8600万円から赤字転落"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "▲4239億4100万円（親会社所有者帰属、上場以来初の最終赤字）",
+        "yoy_pct": "前期8358億3700万円から赤字転落"
+      },
+      "guidance_revision": "新規開示（次期予想・黒字回復見通し）",
+      "guidance_note": "2027年3月期予想: 売上収益23兆1500億円、営業利益5000億円（黒字回復見通し）、親会社所有者帰属当期利益2600億円。EV関連損失を除いた調整後営業利益は1兆円、調整後当期利益は6200億円との補足あり。配当は年間70円を維持。",
+      "management_comment": "四輪電動化戦略の見直しに伴い、北米生産予定EVモデルの上市・開発中止等でEV関連損失を合計1兆5,778億円計上し、上場以来初の営業赤字・最終赤字に転落。来期はEV関連損失（5000億円見込み）を織り込みつつも黒字回復を見込む。",
+      "source_url": "https://car.watch.impress.co.jp/docs/news/2108657.html ; https://stockexpress.jp/honda20260514/ ; https://www.nikkei.com/article/DGXZRST0531560T10C26A5000000/",
+      "notes": "IFRS決算のため経常利益の概念なし。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFを直接確認できなかった。営業損益・純損益は複数報道で一致しており確度は比較的高いが、可能であれば一次資料での再確認を推奨。"
+    },
+    {
+      "code": "7269",
+      "name": "スズキ",
+      "report_date": "2026-05-14",
+      "revenue": {
+        "actual": "6兆2930億円",
+        "yoy_pct": 8.0,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "6229.09億円",
+        "yoy_pct": -3.1,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "4392.67億円",
+        "yoy_pct": 5.6,
+        "unit": "円"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "売上収益は5期連続増収、当期利益は6期連続増益でともに過去最高。次期予想の詳細および期中修正の有無は確認できず。",
+      "management_comment": "円安や車種構成改善、原価低減等で稼ぐ力が向上した一方、人財・技術への投資拡大により営業利益は減益。経営陣は『朝令暮改ではなく朝令朝改のスピードで変化を』とコメント。",
+      "source_url": "https://www.at-s.com/snews/article/ats/1970780.html",
+      "notes": "IFRS決算のため経常利益はnull。日経見出し『純利益6%減に上振れ』と、他ソースの『当期利益5.6%増・過去最高』との間に矛盾がある。前者は会社側の期中予想対比（上振れ＝予想を上回った）を指している可能性が高いと考えられるが未確認のため、net_profitの前年比は+5.6%（過去最高との記述）を採用しつつ注記として両論併記。"
+    },
+    {
+      "code": "7270",
+      "name": "SUBARU",
+      "report_date": "2026-05-15",
+      "revenue": {
+        "actual": "4兆7850億円",
+        "yoy_pct": 2.1,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "401億円",
+        "yoy_pct": -90.1,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "908億円",
+        "yoy_pct": -73.1,
+        "unit": "円"
+      },
+      "guidance_revision": "下方修正",
+      "guidance_note": "米国での追加関税影響拡大（440億円膨らむとの報道あり）やEV需要低迷を受け、期中に複数回下方修正。2027年3月期予想：売上収益5兆2000億円(+8.7%)、営業利益1500億円(+273.9%)、純利益1300億円(+43.1%)と大幅回復を見込む。",
+      "management_comment": "米国での追加関税影響や環境規制関連費用の増加、EV需要低迷による開発資産の減損処理により大幅減益となった。",
+      "source_url": "https://www.nikkei.com/article/DGXZQOUB1142X0R10C26A5000000/",
+      "notes": "IFRS決算のため経常利益はnull。"
+    },
+    {
+      "code": "7733",
+      "name": "オリンパス",
+      "report_date": "2026-05-12",
+      "revenue": {
+        "actual": "1兆106億円",
+        "yoy_pct": "+1.3%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "971億円",
+        "yoy_pct": "-40.2%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "681億円",
+        "yoy_pct": "-42.2%"
+      },
+      "guidance_revision": "不明（前期実績は市場予想を上振れて着地したと報道）",
+      "guidance_note": "2027年3月期は初期予想として売上高1兆550億～1兆760億円（+4.4～6.5%）、営業利益1,365億～1,555億円（+40.5～60.1%）、純利益955億～1,090億円（+40.1～59.9%）の増収増益を見込む。配当は2026年3月期30円（+10円）、2027年3月期も30円を予想。",
+      "management_comment": "米国関税の影響やセールスミックス悪化による原価率悪化、組織変革に伴う一時費用計上により大幅減益。次期は増収増益への回復を見込む。",
+      "source_url": "https://www.olympus.co.jp/ir/data/brief/pdf/01_tanshin_Q4FY2026_jp.pdf",
+      "notes": "IFRS決算のためordinary_profitはnull。一次PDFへの直接アクセスは環境上のWebFetch制限により未実施、WebSearch要約に基づく。"
+    },
+    {
+      "code": "7751",
+      "name": "キヤノン",
+      "report_date": "2026-04-23",
+      "revenue": {
+        "actual": "1兆936億円",
+        "yoy_pct": 3.3,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "713億円",
+        "yoy_pct": -26.1,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "483億円",
+        "yoy_pct": -33.1,
+        "unit": "円"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2026年12月期通期予想：売上高4兆7650億円(+3.0%)、営業利益4560億円(+0.1%)、純利益3330億円（前期比微増）。情報源間で『期初予想を据え置き』とする記述と『純利益を前期比微増ながら従来予想から80億円下方修正、営業利益は230億円下振れ』とする記述の両方があり、期初予想からの修正有無は特定できなかった。",
+      "management_comment": "メモリー価格の高騰が営業利益を約500億円下押し。カメラ・半導体製造装置関連費用の増加も影響し、第1四半期営業利益は26.1%の大幅減益。",
+      "source_url": "https://www.nikkei.com/article/DGXZQOUB2307B0T20C26A4000000/",
+      "notes": "米国会計基準のため経常利益はnull。通期業績予想の『修正有無』について情報源間に矛盾があり、guidance_revisionは不明とした。"
+    },
+    {
+      "code": "7832",
+      "name": "バンダイナムコホールディングス",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": "約1兆3,482億円（概算）",
+        "yoy_pct": "+8.6%",
+        "unit": "円（日本基準連結、2026年3月期通期）"
+      },
+      "operating_profit": {
+        "actual": "1,895億17百万円",
+        "yoy_pct": "+5.2%"
+      },
+      "ordinary_profit": {
+        "actual": "2,019億23百万円",
+        "yoy_pct": "+8.3%"
+      },
+      "net_profit": {
+        "actual": "1,406億51百万円",
+        "yoy_pct": "+8.8%"
+      },
+      "guidance_revision": "会計年度中に上方修正あり",
+      "guidance_note": "次期(2027年3月期)は増収減益計画: 売上高1.35兆円(+0.1%)、営業利益1,850億円(-2.4%)、純利益1,300億円(-7.6%)。原材料価格上昇と物流費増加が減益要因。年間配当73円。",
+      "management_comment": "『ガンダム』IPが四半期600億円規模、年間1,272億円と過去最大の売上を記録し業績を牽引。",
+      "source_url": "https://www.bandainamco.co.jp/files/1_2026E5B9B43E69C88E69C9F_E6B1BAE7AE97E79FADE4BFA1.pdf",
+      "notes": "一次PDF未閲覧、売上高は検索結果内で桁の記載にゆらぎがあったため概算表記。"
+    },
+    {
+      "code": "7974",
+      "name": "任天堂",
+      "report_date": "2026-05-08",
+      "revenue": {
+        "actual": "2兆3130億円",
+        "yoy_pct": "+98.6%（Switch2効果でほぼ倍増）",
+        "unit": "円(日本基準)"
+      },
+      "operating_profit": {
+        "actual": "3601億円",
+        "yoy_pct": "+27.5%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "4240億円",
+        "yoy_pct": "+52.1%"
+      },
+      "guidance_revision": "新規開示（次期予想・減益見通し）",
+      "guidance_note": "2027年3月期予想: 売上高2兆5000億円(-11.4%)、営業利益3700億円(+2.7%)、純利益3100億円(-26.9%)。Switch2本体を国内外で値上げ（国内1万円、米国50ドル）。",
+      "management_comment": "Nintendo Switch 2の発売とマリオカートワールド(1470万本)、ドンキーコングバナンザ(452万本)等のヒットで売上高がほぼ倍増。来期はSwitch2本体販売台数の伸び鈍化（1650万台、前期比-16.9%）とメモリー価格上昇・関税影響（約1000億円）を織り込み、最終利益は27%減益を計画。",
+      "source_url": "https://www.nintendo.co.jp/ir/pdf/2026/260508.pdf ; https://gamebiz.jp/news/425601 ; https://www.bloomberg.com/jp/news/articles/2026-05-08/TECED0KK3NY900",
+      "notes": "任天堂は日本基準のため経常利益開示があるはずだが、検索結果からは確認できずnull。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFを直接確認できなかった。"
+    },
+    {
+      "code": "8001",
+      "name": "伊藤忠商事",
+      "report_date": "2026-05-01",
+      "revenue": {
+        "actual": "14兆8,231億円（収益）",
+        "yoy_pct": "+0.7%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "7,019億円",
+        "yoy_pct": "+2.6%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "9,003億円",
+        "yoy_pct": "+2.3%（前期比+200億円）"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は純利益9,500億円（+6%）を初期予想として公表。年間配当は44円（株式分割考慮後、実質+2円）で12期連続増配。総還元性向は64%を見込み過去最高だった前期(52%)を上回る見通し。",
+      "management_comment": "情報・金融、食料、繊維などの増収が寄与し2年連続の最高益、初の純利益9,000億円台を達成。",
+      "source_url": "https://www.itochu.co.jp/ja/ir/download/__icsFiles/afieldfile/2026/05/01/26_ended_01_1.pdf",
+      "notes": "IFRS決算のためordinary_profitはnull。一次PDFは未確認（WebFetch不可）。"
+    },
+    {
+      "code": "8031",
+      "name": "三井物産",
+      "report_date": "2026-05-01",
+      "revenue": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "8,339億円",
+        "yoy_pct": "-7%"
+      },
+      "guidance_revision": "上方修正（期中に純利益予想を7,700億円→8,200億円へ上方修正、実績はさらにこれを上回る8,339億円で着地）",
+      "guidance_note": "2027年3月期は純利益9,200億円（+10.3%、4期ぶりの増益）を初期予想として公表。年間配当は140円（+25円）を予定。米国ガス事業の好調が寄与する見通し。",
+      "management_comment": "期初計画に対し上振れて着地。次期は米国ガス事業の好調により4期ぶりの増益を見込む。",
+      "source_url": "https://www.mitsui.com/jp/ja/ir/library/meeting/pdf/ja_263_4q_ta.pdf",
+      "notes": "収益・営業利益の具体的な数値は検索結果からは確認できず、nullとした。一次PDFはWebFetch不可のため未確認。"
+    },
+    {
+      "code": "8035",
+      "name": "東京エレクトロン",
+      "report_date": "2026-04-30",
+      "revenue": {
+        "actual": "2兆4435億円（過去最高）",
+        "yoy_pct": "+0.5%",
+        "unit": "円(日本基準)"
+      },
+      "operating_profit": {
+        "actual": "6249億円",
+        "yoy_pct": "-10.4%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "5744億円（過去最高、政策保有株売却益計上）",
+        "yoy_pct": "+5.6%"
+      },
+      "guidance_revision": "開示方式変更（通期予想非開示）",
+      "guidance_note": "2027年3月期より業績予想の開示方式を通期から半期開示に変更。通期予想は非開示。上期(2026年4-9月)予想は売上高1兆5700億円(+33.1%)、営業利益4310億円(+42.2%)。中期経営計画では2027年3月期に総収入3兆円、営業利益率35%を目標。",
+      "management_comment": "研究開発投資の増加（前年度比+11.1%の2,778億円）、部材価格高騰、サービスエンジニア増員による固定費増が営業減益要因。半導体市況回復を受け、来期上期は大幅増収増益を計画。",
+      "source_url": "https://media.rakuten-sec.net/articles/-/50629 ; https://global-net.co.jp/archives/12822 ; https://www.tel.co.jp/ir/irta3a00000006g5-att/fy26q4tanshin-j.pdf",
+      "notes": "経常利益に相当する開示は確認できずnull。WebFetchが日本ドメイン(tel.co.jp等)へのアクセスを拒否(403)したため一次PDFを直接確認できなかった。"
+    },
+    {
+      "code": "8053",
+      "name": "住友商事",
+      "report_date": "2026-05-01",
+      "revenue": {
+        "actual": "7兆3,373億円（収益）",
+        "yoy_pct": "+0.6%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "7,020億円（税引前利益）",
+        "yoy_pct": "+0.9%"
+      },
+      "net_profit": {
+        "actual": "6,003億円",
+        "yoy_pct": "+6.8%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は純利益6,300億円（+4.9%）を初期予想として公表し、2期連続で過去最高益を更新する見通し。",
+      "management_comment": "自動車事業やエネルギートランスフォーメーション事業の好調が増益に寄与した。",
+      "source_url": "https://www.sumitomocorp.com/-/media/Files/hq/ir/report/summary/2025/2603Tanshin.pdf?sc_lang=ja",
+      "notes": "IFRS決算のためordinary_profit欄には税引前利益を代替値として記載。営業利益に相当する開示区分（基礎的利益等）の具体的数値は検索結果からは確認できずnullとした。一次PDFは未確認（WebFetch不可）。"
+    },
+    {
+      "code": "8058",
+      "name": "三菱商事",
+      "report_date": "2026-05-01",
+      "revenue": {
+        "actual": "18兆9159億9500万円（収益）",
+        "yoy_pct": "+1.6%",
+        "unit": "円(IFRS)"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "1兆960億9400万円（税引前利益）",
+        "yoy_pct": "-21.3%"
+      },
+      "net_profit": {
+        "actual": "8004億6000万円（親会社の所有者に帰属する当期利益）",
+        "yoy_pct": "-15.8%"
+      },
+      "guidance_revision": "新規開示（次期予想・増配）",
+      "guidance_note": "2027年3月期業績予想: 親会社所有者帰属当期利益1兆1000億円（前期比+37.4%）を新規開示。年間配当を110円（前期100円）に増配、来期は125円を予想。",
+      "management_comment": "資源価格下落等の影響により今期は減益となったが、来期は大幅な増益を計画している。",
+      "source_url": "https://x.com/kessan_db/status/2050177373954515107 ; https://www.mitsubishicorp.com/jp/ja/ir/library/earnings/pdf/202605j.pdf ; https://www.nikkei.com/nkd/disclosure/tdnr/20260430515679/",
+      "notes": "IFRS決算のため経常利益に相当する項目として税引前利益を採用。営業利益の単独開示は資源メジャー系企業の慣行上一般的でないため未確認でnull。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFを直接確認できなかった。"
+    },
+    {
+      "code": "8267",
+      "name": "イオン",
+      "report_date": "2026-07-10",
+      "revenue": {
+        "actual": "2兆9419億8100万円",
+        "yoy_pct": "+14.6%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "752億300万円",
+        "yoy_pct": "+33.6%"
+      },
+      "ordinary_profit": {
+        "actual": "635億8200万円",
+        "yoy_pct": "+32.3%"
+      },
+      "net_profit": {
+        "actual": "138億900万円",
+        "yoy_pct": "黒字転換（前年同期は65億7000万円の赤字）"
+      },
+      "guidance_revision": "据え置き",
+      "guidance_note": "2027年2月期通期予想: 営業収益12兆円(+12.0%)、営業利益3400億円(+25.7%)、純利益730億円(+0.4%)を据え置き。",
+      "management_comment": "ドラッグストア、GMS、ヘルス&ウエルネス、ASEAN事業が牽引し第1四半期として過去最高を更新。",
+      "source_url": "https://finance.biggo.jp/news/jpx_tdnet_140120260707589187",
+      "notes": "一次PDF未閲覧、ニュース要約から作成。"
+    },
+    {
+      "code": "8306",
+      "name": "三菱UFJフィナンシャル・グループ",
+      "report_date": "2026-05-15",
+      "revenue": {
+        "actual": "14兆6208億4300万円（経常収益）",
+        "yoy_pct": "+7.3%",
+        "unit": "円(日本基準)"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "3兆4101億9200万円",
+        "yoy_pct": "+27.7%"
+      },
+      "net_profit": {
+        "actual": "2兆4272億円（親会社株主に帰属する当期純利益）",
+        "yoy_pct": "+30.3%（4期連続過去最高益）"
+      },
+      "guidance_revision": "新規開示（次期目標）",
+      "guidance_note": "2027年3月期の業績目標として親会社株主に帰属する当期純利益2兆7,000億円（前期比+約11.2%）を掲げた。前期配当を12円増額、今期は10円増配を発表。",
+      "management_comment": "4期連続で過去最高益を更新。次期は純利益2兆7,000億円を新たな目標として掲げている。",
+      "source_url": "https://www.mufg.jp/dam/ir/fs/2025/pdf/summary2603_ja.pdf ; https://www.nikkei.com/nkd/disclosure/tdnr/20260514533253/ ; https://kabutan.jp/news/?b=k202605150697",
+      "notes": "銀行のため一般事業会社の「売上高」「営業利益」に相当する項目がなく、経常収益・経常利益・当期純利益で代替。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFを直接確認できず、報道要約から採取。"
+    },
+    {
+      "code": "8316",
+      "name": "三井住友FG",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": "10.79兆円（経常収益）",
+        "yoy_pct": 6.1,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": "2.30兆円",
+        "yoy_pct": 34.0,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "1兆5829億円",
+        "yoy_pct": 34.4,
+        "unit": "円"
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "2025年11月に通期純利益予想を前期比+27.3%の1兆5000億円へ上方修正。実績はこれを上回る1兆5829億円で着地し、最高益を更新（報道により「3期連続」「4期連続」と表記に揺れあり）。2027年3月期予想：親会社株主帰属当期純利益1兆7000億円(+7.4%)。",
+      "management_comment": "金利収入の増加により最高益を更新。中東情勢等の先行き不透明感を踏まえ与信関係費用を積み増した。次期の与信関係費用は前期比12%減の3400億円を見込む。",
+      "source_url": "https://www.nikkei.com/article/DGXZQOUB132JZ0T10C26A5000000/",
+      "notes": "銀行のため『営業利益』に相当する開示区分がなく、operating_profitはnullとし、経常利益・純利益を記載。最高益が『3期連続』か『4期連続』かは情報源間で表記の揺れがあり確定できず。"
+    },
+    {
+      "code": "8411",
+      "name": "みずほフィナンシャルグループ",
+      "report_date": "2026-05-15",
+      "revenue": {
+        "actual": "9兆854億円（経常収益）",
+        "yoy_pct": "+0.6%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "1兆5,732億円（経常利益）",
+        "yoy_pct": "+34.6%"
+      },
+      "net_profit": {
+        "actual": "1兆2,486億円",
+        "yoy_pct": "+41.0%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は初期予想として純利益1兆3,000億円（+4.1%）を公表し3期連続の過去最高益更新を見込むが、市場コンセンサスをやや下回ったとされ株価は一時7.7%安となった。配当は前期比5円増の150円を予定。米国会計基準の連結決算では株主帰属純利益は前期比95.2%増の1兆1,580億円。",
+      "management_comment": "3期連続の過去最高益更新。増配方針を示す一方、次期予想が市場予想対比「物足りない」との評価も一部で見られた。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260513531608/",
+      "notes": "銀行のため『売上高』は経常収益、『営業利益』に相当する開示区分が一般事業会社と異なるため、operating_profitはnullとしordinary_profit欄に経常利益を計上。米国会計基準の数値は参考として notes に記載。一次PDFはWebFetch不可のため未確認。"
+    },
+    {
+      "code": "8604",
+      "name": "野村ホールディングス",
+      "report_date": "2026-04-24",
+      "revenue": {
+        "actual": "2兆1,677億円",
+        "yoy_pct": "+15%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "5,398億円（税引前利益）",
+        "yoy_pct": "+14%"
+      },
+      "net_profit": {
+        "actual": "3,621億円",
+        "yoy_pct": "+6%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2期連続で過去最高益を更新。次期以降の具体的な業績予想数値・修正の有無は検索結果からは確認できず。",
+      "management_comment": "個人部門がけん引し、全部門増収増益。ROE10.1%。1-3月期(4Q)単体では個人部門けん引で純利益739億円。",
+      "source_url": "https://plus.nomuraholdings.com/jp/latest/20260424-FY202603-4Q-Highlights.html",
+      "notes": "米国会計基準（US GAAP）ベースの決算。証券会社のため一般事業会社の『営業利益』に相当する区分がなく、operating_profitはnull、ordinary_profit欄に税引前利益を計上。7月29日発表予定の2027年3月期第1四半期決算はまだ発表されていない（本調査時点で最新は2026年3月期本決算）。一次資料はWebFetch不可のため未確認。"
+    },
+    {
+      "code": "8766",
+      "name": "東京海上ホールディングス",
+      "report_date": "2026-05-20",
+      "revenue": {
+        "actual": "8兆8,723億円（経常収益、日本基準）",
+        "yoy_pct": "+5.1%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "ordinary_profit": {
+        "actual": "1兆3,486億円（経常利益、日本基準）",
+        "yoy_pct": "-7.6%"
+      },
+      "net_profit": {
+        "actual": "9,804億円（日本基準）",
+        "yoy_pct": "-7.1%"
+      },
+      "guidance_revision": "不明",
+      "guidance_note": "2027年3月期は純利益8,300億円（-15.3%、市場予想平均を下回る）を初期予想として公表。あわせて4,000億円規模の自社株買いを発表。年間配当は前期211円→218円、次期は245円（+27円）に増配予定。次期有価証券報告書からIFRS任意適用へ移行予定。IFRS参考値では保険収益7兆6,935億円（+4.0%）、税引前利益7,507億円（+25.9%）、純利益5,312億円（+17.9%）と日本基準数値と大きく異なる。",
+      "management_comment": "大幅増配と大型自社株買いを発表。次期はIFRS移行に伴う会計基準変更もあり、日本基準ベースでは減益予想。",
+      "source_url": "https://www.nikkei.com/article/DGXZRST0541455Z10C26A5000000/",
+      "notes": "日本基準とIFRS参考値の双方が開示されており、数値の乖離が大きい点に注意。本レコードは『決算短信〔日本基準〕』の数値を主として採用。一次PDFはWebFetch不可のため未確認。"
+    },
+    {
+      "code": "8801",
+      "name": "三井不動産",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": 2709747,
+        "yoy_pct": 3.2,
+        "unit": "百万円"
+      },
+      "operating_profit": {
+        "actual": 397788,
+        "yoy_pct": 6.7,
+        "unit": "百万円"
+      },
+      "ordinary_profit": {
+        "actual": 313319,
+        "yoy_pct": 7.9,
+        "unit": "百万円"
+      },
+      "net_profit": {
+        "actual": 278684,
+        "yoy_pct": 12.0,
+        "unit": "百万円"
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "2026年2月開示（3Q決算時）に通期予想を営業利益+100億円（3,950億円）、経常利益+100億円（3,050億円）へ上方修正済み。5月13日の本決算では、その修正後予想も上回り、売上高・営業利益・事業利益・経常利益・純利益がいずれも過去最高を更新（営業利益・経常利益・純利益は4期連続最高益）。",
+      "management_comment": "賃貸セグメントは売上高936,601百万円（+7.4%）と好調に伸長した一方、分譲セグメントは729,271百万円（▲3.8%）とやや減収。マネジメントセグメントは511,470百万円（+5.2%）。不動産売却が好調で通期業績を押し上げた。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260512525951/ ; https://www.mitsuifudosan.co.jp/corporate/ir/library/news/2026/pdf/news_260513.pdf",
+      "notes": "公式PDFはWebFetchが403で直接読めなかったため、WebSearchのスニペット（複数ソース）から数値を相互確認した。2027年3月期の具体的な業績予想数値は確認できなかった。"
+    },
+    {
+      "code": "8802",
+      "name": "三菱地所",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": "1兆7460億円",
+        "yoy_pct": 10.5,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "3297.3億円",
+        "yoy_pct": 6.6,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": "2730.86億円",
+        "yoy_pct": 3.9,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "2225.07億円",
+        "yoy_pct": 17.5,
+        "unit": "円"
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "物件売却・政策保有株式売却を追い風に、期中に最高益見通しへ上方修正。2027年3月期予想：営業収益2兆円(+14.5%)、営業利益3700億円(+12.2%)、経常利益2950億円(+8.0%)、純利益2350億円(+5.6%)。300億円規模の自社株買いも発表。",
+      "management_comment": "物件売却益や政策保有株式売却が追い風となり、営業利益・純利益ともに過去最高を更新。",
+      "source_url": "https://note.com/kabuya66/n/n13b29cc978d0",
+      "notes": "売上高（営業収益）の兆円表記について情報源間で桁の記載揺れがあったため、次期予想（2兆円）との整合性から1兆7460億円として算出・記載した。"
+    },
+    {
+      "code": "9020",
+      "name": "東日本旅客鉄道",
+      "report_date": "2026-04-30",
+      "revenue": {
+        "actual": "3兆846億円",
+        "yoy_pct": "+6.8%",
+        "unit": "円（日本基準、営業収益、2026年3月期通期）"
+      },
+      "operating_profit": {
+        "actual": "4,142億円",
+        "yoy_pct": "+9.9%"
+      },
+      "ordinary_profit": {
+        "actual": "3,516億円",
+        "yoy_pct": "+9.4%"
+      },
+      "net_profit": {
+        "actual": "2,478億4,600万円",
+        "yoy_pct": "+10.5%"
+      },
+      "guidance_revision": "上方修正あり（期中）",
+      "guidance_note": "2025年10月30日のQ2決算時に通期業績予想を上方修正。2027年3月期新規予想は売上高3兆2,950億円(+6.8%)、営業利益4,290億円(+3.6%)、純利益2,550億円(+2.9%)で市場コンセンサスをやや下回る。",
+      "management_comment": "新幹線好調等により売上高が過去最高を更新。経営ビジョン『勇翔2034』を本格始動。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260427512212/",
+      "notes": "一次PDF未閲覧、WebSearch経由の複数報道の突合せで確認。"
+    },
+    {
+      "code": "9022",
+      "name": "東海旅客鉄道",
+      "report_date": "2026-04-28",
+      "revenue": {
+        "actual": "2兆62億円",
+        "yoy_pct": 9.5,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "8301.67億円",
+        "yoy_pct": 18.1,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": "7809.14億円",
+        "yoy_pct": 20.3,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "5528.71億円",
+        "yoy_pct": 20.6,
+        "unit": "円"
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "大阪・関西万博開催に伴う利用増とインバウンド需要拡大を受け、期中に通期予想を上方修正。日経報道では当初想定（純利益5020億円水準）から更に上振れて着地したと報じられている。",
+      "management_comment": "万博開催に伴う利用増やインバウンド需要の拡大が収益を牽引し、東海道新幹線・在来線ともに前年を上回る実績。営業利益・純利益ともに過去最高水準。",
+      "source_url": "https://honichi.com/news/2026/05/12/jr-tokai-settlement-of-accounts-202603-04/",
+      "notes": "数値の一部はX（官報ブログ、決算短信からの引用）による。日経報道の見出し数値と概ね整合するが、決算短信本文は直接確認できていない。"
+    },
+    {
+      "code": "9101",
+      "name": "日本郵船",
+      "report_date": "2026-05-11",
+      "revenue": {
+        "actual": "2兆4,236億円",
+        "yoy_pct": "-6.4%",
+        "unit": "円（日本基準、2026年3月期通期）"
+      },
+      "operating_profit": {
+        "actual": "1,386億円",
+        "yoy_pct": "-34.3%"
+      },
+      "ordinary_profit": {
+        "actual": "2,111億円",
+        "yoy_pct": "-57.0%"
+      },
+      "net_profit": {
+        "actual": "2,117億円",
+        "yoy_pct": "-55.7%"
+      },
+      "guidance_revision": "期中に下方修正後、上方修正",
+      "guidance_note": "2025年11月6日に通期予想を下方修正（定航運賃下落等）。2026年2月4日に経常利益を+50億円上方修正。最終実績はこの修正後予想も上回った。2027年3月期予想は売上高2兆6,050億円(+7.5%)、経常利益1,850億円(-12.4%)、純利益1,950億円(-7.9%)。",
+      "management_comment": "航空貨物は増益、海上貨物（コンテナ船）は市況下落で減益、エネルギー事業は市況上昇で増収増益。",
+      "source_url": "https://www.nikkei.com/article/DGXZQOTG07AYH0X00C25A5000000/",
+      "notes": "一次PDF未閲覧、WebSearch経由の複数報道の突合せで確認。"
+    },
+    {
+      "code": "9432",
+      "name": "NTT",
+      "report_date": "2026-05-08",
+      "revenue": {
+        "actual": "14兆4091億2100万円（営業収益、過去最高）",
+        "yoy_pct": "+5.1%",
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "1兆7062億2100万円",
+        "yoy_pct": "+3.4%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "1兆370億3200万円",
+        "yoy_pct": "+3.7%"
+      },
+      "guidance_revision": "不明（次期は減益見通し）",
+      "guidance_note": "16期連続の増配を発表。一方、2027年3月期は最終減益見通しとの報道あり（具体的な予想数値は未確認）。",
+      "management_comment": "AI・データセンター関連事業の成長が鮮明である一方、来期は最終減益を見込むとの報道。",
+      "source_url": "https://stockexpress.jp/ntt20260508/ ; https://kanpo-kanpo.blog.jp/archives/46104776.html",
+      "notes": "WebFetchが日本ドメイン(group.ntt等)へのアクセスを拒否(403)したため一次決算短信PDFを直接確認できず。次期予想の具体的数値、経常利益に相当する項目は未確認でnullとした。"
+    },
+    {
+      "code": "9433",
+      "name": "KDDI",
+      "report_date": "2026-05-12",
+      "revenue": {
+        "actual": "6兆719億円",
+        "yoy_pct": 4.1,
+        "unit": "円"
+      },
+      "operating_profit": {
+        "actual": "1兆991億円",
+        "yoy_pct": 1.1,
+        "unit": "円"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null,
+        "unit": "円"
+      },
+      "net_profit": {
+        "actual": "7071億円",
+        "yoy_pct": 7.9,
+        "unit": "円"
+      },
+      "guidance_revision": "期中に修正あり",
+      "guidance_note": "連結子会社ビッグローブ及びジー・プランの広告代理事業における社員の不適切取引疑いを受け、2025年5月14日公表の通期予想を期中に修正。最終実績は上記の通り増収増益で着地。2027年3月期予想：売上収益6兆4100億円(+5.6%)、調整後営業利益1兆2100億円(+5.0%)。",
+      "management_comment": "パーソナル領域は増収減益、ビジネス領域は増収増益。自己株式の取得（上限3000億円、うち公開買付けで上限2500億円）など株主還元策も発表。",
+      "source_url": "https://www.nikkei.com/article/DGXZRST0523545R10C26A5000000/",
+      "notes": "IFRS決算のため経常利益はnull。"
+    },
+    {
+      "code": "9697",
+      "name": "カプコン",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": "1953億65百万円",
+        "yoy_pct": "+15.2%",
+        "unit": "円（日本基準連結、2026年3月期通期）"
+      },
+      "operating_profit": {
+        "actual": "752億95百万円",
+        "yoy_pct": "+14.5%"
+      },
+      "ordinary_profit": {
+        "actual": "741億34百万円",
+        "yoy_pct": "+12.9%"
+      },
+      "net_profit": {
+        "actual": "545億87百万円",
+        "yoy_pct": "+12.7%"
+      },
+      "guidance_revision": "上方修正（2026年4月27日付で通期予想を上方修正済み。実績は修正後予想とほぼ一致）",
+      "guidance_note": "上方修正の要因は『バイオハザード レクイエム』の好調な販売。9期連続の最高益、11期連続で営業利益10%以上の増益。次期(2027年3月期)計画は売上高2,100億円(+7.5%)、営業利益830億円(+10.2%)、純利益580億円(+6.3%)、年間配当46円(前期比8円減)。",
+      "management_comment": "主要IPの活用とデジタル販売比率拡大、eスポーツ施策の強化により持続的成長を目指す。",
+      "source_url": "https://www.capcom.co.jp/ir/data/pdf/result/2026/full/result_2026_full_01.pdf",
+      "notes": "一次PDF未閲覧、複数二次ソースで数値が一致し信頼度は高い。"
+    },
+    {
+      "code": "9983",
+      "name": "ファーストリテイリング",
+      "report_date": "2026-07-09",
+      "revenue": {
+        "actual": "3兆651億円（2026年8月期第3四半期累計、9か月間）",
+        "yoy_pct": "+17.1%",
+        "unit": "円(IFRS)"
+      },
+      "operating_profit": {
+        "actual": "6143億円（第3四半期累計）",
+        "yoy_pct": "+36.2%（過去最高）"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "guidance_revision": "上方修正",
+      "guidance_note": "第3四半期までの好調な業績と為替前提の見直しを反映し、通期(2026年8月期)予想を上方修正：売上収益3兆9700億円(+16.7%)、営業利益7300億円(+29.4%)、親会社所有者帰属当期利益5000億円(+15.5%)。年間配当640円（中間320円、期末予想320円）を予定。",
+      "management_comment": "海外ユニクロ事業が売上収益1兆8340億円(+25.9%)、事業利益3453億円(+45.4%)とグループ成長を牽引。国内ユニクロ・ジーユーも増収増益。",
+      "source_url": "https://www.nikkei.com/nkd/disclosure/tdnr/20260708589430/ ; https://finance.biggo.jp/news/jpx_tdnet_140120260708589430",
+      "notes": "ファーストリテイリングは決算期が8月末のため、本レポートは2026年8月期第3四半期（累計9か月）の決算短信であり、直近入手可能な最新開示。四半期累計の当期純利益実績値は検索結果から確認できずnull（通期予想の5000億円は確認済み）。WebFetchが日本ドメインへのアクセスを拒否(403)したため一次PDFを直接確認できなかった。"
+    },
+    {
+      "code": "9984",
+      "name": "ソフトバンクグループ",
+      "report_date": "2026-05-13",
+      "revenue": {
+        "actual": "7兆7987億円",
+        "yoy_pct": "+7.7%",
+        "unit": "円(IFRS)"
+      },
+      "operating_profit": {
+        "actual": "1兆426億円",
+        "yoy_pct": "+5%"
+      },
+      "ordinary_profit": {
+        "actual": null,
+        "yoy_pct": null
+      },
+      "net_profit": {
+        "actual": "5兆23億円(親会社の所有者に帰属する当期利益)",
+        "yoy_pct": "+333.7%（約4.3倍）、過去最高"
+      },
+      "guidance_revision": "予想非開示",
+      "guidance_note": "SBGは従来どおり通期業績予想を開示していない。2027年3月期の業績予想については開示なし。年間配当は11円。",
+      "management_comment": "純利益の大半（SVF事業投資利益6兆6,386億円のうちOpenAI出資に係る投資利益6兆4,655億円、持株会社投資事業でも2,649億円）はOpenAIへの出資に伴う含み益による。投資会社から自ら手を動かす「AI事業体」への転換を掲げ、米国での大規模データセンター投資（10GW規模）やABBロボット事業買収（2026年末予定）など、AIインフラ・ロボット領域への注力を表明。",
+      "source_url": "https://group.softbank/media/Project/sbg/sbg/pdf/ir/financials/financial_reports/financial-report_q4fy2025_01_ja.pdf ; https://www.sbbit.jp/article/cont1/185226 ; https://note.com/sadaf/n/nb472075a7a22",
+      "notes": "IFRS決算のため経常利益の概念なし。WebFetchが日本ドメインへのアクセスをプロキシポリシーで拒否(403)したため一次PDFを直接確認できず、WebSearchスニペットからの採取。9434(SoftBank Corp、通信子会社)と9984(SoftBank Group Corp、持株会社)を取り違えないよう注意し9984のデータを採用した。"
+    }
+  ]
+}
