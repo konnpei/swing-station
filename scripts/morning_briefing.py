@@ -1093,6 +1093,7 @@ if __name__ == "__main__":
 
     latest_json = {
         "date": f"{TODAY}",
+        "generated_at": NOW.isoformat(),
         "is_trading_day": IS_TRADING_DAY,
         "next_trading_day": NEXT_TRADING_DAY_STR,
         "top_news_headlines": top_headlines,
