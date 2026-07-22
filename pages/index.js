@@ -333,7 +333,13 @@ function getMarketScore(briefing) {
   score += Math.max(-16, Math.min(16, (briefing.nasdaq_pct || 0) * 5));
   score += Math.max(-18, Math.min(18, (briefing.nikkei_pct || 0) * 5));
   if (typeof briefing.vix === "number") score += Math.max(-14, Math.min(10, (20 - briefing.vix) * 1.2));
-  return clampScore(score);
+  score = clampScore(score);
+  // 暴落/爆騰モードの日は、他指数の相殺でスコアがモードと矛盾したラベル
+  // （例:「暴落モード」なのに「選別して攻める」）にならないよう、モード判定を
+  // 優先してスコアを強制的にキャップ/引き上げる。
+  if (briefing.mode === "crash") return Math.min(score, 44);
+  if (briefing.mode === "surge" || briefing.mode === "ai") return Math.max(score, 75);
+  return score;
 }
 
 function marketScoreMeta(score) {
