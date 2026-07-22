@@ -96,6 +96,57 @@ function WeeklyContentCard({ icon, label, data, ignoreStaleness }) {
   );
 }
 
+function TodayFocusPoints({ briefing }) {
+  if (!briefing) return null;
+  const points = [];
+
+  const macroEvents = [
+    ...(briefing.events_jp || []).map(e => ({ ...e, region: "日本" })),
+    ...(briefing.events_us || []).map(e => ({ ...e, region: "米国" })),
+  ]
+    .filter(e => e.date && getImportance(e) === "high")
+    .map(e => ({ ...e, daysUntil: daysUntilFromDate(e.date) }))
+    .filter(e => e.daysUntil !== null && e.daysUntil >= 0 && e.daysUntil <= 3)
+    .sort((a, b) => a.daysUntil - b.daysUntil);
+  macroEvents.slice(0, 2).forEach(e => points.push(`📢 ${e.text}（${daysUntilLabel(e.daysUntil)}）`));
+
+  const earningsUpcoming = [
+    ...(briefing.jp_earnings_calendar || []).map(e => ({ ...e, marketLabel: "日本株" })),
+    ...(briefing.us_earnings_calendar || []).map(e => ({ ...e, marketLabel: "米国株" })),
+  ]
+    .map(e => ({ ...e, daysUntil: daysUntilFromDate(e.next_earnings_date) }))
+    .filter(e => e.daysUntil !== null && e.daysUntil >= 0 && e.daysUntil <= 3);
+  if (earningsUpcoming.length > 0) {
+    const names = earningsUpcoming.slice(0, 2).map(e => e.name).join("・");
+    const extra = earningsUpcoming.length > 2 ? `など${earningsUpcoming.length}銘柄` : "";
+    points.push(`📊 決算注目: ${names}${extra}が3営業日以内に決算`);
+  }
+
+  if (typeof briefing.sox_pct === "number" && Math.abs(briefing.sox_pct) >= 3) {
+    points.push(`💻 半導体に注目: SOX指数が前日比${briefing.sox_pct >= 0 ? "+" : ""}${briefing.sox_pct.toFixed(1)}%`);
+  }
+
+  if (briefing.mode === "crash") points.push("⚠️ 本日は「暴落」モード。値動きに注意");
+  else if (briefing.mode === "surge") points.push("🚀 本日は「急騰」モード。過熱感に注意");
+
+  const shown = points.slice(0, 4);
+
+  return (
+    <div style={{ background: "#121212", border: "1px solid #3a3f52", borderRadius: 10, padding: "10px 14px", marginBottom: 8 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>🎯 今日の注目ポイント</div>
+      {shown.length > 0 ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {shown.map((p, i) => (
+            <div key={i} style={{ fontSize: 11, color: "#c8c8c8", lineHeight: 1.6 }}>・{p}</div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ fontSize: 11, color: "#8a8a8a" }}>本日は特筆すべき注目イベントなし。通常運転です。</div>
+      )}
+    </div>
+  );
+}
+
 function StockCard({ s, highlighted }) {
   return (
     <div
@@ -536,6 +587,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness }) {
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <TodayFocusPoints briefing={briefing} />
       <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} nextTradingDay={briefing.next_trading_day} />
       <EarningsStraddleWarning briefing={briefing} onJump={onJump} />
       <MacroEventWarning briefing={briefing} />
