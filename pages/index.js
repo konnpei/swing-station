@@ -777,14 +777,6 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
         </div>
       )}
 
-      <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
-        <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#121212", border: "1px solid #262626", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>note</a>
-        <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 90, textAlign: "center", padding: "9px", background: "#121212", border: "1px solid #262626", borderRadius: 10, color: "#e8e8e8", fontSize: 11, textDecoration: "none" }}>X</a>
-      </div>
-
-      <div style={{ fontSize: 9, color: "#6a6a6a", textAlign: "center", marginTop: 18 }}>
-        KabuBocchi | ※投資勧誘ではありません
-      </div>
     </div>
   );
 }
@@ -1811,6 +1803,10 @@ export default function SwingStation() {
           background:"#080808", borderTop:"1px solid #262626", padding:"6px 14px",
           flexShrink:0, fontSize:8, color:"#6a6a6a", lineHeight:1.4,
         }}>
+          <div style={{ display:"flex", gap:12, justifyContent:"center", marginBottom:4 }}>
+            <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ color:"#8a8a8a", fontSize:9, textDecoration:"none" }}>note</a>
+            <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" style={{ color:"#8a8a8a", fontSize:9, textDecoration:"none" }}>X</a>
+          </div>
           ※{DISCLAIMER_TEXT}
         </div>
       </div>
