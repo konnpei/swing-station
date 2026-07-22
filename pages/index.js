@@ -86,7 +86,7 @@ function renderMarkdownLite(text) {
 }
 
 function WeeklyContentCard({ icon, label, data, ignoreStaleness }) {
-  if (!data || (!ignoreStaleness && daysSince(data.date) > 3)) return null;
+  if (!data || (!ignoreStaleness && daysSince(data.date) > 1)) return null;
   return (
     <div style={{ background: "#121212", border: "1px solid #3a3f52", borderRadius: 10, padding: "12px 14px", marginBottom: 12 }}>
       <div style={{ fontSize: 10, color: "#8a8a8a", marginBottom: 4 }}>{icon} {label} <span style={{ color: "#5a5a5a" }}>{data.date}</span></div>
