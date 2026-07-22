@@ -202,43 +202,56 @@ STOCKS_JP = [
     ("4543", "テルモ"), ("4519", "中外製薬"),
 ]
 
-def fetch_stock_technicals():
+def fetch_technicals_for_ticker(ticker_symbol):
+    """1銘柄分のテクニカル指標（RSI・MA25乖離・BB位置・出来高比・当日騰落率）を取得。
+    取得失敗時はNoneを返す。日本株はcodeに".T"を付けて呼び出すこと。"""
     import yfinance as yf
+    try:
+        ticker = yf.Ticker(ticker_symbol)
+        ticker.session.timeout = 10
+        hist = ticker.history(period="60d")
+        if hist.empty or len(hist) < 25:
+            return None
+        close = hist["Close"]
+        volume = hist["Volume"]
+        current = float(close.iloc[-1])
+        prev = float(close.iloc[-2])
+        change_pct = (current - prev) / prev * 100
+        ma25 = float(close.tail(25).mean())
+        ma5 = float(close.tail(5).mean())
+        ma25_diff = (current - ma25) / ma25 * 100
+        std25 = float(close.tail(25).std())
+        bb_upper = ma25 + 2 * std25
+        bb_lower = ma25 - 2 * std25
+        bb_pos = (current - bb_lower) / (bb_upper - bb_lower) * 100 if bb_upper != bb_lower else 50
+        delta = close.diff().tail(15)
+        gain = delta.clip(lower=0).mean()
+        loss = (-delta.clip(upper=0)).mean()
+        rsi = round(100 - (100 / (1 + gain / loss)), 1) if loss != 0 else 50
+        vol_ratio = round(float(volume.tail(5).mean()) / float(volume.tail(20).mean()), 2) if float(volume.tail(20).mean()) > 0 else 1.0
+        return {
+            "price": current, "change_pct": round(change_pct, 2),
+            "ma25": ma25, "ma25_diff": round(ma25_diff, 1),
+            "ma5": ma5, "bb_pos": round(bb_pos, 1),
+            "rsi": rsi, "vol_ratio": vol_ratio,
+        }
+    except Exception as e:
+        print(f"yfinance error {ticker_symbol}: {e}")
+        return None
+
+
+def fetch_stock_technicals():
     results = []
     for code, name in STOCKS_JP:
-        try:
-            ticker = yf.Ticker(f"{code}.T")
-            ticker.session.timeout = 10
-            hist = ticker.history(period="60d")
-            if hist.empty or len(hist) < 25:
-                continue
-            close = hist["Close"]
-            volume = hist["Volume"]
-            current = float(close.iloc[-1])
-            prev = float(close.iloc[-2])
-            change_pct = (current - prev) / prev * 100
-            ma25 = float(close.tail(25).mean())
-            ma5 = float(close.tail(5).mean())
-            ma25_diff = (current - ma25) / ma25 * 100
-            std25 = float(close.tail(25).std())
-            bb_upper = ma25 + 2 * std25
-            bb_lower = ma25 - 2 * std25
-            bb_pos = (current - bb_lower) / (bb_upper - bb_lower) * 100 if bb_upper != bb_lower else 50
-            delta = close.diff().tail(15)
-            gain = delta.clip(lower=0).mean()
-            loss = (-delta.clip(upper=0)).mean()
-            rsi = round(100 - (100 / (1 + gain / loss)), 1) if loss != 0 else 50
-            vol_ratio = round(float(volume.tail(5).mean()) / float(volume.tail(20).mean()), 2) if float(volume.tail(20).mean()) > 0 else 1.0
+        t = fetch_technicals_for_ticker(f"{code}.T")
+        if t:
             results.append({
                 "code": code, "name": name,
-                "price": int(current), "change_pct": round(change_pct, 2),
-                "ma25": int(ma25), "ma25_diff": round(ma25_diff, 1),
-                "ma5": int(ma5), "bb_pos": round(bb_pos, 1),
-                "rsi": rsi, "vol_ratio": vol_ratio,
+                "price": int(t["price"]), "change_pct": t["change_pct"],
+                "ma25": int(t["ma25"]), "ma25_diff": t["ma25_diff"],
+                "ma5": int(t["ma5"]), "bb_pos": t["bb_pos"],
+                "rsi": t["rsi"], "vol_ratio": t["vol_ratio"],
             })
-        except Exception as e:
-            print(f"yfinance error {code}: {e}")
-            continue
     return results
 
 def format_strategy_item(s):
@@ -488,6 +501,21 @@ All text content must be in Japanese. Return ONLY the JSON object."""
             s["ai_score"] = compute_ai_score(t)
             s["rsi"] = t.get("rsi")
             s["vol_ratio"] = t.get("vol_ratio")
+
+    # 米国株ピック（stock_us）はWATCH_LISTのような固定リストから選ばれるとは限らない
+    # （Claudeが自由に選ぶため）ので、選ばれたticker単体でテクニカルを取得する。
+    us = parsed.get("stock_us")
+    if us and us.get("ticker"):
+        us_ticker = str(us["ticker"]).lstrip("$").strip()
+        try:
+            us_tech = fetch_technicals_for_ticker(us_ticker)
+        except Exception as e:
+            print(f"米国株ティッカー({us_ticker})のテクニカル取得エラー: {e}")
+            us_tech = None
+        if us_tech:
+            us["ai_score"] = compute_ai_score(us_tech)
+            us["rsi"] = us_tech.get("rsi")
+            us["vol_ratio"] = us_tech.get("vol_ratio")
 
     return parsed
  
