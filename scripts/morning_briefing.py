@@ -454,9 +454,9 @@ Return ONLY valid JSON (no markdown, no backticks):
   "events_jp": [{{"date": "YYYY-MM-DD", "text": "日本の経済イベント（日銀会合、決算発表、経済指標等）", "importance": "high or medium or low", "urgent": true}}],
   "events_us": [{{"date": "YYYY-MM-DD", "text": "米国の経済イベント（FOMC、雇用統計、CPI等）", "importance": "high or medium or low", "urgent": true}}],
   "x_posts": [
-    "X投稿1: 相場サマリー（200文字以内）。かぶぼっちの一人称の意見を1文入れ、最後は読者への問いかけで締める。noteリンク誘導は本文に入れない。ハッシュタグは多くても1つまで（付けなくてもよい）",
-    "X投稿2: 注目銘柄フォーカス（280文字以内・かぶぼっち口調）。なぜ注目するのかを一人称で語り、最後は読者への問いかけで締める。noteリンク誘導は本文に入れない",
-    "X投稿3: 問いかけ形式（200文字以内・フォロワー反応狙い）。選択肢やコメントしたくなる質問を入れる。noteリンク誘導は本文に入れない"
+    "X投稿1: 相場サマリー（200文字以内）。かぶぼっちの一人称の意見を1文入れ、最後は読者への問いかけで締める。noteリンク誘導は本文に入れない。ハッシュタグは含めない（別途本文に付け足すため）",
+    "X投稿2: 注目銘柄フォーカス（280文字以内・かぶぼっち口調）。なぜ注目するのかを一人称で語り、最後は読者への問いかけで締める。noteリンク誘導は本文に入れない。ハッシュタグは含めない（別途本文に付け足すため）",
+    "X投稿3: 問いかけ形式（200文字以内・フォロワー反応狙い）。選択肢やコメントしたくなる質問を入れる。noteリンク誘導は本文に入れない。ハッシュタグは含めない（別途本文に付け足すため）"
   ],
   "x_teaser_3line": "note記事の宣伝用にXへ投稿する短いテキスト。note記事の見出しをそのまま転載しない。1行目で『自分が今一番気になっていること・迷っていること』を一人称で率直に書き、2行目でそれに対する自分なりの仮の答えや視点を短く添え、3行目は『これで合ってるか正直自信ない』『外れてたら教えてほしい』のような軽い問いかけで締める。ちょうど3行、各行1文程度。絵文字は可、ハッシュタグやリンクは含めない（別途本文に付け足すため）",
   {note_body_field}
@@ -1020,10 +1020,13 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
     # 埋め込み(embed)だとスマホでコピペしづらいため、note本文・X告知用と同じ
     # 通常テキストメッセージとして送る。
     X_POST_DISCLAIMER = "\n※投資助言ではありません"
+    # 検索流入を増やすため、固定ハッシュタグを毎回必ず付与する（LLM任せだと
+    # 付け忘れ・個数のブレが起きるため、コード側で確実に追加する）。
+    X_POST_HASHTAGS = "\n#日本株 #株式投資"
     x_posts = c.get("x_posts", [c.get("x_main", "")])
     x_posts_lines = []
     for i, xp in enumerate(x_posts[:3], 1):
-        xp_full = xp + X_POST_DISCLAIMER
+        xp_full = xp + X_POST_HASHTAGS + X_POST_DISCLAIMER
         x_posts_lines.append(f"【投稿{i}】\n{xp_full[:450]}")
     if x_posts_lines:
         post_json({"content": "**📱 X投稿文（コピペしてそのまま投稿）**\n\n" + "\n\n---\n\n".join(x_posts_lines)})
