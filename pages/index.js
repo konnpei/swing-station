@@ -96,6 +96,25 @@ function WeeklyContentCard({ icon, label, data, ignoreStaleness }) {
   );
 }
 
+function LastUpdatedBanner({ briefing }) {
+  if (!briefing) return null;
+  const iso = briefing.generated_at;
+  const gen = iso ? new Date(iso) : (briefing.date ? new Date(briefing.date.replace(/\//g, "-")) : null);
+  if (!gen || isNaN(gen.getTime())) return null;
+  const label = iso
+    ? `${gen.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" })} ${gen.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
+    : gen.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" });
+  const hoursSince = (Date.now() - gen.getTime()) / (1000 * 60 * 60);
+  const isStale = hoursSince >= 24;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, fontSize: 10, flexWrap: "wrap" }}>
+      <span style={{ color: isStale ? "#ffd166" : "#00ff9d" }}>{isStale ? "⚠" : "🟢"}</span>
+      <span style={{ color: "#9a9a9a" }}>最終更新 {label}</span>
+      {isStale && <span style={{ color: "#ffd166" }}>データが古い可能性があります</span>}
+    </div>
+  );
+}
+
 function TodayFocusPoints({ briefing }) {
   if (!briefing) return null;
   const points = [];
@@ -588,6 +607,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <TodayFocusPoints briefing={briefing} />
+      <LastUpdatedBanner briefing={briefing} />
       <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} nextTradingDay={briefing.next_trading_day} />
       <EarningsStraddleWarning briefing={briefing} onJump={onJump} />
       <MacroEventWarning briefing={briefing} />
