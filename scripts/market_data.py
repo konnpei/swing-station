@@ -662,11 +662,33 @@ def _fetch_earnings_for_list(ticker_list, name_map, sector_map, strip_suffix=Fal
                         if val is not None and val == val:  # NaN check
                             last_surprise = round(float(val), 1)
 
+            # 決算発表前後の株価反応（発表前営業日終値→発表後営業日終値の変化率）。
+            # サプライズ%（予想との乖離）とは別軸の「実際に市場がどう反応したか」を見る指標。
+            last_reaction = None
+            if last_date:
+                try:
+                    last_dt = _dt.strptime(last_date, "%Y-%m-%d").date()
+                    price_hist = yf.Ticker(code).history(
+                        start=last_dt - _td(days=7), end=last_dt + _td(days=7)
+                    )
+                    if not price_hist.empty:
+                        hist_dates = [d.date() for d in price_hist.index]
+                        before_idx = max([i for i, d in enumerate(hist_dates) if d < last_dt], default=None)
+                        after_idx = min([i for i, d in enumerate(hist_dates) if d > last_dt], default=None)
+                        if before_idx is not None and after_idx is not None:
+                            price_before = float(price_hist["Close"].iloc[before_idx])
+                            price_after = float(price_hist["Close"].iloc[after_idx])
+                            if price_before > 0:
+                                last_reaction = round((price_after - price_before) / price_before * 100, 1)
+                except Exception as re_err:
+                    print(f"  {code} 決算反応率取得エラー: {re_err}")
+
             if next_date or last_surprise is not None:
                 results.append({
                     "code": code_short, "name": name, "sector": sector,
                     "next_earnings_date": next_date, "days_until": next_days,
                     "last_earnings_date": last_date, "last_surprise_pct": last_surprise,
+                    "last_earnings_reaction_pct": last_reaction,
                 })
         except Exception as e:
             print(f"  {code} 決算データ解析エラー: {e}")

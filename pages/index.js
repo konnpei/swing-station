@@ -1001,22 +1001,32 @@ function daysUntilFromDate(dateStr) {
   return Math.round((target - now) / (1000 * 60 * 60 * 24));
 }
 
-function earningsScore(pct) {
-  // サプライズ%は理論上±数千%まで振れうる（特に予想が赤字→黒字転換等で符号が変わると
-  // 計算上意味のない極端な値になる）ので、tanhで0-100に滑らかに収める
-  if (typeof pct !== "number") return null;
-  return Math.round(50 + 50 * Math.tanh(pct / 50));
+function earningsScore(pct, reactionPct) {
+  // サプライズ%（実績が市場予想=コンセンサスをどれだけ上回った/下回ったか）は理論上
+  // ±数千%まで振れうる（特に予想が赤字→黒字転換等で符号が変わると計算上意味のない
+  // 極端な値になる）ので、tanhで0-100に滑らかに収める。株価反応%（決算発表前後の
+  // 値動き=上昇幅）は通常一桁%の範囲に収まるため、より感度の高いスケールで正規化する。
+  const surpriseScore = typeof pct === "number" ? 50 + 50 * Math.tanh(pct / 50) : null;
+  const reactionScore = typeof reactionPct === "number" ? 50 + 50 * Math.tanh(reactionPct / 10) : null;
+  if (surpriseScore === null && reactionScore === null) return null;
+  if (surpriseScore !== null && reactionScore !== null) {
+    return Math.round((surpriseScore + reactionScore) / 2);
+  }
+  return Math.round(surpriseScore !== null ? surpriseScore : reactionScore);
 }
 
-function EarningsScoreBadge({ pct }) {
-  const score = earningsScore(pct);
+function EarningsScoreBadge({ pct, reactionPct }) {
+  const score = earningsScore(pct, reactionPct);
   if (score === null) return null;
-  const extreme = Math.abs(pct) > 300;
+  const extreme = typeof pct === "number" && Math.abs(pct) > 300;
   const color = score >= 60 ? "#00ff9d" : score <= 40 ? "#ff5566" : "#ffd166";
   return (
     <div style={{ textAlign: "right", minWidth: 48 }}>
       <div style={{ fontSize: 13, color, fontWeight: 700 }}>{score}</div>
       <div style={{ fontSize: 8, color: "#6a6a6a" }}>{extreme ? "予想転換※" : "決算スコア"}</div>
+      {typeof reactionPct === "number" && (
+        <div style={{ fontSize: 7, color: "#5a5a5a" }}>反応{reactionPct >= 0 ? "+" : ""}{reactionPct}%</div>
+      )}
     </div>
   );
 }
@@ -1039,7 +1049,7 @@ function EarningsCalendarRow({ e, market, onJump }) {
         {e.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({e.code})</span>
         {soon && <span style={{ color: "#ffd166", fontSize: 9, marginLeft: 6 }}>{daysUntilLabel(daysUntil)}</span>}
       </div>
-      <EarningsScoreBadge pct={e.last_surprise_pct} />
+      <EarningsScoreBadge pct={e.last_surprise_pct} reactionPct={e.last_earnings_reaction_pct} />
     </button>
   );
 }
@@ -1074,7 +1084,7 @@ function EarningsView({ briefing, onJump }) {
       )}
 
       <div style={{ fontSize: 9, color: "#5a5a5a" }}>
-        ※決算スコアは前回決算のサプライズ%（EPS実績が市場予想をどれだけ上回った/下回ったか）を0〜100に換算した参考値です。
+        ※決算スコアは前回決算のサプライズ%（EPS実績が市場予想=コンセンサスをどれだけ上回った/下回ったか）と、決算発表前後の株価反応%（上昇幅）を組み合わせて0〜100に換算した参考値です（反応%が取得できない場合はサプライズ%のみで算出）。日本株は決算データ提供元(J-Quants)の仕様上、サプライズ%・反応%とも取得できないため決算スコアは表示されません。
         {hasExtreme && " 「予想転換※」は、予想が赤字→黒字（またはその逆）に転換したことでサプライズ%の計算が数学的に極端な値になっているケースです。スコア自体は参考程度に。"}
         {" "}銘柄名をタップすると日本株/米国株タブの詳細に移動します（その日の注目銘柄に選ばれていない場合は一覧のみの表示になります）。
       </div>
