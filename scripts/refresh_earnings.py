@@ -54,6 +54,14 @@ def gh_put_json(path, obj, sha, message):
         raise RuntimeError(f"PUT {path} failed: {r.status_code}")
 
 
+def merge_updated_items(latest, label):
+    # 「今日の更新内容」表示用の簡易ラベル一覧。日付が変わったらリセットする。
+    items = latest.get("updated_items", []) if latest.get("updated_items_date") == TODAY else []
+    if label not in items:
+        items = items + [label]
+    return items
+
+
 def main():
     if not GH_TOKEN:
         print("GH_PAT not set. 終了します。")
@@ -95,6 +103,8 @@ def main():
         "us_earnings_calendar": us_calendar,
         "us_earnings_rank": us_rank,
         "earnings_refreshed_at": NOW.isoformat(),
+        "updated_items": merge_updated_items(latest, "決算情報更新"),
+        "updated_items_date": TODAY,
     })
 
     print("data/latest.json 更新中...")
