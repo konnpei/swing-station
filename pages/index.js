@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
+import { track } from "@vercel/analytics";
 
 const MODE_LABELS = {
   normal: { label: "通常モード", color: "#888888" },
@@ -118,11 +119,11 @@ function LastUpdatedBanner({ briefing }) {
 function NextActionsCard({ onNavigate }) {
   if (!onNavigate) return null;
   const items = [
-    { label: "🔍 AIスクリーニングを見る", tab: "jp", anchor: "jp-screener-panel" },
-    { label: "🇯🇵 日本株を見る", tab: "jp" },
-    { label: "🇺🇸 米国株を見る", tab: "us" },
-    { label: "📅 今週の注目を見る", tab: "events" },
-    { label: "🗂️ 過去の朝刊を見る", tab: "history" },
+    { label: "🔍 AIスクリーニングを見る", tab: "jp", anchor: "jp-screener-panel", event: "click_ai_screener" },
+    { label: "🇯🇵 日本株を見る", tab: "jp", event: "click_jp_stocks" },
+    { label: "🇺🇸 米国株を見る", tab: "us", event: "click_us_stocks" },
+    { label: "📅 今週の注目を見る", tab: "events", event: "click_weekly_focus" },
+    { label: "🗂️ 過去の朝刊を見る", tab: "history", event: "click_history" },
   ];
   return (
     <div style={{ marginBottom: 14 }}>
@@ -131,7 +132,7 @@ function NextActionsCard({ onNavigate }) {
         {items.map((it, i) => (
           <button
             key={i}
-            onClick={() => onNavigate(it.tab, it.anchor)}
+            onClick={() => { track(it.event); onNavigate(it.tab, it.anchor); }}
             style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "12px 14px", background: "#121212", border: "1px solid #262626",
@@ -1804,8 +1805,8 @@ export default function SwingStation() {
           flexShrink:0, fontSize:8, color:"#6a6a6a", lineHeight:1.4,
         }}>
           <div style={{ display:"flex", gap:12, justifyContent:"center", marginBottom:4 }}>
-            <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" style={{ color:"#8a8a8a", fontSize:9, textDecoration:"none" }}>note</a>
-            <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" style={{ color:"#8a8a8a", fontSize:9, textDecoration:"none" }}>X</a>
+            <a href="https://note.com/kabubocchi" target="_blank" rel="noreferrer" onClick={() => track("click_note")} style={{ color:"#8a8a8a", fontSize:9, textDecoration:"none" }}>note</a>
+            <a href="https://x.com/kabubocchi" target="_blank" rel="noreferrer" onClick={() => track("click_x")} style={{ color:"#8a8a8a", fontSize:9, textDecoration:"none" }}>X</a>
           </div>
           ※{DISCLAIMER_TEXT}
         </div>
