@@ -115,6 +115,39 @@ function LastUpdatedBanner({ briefing }) {
   );
 }
 
+function NextActionsCard({ onNavigate }) {
+  if (!onNavigate) return null;
+  const items = [
+    { label: "🔍 AIスクリーニングを見る", tab: "jp", anchor: "jp-screener-panel" },
+    { label: "🇯🇵 日本株を見る", tab: "jp" },
+    { label: "🇺🇸 米国株を見る", tab: "us" },
+    { label: "📅 今週の注目を見る", tab: "events" },
+    { label: "🗂️ 過去の朝刊を見る", tab: "history" },
+  ];
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>次に見る</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {items.map((it, i) => (
+          <button
+            key={i}
+            onClick={() => onNavigate(it.tab, it.anchor)}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "12px 14px", background: "#121212", border: "1px solid #262626",
+              borderRadius: 10, color: "#e8e8e8", fontSize: 12, fontFamily: "inherit",
+              cursor: "pointer", width: "100%", textAlign: "left",
+            }}
+          >
+            <span>{it.label}</span>
+            <span style={{ color: "#6a6a6a" }}>›</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TodayFocusPoints({ briefing }) {
   if (!briefing) return null;
   const points = [];
@@ -591,7 +624,7 @@ function TopHeadlines({ headlines }) {
   );
 }
 
-function BriefingView({ briefing, onJump, ignoreStaleness }) {
+function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
   if (!briefing) {
     return (
       <div style={{ padding: 20, textAlign: "center", color: "#6a6a6a", fontSize: 12 }}>
@@ -716,6 +749,8 @@ function BriefingView({ briefing, onJump, ignoreStaleness }) {
 
       <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} ignoreStaleness={ignoreStaleness} />
       <WeeklyContentCard icon="🔭" label="来週の注目ポイント" data={briefing.weekly_preview} ignoreStaleness={ignoreStaleness} />
+
+      <NextActionsCard onNavigate={onNavigate} />
 
       {(briefing.surges?.length > 0 || briefing.drops?.length > 0) && (
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
@@ -1124,7 +1159,9 @@ function JpStocksView({ briefing, history, highlightCode }) {
       )}
       <SectorHeatmap heatmap={briefing?.sector_heatmap} allChanges={briefing?.jp_all_changes} currency="¥" history={history} heatmapKey="sector_heatmap" refreshedAt={briefing?.jp_sector_heatmap_refreshed_at} stale={briefing?.jp_sector_heatmap_stale} />
       <TopMovers movers={briefing?.jp_top_movers} currency="¥" />
-      <ScreenerPanel screener={briefing?.jp_screener} currency="¥" refreshedAt={briefing?.screener_refreshed_at} />
+      <div id="jp-screener-panel">
+        <ScreenerPanel screener={briefing?.jp_screener} currency="¥" refreshedAt={briefing?.screener_refreshed_at} />
+      </div>
     </div>
   );
 }
@@ -1613,6 +1650,16 @@ export default function SwingStation() {
     setHighlightTarget({ market, code: String(code) });
   };
 
+  const goToTab = (tabId, anchorId) => {
+    setTab(tabId);
+    if (anchorId) {
+      setTimeout(() => {
+        const el = document.getElementById(anchorId);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+    }
+  };
+
   useEffect(() => {
     if (!highlightTarget) return;
     const t = setTimeout(() => {
@@ -1743,7 +1790,7 @@ export default function SwingStation() {
         {/* Content */}
         <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
           <div style={{ display:tab==="briefing"?"block":"none", height:"100%" }}>
-            <BriefingView briefing={briefing} onJump={jumpToStock} />
+            <BriefingView briefing={briefing} onJump={jumpToStock} onNavigate={goToTab} />
           </div>
           <div style={{ display:tab==="jp"?"block":"none", height:"100%" }}>
             <JpStocksView briefing={briefing} history={history} highlightCode={highlightTarget?.market === "jp" ? highlightTarget.code : null} />
