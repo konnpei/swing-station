@@ -990,7 +990,13 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
     note_prefix = "**📝 note本文(コピペして投稿)**\n\n" + title_line
     headlines_block = ""
     if top_headlines:
-        lines = [f"・[{h['source']}] {h['title']}" for h in top_headlines]
+        # リンクを見出しと別行にすることで、noteに貼り付けた際にnote側の
+        # リンクカード自動生成機能で記事プレビューが表示されるようにする。
+        lines = []
+        for h in top_headlines:
+            lines.append(f"・[{h['source']}] {h['title']}")
+            if h.get("link"):
+                lines.append(h["link"])
         headlines_block = "\n\n📡 経済ニュース速報\n" + "\n".join(lines)
     note_suffix = (
         headlines_block + "\n\n---\n"
