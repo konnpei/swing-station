@@ -200,7 +200,42 @@ function TodayFocusPoints({ briefing }) {
   );
 }
 
-function StockCard({ s, highlighted }) {
+function InfoHubLinks({ code, name, market }) {
+  if (!code) return null;
+  const isJp = market !== "us";
+  const encName = encodeURIComponent(name || "");
+  const links = isJp
+    ? [
+        { label: "📊 株探", url: `https://kabutan.jp/stock/?code=${code}` },
+        { label: "📈 TradingView", url: `https://jp.tradingview.com/symbols/TSE-${code}/` },
+        { label: "🏢 IR BANK", url: `https://irbank.net/${code}` },
+        { label: "📑 TDnet", url: `https://www.google.com/search?q=site:release.tdnet.info+${code}+${encName}` },
+        { label: "💬 Yahoo!掲示板", url: `https://m.finance.yahoo.co.jp/stock/bbs?code=${code}.T` },
+        { label: "📰 Googleニュース", url: `https://news.google.com/search?q=${encName}%20株価&hl=ja&gl=JP&ceid=JP:ja` },
+      ]
+    : [
+        { label: "📈 TradingView", url: `https://jp.tradingview.com/symbols/${code}/` },
+        { label: "💬 Yahoo!掲示板", url: `https://finance.yahoo.co.jp/quote/${code}/forum` },
+        { label: "📰 Googleニュース", url: `https://news.google.com/search?q=${encName}%20stock&hl=ja&gl=JP&ceid=JP:ja` },
+      ];
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginTop: 8, marginBottom: 2 }}>
+      {links.map((l, i) => (
+        <a
+          key={i} href={l.url} target="_blank" rel="noopener noreferrer"
+          style={{
+            fontSize: 9, color: "#8a8a8a", background: "#0d0d0d", border: "1px solid #262626",
+            borderRadius: 6, padding: "3px 7px", textDecoration: "none",
+          }}
+        >
+          {l.label}
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function StockCard({ s, highlighted, market }) {
   return (
     <div
       id={`stock-${s.code}`}
@@ -214,6 +249,7 @@ function StockCard({ s, highlighted }) {
         <div>
           <span style={{ fontSize: 9, color: "#e8e8e8", background: "#e8e8e818", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
           <div style={{ fontSize: 14, color: "#eeeeee", marginTop: 5, fontWeight: 500 }}>{s.name}<span style={{ color: "#8a8a8a", fontSize: 11 }}> ({s.code})</span></div>
+          <InfoHubLinks code={s.code} name={s.name} market={market} />
         </div>
         <div style={{ textAlign: "right" }}>
           {typeof s.ai_score === "number" ? (() => {
@@ -1162,7 +1198,7 @@ function JpStocksView({ briefing, history, highlightCode }) {
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>日本株 注目銘柄</div>
       <ComplianceNote />
       {stocks.length > 0 ? (
-        stocks.map((s, i) => <StockCard key={i} s={s} highlighted={highlightCode === String(s.code)} />)
+        stocks.map((s, i) => <StockCard key={i} s={s} highlighted={highlightCode === String(s.code)} market="jp" />)
       ) : (
         <div style={{ color: "#6a6a6a", fontSize: 11, marginBottom: 14 }}>本日分の銘柄情報はまだありません。</div>
       )}
@@ -1182,7 +1218,7 @@ function UsStocksView({ briefing, history, highlightCode }) {
       <div style={{ fontSize: 12, fontWeight: 700, color: "#e8e8e8", marginBottom: 10 }}>米国株 注目銘柄</div>
       <ComplianceNote />
       {s ? (
-        <StockCard s={{ ...s, code: s.ticker }} highlighted={highlightCode === String(s.ticker)} />
+        <StockCard s={{ ...s, code: s.ticker }} highlighted={highlightCode === String(s.ticker)} market="us" />
       ) : (
         <div style={{ color: "#6a6a6a", fontSize: 11, marginBottom: 14 }}>本日分の銘柄情報はまだありません。</div>
       )}
@@ -1283,7 +1319,7 @@ function DayDetailView({ briefing, onClose }) {
       {briefing.stocks_jp?.length > 0 && (
         <div style={{ padding: "0 12px 12px" }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", margin: "4px 0 8px" }}>この日の注目銘柄</div>
-          {briefing.stocks_jp.map((s, i) => <StockCard key={i} s={s} />)}
+          {briefing.stocks_jp.map((s, i) => <StockCard key={i} s={s} market="jp" />)}
         </div>
       )}
     </div>
