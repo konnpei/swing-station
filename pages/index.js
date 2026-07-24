@@ -397,10 +397,17 @@ function MtfMiniScore({ label, score, sublabel }) {
   if (typeof score !== "number") return null;
   const color = mtfColor(score);
   return (
-    <div style={{ flex: 1, background: "#0d0d0d", border: `1px solid ${color}33`, borderRadius: 8, padding: "6px 4px", textAlign: "center" }}>
-      <div style={{ fontSize: 8, color: "#8a8a8a" }}>{label}</div>
-      <div style={{ fontSize: 15, fontWeight: 700, color }}>{score}</div>
-      <div style={{ fontSize: 8, color }}>{sublabel}</div>
+    <div style={{ marginBottom: 7 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 3 }}>
+        <span style={{ fontSize: 9, color: "#8a8a8a" }}>{label}</span>
+        <span style={{ fontSize: 10 }}>
+          <span style={{ color, fontWeight: 700 }}>{score}</span>
+          <span style={{ color: "#8a8a8a", marginLeft: 4 }}>{sublabel}</span>
+        </span>
+      </div>
+      <div style={{ width: "100%", height: 6, background: "#1a1a1a", borderRadius: 3, overflow: "hidden" }}>
+        <div style={{ width: `${score}%`, height: "100%", background: color, borderRadius: 3 }} />
+      </div>
     </div>
   );
 }
@@ -489,7 +496,7 @@ function MarketDashboard({ briefing }) {
           </div>
         </div>
         {(typeof briefing.market_score_weekly === "number" || typeof briefing.market_score_monthly === "number") && (
-          <div style={{ display: "flex", gap: 6, marginTop: 12, paddingTop: 10, borderTop: "1px solid #262626" }}>
+          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #262626" }}>
             <MtfMiniScore label="日足" score={score} sublabel={meta.sub} />
             <MtfMiniScore label="週足" score={briefing.market_score_weekly} sublabel={briefing.market_score_weekly_label} />
             <MtfMiniScore label="月足" score={briefing.market_score_monthly} sublabel={briefing.market_score_monthly_label} />
