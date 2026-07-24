@@ -1,0 +1,35 @@
+name: Deploy Check App to Pages
+
+# check-management-app/ 配下(swing-stationとは無関係の別プロジェクト)を
+# GitHub Pagesに公開する。swing-station本体(Vercel)とは独立したデプロイ経路。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'check-management-app/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'check-management-app'
+      - id: deployment
+        uses: actions/deploy-pages@v4
