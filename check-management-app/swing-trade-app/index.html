@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>スイングトレード チェック</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#7A5B1E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#F3EEE3; --card:#FEFCF7; --paper:#FBF7EE; --ink:#20241F; --sub:#6E6A5F;
+    --seal:#B23B2E; --seal-dark:#8B2A20; --teal:#12483B; --teal-dark:#0B342B;
+    --border:#E4DCC8; --border-strong:#D3C9AD; --warn:#8A5A16; --warn-bg:#F6E8CE;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Hiragino Kaku Gothic ProN","Zen Kaku Gothic New",sans-serif;
+    background:var(--bg); color:var(--ink); display:flex; justify-content:center; min-height:100vh;
+  }
+  .phone{width:100%; max-width:420px; padding:16px;}
+  .card{
+    background-color:var(--card);
+    background-image:var(--card-grad, none), radial-gradient(var(--border) 0.6px, transparent 0.6px);
+    background-size:cover, 14px 14px;
+    border-radius:26px; padding:26px 22px 28px; min-height:80vh;
+    display:flex; flex-direction:column;
+    box-shadow:0 1px 2px rgba(32,36,31,0.06), 0 10px 30px rgba(32,36,31,0.09);
+    border:1px solid var(--border);
+  }
+  .screen{display:none; flex-direction:column; flex:1;}
+  .screen.active{display:flex;}
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .tabs{display:flex; gap:6px; overflow-x:auto; flex:1;}
+  .tab{
+    flex-shrink:0; font-size:12.5px; padding:7px 13px; border-radius:999px; border:1px solid var(--border-strong);
+    background:var(--paper); color:var(--sub); cursor:pointer; white-space:nowrap; transition:all 0.15s ease;
+  }
+  .tab.active{background:var(--teal); color:#fff; border-color:var(--teal);}
+  .tab.addtab{background:transparent; color:var(--sub); border-style:dashed;}
+  .gear{
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--border-strong); background:var(--paper);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; margin-left:8px; font-size:15px;
+  }
+  .eyebrow{font-size:12.5px; color:var(--sub); margin:0 0 5px; letter-spacing:0.06em;}
+  h1{font-family:"Zen Kaku Gothic New",sans-serif; font-size:21px; margin:0 0 10px; font-weight:700; color:var(--ink); position:relative; padding-bottom:12px;}
+  h1::after{content:""; position:absolute; left:0; bottom:0; width:40px; height:2px; background:linear-gradient(90deg, var(--seal), transparent);}
+  .staff-row{display:flex; align-items:center; gap:8px; margin:2px 0 18px;}
+  .staff-row input{flex:1; font-size:14px; padding:10px 4px; border:none; border-bottom:1px solid var(--border-strong); background:transparent; font-family:inherit; color:var(--ink);}
+  .staff-row input:focus{outline:none; border-bottom-color:var(--teal);}
+  .item{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:15px 2px; border-bottom:1px solid var(--border); font-size:15.5px; position:relative;
+  }
+  .item:last-of-type{border-bottom:none;}
+  .stamp{
+    width:42px; height:42px; border-radius:50%; border:1.5px solid var(--border-strong);
+    background:var(--card); flex-shrink:0; cursor:pointer; display:flex; align-items:center;
+    justify-content:center; font-size:13px; font-weight:700; color:var(--sub); user-select:none;
+    transition:transform 0.15s ease; font-family:"Shippori Mincho",serif;
+  }
+  .stamp.done{
+    border-color:var(--seal); color:var(--seal); background:#FBEAE6;
+    box-shadow:inset 0 0 0 1.5px var(--seal), 0 2px 5px rgba(178,59,46,0.25);
+    transform:rotate(-9deg) scale(1.08);
+  }
+  .stamp:active{transform:scale(0.9);}
+  button{font-family:"Zen Kaku Gothic New",sans-serif; border-radius:12px; border:1px solid var(--border-strong); background:transparent; font-size:14.5px; padding:12px; cursor:pointer; color:var(--ink); transition:background 0.15s ease;}
+  button:hover{background:var(--paper);}
+  button:active{transform:scale(0.98);}
+  .btn-primary{background:var(--teal); color:#fff; border:none; font-size:17px; font-weight:700; height:56px; margin-top:auto; border-radius:999px; box-shadow:0 6px 16px rgba(18,72,59,0.28);}
+  .btn-primary:hover{background:var(--teal-dark);}
+  .btn-plain{margin-top:10px; height:44px; border-radius:999px;}
+  .center{text-align:center; align-items:center; justify-content:center;}
+  .badge-ok{background:#FBEAE6; color:var(--seal-dark); font-size:11.5px; padding:4px 10px; border-radius:999px; font-weight:700;}
+  .badge-warn{background:var(--warn-bg); color:var(--warn); font-size:11.5px; padding:4px 10px; border-radius:999px; font-weight:700;}
+  .row{display:flex; align-items:center; justify-content:space-between; padding:11px 2px; border-bottom:1px solid var(--border); font-size:14px; gap:8px;}
+  .row input[type=text]{flex:1; font-size:15px; padding:8px 4px; border:none; border-bottom:1px solid var(--border-strong); font-family:inherit; background:transparent; color:var(--ink);}
+  .circle{
+    width:92px; height:92px; border-radius:50%; border:2.5px solid var(--seal); color:var(--seal);
+    display:flex; align-items:center; justify-content:center; margin-bottom:22px; transform:rotate(-9deg);
+    font-family:"Shippori Mincho",serif; font-size:27px; font-weight:700;
+    box-shadow:0 4px 12px rgba(178,59,46,0.2);
+  }
+  .dots{display:flex; justify-content:center; gap:8px; margin-top:14px;}
+  .dot{width:6px; height:6px; border-radius:50%; background:var(--border-strong);}
+  .dot.active{background:var(--teal);}
+  .offline-note{font-size:11.5px; color:var(--sub); text-align:center; margin-top:10px;}
+  .swatches{display:flex; gap:14px; margin:6px 0 22px; flex-wrap:wrap;}
+  .swatch{width:48px; height:48px; border-radius:50%; cursor:pointer; border:2px solid transparent; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,0.12);}
+  .swatch.active{border-color:var(--ink);}
+  .stars-row{display:flex; align-items:center; gap:10px; margin:0 0 18px;}
+  .stars-icons{display:flex; gap:2px; font-size:18px; letter-spacing:1px;}
+  .star-on{color:var(--seal);}
+  .star-off{color:var(--border-strong);}
+  .points-pill{font-size:11.5px; font-weight:700; background:var(--paper); color:var(--sub); border:1px solid var(--border); padding:4px 11px; border-radius:999px; white-space:nowrap;}
+  @media print{ body *{visibility:hidden;} #printArea, #printArea *{visibility:visible;} #printArea{position:absolute; top:0; left:0; width:100%;} }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="card">
+
+    <section id="screen-check" class="screen active">
+      <div class="topbar">
+        <div class="tabs" id="profileTabs"></div>
+        <div class="gear" onclick="showSettings()">⚙</div>
+      </div>
+      <div id="profileAddRow" style="display:none; flex-direction:column; gap:8px; background:var(--paper); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:16px;">
+        <input id="profileNameInput" type="text" placeholder="新しいタブの名前(例:自宅用、支店A)" style="font-size:14px; padding:10px 12px; border-radius:10px; border:1px solid var(--border-strong); font-family:inherit; background:var(--card); color:var(--ink);" />
+        <select id="profileTemplateSelect" style="font-size:14px; padding:10px 12px; border-radius:10px; border:1px solid var(--border-strong); font-family:inherit; background:var(--card); color:var(--ink);">
+          <option value="trade">スイングトレード用の項目を使う</option>
+          <option value="blank">空欄で作成する</option>
+        </select>
+        <div style="display:flex; gap:8px;">
+          <button onclick="cancelAddProfile()" style="flex:1;">キャンセル</button>
+          <button onclick="confirmAddProfile()" style="flex:1; background:var(--teal); color:#fff; border:none;">タブを追加</button>
+        </div>
+      </div>
+      <p class="eyebrow" id="todayLabel"></p>
+      <h1 id="listTitle">本日のチェック</h1>
+      <div class="stars-row" id="starsRow"></div>
+      <div class="staff-row">
+        <select id="staffSelect" onchange="handleStaffChange()" style="flex:1; font-size:14px; padding:10px 4px; border:none; border-bottom:1px solid var(--border-strong); background:transparent; font-family:inherit; color:var(--ink);"></select>
+      </div>
+      <div id="staffAddRow" style="display:none; gap:8px; margin:-8px 0 16px;">
+        <input id="staffAddInput" type="text" placeholder="担当者名を入力" style="flex:1; font-size:14px; padding:9px 10px; border-radius:10px; border:1px solid var(--border-strong); font-family:inherit; background:var(--paper); color:var(--ink);" onkeydown="if(event.key==='Enter') confirmAddStaff();" />
+        <button onclick="confirmAddStaff()" style="width:56px; flex-shrink:0;">追加</button>
+      </div>
+      <div id="checkItems"></div>
+      <button class="btn-primary" onclick="saveRecord()">記録を保存</button>
+      <button class="btn-plain" onclick="showEdit()">項目を編集</button>
+      <p class="offline-note" id="netStatus"></p>
+    </section>
+
+    <section id="screen-edit" class="screen">
+      <p class="eyebrow">設定</p>
+      <h1>チェック項目を編集</h1>
+      <div id="editItems"></div>
+      <div style="display:flex; gap:8px; margin:6px 0 16px;">
+        <input id="newItemInput" type="text" placeholder="新しい項目名" style="flex:1; font-size:16px; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit;" />
+        <button onclick="addEditItem()" style="width:56px;">追加</button>
+      </div>
+      <button class="btn-plain" onclick="resetToDefault()">既定の項目に戻す</button>
+      <button class="btn-primary" onclick="saveEditItems()">保存して戻る</button>
+    </section>
+
+    <section id="screen-settings" class="screen">
+      <p class="eyebrow">設定</p>
+      <h1>デザインを選ぶ</h1>
+      <div class="swatches" id="themeSwatches"></div>
+      <p class="eyebrow" style="margin-top:8px;">タブ(用途)の管理</p>
+      <div id="settingsProfileList"></div>
+      <p class="eyebrow" style="margin-top:12px;">担当者ごとのポイント</p>
+      <div id="staffPointsList"></div>
+      <button class="btn-plain" onclick="showScreen('check')">戻る</button>
+    </section>
+
+    <section id="screen-done" class="screen center">
+      <div class="circle">済</div>
+      <p style="font-size:20px;font-weight:700;margin:0 0 8px;">本日の記録を保存しました</p>
+      <p id="streakLabel" style="font-size:14px;color:var(--sub);margin:0 0 6px;"></p>
+      <div class="stars-row" id="starsRowDone" style="margin-bottom:28px;"></div>
+      <button class="btn-plain" style="width:100%;" onclick="showHistory()">記録一覧を見る →</button>
+    </section>
+
+    <section id="screen-history" class="screen">
+      <p class="eyebrow">記録一覧</p>
+      <h1>これまでの記録</h1>
+      <div id="historyList"></div>
+      <button class="btn-plain" onclick="window.print()">印刷 / PDF出力</button>
+      <button class="btn-plain" onclick="showScreen('check')">チェック画面に戻る</button>
+    </section>
+
+    <div class="dots">
+      <span class="dot active" id="dot-check"></span>
+      <span class="dot" id="dot-done"></span>
+      <span class="dot" id="dot-history"></span>
+    </div>
+  </div>
+</div>
+
+<div id="printArea" style="display:none;"></div>
+
+<script>
+const DB_NAME = "swingTradeAppDB", STORE = "records", SETTINGS = "settings";
+
+const DEFAULTS_BY_PROFILE = {
+  trade: [
+    { key: "market", label: "地合い(市場全体の流れ)確認" },
+    { key: "reason", label: "エントリー根拠の確認" },
+    { key: "stoploss", label: "損切りラインの設定" },
+    { key: "takeprofit", label: "利益確定ラインの設定" },
+    { key: "size", label: "ポジションサイズの確認" },
+    { key: "news", label: "決算・材料スケジュールの確認" }
+  ]
+};
+
+const THEMES = {
+  hanko: { name:"しっかり記録", swatch:"#B23B2E", bg:"#F3EEE3", card:"#FEFCF7", paper:"#FBF7EE", ink:"#20241F", sub:"#6E6A5F", seal:"#B23B2E", sealDark:"#8B2A20", teal:"#12483B", tealDark:"#0B342B", border:"#E4DCC8", borderStrong:"#D3C9AD", warn:"#8A5A16", warnBg:"#F6E8CE" },
+  simple: { name:"シンプル", swatch:"#3D3D3D", bg:"#F0F0EF", card:"#FFFFFF", paper:"#F7F7F6", ink:"#1A1A1A", sub:"#6B6B6B", seal:"#3D3D3D", sealDark:"#1A1A1A", teal:"#2B2B2B", tealDark:"#141414", border:"#E0E0E0", borderStrong:"#CFCFCF", warn:"#8A5A16", warnBg:"#F0EAD9" },
+  fresh: { name:"さわやか", swatch:"#1D9E75", bg:"#EAF3F2", card:"#FFFFFF", paper:"#F3FAF9", ink:"#173D3A", sub:"#5C7A77", seal:"#1D7A8C", sealDark:"#125866", teal:"#1D9E75", tealDark:"#0F6E56", border:"#D8ECE9", borderStrong:"#BFDFDA", warn:"#8A5A16", warnBg:"#EAF6E0" },
+  warm: { name:"あたたかい", swatch:"#C9762E", bg:"#F6ECE0", card:"#FFFDF8", paper:"#FBF3E6", ink:"#3A2A1B", sub:"#8A7360", seal:"#C9762E", sealDark:"#9C5A20", teal:"#B23B2E", tealDark:"#8B2A20", border:"#EEDFC9", borderStrong:"#E0CBA8", warn:"#8A5A16", warnBg:"#F6E3C4", cardGrad:"none" },
+  sunset: { name:"サンセット", swatch:"linear-gradient(135deg,#FDEADB,#F6C9A0 50%,#E8927A)", bg:"#F8E4D6", card:"#FFF9F2", paper:"#FFFFFF", ink:"#4A2A1E", sub:"#8A6152", seal:"#B23B2E", sealDark:"#8B2A20", teal:"#6B2E3B", tealDark:"#4E1F29", border:"#EFD9C4", borderStrong:"#E3C1A2", warn:"#8A5A16", warnBg:"#F6E3C4", cardGrad:"linear-gradient(135deg,#FDEADB,#F6C9A0 50%,#E8927A)" },
+  ocean: { name:"オーシャン", swatch:"linear-gradient(135deg,#E3F3F7,#9FD3DE 50%,#4E93A8)", bg:"#DDEFF3", card:"#FBFEFF", paper:"#FFFFFF", ink:"#123B45", sub:"#4E7480", seal:"#B23B2E", sealDark:"#8B2A20", teal:"#175E70", tealDark:"#0F4552", border:"#D2ECEF", borderStrong:"#B7DEE3", warn:"#8A5A16", warnBg:"#EAF6E0", cardGrad:"linear-gradient(135deg,#E3F3F7,#9FD3DE 50%,#4E93A8)" },
+  lavender: { name:"ラベンダー", swatch:"linear-gradient(135deg,#F2ECFB,#D9C8F0 50%,#B79EE0)", bg:"#EAE1F7", card:"#FCFAFF", paper:"#FFFFFF", ink:"#3A2A55", sub:"#79658F", seal:"#C23B6E", sealDark:"#8F2650", teal:"#4B2E7A", tealDark:"#37205C", border:"#E4D6F5", borderStrong:"#D3BEEF", warn:"#8A5A16", warnBg:"#F6E8CE", cardGrad:"linear-gradient(135deg,#F2ECFB,#D9C8F0 50%,#B79EE0)" },
+  gold: { name:"ゴールド", swatch:"linear-gradient(135deg,#FBF3DE,#F0DDA6 50%,#E0C177)", bg:"#F3E9CC", card:"#FFFCF3", paper:"#FFFFFF", ink:"#3A2E14", sub:"#8A7A52", seal:"#8B6914", sealDark:"#6B4F0F", teal:"#7A5B1E", tealDark:"#5C440F", border:"#EEDFB0", borderStrong:"#E0CB8A", warn:"#8A5A16", warnBg:"#F6E3C4", cardGrad:"linear-gradient(135deg,#FBF3DE,#F0DDA6 50%,#E0C177)" }
+};
+
+let db, currentItems = [], checkedState = {};
+let profiles = [], activeProfile = "trade";
+
+function openDB(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 3);
+    req.onupgradeneeded = (e) => {
+      const d = req.result;
+      if(d.objectStoreNames.contains(STORE)) d.deleteObjectStore(STORE);
+      d.createObjectStore(STORE, { keyPath: "id" });
+      if(!d.objectStoreNames.contains(SETTINGS)) d.createObjectStore(SETTINGS, { keyPath: "key" });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function getSetting(key){
+  return new Promise((resolve) => {
+    const tx = db.transaction(SETTINGS, "readonly");
+    const req = tx.objectStore(SETTINGS).get(key);
+    req.onsuccess = () => resolve(req.result ? req.result.value : null);
+  });
+}
+
+function putSetting(key, value){
+  return new Promise((resolve) => {
+    const tx = db.transaction(SETTINGS, "readwrite");
+    tx.objectStore(SETTINGS).put({ key, value });
+    tx.oncomplete = () => resolve();
+  });
+}
+
+async function loadProfiles(){
+  profiles = await getSetting("profiles") || [
+    { id: "trade", name: "スイングトレード" }
+  ];
+  activeProfile = await getSetting("activeProfile") || "trade";
+  renderProfileTabs();
+}
+
+function renderProfileTabs(){
+  const el = document.getElementById("profileTabs");
+  el.innerHTML = profiles.map(p =>
+    '<div class="tab'+(p.id===activeProfile?' active':'')+'" onclick="switchProfile(\''+p.id+'\')">'+p.name+'</div>'
+  ).join("") + '<div class="tab addtab" onclick="addProfile()">+</div>';
+  document.getElementById("profileAddRow").style.display = "none";
+}
+
+async function switchProfile(id){
+  activeProfile = id;
+  await putSetting("activeProfile", id);
+  renderProfileTabs();
+  await loadItems();
+}
+
+function addProfile(){
+  document.getElementById("profileAddRow").style.display = "flex";
+  document.getElementById("profileNameInput").value = "";
+  document.getElementById("profileNameInput").focus();
+}
+
+function cancelAddProfile(){
+  document.getElementById("profileAddRow").style.display = "none";
+}
+
+async function confirmAddProfile(){
+  const name = document.getElementById("profileNameInput").value.trim();
+  if(!name) return;
+  const template = document.getElementById("profileTemplateSelect").value;
+  const id = "p_" + Date.now();
+  profiles.push({ id, name });
+  await putSetting("profiles", profiles);
+  let items;
+  if(template === "trade") items = JSON.parse(JSON.stringify(DEFAULTS_BY_PROFILE.trade));
+  else items = [{ key: "item1", label: "項目1" }];
+  await putSetting("items:" + id, items);
+  document.getElementById("profileAddRow").style.display = "none";
+  await switchProfile(id);
+}
+
+async function loadItems(){
+  const stored = await getSetting("items:" + activeProfile);
+  currentItems = stored || DEFAULTS_BY_PROFILE[activeProfile] || [{ key: "item1", label: "項目1" }];
+  checkedState = {};
+  document.getElementById("listTitle").textContent =
+    profiles.find(p => p.id === activeProfile).name + "の本日のチェック";
+  renderCheckItems();
+  await refreshStarsRow();
+  await renderStaffSelect();
+}
+
+function renderCheckItems(){
+  const el = document.getElementById("checkItems");
+  el.innerHTML = currentItems.map(it => {
+    const isDone = !!checkedState[it.key];
+    return '<div class="item"><span>'+it.label+'</span>'
+      + '<div class="stamp'+(isDone?' done':'')+'" onclick="toggleStamp(\''+it.key+'\')">'+(isDone?'済':'未')+'</div></div>';
+  }).join("");
+}
+
+function toggleStamp(key){
+  checkedState[key] = !checkedState[key];
+  renderCheckItems();
+}
+
+function showEdit(){
+  const el = document.getElementById("editItems");
+  el.innerHTML = currentItems.map((it, i) =>
+    '<div class="row"><input type="text" value="'+it.label+'" oninput="renameItem('+i+',this.value)" />'
+    + '<button onclick="removeEditItem('+i+')" style="width:36px;padding:6px;flex-shrink:0;">✕</button></div>'
+  ).join("");
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-edit").classList.add("active");
+}
+
+function renameItem(i, value){
+  currentItems[i].label = value;
+}
+
+function removeEditItem(i){
+  currentItems.splice(i, 1);
+  showEdit();
+}
+
+function addEditItem(){
+  const input = document.getElementById("newItemInput");
+  const label = input.value.trim();
+  if(!label) return;
+  const key = "item_" + Date.now();
+  currentItems.push({ key, label });
+  input.value = "";
+  showEdit();
+}
+
+function resetToDefault(){
+  if(!confirm("このタブの項目を既定の内容に戻します。よろしいですか?")) return;
+  currentItems = JSON.parse(JSON.stringify(DEFAULTS_BY_PROFILE[activeProfile] || [{ key: "item1", label: "項目1" }]));
+  showEdit();
+}
+
+async function saveEditItems(){
+  await putSetting("items:" + activeProfile, currentItems);
+  checkedState = {};
+  renderCheckItems();
+  showScreen("check");
+}
+
+function showSettings(){
+  const sw = document.getElementById("themeSwatches");
+  getSetting("theme").then(theme => {
+    theme = theme || "hanko";
+    sw.innerHTML = Object.keys(THEMES).map(key =>
+      '<div class="swatch'+(key===theme?' active':'')+'" style="background:'+THEMES[key].swatch+';" title="'+THEMES[key].name+'" onclick="applyTheme(\''+key+'\')"></div>'
+    ).join("");
+  });
+  const list = document.getElementById("settingsProfileList");
+  list.innerHTML = profiles.map(p => '<div class="row"><span>'+p.name+'</span></div>').join("");
+  getStaffPointsSummary().then(rows => {
+    const el = document.getElementById("staffPointsList");
+    if(rows.length === 0){
+      el.innerHTML = '<p style="color:var(--sub); font-size:13px;">担当者がまだ登録されていません。</p>';
+    } else {
+      rows.sort((a,b) => b.points - a.points || b.stars - a.stars);
+      el.innerHTML = rows.map(r =>
+        '<div class="row"><span>'+r.name+'</span><span class="points-pill">'+r.points+'pt(☆'+r.stars+')</span></div>'
+      ).join("");
+    }
+  });
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-settings").classList.add("active");
+}
+
+async function applyTheme(key){
+  await putSetting("theme", key);
+  setThemeVars(key);
+  showSettings();
+}
+
+function setThemeVars(key){
+  const t = THEMES[key] || THEMES.hanko;
+  const root = document.documentElement.style;
+  root.setProperty("--bg", t.bg);
+  root.setProperty("--card", t.card);
+  root.setProperty("--paper", t.paper);
+  root.setProperty("--ink", t.ink);
+  root.setProperty("--sub", t.sub);
+  root.setProperty("--seal", t.seal);
+  root.setProperty("--seal-dark", t.sealDark);
+  root.setProperty("--teal", t.teal);
+  root.setProperty("--teal-dark", t.tealDark);
+  root.setProperty("--border", t.border);
+  root.setProperty("--border-strong", t.borderStrong);
+  root.setProperty("--warn", t.warn);
+  root.setProperty("--warn-bg", t.warnBg);
+  root.setProperty("--card-grad", t.cardGrad || "none");
+}
+
+async function getStarsData(profileId, staffName){
+  const key = "stars:" + profileId + ":" + (staffName || "__none__");
+  const data = await getSetting(key);
+  return data || { stars: 0, points: 0 };
+}
+
+async function renderStars(elId, data){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  let icons = "";
+  for(let i = 0; i < 10; i++){
+    icons += '<span class="'+(i < data.stars ? "star-on" : "star-off")+'">'+(i < data.stars ? "★" : "☆")+'</span>';
+  }
+  el.innerHTML = '<div class="stars-icons">'+icons+'</div><div class="points-pill">ポイント '+data.points+'pt</div>';
+}
+
+function currentStaffName(){
+  const sel = document.getElementById("staffSelect");
+  const v = sel ? sel.value : "";
+  return (v === "__add__") ? "" : v;
+}
+
+async function refreshStarsRow(){
+  const staff = currentStaffName();
+  if(!staff){
+    document.getElementById("starsRow").innerHTML = '<span style="font-size:12.5px; color:var(--sub);">担当者を選ぶとポイントが貯まります</span>';
+    return;
+  }
+  const data = await getStarsData(activeProfile, staff);
+  renderStars("starsRow", data);
+}
+
+async function addStarIfComplete(allChecked, staff){
+  const data = await getStarsData(activeProfile, staff);
+  if(!allChecked || !staff) return data;
+  const lastKey = "lastStarDate:" + activeProfile + ":" + staff;
+  const lastDate = await getSetting(lastKey);
+  const today = todayStr();
+  if(lastDate === today) return data;
+  data.stars += 1;
+  if(data.stars >= 10){
+    data.stars -= 10;
+    data.points += 1;
+  }
+  await putSetting("stars:" + activeProfile + ":" + staff, data);
+  await putSetting(lastKey, today);
+  return data;
+}
+
+async function getStaffPointsSummary(){
+  const list = await getStaffList(activeProfile);
+  const rows = [];
+  for(const name of list){
+    const data = await getStarsData(activeProfile, name);
+    rows.push({ name, points: data.points, stars: data.stars });
+  }
+  return rows;
+}
+
+async function getStaffList(profileId){
+  return (await getSetting("staffList:" + profileId)) || [];
+}
+
+async function renderStaffSelect(){
+  const list = await getStaffList(activeProfile);
+  const sel = document.getElementById("staffSelect");
+  const prevValue = sel.value;
+  let opts = '<option value="">担当者を選択</option>';
+  opts += list.map(name => '<option value="'+name+'">'+name+'</option>').join("");
+  opts += '<option value="__add__">+ 新しい担当者を追加</option>';
+  sel.innerHTML = opts;
+  if(list.includes(prevValue)) sel.value = prevValue;
+  document.getElementById("staffAddRow").style.display = "none";
+}
+
+async function handleStaffChange(){
+  const sel = document.getElementById("staffSelect");
+  const addRow = document.getElementById("staffAddRow");
+  if(sel.value === "__add__"){
+    addRow.style.display = "flex";
+    document.getElementById("staffAddInput").value = "";
+    document.getElementById("staffAddInput").focus();
+  } else {
+    addRow.style.display = "none";
+  }
+  await refreshStarsRow();
+}
+
+async function confirmAddStaff(){
+  const input = document.getElementById("staffAddInput");
+  const name = input.value.trim();
+  if(!name) return;
+  const list = await getStaffList(activeProfile);
+  if(!list.includes(name)) list.push(name);
+  await putSetting("staffList:" + activeProfile, list);
+  await renderStaffSelect();
+  document.getElementById("staffSelect").value = name;
+  document.getElementById("staffAddRow").style.display = "none";
+  await refreshStarsRow();
+}
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+function todayLabelStr(){
+  const d = new Date();
+  const w = ["日","月","火","水","木","金","土"][d.getDay()];
+  return (d.getMonth()+1)+"月"+d.getDate()+"日("+w+")";
+}
+
+async function saveRecord(){
+  const checks = Object.assign({}, checkedState);
+  const allChecked = currentItems.length > 0 && currentItems.every(it => checks[it.key]);
+  let note = "";
+  if(!allChecked){
+    note = prompt("未実施の項目があります。理由があれば入力してください(任意)") || "";
+  }
+  const staff = document.getElementById("staffSelect").value === "__add__" ? "" : document.getElementById("staffSelect").value;
+  const date = todayStr();
+  const record = { id: activeProfile+"__"+date, profile: activeProfile, date, checks, allChecked, staff, note, savedAt: new Date().toISOString() };
+
+  const tx = db.transaction(STORE, "readwrite");
+  tx.objectStore(STORE).put(record);
+  await new Promise(res => tx.oncomplete = res);
+
+  const streak = await computeStreak();
+  document.getElementById("streakLabel").textContent = streak > 0
+    ? "連続" + streak + "日記録できています"
+    : "記録を開始しました";
+  const starsData = await addStarIfComplete(allChecked, staff);
+  await renderStars("starsRowDone", starsData);
+  showScreen("done");
+}
+
+async function computeStreak(){
+  const all = (await getAllRecords()).filter(r => r.profile === activeProfile);
+  all.sort((a,b) => b.date.localeCompare(a.date));
+  let streak = 0;
+  let cursor = new Date();
+  for(const r of all){
+    const expect = cursor.getFullYear()+"-"+String(cursor.getMonth()+1).padStart(2,"0")+"-"+String(cursor.getDate()).padStart(2,"0");
+    if(r.date === expect && r.allChecked){
+      streak++;
+      cursor.setDate(cursor.getDate()-1);
+    } else break;
+  }
+  return streak;
+}
+
+function getAllRecords(){
+  return new Promise((resolve) => {
+    const tx = db.transaction(STORE, "readonly");
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = () => resolve(req.result);
+  });
+}
+
+async function showHistory(){
+  const all = (await getAllRecords()).filter(r => r.profile === activeProfile);
+  all.sort((a,b) => b.date.localeCompare(a.date));
+  const list = document.getElementById("historyList");
+  const print = document.getElementById("printArea");
+
+  if(all.length === 0){
+    list.innerHTML = '<p style="color:var(--sub);font-size:14px;">まだ記録がありません。</p>';
+  } else {
+    list.innerHTML = all.map(r => {
+      const label = r.allChecked
+        ? '<span class="badge-ok">完了</span>'
+        : '<span class="badge-warn">一部未実施</span>';
+      const who = r.staff ? " ・"+r.staff : "";
+      return '<div class="row"><span>'+r.date+who+'</span>'+label+'</div>';
+    }).join("");
+  }
+
+  const itemLabels = currentItems.map(it => it.label);
+  const itemKeys = currentItems.map(it => it.key);
+  print.innerHTML = "<h2>チェック記録一覧</h2><table border='1' cellpadding='6' style='border-collapse:collapse;width:100%;font-size:14px;'>"
+    + "<tr><th>日付</th><th>担当者</th>" + itemLabels.map(l => "<th>"+l+"</th>").join("") + "<th>状態</th><th>備考</th></tr>"
+    + all.map(r => "<tr><td>"+r.date+"</td><td>"+(r.staff||"")+"</td>"
+      + itemKeys.map(k => "<td>"+(r.checks[k]?"○":"×")+"</td>").join("")
+      + "<td>"+(r.allChecked?"完了":"一部未実施")+"</td><td>"+(r.note||"")+"</td></tr>").join("")
+    + "</table>";
+
+  showScreen("history");
+}
+
+function showScreen(name){
+  ["check","done","history","edit","settings"].forEach(n => {
+    document.getElementById("screen-"+n).classList.toggle("active", n===name);
+  });
+  ["check","done","history"].forEach(n => {
+    const dot = document.getElementById("dot-"+n);
+    if(dot) dot.classList.toggle("active", n===name);
+  });
+  if(name === "check"){
+    checkedState = {};
+    renderCheckItems();
+  }
+}
+
+function updateNetStatus(){
+  const el = document.getElementById("netStatus");
+  el.textContent = navigator.onLine
+    ? "オンライン(データは端末内に保存されます)"
+    : "オフラインです。電波が戻り次第、自動で反映されます。";
+}
+
+window.addEventListener("online", updateNetStatus);
+window.addEventListener("offline", updateNetStatus);
+
+(async function init(){
+  document.getElementById("todayLabel").textContent = todayLabelStr();
+  updateNetStatus();
+  db = await openDB();
+  const theme = await getSetting("theme") || "gold";
+  setThemeVars(theme);
+  await loadProfiles();
+  await loadItems();
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
