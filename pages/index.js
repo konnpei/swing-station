@@ -590,6 +590,32 @@ function formatVolume(v) {
   return v.toLocaleString();
 }
 
+function VolumeMiniBars({ history }) {
+  if (!history || history.length < 2) return null;
+  const W = 90, H = 24, PAD = 1;
+  const max = Math.max(1, ...history);
+  const barW = (W - PAD * 2) / history.length;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 76, height: 20, display: "block", marginTop: 4 }}>
+      {history.map((v, i) => {
+        const h = Math.max(1, (v / max) * (H - 2));
+        const isLast = i === history.length - 1;
+        return (
+          <rect
+            key={i}
+            x={PAD + i * barW}
+            y={H - h}
+            width={Math.max(1, barW - 1)}
+            height={h}
+            fill={isLast ? "#ffd166" : "#ffffff"}
+            opacity={isLast ? 1 : 0.25}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
 function VolumeMonitor({ items, refreshedAt }) {
   if (!items || items.length === 0) return null;
   const judgeColor = (j) => (
@@ -623,6 +649,7 @@ function VolumeMonitor({ items, refreshedAt }) {
             <div style={{ fontSize: 9, color: judgeColor(it.judgement), fontWeight: 700, marginTop: 3 }}>
               {it.judgement}
             </div>
+            <VolumeMiniBars history={it.history} />
           </div>
         ))}
       </div>

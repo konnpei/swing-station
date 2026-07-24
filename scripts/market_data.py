@@ -311,6 +311,7 @@ def fetch_volume_history():
                 volume=latest_vol, volume_prev_pct=volume_prev_pct,
                 avg20d=avg20d, avg20d_pct=avg20d_pct,
                 judgement=judge_volume(avg20d_pct),
+                history=[int(v) for v in hist["Volume"].tail(15).tolist()],
             )
         except Exception as e:
             item.update(volume=None, volume_prev_pct=None, avg20d=None,
