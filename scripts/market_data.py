@@ -925,3 +925,112 @@ def fetch_jp_screener():
 def fetch_us_screener():
     return fetch_technicals_for_list(US_WATCH_LIST, US_WATCH_MAP, US_SECTOR_MAP, strip_suffix=False)
 
+
+# ------------------------------------------------------------------
+# 週足・月足トレンドスコア（マルチタイムフレーム）
+# 日足のMarket Scoreは既存のフロント側ロジック(mode基準)をそのまま使うため、
+# ここでは追加の時間軸（週足・月足）のみを算出する。
+# ------------------------------------------------------------------
+
+def _mtf_resample(df, rule):
+    """日足OHLCを週足('W')/月足('M')にリサンプル。pandas 2.2+では'M'が
+    非推奨のため'ME'（月末）に変換して両バージョンに対応する。"""
+    rule = {"M": "ME"}.get(rule, rule)
+    o = df["Open"].resample(rule).first()
+    h = df["High"].resample(rule).max()
+    l = df["Low"].resample(rule).min()
+    c = df["Close"].resample(rule).last()
+    import pandas as pd
+    return pd.DataFrame({"Open": o, "High": h, "Low": l, "Close": c}).dropna()
+
+
+def _mtf_macd_direction(close, fast=12, slow=26, signal=9):
+    import numpy as np
+    ema_fast = close.ewm(span=fast, adjust=False).mean()
+    ema_slow = close.ewm(span=slow, adjust=False).mean()
+    macd = ema_fast - ema_slow
+    signal_line = macd.ewm(span=signal, adjust=False).mean()
+    hist = macd - signal_line
+    if len(hist) < 3:
+        return 0.0
+    slope = hist.iloc[-1] - hist.iloc[-3]
+    scale = close.tail(20).std() or 1.0
+    return float(np.clip(slope / scale, -1, 1))
+
+
+def _mtf_ma_deviation(close, window):
+    import numpy as np
+    if len(close) < window:
+        window = max(3, len(close) // 2)
+    ma = close.rolling(window).mean().iloc[-1]
+    last = close.iloc[-1]
+    if ma == 0 or np.isnan(ma):
+        return 0.0
+    return float(np.clip((last - ma) / ma / 0.05, -1, 1))
+
+
+def _mtf_higher_low(df, lookback):
+    import numpy as np
+    lows = df["Low"].tail(lookback)
+    if len(lows) < 3:
+        return 0.0
+    diffs = np.diff(lows.values)
+    return float(np.clip((np.mean(diffs > 0) - 0.5) * 2, -1, 1))
+
+
+def _mtf_candle_bull_ratio(df, lookback):
+    import numpy as np
+    tail = df.tail(lookback)
+    if len(tail) == 0:
+        return 0.0
+    return float(np.clip((tail["Close"] > tail["Open"]).mean() * 2 - 1, -1, 1))
+
+
+def _mtf_to_0_100(raw):
+    import numpy as np
+    return int(round((np.clip(raw, -1, 1) + 1) / 2 * 100))
+
+
+def _mtf_label(score):
+    if score < 30:
+        return "強い警戒"
+    if score < 50:
+        return "警戒"
+    if score < 70:
+        return "様子見"
+    return "強気転換"
+
+
+def fetch_multi_timeframe_trend():
+    """日経225の週足・月足トレンドスコア(0-100)を算出する。
+    週足: 25週MA乖離(40%) + 直近5週陽線比率(30%) + 週足MACD傾き(30%)
+    月足: 200日MA乖離(45%) + 直近6ヶ月安値切り上げ(35%) + 月足MACD傾き(20%)
+    戻り値はNoneの場合あり（ヒストリカルデータが十分取得できない場合）。"""
+    import yfinance as yf
+    hist = yf.Ticker("^N225").history(period="3y", interval="1d")
+    if hist is None or len(hist) < 200:
+        return None
+
+    weekly = _mtf_resample(hist, "W")
+    weekly_raw = (
+        _mtf_ma_deviation(weekly["Close"], window=25) * 0.4
+        + _mtf_candle_bull_ratio(weekly, lookback=5) * 0.3
+        + _mtf_macd_direction(weekly["Close"]) * 0.3
+    )
+
+    monthly = _mtf_resample(hist, "M")
+    monthly_raw = (
+        _mtf_ma_deviation(hist["Close"], window=200) * 0.45
+        + _mtf_higher_low(monthly, lookback=6) * 0.35
+        + _mtf_macd_direction(monthly["Close"]) * 0.20
+    )
+
+    weekly_score = _mtf_to_0_100(weekly_raw)
+    monthly_score = _mtf_to_0_100(monthly_raw)
+    return {
+        "weekly": weekly_score,
+        "monthly": monthly_score,
+        "weekly_label": _mtf_label(weekly_score),
+        "monthly_label": _mtf_label(monthly_score),
+    }
+

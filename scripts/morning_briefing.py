@@ -189,6 +189,7 @@ from market_data import (
     fetch_all_watch_changes, fetch_surge_drop, build_sector_heatmap, top_movers,
     US_WATCH_MAP, US_SECTOR_MAP, US_WATCH_LIST, fetch_us_watch_changes,
     fetch_market_data, compute_ai_score, sanitize_for_json,
+    fetch_multi_timeframe_trend,
 )
  
 
@@ -1080,6 +1081,13 @@ if __name__ == "__main__":
         print(f"Bloomberg/Nikkei headlines fetch error: {e}")
         top_headlines = []
 
+    print("Computing weekly/monthly trend score...")
+    try:
+        mtf_trend = fetch_multi_timeframe_trend()
+    except Exception as e:
+        print(f"Multi-timeframe trend fetch error: {e}")
+        mtf_trend = None
+
     print("Sending to Discord...")
     send_to_discord(banner_buf, chart_buf, note_text, content, data, mode, top_headlines)
 
@@ -1131,6 +1139,10 @@ if __name__ == "__main__":
         "is_trading_day": IS_TRADING_DAY,
         "next_trading_day": NEXT_TRADING_DAY_STR,
         "top_news_headlines": top_headlines,
+        "market_score_weekly": mtf_trend.get("weekly") if mtf_trend else None,
+        "market_score_monthly": mtf_trend.get("monthly") if mtf_trend else None,
+        "market_score_weekly_label": mtf_trend.get("weekly_label") if mtf_trend else None,
+        "market_score_monthly_label": mtf_trend.get("monthly_label") if mtf_trend else None,
         "mode": mode,
         "market_summary": content.get("market_summary", ""),
         "nikkei": data["latest"]["close"],
