@@ -97,6 +97,23 @@
   .star-on{color:var(--seal);}
   .star-off{color:var(--border-strong);}
   .points-pill{font-size:11.5px; font-weight:700; background:var(--paper); color:var(--sub); border:1px solid var(--border); padding:4px 11px; border-radius:999px; white-space:nowrap;}
+  .tabs-wrap{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 4px;}
+  .cal-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .cal-nav button{padding:6px 14px; font-size:14px; border-radius:999px;}
+  .cal-month-label{font-size:15px; font-weight:700; color:var(--ink);}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px;}
+  .cal-dow{font-size:11px; color:var(--sub); text-align:center; padding-bottom:4px;}
+  .cal-cell{
+    aspect-ratio:1; min-width:0; overflow:hidden; border-radius:10px; border:1px solid var(--border);
+    background:var(--paper); display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative; font-size:11px; color:var(--sub);
+  }
+  .cal-cell.empty{border:none; background:transparent;}
+  .cal-cell.has-record{border-color:var(--border-strong); cursor:pointer;}
+  .cal-cell.has-record:active{transform:scale(0.94);}
+  .cal-day{font-size:10px; color:var(--sub); position:absolute; top:3px; left:5px;}
+  .cal-score{font-size:14px; font-weight:700; color:var(--teal);}
+  .cal-star{color:var(--seal); line-height:1; white-space:nowrap;}
   @media print{ body *{visibility:hidden;} #printArea, #printArea *{visibility:visible;} #printArea{position:absolute; top:0; left:0; width:100%;} }
 </style>
 </head>
@@ -156,6 +173,8 @@
       <div id="settingsProfileList"></div>
       <p class="eyebrow" style="margin-top:12px;">担当者ごとのポイント</p>
       <div id="staffPointsList"></div>
+      <p class="eyebrow" style="margin-top:12px;">記録一覧(カレンダー)の表示スタイル</p>
+      <div class="tabs-wrap" id="historyModeTabs"></div>
       <button class="btn-plain" onclick="showScreen('check')">戻る</button>
     </section>
 
@@ -170,6 +189,7 @@
     <section id="screen-history" class="screen">
       <p class="eyebrow">記録一覧</p>
       <h1>これまでの記録</h1>
+      <div id="historyCalendar" style="margin-bottom:18px;"></div>
       <div id="historyList"></div>
       <button class="btn-plain" onclick="window.print()">印刷 / PDF出力</button>
       <button class="btn-plain" onclick="showScreen('check')">チェック画面に戻る</button>
@@ -212,6 +232,7 @@ const THEMES = {
 
 let db, currentItems = [], checkedState = {};
 let profiles = [], activeProfile = "trade";
+let historyDisplayMode = "score", historyMonthCursor = new Date(), recordsByDate = {};
 
 function openDB(){
   return new Promise((resolve, reject) => {
@@ -379,8 +400,19 @@ function showSettings(){
       ).join("");
     }
   });
+  const modeEl = document.getElementById("historyModeTabs");
+  const modeOpts = [["score","点数"],["gradient","グラデーション"],["star","⭐スター"]];
+  modeEl.innerHTML = modeOpts.map(([key,label]) =>
+    '<div class="tab'+(key===historyDisplayMode?' active':'')+'" onclick="applyHistoryMode(\''+key+'\')">'+label+'</div>'
+  ).join("");
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   document.getElementById("screen-settings").classList.add("active");
+}
+
+async function applyHistoryMode(key){
+  historyDisplayMode = key;
+  await putSetting("historyDisplayMode", key);
+  showSettings();
 }
 
 async function applyTheme(key){
@@ -567,9 +599,76 @@ function getAllRecords(){
   });
 }
 
+function scoreForRecord(r){
+  const keys = Object.keys(r.checks || {});
+  if(keys.length === 0) return r.allChecked ? 100 : 0;
+  const done = keys.filter(k => r.checks[k]).length;
+  return Math.round((done / keys.length) * 100);
+}
+
+function renderCalendarCell(day, dateStr, rec){
+  if(!rec){
+    return '<div class="cal-cell"><span class="cal-day">'+day+'</span></div>';
+  }
+  const score = scoreForRecord(rec);
+  let mark = "";
+  if(historyDisplayMode === "gradient"){
+    const alpha = Math.max(0.15, score/100);
+    return '<div class="cal-cell has-record" style="background:rgba(178,59,46,'+alpha+');" onclick="showDayDetail(\''+dateStr+'\')"><span class="cal-day">'+day+'</span></div>';
+  }
+  if(historyDisplayMode === "star"){
+    const size = 11 + Math.round(score/100*15);
+    mark = '<span class="cal-star" style="font-size:'+size+'px;">★</span>';
+  } else {
+    mark = '<span class="cal-score">'+score+'</span>';
+  }
+  return '<div class="cal-cell has-record" onclick="showDayDetail(\''+dateStr+'\')"><span class="cal-day">'+day+'</span>'+mark+'</div>';
+}
+
+function renderCalendar(){
+  const wrap = document.getElementById("historyCalendar");
+  const y = historyMonthCursor.getFullYear();
+  const m = historyMonthCursor.getMonth();
+  const startWeekday = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+
+  let html = '<div class="cal-nav">'
+    + '<button onclick="changeHistoryMonth(-1)">←</button>'
+    + '<span class="cal-month-label">'+y+"年"+(m+1)+'月</span>'
+    + '<button onclick="changeHistoryMonth(1)">→</button>'
+    + '</div>';
+  html += '<div class="cal-grid">';
+  ["日","月","火","水","木","金","土"].forEach(w => html += '<div class="cal-dow">'+w+'</div>');
+  for(let i=0;i<startWeekday;i++) html += '<div class="cal-cell empty"></div>';
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    html += renderCalendarCell(d, dateStr, recordsByDate[dateStr]);
+  }
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function changeHistoryMonth(delta){
+  historyMonthCursor.setMonth(historyMonthCursor.getMonth() + delta);
+  renderCalendar();
+}
+
+function showDayDetail(dateStr){
+  const rec = recordsByDate[dateStr];
+  if(!rec) return;
+  const lines = [dateStr, "達成率: "+scoreForRecord(rec)+"%"];
+  if(rec.staff) lines.push("担当: "+rec.staff);
+  if(rec.note) lines.push("備考: "+rec.note);
+  alert(lines.join("\n"));
+}
+
 async function showHistory(){
   const all = (await getAllRecords()).filter(r => r.profile === activeProfile);
   all.sort((a,b) => b.date.localeCompare(a.date));
+  recordsByDate = {};
+  all.forEach(r => { recordsByDate[r.date] = r; });
+  historyMonthCursor = new Date();
+  renderCalendar();
   const list = document.getElementById("historyList");
   const print = document.getElementById("printArea");
 
@@ -627,6 +726,7 @@ window.addEventListener("offline", updateNetStatus);
   db = await openDB();
   const theme = await getSetting("theme") || "gold";
   setThemeVars(theme);
+  historyDisplayMode = await getSetting("historyDisplayMode") || "score";
   await loadProfiles();
   await loadItems();
   if("serviceWorker" in navigator){
