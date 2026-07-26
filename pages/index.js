@@ -465,7 +465,7 @@ function nextImportantEvent(briefing) {
   return all.sort((a, b) => a.date.localeCompare(b.date)).find(e => e.date >= todayKey) || all[0] || null;
 }
 
-function MarketDashboard({ briefing }) {
+function MarketDashboard({ briefing, todayInfo }) {
   const score = getMarketScore(briefing);
   const meta = marketScoreMeta(score);
   const lines = strategyLines(briefing);
@@ -480,6 +480,11 @@ function MarketDashboard({ briefing }) {
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))", gap: 10, marginBottom: 14 }}>
       <div style={{ background: "linear-gradient(145deg,#151515,#0d0d0d)", border: `1px solid ${meta.color}55`, boxShadow: `0 0 28px ${meta.color}16`, borderRadius: 14, padding: "14px 14px 12px" }}>
         <div style={{ fontSize: 10, color: "#8a8a8a", letterSpacing: 1 }}>TODAY'S MARKET SCORE</div>
+        {todayInfo?.isWeekend && (
+          <div style={{ fontSize: 9, color: "#ffd166", marginTop: 3 }}>
+            休場中のため{briefing.date || "直近営業日"}時点のスコアです
+          </div>
+        )}
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 8 }}>
           <div style={{ width: 112, height: 112, position: "relative", flexShrink: 0 }}>
             <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%", transform: "rotate(-90deg)" }}>
@@ -766,7 +771,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
         </div>
       </div>
 
-      <MarketDashboard briefing={briefing} />
+      <MarketDashboard briefing={briefing} todayInfo={todayInfo} />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
         <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 8, padding: "8px 10px" }}>
