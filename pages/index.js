@@ -22,16 +22,19 @@ function ComplianceNote() {
 function getTodayInfo(isTradingDay) {
   const days = ["日", "月", "火", "水", "木", "金", "土"];
   const now = new Date();
-  const day = days[now.getDay()];
+  const dayIdx = now.getDay();
+  const day = days[dayIdx];
   const hour = now.getHours();
-  const isWeekday = now.getDay() >= 1 && now.getDay() <= 5;
+  const isRealWeekend = dayIdx === 0 || dayIdx === 6;
+  const isWeekday = !isRealWeekend;
   // is_trading_day はサーバー側で日本の祝日も加味して判定済み（backend: is_business_day）。
-  // 値が取得できていない場合のみ、クライアント側の曜日判定にフォールバックする。
-  const tradingDay = typeof isTradingDay === "boolean" ? isTradingDay : isWeekday;
+  // ただし朝刊が数日間更新されないままだと生成当時の値が残り続けるため、
+  // 実際の曜日(isWeekday)を必ず優先し、平日の祝日判定にのみ isTradingDay を使う。
+  const tradingDay = isWeekday && isTradingDay !== false;
   const isMarketOpen = tradingDay && hour >= 9 && hour < 16;
   const isUSMarket = tradingDay && (hour >= 23 || hour < 6);
   const isWeekend = !tradingDay;
-  return { day, isMarketOpen, isUSMarket, isWeekend };
+  return { day, isMarketOpen, isUSMarket, isWeekend, isRealWeekend };
 }
 
 function nextMondayLabel() {
@@ -44,6 +47,9 @@ function nextMondayLabel() {
 
 function WeekendBanner({ todayInfo, briefingDate, nextTradingDay }) {
   if (!todayInfo.isWeekend) return null;
+  const headline = todayInfo.isRealWeekend
+    ? `東証・NY証券とも休場中（${todayInfo.day}曜日）`
+    : `東証休場中（${todayInfo.day}曜日・祝日、NY市場は開いている場合があります）`;
   return (
     <div style={{
       background: "#12141a", border: "1px solid #3a3f52", borderRadius: 10,
@@ -51,7 +57,7 @@ function WeekendBanner({ todayInfo, briefingDate, nextTradingDay }) {
     }}>
       <span style={{ fontSize: 16 }}>🌙</span>
       <div style={{ fontSize: 11, color: "#b8bcd0" }}>
-        市場休場中（{todayInfo.day}曜日）— 表示中のデータは{briefingDate || "直近営業日"}の朝刊です。次回更新は{nextTradingDay || nextMondayLabel()} 6:30
+        {headline} — 表示中のデータは{briefingDate || "直近営業日"}の朝刊です。次回更新は{nextTradingDay || nextMondayLabel()} 6:30
       </div>
     </div>
   );
@@ -1874,7 +1880,7 @@ export default function SwingStation() {
               border: `1px solid ${todayInfo.isMarketOpen ? "#00ff9d33" : "#5a5a5a"}`,
               color: todayInfo.isMarketOpen ? "#00ff9d" : "#8a8a8a",
             }}>
-              {todayInfo.isMarketOpen ? "東証OPEN" : todayInfo.isUSMarket ? "NY OPEN" : `${todayInfo.day}曜`}
+              {todayInfo.isMarketOpen ? "東証OPEN" : todayInfo.isUSMarket ? "NY OPEN" : todayInfo.isRealWeekend ? "休場中" : `${todayInfo.day}曜`}
             </div>
             <div style={{ width:5, height:5, borderRadius:"50%", background:"#e8e8e8", animation:"ssP 2s infinite" }}/>
           </div>
