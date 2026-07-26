@@ -859,6 +859,79 @@ def compute_ai_score(tech):
     return max(0, min(100, round(score)))
 
 
+def detect_cup_handle(close, volume):
+    """カップウィズハンドルパターンを機械的に検出する参考シグナル。
+
+    週足でカップ形状（左リム→ボトム→右リム、深さ10〜50%・期間7〜65週が
+    オニールの原典基準）を確認し、直近の日足でハンドル（右リムからの浅い
+    調整、深さ15%以内）とブレイクアウト（ハンドル高値=ピボットを出来高
+    増加で上抜け）を判定する。あくまで形状の近似検出であり、パターンの
+    成立を保証するものではない。
+    """
+    if close is None or len(close) < 90:
+        return {"detected": False}
+
+    weekly = close.resample("W").last().dropna()
+    if len(weekly) < 8:
+        return {"detected": False}
+
+    window = weekly.tail(66)
+    if len(window) < 8:
+        return {"detected": False}
+
+    values = window.tolist()
+    left_rim_price = max(values)
+    left_rim_pos = values.index(left_rim_price)
+
+    after_left = values[left_rim_pos:]
+    if len(after_left) < 7:
+        return {"detected": False}
+
+    bottom_price = min(after_left)
+    bottom_pos = after_left.index(bottom_price)
+    cup_depth_pct = (left_rim_price - bottom_price) / left_rim_price * 100
+    if not (10 <= cup_depth_pct <= 50):
+        return {"detected": False}
+
+    after_bottom = after_left[bottom_pos:]
+    if len(after_bottom) < 2:
+        return {"detected": False}
+
+    right_rim_price = max(after_bottom)
+    if right_rim_price < left_rim_price * 0.85:
+        return {"detected": False}
+
+    cup_weeks = len(after_left)
+    if not (7 <= cup_weeks <= 65):
+        return {"detected": False}
+
+    daily_recent = close.tail(15)
+    vol_recent_short = float(volume.tail(5).mean())
+    vol_recent_long = float(volume.tail(20).mean())
+    current_vol_ratio = vol_recent_short / vol_recent_long if vol_recent_long > 0 else 1.0
+
+    handle_high = float(daily_recent.max())
+    handle_low = float(daily_recent.min())
+    handle_depth_pct = (handle_high - handle_low) / handle_high * 100 if handle_high else 0
+    current_price = float(close.iloc[-1])
+    pivot = round(handle_high, 1)
+
+    if handle_depth_pct > 15 or current_price < right_rim_price * 0.80:
+        stage = "cup"
+    elif current_price > handle_high and current_vol_ratio > 1.3:
+        stage = "breakout"
+    else:
+        stage = "handle"
+
+    return {
+        "detected": True,
+        "stage": stage,
+        "pivot": pivot,
+        "cup_depth_pct": round(cup_depth_pct, 1),
+        "cup_weeks": cup_weeks,
+    }
+
+
 def fetch_technicals_for_list(ticker_list, name_map, sector_map, strip_suffix=False):
     """監視銘柄リストの各銘柄についてRSI/MA25乖離/BB位置/出来高比を計算し、
     compute_ai_score()でスコア化する。Claude APIは使わない純計算。"""
@@ -870,7 +943,7 @@ def fetch_technicals_for_list(ticker_list, name_map, sector_map, strip_suffix=Fa
         sector = sector_map.get(code_short, "その他")
         try:
             ticker = yf.Ticker(code)
-            hist = ticker.history(period="60d")
+            hist = ticker.history(period="2y")
             if hist.empty or len(hist) < 25:
                 continue
             close = hist["Close"]
@@ -897,6 +970,7 @@ def fetch_technicals_for_list(ticker_list, name_map, sector_map, strip_suffix=Fa
                 "rsi": rsi, "vol_ratio": vol_ratio,
             }
             tech["ai_score"] = compute_ai_score(tech)
+            tech["cup_handle"] = detect_cup_handle(close, volume)
             results.append(tech)
         except Exception:
             continue
@@ -912,10 +986,18 @@ def build_screener(technicals_list, n=10, high_conviction_threshold=90):
     all_ranked = sorted(technicals_list, key=lambda t: t["ai_score"], reverse=True)
     buy_candidates = [t for t in all_ranked if t["ai_score"] > 0]
     high_conviction = [t for t in buy_candidates if t["ai_score"] >= high_conviction_threshold]
+
+    stage_order = {"breakout": 0, "handle": 1}
+    cup_handle = sorted(
+        (t for t in technicals_list if t.get("cup_handle", {}).get("stage") in stage_order),
+        key=lambda t: (stage_order[t["cup_handle"]["stage"]], -t["ai_score"]),
+    )
+
     return {
         "top": buy_candidates[:n],
         "bottom": all_ranked[-n:][::-1] if len(all_ranked) >= n else [],
         "high_conviction": high_conviction,
+        "cup_handle": cup_handle[:n],
     }
 
 
