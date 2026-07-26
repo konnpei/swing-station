@@ -1233,6 +1233,42 @@ function HighConvictionPanel({ screener, currency, refreshedAt }) {
   );
 }
 
+function CupHandleRow({ t, currency }) {
+  const ch = t.cup_handle || {};
+  const isBreakout = ch.stage === "breakout";
+  const color = isBreakout ? "#00ff9d" : "#ffd166";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "#0d0d0d", borderRadius: 6, border: `1px solid ${color}33`, marginBottom: 5 }}>
+      <div style={{
+        fontSize: 9, fontWeight: 700, color, border: `1px solid ${color}55`, borderRadius: 999,
+        padding: "2px 7px", whiteSpace: "nowrap",
+      }}>
+        {isBreakout ? "🚀 ブレイク" : "🫖 ハンドル形成中"}
+      </div>
+      <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{t.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({t.code})</span></div>
+      <div style={{ fontSize: 9, color: "#8a8a8a", textAlign: "right" }}>
+        <div>ピボット {currency}{ch.pivot?.toLocaleString()}</div>
+        <div>カップ{ch.cup_weeks}週・深さ{ch.cup_depth_pct}%</div>
+      </div>
+    </div>
+  );
+}
+
+function CupHandlePanel({ screener, currency, refreshedAt }) {
+  const list = screener?.cup_handle || [];
+  if (list.length === 0) return null;
+  return (
+    <div style={{ background: "#0d1410", border: "1px solid #00ff9d33", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#00ff9d", marginBottom: 8 }}>🫖 カップウィズハンドル候補</div>
+      {list.map((t, i) => <CupHandleRow key={i} t={t} currency={currency} />)}
+      <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
+        ※週足でカップ形状（深さ10〜50%・7〜65週）、日足でハンドル（右リムから15%以内の浅い調整）を機械的に検出した参考値です。ピボット＝ハンドル高値（出来高を伴って上抜けるとブレイク）。パターンの成立や今後の値動きを保証するものではありません。
+        {refreshedAt && ` 最終更新: ${new Date(refreshedAt).toLocaleString("ja-JP")}`}
+      </div>
+    </div>
+  );
+}
+
 function ScreenerPanel({ screener, currency, refreshedAt }) {
   const top = screener?.top || [];
   if (top.length === 0) {
@@ -1245,6 +1281,7 @@ function ScreenerPanel({ screener, currency, refreshedAt }) {
   return (
     <>
       <HighConvictionPanel screener={screener} currency={currency} refreshedAt={refreshedAt} />
+      <CupHandlePanel screener={screener} currency={currency} refreshedAt={refreshedAt} />
       <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>テクニカルスクリーナー（AIスコア上位・参考値）</div>
         {top.map((t, i) => <ScreenerRow key={i} t={t} currency={currency} />)}
