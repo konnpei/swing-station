@@ -130,6 +130,8 @@
         <input id="profileNameInput" type="text" placeholder="新しいタブの名前(例:自宅用、支店A)" style="font-size:14px; padding:10px 12px; border-radius:10px; border:1px solid var(--border-strong); font-family:inherit; background:var(--card); color:var(--ink);" />
         <select id="profileTemplateSelect" style="font-size:14px; padding:10px 12px; border-radius:10px; border:1px solid var(--border-strong); font-family:inherit; background:var(--card); color:var(--ink);">
           <option value="trade">スイングトレード用の項目を使う</option>
+          <option value="study">子供の勉強用の項目を使う</option>
+          <option value="travel">旅行用の項目を使う</option>
           <option value="blank">空欄で作成する</option>
         </select>
         <div style="display:flex; gap:8px;">
@@ -216,6 +218,20 @@ const DEFAULTS_BY_PROFILE = {
     { key: "takeprofit", label: "利益確定ラインの設定" },
     { key: "size", label: "ポジションサイズの確認" },
     { key: "news", label: "決算・材料スケジュールの確認" }
+  ],
+  study: [
+    { key: "homework", label: "宿題を終わらせた" },
+    { key: "reading", label: "音読した" },
+    { key: "calc", label: "計算プリント" },
+    { key: "review", label: "今日習ったことの復習" },
+    { key: "prep", label: "明日の準備(時間割・持ち物)" }
+  ],
+  travel: [
+    { key: "docs", label: "身分証・パスポート確認" },
+    { key: "tickets", label: "交通手段の予約確認" },
+    { key: "hotel", label: "宿泊先の確認" },
+    { key: "packing", label: "忘れ物チェック(充電器など)" },
+    { key: "weather", label: "現地の天気確認" }
   ]
 };
 
@@ -305,7 +321,7 @@ async function confirmAddProfile(){
   profiles.push({ id, name });
   await putSetting("profiles", profiles);
   let items;
-  if(template === "trade") items = JSON.parse(JSON.stringify(DEFAULTS_BY_PROFILE.trade));
+  if(DEFAULTS_BY_PROFILE[template]) items = JSON.parse(JSON.stringify(DEFAULTS_BY_PROFILE[template]));
   else items = [{ key: "item1", label: "項目1" }];
   await putSetting("items:" + id, items);
   document.getElementById("profileAddRow").style.display = "none";
