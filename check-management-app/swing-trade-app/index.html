@@ -172,7 +172,10 @@
     <section id="screen-settings" class="screen">
       <p class="eyebrow">設定</p>
       <h1>デザインを選ぶ</h1>
+      <p class="eyebrow" style="margin-top:0;">既定の配色</p>
       <div class="swatches" id="themeSwatches"></div>
+      <p class="eyebrow" style="margin-top:8px;">担当者ごとの配色(選ぶとその人だけ自動で切り替わります)</p>
+      <div id="staffThemeList" style="margin-bottom:6px;"></div>
       <p class="eyebrow" style="margin-top:8px;">タブ(用途)の管理</p>
       <div id="settingsProfileList"></div>
       <p class="eyebrow" style="margin-top:12px;">担当者ごとのポイント</p>
@@ -390,8 +393,9 @@ async function loadItems(){
   document.getElementById("listTitle").textContent =
     profiles.find(p => p.id === activeProfile).name + "の本日のチェック";
   renderCheckItems();
-  await refreshStarsRow();
   await renderStaffSelect();
+  await refreshStarsRow();
+  await applyThemeForCurrentStaff();
 }
 
 function renderCheckItems(){
@@ -458,6 +462,7 @@ function showSettings(){
       '<div class="swatch'+(key===theme?' active':'')+'" style="background:'+THEMES[key].swatch+';" title="'+THEMES[key].name+'" onclick="applyTheme(\''+key+'\')"></div>'
     ).join("");
   });
+  renderStaffThemeList();
   const list = document.getElementById("settingsProfileList");
   list.innerHTML = profiles.map(p =>
     '<div class="row"><span>'+p.name+'</span>'
@@ -500,6 +505,44 @@ async function applyTheme(key){
   await putSetting("theme", key);
   setThemeVars(key);
   showSettings();
+}
+
+function getStaffTheme(name){
+  return getSetting("staffTheme:" + name);
+}
+
+async function applyStaffTheme(name, key){
+  await putSetting("staffTheme:" + name, key);
+  if(currentStaffName() === name) setThemeVars(key);
+  showSettings();
+}
+
+async function renderStaffThemeList(){
+  const el = document.getElementById("staffThemeList");
+  const list = await getStaffList(activeProfile);
+  if(list.length === 0){
+    el.innerHTML = '<p style="color:var(--sub); font-size:13px;">担当者がまだ登録されていません。</p>';
+    return;
+  }
+  const rows = await Promise.all(list.map(async name => {
+    const theme = (await getStaffTheme(name)) || "";
+    const swatches = Object.keys(THEMES).map(key =>
+      '<div class="swatch" style="width:26px;height:26px;background:'+THEMES[key].swatch+';'+(key===theme?'border-color:var(--ink);':'')+'" title="'+THEMES[key].name+'" onclick="applyStaffTheme(\''+name+'\',\''+key+'\')"></div>'
+    ).join("");
+    return '<div style="margin-bottom:10px;"><div style="font-size:13px; margin-bottom:6px;">'+name+(theme?'':' <span style="color:var(--sub); font-size:11px;">(既定のまま)</span>')+'</div>'
+      + '<div class="swatches" style="margin:0; gap:8px;">'+swatches+'</div></div>';
+  }));
+  el.innerHTML = rows.join("");
+}
+
+async function applyThemeForCurrentStaff(){
+  const staff = currentStaffName();
+  if(staff){
+    const theme = await getStaffTheme(staff);
+    if(theme){ setThemeVars(theme); return; }
+  }
+  const defaultTheme = await getSetting("theme") || "gold";
+  setThemeVars(defaultTheme);
 }
 
 function setThemeVars(key){
@@ -607,6 +650,7 @@ async function handleStaffChange(){
     addRow.style.display = "none";
   }
   await refreshStarsRow();
+  await applyThemeForCurrentStaff();
 }
 
 async function removeStaff(name){
@@ -615,6 +659,7 @@ async function removeStaff(name){
   await putSetting("staffList:" + activeProfile, list);
   await renderStaffSelect();
   await refreshStarsRow();
+  await applyThemeForCurrentStaff();
   showSettings();
 }
 
@@ -629,6 +674,7 @@ async function confirmAddStaff(){
   document.getElementById("staffSelect").value = name;
   document.getElementById("staffAddRow").style.display = "none";
   await refreshStarsRow();
+  await applyThemeForCurrentStaff();
 }
 
 function todayStr(){
