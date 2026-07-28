@@ -274,9 +274,10 @@ async function renderStaffSelect(){
   const list = await getStaffList();
   const sel = document.getElementById("staffSelect");
   const prevValue = sel.value;
-  let opts = list.map(name => '<option value="'+name+'">'+name+'</option>').join("");
+  let opts = '<option value="">選んでください</option>';
+  opts += list.map(name => '<option value="'+name+'">'+name+'</option>').join("");
   opts += '<option value="__add__">+ 新しい名前を追加</option>';
-  sel.innerHTML = opts || '<option value="">(まだ登録なし)</option>' + opts;
+  sel.innerHTML = opts;
   if(list.includes(prevValue)) sel.value = prevValue;
   else if(list.length) sel.value = list[0];
   document.getElementById("staffAddRow").style.display = "none";
