@@ -412,7 +412,11 @@ function showSettings(){
     } else {
       rows.sort((a,b) => b.points - a.points || b.stars - a.stars);
       el.innerHTML = rows.map(r =>
-        '<div class="row"><span>'+r.name+'</span><span class="points-pill">'+r.points+'pt(☆'+r.stars+')</span></div>'
+        '<div class="row"><span>'+r.name+'</span>'
+        + '<span style="display:flex; align-items:center; gap:6px;">'
+        + '<span class="points-pill">'+r.points+'pt(☆'+r.stars+')</span>'
+        + '<button onclick="removeStaff(\''+r.name+'\')" style="width:30px; height:30px; padding:0; border-radius:8px; flex-shrink:0;">✕</button>'
+        + '</span></div>'
       ).join("");
     }
   });
@@ -542,6 +546,15 @@ async function handleStaffChange(){
     addRow.style.display = "none";
   }
   await refreshStarsRow();
+}
+
+async function removeStaff(name){
+  if(!confirm(name+'を削除します。よろしいですか?(記録済みの過去データは残ります)')) return;
+  const list = (await getStaffList(activeProfile)).filter(n => n !== name);
+  await putSetting("staffList:" + activeProfile, list);
+  await renderStaffSelect();
+  await refreshStarsRow();
+  showSettings();
 }
 
 async function confirmAddStaff(){
