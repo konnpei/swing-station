@@ -1,5 +1,5 @@
-const CACHE_NAME = "swing-trade-app-v2";
-const ASSETS = ["./index.html", "./manifest.json"];
+const CACHE_NAME = "swing-trade-app-v3";
+const ASSETS = ["./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -21,6 +21,11 @@ self.addEventListener("activate", (event) => {
 // 旧バージョンはキャッシュ優先だったため、デプロイしても端末に反映されない
 // 不具合があった。オフライン時のみキャッシュにフォールバックする。
 self.addEventListener("fetch", (event) => {
+  // ページ遷移(mode:"navigate")はSWで横取りせずブラウザに任せる。
+  // event.requestを横取りしてfetch()し直すとハングする環境があったため、
+  // 常に最新を取りに行きたいnavigateリクエストはそもそも介入しない方が安全。
+  if (event.request.mode === "navigate") return;
+
   event.respondWith(
     fetch(event.request)
       .then((res) => {
