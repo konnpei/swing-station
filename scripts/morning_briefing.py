@@ -455,7 +455,7 @@ Return ONLY valid JSON (no markdown, no backticks):
   "events_jp": [{{"date": "YYYY-MM-DD", "text": "日本の経済イベント（日銀会合、決算発表、経済指標等）", "importance": "high or medium or low", "urgent": true}}],
   "events_us": [{{"date": "YYYY-MM-DD", "text": "米国の経済イベント（FOMC、雇用統計、CPI等）", "importance": "high or medium or low", "urgent": true}}],
   "x_posts": [
-    "X投稿: 相場サマリー（200文字以内）。かぶぼっちの一人称の意見を1文入れ、最後は読者への問いかけで締める。noteリンク誘導は本文に入れない。ハッシュタグは含めない（別途本文に付け足すため）"
+    "X投稿: 相場サマリー（50文字程度、厳守）。一言で言い切るイメージ。かぶぼっちの一人称の意見を短く入れ、読者への問いかけで締める。noteリンク誘導は本文に入れない。ハッシュタグは含めない（別途本文に付け足すため）"
   ],
   "x_teaser_3line": "note記事の宣伝用にXへ投稿する短いテキスト。note記事の見出しをそのまま転載しない。1行目で『自分が今一番気になっていること・迷っていること』を一人称で率直に書き、2行目でそれに対する自分なりの仮の答えや視点を短く添え、3行目は『これで合ってるか正直自信ない』『外れてたら教えてほしい』のような軽い問いかけで締める。ちょうど3行、各行1文程度。絵文字は可、ハッシュタグやリンクは含めない（別途本文に付け足すため）",
   {note_body_field}
@@ -893,8 +893,11 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
         if r.status_code not in (200, 204):
             print(f"Discord error: {r.status_code} {r.text}")
 
-    def post_files(text, files):
-        r = requests.post(DISCORD_WEBHOOK, data={"content": text}, files=files)
+    def post_files(text, files, embeds=None):
+        payload = {"content": text}
+        if embeds:
+            payload["embeds"] = embeds
+        r = requests.post(DISCORD_WEBHOOK, data={"payload_json": json.dumps(payload)}, files=files)
         if r.status_code not in (200, 204):
             print(f"Discord error: {r.status_code} {r.text}")
 
@@ -925,61 +928,45 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
 
     consider = c.get("consideration", {})
 
+    # 相場サマリー・注目銘柄・総合考察・banner/chart画像を1通のDiscordメッセージに
+    # まとめて送る（以前は最大5通に分かれていた）。Discordの1webhook投稿は
+    # embed最大10個・画像添付と同時送信可能なので、この規模なら1通に収まる。
     embed_main = {
-        "embeds": [{
-            "title": f"📡 swing-station 朝刊 | {TODAY}({WEEKDAY_JP})",
-            "description": (
-                f"**{m['label']}**　_{m['quote']}_\n\n"
-                f"🇯🇵 日経平均　**{data['latest']['close']:,}円**　{sign}{abs(int(diff)):,}円 ({pct:+.2f}%)\n"
-                f"💴 ドル円　{data['usd_jpy']}円　　"
-                f"📉 SOX　{data['sox_pct']:+.1f}%　　"
-                f"😱 VIX　{data['vix']}\n\n"
-                f"{c.get('market_summary', '')}"
-            ),
-            "color": color,
-            "footer": {"text": "swing-station | かぶぼっち | ※特定の金融商品の売買を推奨・勧誘するものではありません"}
-        }]
+        "title": f"📡 swing-station 朝刊 | {TODAY}({WEEKDAY_JP})",
+        "description": (
+            f"**{m['label']}**　_{m['quote']}_\n\n"
+            f"🇯🇵 日経平均　**{data['latest']['close']:,}円**　{sign}{abs(int(diff)):,}円 ({pct:+.2f}%)\n"
+            f"💴 ドル円　{data['usd_jpy']}円　　"
+            f"📉 SOX　{data['sox_pct']:+.1f}%　　"
+            f"😱 VIX　{data['vix']}\n\n"
+            f"{c.get('market_summary', '')}"
+        ),
+        "color": color,
+        "footer": {"text": "swing-station | かぶぼっち | ※特定の金融商品の売買を推奨・勧誘するものではありません"}
     }
-    post_json(embed_main)
 
     embed_stocks = {
-        "embeds": [{
-            "title": "🎯 本日の注目銘柄 10選",
-            "color": color,
-            "fields": stock_fields[:5]
-        }]
+        "title": "🎯 本日の注目銘柄 10選",
+        "color": color,
+        "fields": stock_fields[:10]
     }
-    post_json(embed_stocks)
-
-    if len(stock_fields) > 6:
-        embed_stocks2 = {
-            "embeds": [{
-                "title": "🎯 注目銘柄（続き）",
-                "color": color,
-                "fields": stock_fields[6:]
-            }]
-        }
-        post_json(embed_stocks2)
 
     embed_strategy = {
-        "embeds": [{
-            "title": "🧠 かぶぼっちの総合考察",
-            "description": (
-                f"{consider.get('main', '')}\n\n"
-                f"**⚡ 今日の一番重要なこと**\n> {consider.get('point', '')}\n\n"
-                f"**📋 アクション提案**\n{consider.get('action', '')}"
-            ),
-            "color": color
-        }]
+        "title": "🧠 かぶぼっちの総合考察",
+        "description": (
+            f"{consider.get('main', '')}\n\n"
+            f"**⚡ 今日の一番重要なこと**\n> {consider.get('point', '')}\n\n"
+            f"**📋 アクション提案**\n{consider.get('action', '')}"
+        ),
+        "color": color
     }
-    post_json(embed_strategy)
 
     banner_buf.seek(0)
     chart_buf.seek(0)
     post_files("", files={
         "banner": ("banner.png", banner_buf, "image/png"),
         "chart":  ("chart.png",  chart_buf,  "image/png"),
-    })
+    }, embeds=[embed_main, embed_stocks, embed_strategy])
 
     # note専用本文をDiscordに送信（コードブロックなしの通常テキストでコピペしやすく）
     # note_body(Claude生成)にはフォロー導線と投資助言でない旨の注記が含まれないため、
@@ -1012,6 +999,10 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
         note_body = note_body[:max_body_len].rstrip() + "…"
     post_json({"content": note_prefix + note_body + note_suffix})
 
+    # X告知用(note宣伝)とX投稿文(相場サマリー)は、以前は別々のメッセージだったが
+    # どちらもコピペ用の短文なので1通にまとめる。
+    x_blocks = []
+
     x_teaser = c.get("x_teaser_3line", "")
     if x_teaser:
         x_teaser_full = (
@@ -1019,19 +1010,20 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
             "いいね・フォローよろしくお願いします🙏\n"
             "※投資助言ではありません。投資判断は自己責任でお願いします。"
         )
-        post_json({"content": f"**📱 X告知用（3行＋いいね・フォロー案内＋注記）**\n\n{x_teaser_full}"})
+        x_blocks.append(f"**📱 X告知用（note宣伝・3行）**\n\n{x_teaser_full}")
 
     # 個別銘柄・騰落率に言及する投稿のため、短い注記を必ず末尾に付与する。
-    # 埋め込み(embed)だとスマホでコピペしづらいため、note本文・X告知用と同じ
-    # 通常テキストメッセージとして送る。
     X_POST_DISCLAIMER = "\n※投資助言ではありません"
     # 検索流入を増やすため、固定ハッシュタグを毎回必ず付与する（LLM任せだと
     # 付け忘れ・個数のブレが起きるため、コード側で確実に追加する）。
     X_POST_HASHTAGS = "\n#日本株 #株式投資"
     x_posts = c.get("x_posts", [c.get("x_main", "")])
-    if x_posts:
+    if x_posts and x_posts[0]:
         xp_full = x_posts[0] + X_POST_HASHTAGS + X_POST_DISCLAIMER
-        post_json({"content": f"**📱 X投稿文（コピペしてそのまま投稿）**\n\n{xp_full[:450]}"})
+        x_blocks.append(f"**📱 X投稿文（コピペしてそのまま投稿）**\n\n{xp_full[:450]}")
+
+    if x_blocks:
+        post_json({"content": "\n\n---\n\n".join(x_blocks)})
 
     print("Discord send complete!")
  
