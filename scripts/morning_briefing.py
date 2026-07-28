@@ -23,7 +23,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.gridspec import GridSpec
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
  
 # Constants
 JST     = timezone(timedelta(hours=9))
@@ -634,6 +634,32 @@ def generate_chart(data, mode):
  
  
 
+LOGO_PATH = "public/logo.png"
+
+
+def _composite_logo(im, special):
+    """バナー右上にかぶぼっちの狼ロゴを合成する。special=Trueの日（値動きが
+    大きい日）はロゴを大きく・グローさせて「オオカミが参加している」特別演出にする。"""
+    if not os.path.exists(LOGO_PATH):
+        return im
+    logo = Image.open(LOGO_PATH).convert("RGBA")
+    W, H = im.size
+    size = 84 if special else 46
+    margin = 10
+    logo = logo.resize((size, size), Image.LANCZOS)
+    pos = (W - size - margin, margin)
+
+    if special:
+        glow_pad = 20
+        glow = Image.new("RGBA", (size + glow_pad * 2, size + glow_pad * 2), (0, 0, 0, 0))
+        ImageDraw.Draw(glow).ellipse([0, 0, glow.width, glow.height], fill=(255, 215, 90, 170))
+        glow = glow.filter(ImageFilter.GaussianBlur(9))
+        im.alpha_composite(glow, (pos[0] - glow_pad, pos[1] - glow_pad))
+
+    im.alpha_composite(logo, pos)
+    return im
+
+
 def generate_banner(data, mode):
     banner_map = {
         "normal": "public/banners/normal.png",
@@ -644,7 +670,13 @@ def generate_banner(data, mode):
     banner_path = banner_map.get(mode)
     if banner_path and os.path.exists(banner_path):
         with open(banner_path, "rb") as f:
-            buf = io.BytesIO(f.read())
+            im = Image.open(io.BytesIO(f.read())).convert("RGBA")
+        # 日経の値動きが±3%以上の日だけ「オオカミ参加」特別演出にする。
+        # 滅多に起きない条件に絞ることで特別感を保つ。
+        pct = data.get("pct", 0) or 0
+        im = _composite_logo(im, special=abs(pct) >= 3.0)
+        buf = io.BytesIO()
+        im.save(buf, format="PNG")
         buf.seek(0)
         return buf
 
