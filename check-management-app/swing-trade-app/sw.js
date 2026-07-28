@@ -1,4 +1,4 @@
-const CACHE_NAME = "swing-trade-app-v1";
+const CACHE_NAME = "swing-trade-app-v2";
 const ASSETS = ["./index.html", "./manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -17,8 +17,17 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// ネットワーク優先: オンライン時は常に最新を取得しキャッシュを更新する。
+// 旧バージョンはキャッシュ優先だったため、デプロイしても端末に反映されない
+// 不具合があった。オフライン時のみキャッシュにフォールバックする。
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    fetch(event.request)
+      .then((res) => {
+        const resClone = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, resClone));
+        return res;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
