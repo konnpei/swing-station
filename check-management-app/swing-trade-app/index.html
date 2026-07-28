@@ -691,7 +691,11 @@ function todayLabelStr(){
 }
 
 async function saveRecord(){
-  const checks = Object.assign({}, checkedState);
+  // 未タップの項目もfalseとして明示的に記録する。checkedStateはタップした
+  // 項目しか持たないため、これをしないと達成率の分母から未タップ項目が
+  // 抜け落ち、「一部未実施」なのに達成率100%と表示される不整合が起きる。
+  const checks = {};
+  currentItems.forEach(it => { checks[it.key] = !!checkedState[it.key]; });
   const allChecked = currentItems.length > 0 && currentItems.every(it => checks[it.key]);
   let note = "";
   if(!allChecked){
@@ -787,9 +791,16 @@ async function handleImportFile(event){
 
 function scoreForRecord(r){
   const keys = Object.keys(r.checks || {});
-  if(keys.length === 0) return r.allChecked ? 100 : 0;
-  const done = keys.filter(k => r.checks[k]).length;
-  return Math.round((done / keys.length) * 100);
+  let score;
+  if(keys.length === 0) score = r.allChecked ? 100 : 0;
+  else {
+    const done = keys.filter(k => r.checks[k]).length;
+    score = Math.round((done / keys.length) * 100);
+  }
+  // 保存修正前の古い記録は未タップ項目が抜け落ちて100%になりうるため、
+  // 「一部未実施」なのに100%と表示される矛盾だけは防ぐ。
+  if(!r.allChecked && score >= 100) score = 99;
+  return score;
 }
 
 function renderCalendarCell(day, dateStr, rec){
