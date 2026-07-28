@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>スイングトレード チェック</title>
 <link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icon-192.png" type="image/png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
 <meta name="theme-color" content="#7A5B1E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -177,6 +179,13 @@
       <div id="staffPointsList"></div>
       <p class="eyebrow" style="margin-top:12px;">記録一覧(カレンダー)の表示スタイル</p>
       <div class="tabs-wrap" id="historyModeTabs"></div>
+      <p class="eyebrow" style="margin-top:12px;">データのバックアップ</p>
+      <p style="font-size:11.5px; color:var(--sub); line-height:1.6; margin:0 0 10px;">データは端末内にのみ保存されています。機種変更やブラウザのデータ消去に備えて、定期的にバックアップをおすすめします。</p>
+      <div style="display:flex; gap:8px; margin-bottom:6px;">
+        <button onclick="exportData()" style="flex:1;">📤 エクスポート</button>
+        <button onclick="document.getElementById('importFileInput').click()" style="flex:1;">📥 インポート</button>
+      </div>
+      <input type="file" id="importFileInput" accept="application/json" style="display:none;" onchange="handleImportFile(event)" />
       <button class="btn-plain" onclick="showScreen('check')">戻る</button>
     </section>
 
@@ -328,6 +337,52 @@ async function confirmAddProfile(){
   await switchProfile(id);
 }
 
+async function renameProfile(id){
+  const p = profiles.find(x => x.id === id);
+  if(!p) return;
+  const name = prompt("新しいタブ名を入力してください", p.name);
+  if(!name || !name.trim()) return;
+  p.name = name.trim();
+  await putSetting("profiles", profiles);
+  renderProfileTabs();
+  if(activeProfile === id) document.getElementById("listTitle").textContent = p.name + "の本日のチェック";
+  showSettings();
+}
+
+async function deleteProfile(id){
+  if(profiles.length <= 1){
+    alert("最後の1つのタブは削除できません。");
+    return;
+  }
+  const p = profiles.find(x => x.id === id);
+  if(!p) return;
+  if(!confirm('「'+p.name+'」タブを削除します。このタブの記録・項目もすべて削除されます。よろしいですか?')) return;
+
+  profiles = profiles.filter(x => x.id !== id);
+  await putSetting("profiles", profiles);
+
+  const stx = db.transaction(SETTINGS, "readwrite");
+  stx.objectStore(SETTINGS).delete("items:" + id);
+  stx.objectStore(SETTINGS).delete("staffList:" + id);
+  await new Promise(res => stx.oncomplete = res);
+
+  const all = await getAllRecords();
+  const toDelete = all.filter(r => r.profile === id);
+  if(toDelete.length){
+    const rtx = db.transaction(STORE, "readwrite");
+    toDelete.forEach(r => rtx.objectStore(STORE).delete(r.id));
+    await new Promise(res => rtx.oncomplete = res);
+  }
+
+  if(activeProfile === id){
+    activeProfile = profiles[0].id;
+    await putSetting("activeProfile", activeProfile);
+  }
+  renderProfileTabs();
+  await loadItems();
+  showSettings();
+}
+
 async function loadItems(){
   const stored = await getSetting("items:" + activeProfile);
   currentItems = stored || DEFAULTS_BY_PROFILE[activeProfile] || [{ key: "item1", label: "項目1" }];
@@ -404,7 +459,13 @@ function showSettings(){
     ).join("");
   });
   const list = document.getElementById("settingsProfileList");
-  list.innerHTML = profiles.map(p => '<div class="row"><span>'+p.name+'</span></div>').join("");
+  list.innerHTML = profiles.map(p =>
+    '<div class="row"><span>'+p.name+'</span>'
+    + '<span style="display:flex; align-items:center; gap:6px;">'
+    + '<button onclick="renameProfile(\''+p.id+'\')" style="width:auto; padding:6px 10px; font-size:12px;">名前変更</button>'
+    + '<button onclick="deleteProfile(\''+p.id+'\')" style="width:30px; height:30px; padding:0; border-radius:8px; flex-shrink:0;">✕</button>'
+    + '</span></div>'
+  ).join("");
   getStaffPointsSummary().then(rows => {
     const el = document.getElementById("staffPointsList");
     if(rows.length === 0){
@@ -628,6 +689,54 @@ function getAllRecords(){
   });
 }
 
+function getAllSettingsEntries(){
+  return new Promise((resolve) => {
+    const tx = db.transaction(SETTINGS, "readonly");
+    const req = tx.objectStore(SETTINGS).getAll();
+    req.onsuccess = () => resolve(req.result);
+  });
+}
+
+async function exportData(){
+  const [records, settings] = await Promise.all([getAllRecords(), getAllSettingsEntries()]);
+  const payload = { app: "swing-trade-app", version: 1, exportedAt: new Date().toISOString(), settings, records };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "check-app-backup-" + todayStr() + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function handleImportFile(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  if(!confirm("バックアップから復元します。同じ日付・同じ設定は上書きされます。よろしいですか?")){
+    event.target.value = "";
+    return;
+  }
+  try{
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    if(!Array.isArray(payload.settings) || !Array.isArray(payload.records)) throw new Error("invalid format");
+
+    const stx = db.transaction(SETTINGS, "readwrite");
+    payload.settings.forEach(s => stx.objectStore(SETTINGS).put(s));
+    await new Promise(res => stx.oncomplete = res);
+
+    const rtx = db.transaction(STORE, "readwrite");
+    payload.records.forEach(r => rtx.objectStore(STORE).put(r));
+    await new Promise(res => rtx.oncomplete = res);
+
+    alert("インポートが完了しました。");
+    location.reload();
+  } catch(err){
+    alert("インポートに失敗しました。ファイルの形式を確認してください。");
+  }
+  event.target.value = "";
+}
+
 function scoreForRecord(r){
   const keys = Object.keys(r.checks || {});
   if(keys.length === 0) return r.allChecked ? 100 : 0;
@@ -682,13 +791,20 @@ function changeHistoryMonth(delta){
   renderCalendar();
 }
 
-function showDayDetail(dateStr){
+async function showDayDetail(dateStr){
   const rec = recordsByDate[dateStr];
   if(!rec) return;
   const lines = [dateStr, "達成率: "+scoreForRecord(rec)+"%"];
   if(rec.staff) lines.push("担当: "+rec.staff);
   if(rec.note) lines.push("備考: "+rec.note);
   alert(lines.join("\n"));
+  if(confirm("この記録を削除しますか?(間違えて保存した場合など)")){
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).delete(rec.id);
+    await new Promise(res => tx.oncomplete = res);
+    delete recordsByDate[dateStr];
+    renderCalendar();
+  }
 }
 
 async function showHistory(){
