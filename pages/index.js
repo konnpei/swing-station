@@ -716,7 +716,7 @@ function TopHeadlines({ headlines }) {
       background: "#121212", border: "1px solid #262626", borderRadius: 10,
       padding: "10px 14px", marginBottom: 12,
     }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>📡 経済ニュース速報（ブルームバーグ・日経）</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 6 }}>📡 経済ニュース速報（Yahoo!ニュース）</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         {headlines.map((h, i) => {
           const line = (

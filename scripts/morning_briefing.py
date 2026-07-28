@@ -132,53 +132,36 @@ def fetch_market_news():
 
 
 def fetch_bloomberg_nikkei_headlines(limit=3):
-    """ブルームバーグ・日本経済新聞の経済ニュース見出しをGoogle News RSS経由で取得する。
-    Google Newsのtitleは「見出し - 媒体名」形式のため、末尾の媒体名でソースを判定し、
-    見出しはAIで言い換えず取得したテキストをそのまま使う（サイト・note共通）。"""
-    import xml.etree.ElementTree as ET
+    """経済ニュース見出しをYahoo!ニュース(経済)RSS経由で取得する。
+    見出しはAIで言い換えず取得したテキストをそのまま使う（サイト・note共通）。
 
-    SOURCE_MATCH = {"ブルームバーグ": "ブルームバーグ", "Bloomberg": "ブルームバーグ", "日本経済新聞": "日本経済新聞"}
-    queries = ["日本経済 OR 株式市場 OR 日銀 OR 為替", "米国経済 OR FRB OR 金利 OR 半導体"]
+    以前はGoogle News RSS経由でブルームバーグ・日経の見出しを取得していたが、
+    Google Newsのlinkはnews.google.com上のJavaScriptリダイレクトになっており、
+    Discord/noteどちらでも記事のプレビューカード（画像付き）が表示できない問題が
+    あった。Yahoo!ニュースRSSは直接記事ページのURLを返すため、この関数名・
+    データ構造は維持しつつ取得元だけYahoo!ニュースに切り替えている。"""
+    import xml.etree.ElementTree as ET
 
     items = []
     seen_titles = set()
-    for q in queries:
-        if len(items) >= limit:
-            break
-        try:
-            url = f"https://news.google.com/rss/search?q={q}&hl=ja&gl=JP&ceid=JP:ja"
-            r = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
-            r.raise_for_status()
-            root = ET.fromstring(r.content)
-        except Exception as e:
-            print(f"Bloomberg/Nikkei news fetch error: {e}")
-            continue
-
+    try:
+        url = "https://news.yahoo.co.jp/rss/topics/business.xml"
+        r = requests.get(url, timeout=8, headers={"User-Agent": "Mozilla/5.0"})
+        r.raise_for_status()
+        root = ET.fromstring(r.content)
         for item in root.findall(".//item"):
             if len(items) >= limit:
                 break
-            try:
-                title_el = item.find("title")
-                link_el = item.find("link")
-                raw_title = title_el.text if title_el is not None and title_el.text else ""
-                if " - " not in raw_title:
-                    continue
-                headline, source = raw_title.rsplit(" - ", 1)
-                matched_source = next((v for k, v in SOURCE_MATCH.items() if k in source), None)
-                if not matched_source:
-                    continue
-                headline = headline.strip()
-                if headline in seen_titles:
-                    continue
-                seen_titles.add(headline)
-                items.append({
-                    "title": headline[:100],
-                    "source": matched_source,
-                    "link": link_el.text if link_el is not None and link_el.text else "",
-                })
-            except Exception as e:
-                print(f"Bloomberg/Nikkei news item parse error: {e}")
+            title_el = item.find("title")
+            link_el = item.find("link")
+            title = title_el.text.strip() if title_el is not None and title_el.text else ""
+            link = link_el.text if link_el is not None and link_el.text else ""
+            if not title or not link or title in seen_titles:
                 continue
+            seen_titles.add(title)
+            items.append({"title": title[:100], "source": "Yahoo!ニュース", "link": link})
+    except Exception as e:
+        print(f"Yahoo news fetch error: {e}")
 
     return items[:limit]
 
@@ -1003,7 +986,7 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
     # note専用本文をDiscordに送信（コードブロックなしの通常テキストでコピペしやすく）
     # note_body(Claude生成)にはフォロー導線と投資助言でない旨の注記が含まれないため、
     # 固定文言として末尾に必ず付与する（LLM任せにせず毎回確実に表示するため）。
-    # ブルームバーグ・日経の見出しもAIに言い換えさせず、取得したテキストをそのまま挿入する。
+    # 経済ニュース見出しもAIに言い換えさせず、取得したテキストをそのまま挿入する。
     # Discordの1メッセージ上限(2000字)に収め、2通に分割されないようにする。
     _y, _m, _d = TODAY.split("/")
     title_line = f"📰 **KABU BOCCHI 朝刊｜{_y}年{int(_m)}月{int(_d)}日**\n\n"
