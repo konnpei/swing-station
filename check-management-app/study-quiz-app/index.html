@@ -1126,6 +1126,9 @@ window.addEventListener("offline", updateNetStatus);
   renderGradeSelect();
   const theme = await getSetting("theme") || "fresh";
   setThemeVars(theme);
+  if((await getStaffList()).length === 0){
+    await putSetting("staffList", ["サンプル1"]);
+  }
   await renderStaffSelect();
   await refreshStarsRow();
   await applyThemeForCurrentStaff();
