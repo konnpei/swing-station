@@ -90,6 +90,19 @@
   .dot.active{background:var(--teal);}
   .offline-note{font-size:11.5px; color:var(--sub); text-align:center; margin-top:10px;}
   .sub-note{font-size:11.5px; color:var(--sub); line-height:1.6; margin:0 0 10px;}
+  .battle-hud{display:flex; align-items:center; gap:12px; background:var(--paper); border:1px solid var(--border); border-radius:16px; padding:12px 14px; margin-bottom:14px;}
+  .battle-monster{font-size:38px; line-height:1; flex-shrink:0;}
+  .battle-info{flex:1; min-width:0;}
+  .battle-name{font-size:12px; font-weight:700; color:var(--ink); margin-bottom:5px;}
+  .hp-pips{display:flex; gap:3px; margin-bottom:5px;}
+  .hp-pip{width:18px; height:8px; border-radius:4px; background:var(--border-strong);}
+  .hp-pip.filled{background:var(--wrong);}
+  .hearts-row{font-size:13px; letter-spacing:1px;}
+  .rpg-box{background:var(--paper); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:left; width:100%;}
+  .rpg-box-head{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+  .exp-bar{background:var(--border); border-radius:999px; height:8px; overflow:hidden;}
+  .exp-bar-fill{background:var(--teal); height:100%;}
+  .dex-item{width:64px; text-align:center; padding:8px 4px; border-radius:12px; border:1px solid var(--border); background:var(--paper);}
 </style>
 </head>
 <body>
@@ -112,6 +125,7 @@
         <button onclick="confirmAddStaff()" style="width:56px; flex-shrink:0;">追加</button>
       </div>
       <div class="stars-icons" id="starsRow"></div>
+      <p class="sub-note" id="levelNote" style="margin-top:-2px;"></p>
 
       <p class="eyebrow" style="margin-top:10px;">がくねん</p>
       <select id="gradeSelect"></select>
@@ -132,6 +146,7 @@
 
     <section id="screen-quiz" class="screen">
       <p class="progress" id="quizProgress"></p>
+      <div class="battle-hud" id="battleHud"></div>
       <div class="q-card" id="quizQuestionArea"></div>
       <div class="choices" id="quizChoices"></div>
     </section>
@@ -144,6 +159,7 @@
         <div class="stars-icons" id="starsRowDone"></div>
         <div style="text-align:center;"><span class="points-pill" id="pointsDone"></span></div>
       </div>
+      <div id="rpgResultBox" style="margin-bottom:14px;"></div>
       <button class="btn-plain" style="width:100%;" onclick="showScreen('home')">もういちどトップへ →</button>
     </section>
 
@@ -164,6 +180,9 @@
       <div id="staffThemeList" style="margin-bottom:6px;"></div>
       <p class="eyebrow" style="margin-top:12px;">こどもごとのポイント</p>
       <div id="staffPointsList"></div>
+      <p class="eyebrow" style="margin-top:12px;">モンスター図鑑</p>
+      <p class="sub-note" style="margin-top:-4px;">トップで選んでいるこどもの図鑑です。テストでモンスターをたおすと記録されます。</p>
+      <div id="monsterDex" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px;"></div>
       <p class="eyebrow" style="margin-top:12px;">データのバックアップ</p>
       <p class="sub-note">データは端末内にのみ保存されています。機種変更やブラウザのデータ消去に備えて、定期的にバックアップをおすすめします。</p>
       <div style="display:flex; gap:8px; margin-bottom:6px;">
@@ -325,6 +344,21 @@ const STOCKTERMS_BANK = [
   ["地合い","相場全体の値動きの雰囲気"]
 ];
 
+// バトル演出用のモンスター。男女どちらも遊ぶため、性別を感じさせない
+// カタカナ名+絵文字にしている(勇者/王子/お姫様のような役割は使わない)。
+const MONSTER_BANK = [
+  { id:"slime", emoji:"🟢", name:"スライム" },
+  { id:"bat", emoji:"🦇", name:"コウモリ" },
+  { id:"ghost", emoji:"👻", name:"ゴースト" },
+  { id:"wolf", emoji:"🐺", name:"ウルフ" },
+  { id:"scorpion", emoji:"🦂", name:"サソリ" },
+  { id:"serpent", emoji:"🐍", name:"サーペント" },
+  { id:"octopus", emoji:"🐙", name:"クラーケン" },
+  { id:"griffin", emoji:"🦅", name:"グリフォン" },
+  { id:"dragon", emoji:"🐲", name:"ドラゴン" },
+  { id:"demon", emoji:"👹", name:"デーモン" }
+];
+
 const THEMES = {
   fresh: { name:"さわやか", swatch:"#1D9E75", bg:"#EAF3F2", card:"#FFFFFF", paper:"#F3FAF9", ink:"#173D3A", sub:"#5C7A77", seal:"#1D7A8C", sealDark:"#125866", teal:"#1D9E75", tealDark:"#0F6E56", border:"#D8ECE9", borderStrong:"#BFDFDA" },
   sunset: { name:"サンセット", swatch:"linear-gradient(135deg,#FDEADB,#F6C9A0 50%,#E8927A)", bg:"#F8E4D6", card:"#FFF9F2", paper:"#FFFFFF", ink:"#4A2A1E", sub:"#8A6152", seal:"#B23B2E", sealDark:"#8B2A20", teal:"#6B2E3B", tealDark:"#4E1F29", border:"#EFD9C4", borderStrong:"#E3C1A2" },
@@ -334,7 +368,7 @@ const THEMES = {
 };
 
 let db;
-let currentQuiz = { staff: "", grade: "g1", subject: "kanji", questions: [], index: 0, correct: 0 };
+let currentQuiz = { staff: "", grade: "g1", subject: "kanji", questions: [], index: 0, correct: 0, monster: null, monsterHp: 0, hearts: 3 };
 let historyMonthCursor = new Date(), recordsByDate = {};
 
 function openDB(){
@@ -460,9 +494,31 @@ async function renderStars(elId, data){
 
 async function refreshStarsRow(){
   const staff = currentStaffName();
-  if(!staff){ document.getElementById("starsRow").innerHTML = ""; return; }
+  if(!staff){
+    document.getElementById("starsRow").innerHTML = "";
+    document.getElementById("levelNote").textContent = "";
+    return;
+  }
   const data = await getStarsData(staff);
   renderStars("starsRow", data);
+  const rpg = await getRpgData(staff);
+  document.getElementById("levelNote").textContent = "ぼうけんLv."+rpg.level+"(EXP "+rpg.exp+"/"+expForLevel(rpg.level)+")";
+}
+
+function expForLevel(level){ return level * 30; }
+
+async function getRpgData(staffName){
+  const data = await getSetting("rpg:" + (staffName || "__none__"));
+  return data || { level: 1, exp: 0, monsters: {} };
+}
+
+async function saveRpgData(staffName, data){
+  await putSetting("rpg:" + staffName, data);
+}
+
+function pickMonster(level){
+  const poolSize = Math.min(MONSTER_BANK.length, 3 + Math.floor(level / 2));
+  return MONSTER_BANK[rnd(0, poolSize - 1)];
 }
 
 async function addStarIfPassed(passed, staff){
@@ -714,17 +770,44 @@ function buildQuestions(gradeKey, subject){
   return qs;
 }
 
-function startQuiz(){
+async function startQuiz(){
   const staff = currentStaffName();
   if(!staff){ alert("だれがやるか選んでください(なければ「+新しい名前を追加」)"); return; }
   const grade = document.getElementById("gradeSelect").value;
   const subject = document.getElementById("subjectSelect").value;
-  currentQuiz = { staff, grade, subject, questions: buildQuestions(grade, subject), index: 0, correct: 0 };
+  const questions = buildQuestions(grade, subject);
+  const rpg = await getRpgData(staff);
+  const monster = pickMonster(rpg.level);
+  currentQuiz = { staff, grade, subject, questions, index: 0, correct: 0, monster, monsterHp: questions.length, hearts: 3 };
   showScreen("quiz");
   renderQuestion();
 }
 
+function renderBattleHud(){
+  const hud = document.getElementById("battleHud");
+  if(!hud) return;
+  const q = currentQuiz;
+  if(!q.monster){ hud.innerHTML = ""; return; }
+  const total = q.questions.length;
+  let pips = "";
+  for(let i = 0; i < total; i++){
+    pips += '<span class="hp-pip'+(i < q.monsterHp ? " filled" : "")+'"></span>';
+  }
+  let hearts = "";
+  for(let i = 0; i < 3; i++){
+    hearts += i < q.hearts ? "❤️" : "🤍";
+  }
+  hud.innerHTML =
+    '<div class="battle-monster">'+q.monster.emoji+'</div>'
+    + '<div class="battle-info">'
+    +   '<div class="battle-name">'+q.monster.name+'</div>'
+    +   '<div class="hp-pips">'+pips+'</div>'
+    +   '<div class="hearts-row">'+hearts+'</div>'
+    + '</div>';
+}
+
 function renderQuestion(){
+  renderBattleHud();
   const q = currentQuiz.questions[currentQuiz.index];
   document.getElementById("quizProgress").textContent = (currentQuiz.index+1)+" / "+currentQuiz.questions.length+"問";
   const area = document.getElementById("quizQuestionArea");
@@ -754,11 +837,14 @@ function answerQuiz(i){
   const isCorrect = chosen === q.ans;
   if(isCorrect){
     currentQuiz.correct++;
+    currentQuiz.monsterHp = Math.max(0, currentQuiz.monsterHp - 1);
     buttons[i].classList.add("correct");
   } else {
+    currentQuiz.hearts = Math.max(0, currentQuiz.hearts - 1);
     buttons[i].classList.add("wrong");
     buttons.forEach((b,bi) => { if(q.choices[bi] === q.ans) b.classList.add("correct"); });
   }
+  renderBattleHud();
   setTimeout(() => {
     currentQuiz.index++;
     if(currentQuiz.index < currentQuiz.questions.length) renderQuestion();
@@ -767,9 +853,10 @@ function answerQuiz(i){
 }
 
 async function finishQuiz(){
-  const { staff, grade, subject, correct, questions } = currentQuiz;
+  const { staff, grade, subject, correct, questions, monster } = currentQuiz;
   const total = questions.length;
   const passed = correct === total;
+  const monsterDefeated = correct >= Math.ceil(total * 0.6);
   const date = todayStr();
   const record = { id: staff+"__"+subject+"__"+date+"__"+Date.now(), staff, grade, subject, date, correct, total, savedAt: new Date().toISOString() };
 
@@ -787,7 +874,45 @@ async function finishQuiz(){
   await renderStars("starsRowDone", starsData);
   document.getElementById("pointsDone").textContent = "ポイント "+starsData.points+"pt";
 
+  if(monster) await applyRpgResult(staff, monster, correct, monsterDefeated, passed);
+  await refreshStarsRow();
+
   showScreen("result");
+}
+
+async function applyRpgResult(staff, monster, correct, monsterDefeated, passed){
+  const rpg = await getRpgData(staff);
+  let expGain = correct * 8;
+  if(passed) expGain += 20;
+  rpg.exp += expGain;
+  let leveledUp = false;
+  while(rpg.exp >= expForLevel(rpg.level)){
+    rpg.exp -= expForLevel(rpg.level);
+    rpg.level++;
+    leveledUp = true;
+  }
+  if(monsterDefeated){
+    rpg.monsters[monster.id] = (rpg.monsters[monster.id] || 0) + 1;
+  }
+  await saveRpgData(staff, rpg);
+  renderRpgResult(monster, expGain, rpg, monsterDefeated, leveledUp);
+}
+
+function renderRpgResult(monster, expGain, rpg, monsterDefeated, leveledUp){
+  const box = document.getElementById("rpgResultBox");
+  if(!box) return;
+  const need = expForLevel(rpg.level);
+  const pct = Math.min(100, Math.round((rpg.exp / need) * 100));
+  box.innerHTML =
+    '<div class="rpg-box">'
+    + '<div class="rpg-box-head">'
+    +   '<span style="font-size:30px;">'+monster.emoji+'</span>'
+    +   '<span style="font-size:13px; font-weight:700;">'+monster.name+'を'+(monsterDefeated ? "たおした!" : "にがした…")+'</span>'
+    + '</div>'
+    + '<div style="font-size:11.5px; color:var(--sub); margin-bottom:4px;">Lv.'+rpg.level+'　EXP '+rpg.exp+' / '+need+'　(+'+expGain+')</div>'
+    + '<div class="exp-bar"><div class="exp-bar-fill" style="width:'+pct+'%;"></div></div>'
+    + (leveledUp ? '<div style="margin-top:8px; font-size:13px; font-weight:800; color:var(--seal-dark); text-align:center;">🎉 レベルアップ！</div>' : '')
+    + '</div>';
 }
 
 async function computeStreak(staff){
@@ -881,6 +1006,7 @@ function showSettings(){
     ).join("");
   });
   renderStaffThemeList();
+  renderMonsterDex();
   getStaffPointsSummary().then(rows => {
     const el = document.getElementById("staffPointsList");
     if(rows.length === 0){
@@ -915,6 +1041,26 @@ async function renderStaffThemeList(){
     return '<div style="margin-bottom:10px;"><div style="font-size:13px; margin-bottom:6px;">'+name+'</div><div class="swatches" style="margin:0; gap:8px;">'+swatches+'</div></div>';
   }));
   el.innerHTML = rows.join("");
+}
+
+async function renderMonsterDex(){
+  const el = document.getElementById("monsterDex");
+  if(!el) return;
+  const staff = currentStaffName();
+  if(!staff){
+    el.innerHTML = '<p style="color:var(--sub); font-size:13px;">こどもを選ぶと表示されます。</p>';
+    return;
+  }
+  const rpg = await getRpgData(staff);
+  el.innerHTML = MONSTER_BANK.map(m => {
+    const count = rpg.monsters[m.id] || 0;
+    const caught = count > 0;
+    return '<div class="dex-item" style="opacity:'+(caught ? 1 : 0.35)+';">'
+      + '<div style="font-size:26px;">'+(caught ? m.emoji : "❔")+'</div>'
+      + '<div style="font-size:9.5px; color:var(--sub); margin-top:2px;">'+(caught ? m.name : "？？？")+'</div>'
+      + (caught ? '<div style="font-size:9px; color:var(--sub);">×'+count+'</div>' : '')
+      + '</div>';
+  }).join("");
 }
 
 async function exportData(){
