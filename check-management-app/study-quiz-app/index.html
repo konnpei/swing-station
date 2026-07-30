@@ -91,13 +91,56 @@
   .offline-note{font-size:11.5px; color:var(--sub); text-align:center; margin-top:10px;}
   .sub-note{font-size:11.5px; color:var(--sub); line-height:1.6; margin:0 0 10px;}
   .battle-hud{display:flex; align-items:center; gap:12px; background:var(--paper); border:1px solid var(--border); border-radius:16px; padding:12px 14px; margin-bottom:14px;}
-  .battle-monster{font-size:38px; line-height:1; flex-shrink:0;}
+  .battle-monster{font-size:38px; line-height:1; flex-shrink:0; position:relative;}
   .battle-info{flex:1; min-width:0;}
   .battle-name{font-size:12px; font-weight:700; color:var(--ink); margin-bottom:5px;}
   .hp-pips{display:flex; gap:3px; margin-bottom:5px;}
   .hp-pip{width:18px; height:8px; border-radius:4px; background:var(--border-strong);}
   .hp-pip.filled{background:var(--wrong);}
-  .hearts-row{font-size:13px; letter-spacing:1px;}
+  .hearts-row{font-size:13px; letter-spacing:1px; display:inline-block;}
+
+  .mark-overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:110px; line-height:1; pointer-events:none; opacity:0;
+  }
+  .mark-overlay.show{ animation:markPop 850ms ease forwards; }
+  .mark-overlay.correct{ color:#1D9E75; text-shadow:0 4px 18px rgba(29,158,117,0.5); }
+  .mark-overlay.wrong{ color:#B23B2E; text-shadow:0 4px 18px rgba(178,59,46,0.45); }
+  @keyframes markPop{
+    0%{ transform:scale(0.4); opacity:0; }
+    30%{ transform:scale(1.18); opacity:1; }
+    55%{ transform:scale(1); opacity:1; }
+    100%{ transform:scale(1); opacity:0; }
+  }
+
+  .battle-monster.hit{ animation:monsterHit 420ms ease; }
+  @keyframes monsterHit{
+    0%{ transform:translateX(0); filter:none; }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(6px); filter:brightness(1.8) saturate(0); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(3px); }
+    100%{ transform:translateX(0); filter:none; }
+  }
+  .fx-pop{
+    position:absolute; top:-6px; right:-10px; font-size:20px; font-weight:800; pointer-events:none;
+    animation:floatUp 700ms ease forwards;
+  }
+  @keyframes floatUp{
+    0%{ transform:translateY(0) scale(0.7); opacity:0; }
+    20%{ opacity:1; transform:translateY(-4px) scale(1.15); }
+    100%{ transform:translateY(-34px) scale(1); opacity:0; }
+  }
+  .hearts-row.shake{ animation:heartsShake 340ms ease; }
+  @keyframes heartsShake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-4px); }
+    75%{ transform:translateX(4px); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .mark-overlay.show, .battle-monster.hit, .fx-pop, .hearts-row.shake{ animation:none !important; }
+  }
+  .explain-box{ margin-top:12px; background:var(--wrong-bg); border:1px solid var(--wrong); border-radius:12px; padding:12px 14px; font-size:13px; color:var(--wrong); line-height:1.6; }
   .rpg-box{background:var(--paper); border:1px solid var(--border); border-radius:14px; padding:14px; text-align:left; width:100%;}
   .rpg-box-head{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
   .exp-bar{background:var(--border); border-radius:999px; height:8px; overflow:hidden;}
@@ -147,8 +190,12 @@
     <section id="screen-quiz" class="screen">
       <p class="progress" id="quizProgress"></p>
       <div class="battle-hud" id="battleHud"></div>
-      <div class="q-card" id="quizQuestionArea"></div>
+      <div class="q-card" id="quizQuestionArea" style="position:relative;">
+        <div id="quizQuestionContent"></div>
+        <div class="mark-overlay" id="markOverlay"></div>
+      </div>
       <div class="choices" id="quizChoices"></div>
+      <div class="explain-box" id="explainBox" style="display:none;"></div>
     </section>
 
     <section id="screen-result" class="screen center">
@@ -604,7 +651,7 @@ function handleSubjectChange(){
 function rnd(a, b){ return Math.floor(Math.random() * (b - a + 1)) + a; }
 
 function numQ(display, ans, allowNegative){
-  return { display, ans, choices: mathChoices(ans, allowNegative) };
+  return { display, ans, choices: mathChoices(ans, allowNegative), explain: display+" = "+ans };
 }
 
 function mathChoices(correct, allowNegative){
@@ -682,28 +729,28 @@ function genMathProblem(gradeKey){
       if(r < 0.4){
         const d=rnd(5,9), n1=rnd(1,d-2), n2=rnd(1,d-n1-1);
         const ansN=n1+n2;
-        return { display:n1+"/"+d+" + "+n2+"/"+d, ans:ansN+"/"+d, choices:fractionChoices(ansN,d) };
+        return { display:n1+"/"+d+" + "+n2+"/"+d, ans:ansN+"/"+d, choices:fractionChoices(ansN,d), explain:n1+"/"+d+" + "+n2+"/"+d+" = "+ansN+"/"+d };
       }
       const base=rnd(2,20)*10, pct=[10,20,25,50,75][rnd(0,4)];
       const ans=Math.round(base*pct/100);
-      return { display:base+"の"+pct+"%は?", ans, choices:mathChoices(ans) };
+      return { display:base+"の"+pct+"%は?", ans, choices:mathChoices(ans), explain:base+" × "+pct+"% = "+ans };
     }
     case "g6": {
       const r = Math.random();
       if(r < 0.4){
         const a=rnd(2,6), b=rnd(2,6), d=a*b;
-        return { display:"1/"+a+" × 1/"+b, ans:"1/"+d, choices:fractionDenomChoices(d) };
+        return { display:"1/"+a+" × 1/"+b, ans:"1/"+d, choices:fractionDenomChoices(d), explain:"1/"+a+" × 1/"+b+" = 1/"+d };
       }
       const avg=rnd(10,30), d1=rnd(-4,4), d2=rnd(-4,4);
       const n1=avg+d1, n2=avg+d2, n3=avg-d1-d2;
-      return { display:n1+", "+n2+", "+n3+"の平均は?", ans:avg, choices:mathChoices(avg) };
+      return { display:n1+", "+n2+", "+n3+"の平均は?", ans:avg, choices:mathChoices(avg), explain:"("+n1+" + "+n2+" + "+n3+") ÷ 3 = "+avg };
     }
     case "j1": {
       const r = Math.random();
       if(r < 0.34){ const a=rnd(-10,10), b=rnd(-10,10); return numQ(a+" + "+b, a+b, true); }
       if(r < 0.67){ const a=rnd(-9,9), b=rnd(-9,9); return numQ(a+" × "+b, a*b, true); }
       const a=rnd(1,15), x=rnd(-10,15), b=x+a;
-      return { display:"x + "+a+" = "+b+"、xは?", ans:x, choices:mathChoices(x,true) };
+      return { display:"x + "+a+" = "+b+"、xは?", ans:x, choices:mathChoices(x,true), explain:"x = "+b+" − "+a+" = "+x };
     }
     case "j2": {
       const r = Math.random();
@@ -711,7 +758,7 @@ function genMathProblem(gradeKey){
         const a=rnd(2,6), x=rnd(-10,15), b=rnd(-10,10);
         const c=a*x+b;
         const bStr = b>=0 ? " + "+b : " − "+Math.abs(b);
-        return { display:a+"x"+bStr+" = "+c+"、xは?", ans:x, choices:mathChoices(x,true) };
+        return { display:a+"x"+bStr+" = "+c+"、xは?", ans:x, choices:mathChoices(x,true), explain:"x = "+x+" を代入: "+a+"×"+x+bStr+" = "+c };
       }
       const a=rnd(-8,8), b=rnd(-8,8); return numQ(a+" × "+b, a*b, true);
     }
@@ -720,11 +767,11 @@ function genMathProblem(gradeKey){
       if(r < 0.4){
         const a=rnd(2,9), x=rnd(-12,12), b=rnd(0,15);
         const c=a*x-b;
-        return { display:a+"x − "+b+" = "+c+"、xは?", ans:x, choices:mathChoices(x,true) };
+        return { display:a+"x − "+b+" = "+c+"、xは?", ans:x, choices:mathChoices(x,true), explain:"x = "+x+" を代入: "+a+"×"+x+" − "+b+" = "+c };
       }
       if(r < 0.7){
         const x=rnd(2,12), sq=x*x;
-        return { display:"x² = "+sq+"、xは?(正の数)", ans:x, choices:mathChoices(x) };
+        return { display:"x² = "+sq+"、xは?(正の数)", ans:x, choices:mathChoices(x), explain:"x = "+x+" を代入: "+x+"×"+x+" = "+sq };
       }
       const a=rnd(-12,12), b=rnd(-12,12); return numQ(a+" − "+b, a-b, true);
     }
@@ -748,7 +795,10 @@ function buildWordQuestions(bank, type){
   return picks.map(([word, meaning]) => {
     const distractors = shuffle(uniqueMeanings.filter(m => m !== meaning)).slice(0, 3);
     const choices = shuffle([meaning, ...distractors]);
-    return { type, display: word, ans: meaning, choices };
+    const explain = type === "kanji" ? word+"の読みは「"+meaning+"」です"
+      : type === "english" ? "「"+word+"」は「"+meaning+"」という意味です"
+      : "「"+word+"」= "+meaning;
+    return { type, display: word, ans: meaning, choices, explain };
   });
 }
 
@@ -765,7 +815,7 @@ function buildQuestions(gradeKey, subject){
   const qs = [];
   for(let i = 0; i < 5; i++){
     const p = genMathProblem(gradeKey);
-    qs.push({ type: "math", display: p.display, ans: p.ans, choices: p.choices });
+    qs.push({ type: "math", display: p.display, ans: p.ans, choices: p.choices, explain: p.explain });
   }
   return qs;
 }
@@ -808,9 +858,11 @@ function renderBattleHud(){
 
 function renderQuestion(){
   renderBattleHud();
+  document.getElementById("markOverlay").className = "mark-overlay";
+  hideExplain();
   const q = currentQuiz.questions[currentQuiz.index];
   document.getElementById("quizProgress").textContent = (currentQuiz.index+1)+" / "+currentQuiz.questions.length+"問";
-  const area = document.getElementById("quizQuestionArea");
+  const area = document.getElementById("quizQuestionContent");
   if(q.type === "kanji"){
     area.innerHTML = '<div class="q-kanji">'+q.display+'</div><div style="font-size:12px;color:var(--sub);margin-top:10px;">読み方はどれ?</div>';
   } else if(q.type === "english"){
@@ -845,11 +897,51 @@ function answerQuiz(i){
     buttons.forEach((b,bi) => { if(q.choices[bi] === q.ans) b.classList.add("correct"); });
   }
   renderBattleHud();
+  playAnswerFx(isCorrect);
+  if(!isCorrect && q.explain) showExplain(q.explain);
   setTimeout(() => {
     currentQuiz.index++;
     if(currentQuiz.index < currentQuiz.questions.length) renderQuestion();
     else finishQuiz();
-  }, isCorrect ? 500 : 1100);
+  }, isCorrect ? 900 : 2700);
+}
+
+function playAnswerFx(isCorrect){
+  const mark = document.getElementById("markOverlay");
+  mark.textContent = isCorrect ? "⭕️" : "❌";
+  mark.className = "mark-overlay " + (isCorrect ? "correct" : "wrong");
+  void mark.offsetWidth;
+  mark.classList.add("show");
+
+  const monster = document.querySelector("#battleHud .battle-monster");
+  if(monster){
+    monster.classList.remove("hit");
+    void monster.offsetWidth;
+    monster.classList.add("hit");
+    const fx = document.createElement("span");
+    fx.className = "fx-pop";
+    fx.textContent = isCorrect ? "💥" : "💢";
+    monster.appendChild(fx);
+    setTimeout(() => fx.remove(), 720);
+  }
+  if(!isCorrect){
+    const hearts = document.querySelector("#battleHud .hearts-row");
+    if(hearts){
+      hearts.classList.remove("shake");
+      void hearts.offsetWidth;
+      hearts.classList.add("shake");
+    }
+  }
+}
+
+function showExplain(text){
+  const box = document.getElementById("explainBox");
+  box.textContent = "💡 " + text;
+  box.style.display = "block";
+}
+
+function hideExplain(){
+  document.getElementById("explainBox").style.display = "none";
 }
 
 async function finishQuiz(){
