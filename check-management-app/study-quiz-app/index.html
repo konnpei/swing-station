@@ -245,6 +245,13 @@
       <p class="eyebrow" style="margin-top:12px;">モンスター図鑑</p>
       <p class="sub-note" style="margin-top:-4px;">トップで選んでいるこどもの図鑑です。テストでモンスターをたおすと記録されます。</p>
       <div id="monsterDex" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px;"></div>
+      <p class="eyebrow" style="margin-top:12px;">ガチャ</p>
+      <p class="sub-note" style="margin-top:-4px;">正解した数だけコインがたまります。5コインでガチャが1回引けます(★レアが出ることも)。</p>
+      <div class="row" style="border:none; padding-top:0;">
+        <span id="gachaCoinsLabel" style="font-size:13px; font-weight:700;"></span>
+        <button id="gachaBtn" onclick="pullGacha()" style="border-radius:999px; padding:9px 16px; font-size:13px;">🎰 ガチャを引く(5コイン)</button>
+      </div>
+      <div id="gachaResult" style="display:none; margin:8px 0 6px; text-align:center; font-size:14px; font-weight:700; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:10px;"></div>
       <p class="eyebrow" style="margin-top:12px;">データのバックアップ</p>
       <p class="sub-note">データは端末内にのみ保存されています。機種変更やブラウザのデータ消去に備えて、定期的にバックアップをおすすめします。</p>
       <div style="display:flex; gap:8px; margin-bottom:6px;">
@@ -487,6 +494,27 @@ const MONSTER_BANK = [
   { id:"demon", emoji:"👹", name:"デーモン" }
 ];
 
+// レベルに応じて自動で持ち替わる武器。正解時の攻撃エフェクトに使う。
+const WEAPON_BANK = [
+  { minLevel:1, emoji:"🗡️", name:"たんけんの剣" },
+  { minLevel:3, emoji:"🏹", name:"ゆみや" },
+  { minLevel:6, emoji:"🔥", name:"かえんの剣" },
+  { minLevel:10, emoji:"⚡", name:"いかづちの槍" },
+  { minLevel:15, emoji:"❄️", name:"ひょうがの剣" },
+  { minLevel:20, emoji:"⭐", name:"でんせつの武器" },
+  { minLevel:25, emoji:"🌈", name:"きせきの武器" }
+];
+
+function getWeaponForLevel(level){
+  let w = WEAPON_BANK[0];
+  for(const cand of WEAPON_BANK){
+    if(level >= cand.minLevel) w = cand;
+  }
+  return w;
+}
+
+const GACHA_COST = 5;
+
 const THEMES = {
   fresh: { name:"さわやか", swatch:"#1D9E75", bg:"#EAF3F2", card:"#FFFFFF", paper:"#F3FAF9", ink:"#173D3A", sub:"#5C7A77", seal:"#1D7A8C", sealDark:"#125866", teal:"#1D9E75", tealDark:"#0F6E56", border:"#D8ECE9", borderStrong:"#BFDFDA" },
   sunset: { name:"サンセット", swatch:"linear-gradient(135deg,#FDEADB,#F6C9A0 50%,#E8927A)", bg:"#F8E4D6", card:"#FFF9F2", paper:"#FFFFFF", ink:"#4A2A1E", sub:"#8A6152", seal:"#B23B2E", sealDark:"#8B2A20", teal:"#6B2E3B", tealDark:"#4E1F29", border:"#EFD9C4", borderStrong:"#E3C1A2" },
@@ -630,14 +658,17 @@ async function refreshStarsRow(){
   const data = await getStarsData(staff);
   renderStars("starsRow", data);
   const rpg = await getRpgData(staff);
-  document.getElementById("levelNote").textContent = "ぼうけんLv."+rpg.level+"(EXP "+rpg.exp+"/"+expForLevel(rpg.level)+")";
+  document.getElementById("levelNote").textContent = "ぼうけんLv."+rpg.level+"(EXP "+rpg.exp+"/"+expForLevel(rpg.level)+") ・ 🪙"+rpg.coins;
 }
 
 function expForLevel(level){ return level * 30; }
 
 async function getRpgData(staffName){
   const data = await getSetting("rpg:" + (staffName || "__none__"));
-  return data || { level: 1, exp: 0, monsters: {} };
+  if(!data) return { level: 1, exp: 0, monsters: {}, coins: 0, shiny: {} };
+  data.coins = data.coins || 0;
+  data.shiny = data.shiny || {};
+  return data;
 }
 
 async function saveRpgData(staffName, data){
@@ -909,7 +940,8 @@ async function startQuiz(){
   const questions = buildQuestions(grade, subject);
   const rpg = await getRpgData(staff);
   const monster = pickMonster(rpg.level);
-  currentQuiz = { staff, grade, subject, questions, index: 0, correct: 0, monster, monsterHp: questions.length, hearts: 3 };
+  const weapon = getWeaponForLevel(rpg.level);
+  currentQuiz = { staff, grade, subject, questions, index: 0, correct: 0, monster, monsterHp: questions.length, hearts: 3, weapon };
   showScreen("quiz");
   renderQuestion();
 }
@@ -928,10 +960,14 @@ function renderBattleHud(){
   for(let i = 0; i < 3; i++){
     hearts += i < q.hearts ? "❤️" : "🤍";
   }
+  const weaponLine = q.weapon
+    ? '<div style="font-size:10.5px;color:var(--sub);margin-bottom:4px;">そうび: '+q.weapon.emoji+' '+q.weapon.name+'</div>'
+    : "";
   hud.innerHTML =
     '<div class="battle-monster">'+q.monster.emoji+'</div>'
     + '<div class="battle-info">'
     +   '<div class="battle-name">'+q.monster.name+'</div>'
+    +   weaponLine
     +   '<div class="hp-pips">'+pips+'</div>'
     +   '<div class="hearts-row">'+hearts+'</div>'
     + '</div>';
@@ -1012,7 +1048,7 @@ function playAnswerFx(isCorrect){
     if(isCorrect){
       const fx = document.createElement("span");
       fx.className = "fx-pop";
-      fx.textContent = "💥";
+      fx.textContent = (currentQuiz.weapon && currentQuiz.weapon.emoji) || "💥";
       monster.appendChild(fx);
       setTimeout(() => fx.remove(), 750);
     }
@@ -1080,6 +1116,7 @@ async function applyRpgResult(staff, monster, correct, monsterDefeated, passed){
   let expGain = correct * 8;
   if(passed) expGain += 20;
   rpg.exp += expGain;
+  rpg.coins += correct;
   let leveledUp = false;
   while(rpg.exp >= expForLevel(rpg.level)){
     rpg.exp -= expForLevel(rpg.level);
@@ -1202,6 +1239,8 @@ function showSettings(){
   });
   renderStaffThemeList();
   renderMonsterDex();
+  renderGachaSection();
+  document.getElementById("gachaResult").style.display = "none";
   getStaffPointsSummary().then(rows => {
     const el = document.getElementById("staffPointsList");
     if(rows.length === 0){
@@ -1250,12 +1289,54 @@ async function renderMonsterDex(){
   el.innerHTML = MONSTER_BANK.map(m => {
     const count = rpg.monsters[m.id] || 0;
     const caught = count > 0;
+    const isShiny = !!(rpg.shiny && rpg.shiny[m.id]);
     return '<div class="dex-item" style="opacity:'+(caught ? 1 : 0.35)+';">'
-      + '<div style="font-size:26px;">'+(caught ? m.emoji : "❔")+'</div>'
+      + '<div style="font-size:26px;">'+(caught ? m.emoji : "❔")+(isShiny ? " ✨" : "")+'</div>'
       + '<div style="font-size:9.5px; color:var(--sub); margin-top:2px;">'+(caught ? m.name : "？？？")+'</div>'
       + (caught ? '<div style="font-size:9px; color:var(--sub);">×'+count+'</div>' : '')
       + '</div>';
   }).join("");
+}
+
+async function renderGachaSection(){
+  const label = document.getElementById("gachaCoinsLabel");
+  const btn = document.getElementById("gachaBtn");
+  if(!label || !btn) return;
+  const staff = currentStaffName();
+  if(!staff){
+    label.textContent = "こどもを選ぶと表示されます";
+    btn.disabled = true;
+    return;
+  }
+  const rpg = await getRpgData(staff);
+  label.textContent = "🪙 "+rpg.coins+"コイン";
+  btn.disabled = rpg.coins < GACHA_COST;
+}
+
+async function pullGacha(){
+  const staff = currentStaffName();
+  if(!staff) return;
+  const rpg = await getRpgData(staff);
+  if(rpg.coins < GACHA_COST){
+    alert("コインが足りません(あと"+(GACHA_COST - rpg.coins)+"コイン)");
+    return;
+  }
+  rpg.coins -= GACHA_COST;
+  const monster = MONSTER_BANK[rnd(0, MONSTER_BANK.length - 1)];
+  const isShiny = Math.random() < 0.15;
+  rpg.monsters[monster.id] = (rpg.monsters[monster.id] || 0) + 1;
+  if(isShiny) rpg.shiny[monster.id] = (rpg.shiny[monster.id] || 0) + 1;
+  await saveRpgData(staff, rpg);
+  renderGachaResult(monster, isShiny);
+  await renderGachaSection();
+  await renderMonsterDex();
+  await refreshStarsRow();
+}
+
+function renderGachaResult(monster, isShiny){
+  const box = document.getElementById("gachaResult");
+  box.textContent = (isShiny ? "✨★レア★✨ " : "🎉 ") + monster.emoji + " " + monster.name + " が出た!";
+  box.style.display = "block";
 }
 
 async function exportData(){
