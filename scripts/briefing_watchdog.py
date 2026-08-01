@@ -107,7 +107,15 @@ def main():
         print("GH_PAT not set. 終了します。")
         return
 
-    latest_data = get_latest_data()
+    try:
+        latest_data = get_latest_data()
+    except Exception as e:
+        send_discord(
+            f"🚨 **Watchdog: data/latest.json取得失敗**\n"
+            f"GH_PATが失効している可能性があります。エラー: {e}"
+        )
+        raise
+
     latest_date = latest_data.get("date", "")
     print(f"今日: {TODAY} / latest.jsonの日付: {latest_date}")
 

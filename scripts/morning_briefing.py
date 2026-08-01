@@ -1223,6 +1223,8 @@ if __name__ == "__main__":
                 body["sha"] = sha_existing
             r_put = requests.put(gh_url, headers={"Authorization": f"Bearer {gh_token}", "Content-Type": "application/json"}, json=body)
             print(f"data/latest.json updated: {r_put.status_code}")
+            if r_put.status_code not in (200, 201):
+                raise RuntimeError(f"data/latest.json update failed: HTTP {r_put.status_code} - {r_put.text[:300]}")
 
             # 履歴ファイルも保存（data/history/YYYY-MM-DD.json）
             try:
@@ -1257,6 +1259,7 @@ if __name__ == "__main__":
             # は不要（二重デプロイの原因になるため削除した）。
         except Exception as e:
             print(f"Failed to update data/latest.json: {e}")
+            raise
     else:
         print("GH_PAT not set, skipping data/latest.json update")
  

@@ -1,0 +1,21 @@
+name: Backfill History (one-off)
+
+# GH_PAT失効期間中(2026-07-29〜31)に欠落したdata/history/を、yfinanceの過去データから
+# 機械的に再構築するための手動実行専用ワークフロー。cronは設定しない（一度きりの復旧作業）。
+# scripts/backfill_history.py を参照。
+
+on:
+  workflow_dispatch:
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests yfinance pandas numpy
+      - run: python scripts/backfill_history.py
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
