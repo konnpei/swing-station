@@ -58,7 +58,7 @@ def summarize_week(week):
     for day in week:
         all_movers += day.get("jp_top_movers", [])
         all_movers += day.get("us_top_movers", [])
-    top_movers_week = sorted(all_movers, key=lambda m: abs(m.get("pct", 0)), reverse=True)[:8]
+    top_movers_week = sorted(all_movers, key=lambda m: abs(m.get("pct") or 0), reverse=True)[:8]
 
     modes = [day.get("mode") for day in week if day.get("mode")]
 
