@@ -23,12 +23,12 @@ REPO = "konnpei/swing-station"
 client = Anthropic(api_key=ANTHROPIC_API_KEY)
 
 
-def gh_get_json(path):
-    url = f"https://api.github.com/repos/{REPO}/contents/{path}"
-    r = requests.get(url, headers={"Authorization": f"Bearer {GH_PAT}"})
-    r.raise_for_status()
-    data = r.json()
-    return json.loads(base64.b64decode(data["content"]).decode("utf-8")), data["sha"]
+def load_latest_local():
+    """actions/checkoutで既にワークスペースに存在するdata/latest.jsonをそのまま読む。
+    weekly_review.pyのload_week_history()と同じ考え方で、GH_PATが失効していても
+    Discord投稿までは進められるようにする（GitHub保存は投稿後の別ステップ）。"""
+    with open("data/latest.json", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def gh_put_json(path, obj, message, sha=None):
@@ -127,7 +127,7 @@ def send_discord(text):
 
 def main():
     print("latest.json 読み込み中...")
-    latest, sha = gh_get_json("data/latest.json")
+    latest = load_latest_local()
 
     summary = build_next_week_summary(latest)
     if not (summary["jp_earnings"] or summary["us_earnings"] or summary["events_jp"] or summary["events_us"]):
@@ -151,7 +151,7 @@ def main():
 
     print("latest.jsonに埋め込み中...")
     latest["weekly_preview"] = {"date": TODAY, **preview}
-    gh_put_json("data/latest.json", latest, f"Add weekly preview {TODAY}", sha=sha)
+    gh_put_json("data/latest.json", latest, f"Add weekly preview {TODAY}")
 
     print("完了")
 
