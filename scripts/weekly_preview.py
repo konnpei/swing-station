@@ -2,14 +2,15 @@
 scripts/weekly_preview.py
 
 毎週日曜夜、来週の決算カレンダー・経済指標イベントをもとに「来週の注目ポイント」
-プレビュー記事を生成してDiscordに投稿する。決算タブ用に既に取得済みの
-jp_earnings_calendar / us_earnings_calendar と、直近のevents_jp / events_usを再利用する。
+プレビュー記事を生成してDiscordに投稿する。決算カレンダーはこのスクリプト自身が
+その場で取得する（latest.json内の既存キャッシュはrefresh_earnings.pyの実行タイミング
+次第で数日古いことがあるため）。events_jp / events_usはlatest.jsonの既存データを再利用する。
 """
 import os, json, base64
 from datetime import datetime, timezone, timedelta
 import requests
 from anthropic import Anthropic
-from market_data import sanitize_for_json
+from market_data import sanitize_for_json, fetch_jp_earnings, fetch_us_earnings, build_earnings_calendar
 
 JST = timezone(timedelta(hours=9))
 NOW = datetime.now(JST)
@@ -128,6 +129,10 @@ def send_discord(text):
 def main():
     print("latest.json 読み込み中...")
     latest = load_latest_local()
+
+    print("決算カレンダーを最新取得中...")
+    latest["jp_earnings_calendar"] = build_earnings_calendar(fetch_jp_earnings())
+    latest["us_earnings_calendar"] = build_earnings_calendar(fetch_us_earnings())
 
     summary = build_next_week_summary(latest)
     if not (summary["jp_earnings"] or summary["us_earnings"] or summary["events_jp"] or summary["events_us"]):
