@@ -47,6 +47,22 @@ def gh_put_json(path, obj, message, sha=None):
         print(r.text[:500])
 
 
+def fetch_latest_nikkei():
+    """直近の日経225終値と前日比%をその場で取得する。latest.json内のnikkeiは
+    refresh_market_data.pyの実行タイミング次第で数日古いことがあるため
+    （2026-08-02時点で7/28のまま止まっていた事象）、決算カレンダーと同様に
+    キャッシュへ依存せず直接取得する。"""
+    import yfinance as yf
+    hist = yf.Ticker("^N225").history(period="10d")
+    hist = hist.dropna(subset=["Close"])
+    if len(hist) < 2:
+        return None, None
+    latest_close = float(hist["Close"].iloc[-1])
+    prev_close = float(hist["Close"].iloc[-2])
+    pct = (latest_close - prev_close) / prev_close * 100
+    return round(latest_close, 2), round(pct, 2)
+
+
 def within_next_week(date_str):
     if not date_str:
         return False
@@ -58,7 +74,7 @@ def within_next_week(date_str):
     return today <= d <= today + timedelta(days=7)
 
 
-def build_next_week_summary(latest):
+def build_next_week_summary(latest, last_nikkei=None, last_nikkei_pct=None):
     jp_earn = [e for e in latest.get("jp_earnings_calendar", []) if within_next_week(e.get("next_earnings_date"))]
     us_earn = [e for e in latest.get("us_earnings_calendar", []) if within_next_week(e.get("next_earnings_date"))]
 
@@ -79,8 +95,8 @@ def build_next_week_summary(latest):
         "us_earnings": us_earn[:10],
         "events_jp": events_jp[:10],
         "events_us": events_us[:10],
-        "last_nikkei": latest.get("nikkei"),
-        "last_nikkei_pct": latest.get("nikkei_pct"),
+        "last_nikkei": last_nikkei if last_nikkei is not None else latest.get("nikkei"),
+        "last_nikkei_pct": last_nikkei_pct if last_nikkei_pct is not None else latest.get("nikkei_pct"),
     }
 
 
@@ -134,7 +150,10 @@ def main():
     latest["jp_earnings_calendar"] = build_earnings_calendar(fetch_jp_earnings())
     latest["us_earnings_calendar"] = build_earnings_calendar(fetch_us_earnings())
 
-    summary = build_next_week_summary(latest)
+    print("日経225の最新終値を取得中...")
+    last_nikkei, last_nikkei_pct = fetch_latest_nikkei()
+
+    summary = build_next_week_summary(latest, last_nikkei, last_nikkei_pct)
     if not (summary["jp_earnings"] or summary["us_earnings"] or summary["events_jp"] or summary["events_us"]):
         print("来週のデータが何もありません。終了します。")
         return
