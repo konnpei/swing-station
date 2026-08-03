@@ -1238,17 +1238,40 @@ function HighConvictionPanel({ screener, currency, refreshedAt }) {
   );
 }
 
-function CupHandleRow({ t, currency }) {
+const CUP_HANDLE_FORMING_LIMIT = 4;
+
+function CupHandleBreakoutRow({ t, currency }) {
   const ch = t.cup_handle || {};
-  const isBreakout = ch.stage === "breakout";
-  const color = isBreakout ? "#00ff9d" : "#ffd166";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "#0d0d0d", borderRadius: 6, border: `1px solid ${color}33`, marginBottom: 5 }}>
+    <div style={{
+      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+      background: "linear-gradient(90deg, #00ff9d22, #0d0d0d)", borderRadius: 8,
+      border: "1px solid #00ff9d88", marginBottom: 6,
+    }}>
       <div style={{
-        fontSize: 9, fontWeight: 700, color, border: `1px solid ${color}55`, borderRadius: 999,
+        fontSize: 12, fontWeight: 800, color: "#00170e", background: "#00ff9d", borderRadius: 999,
+        padding: "4px 10px", whiteSpace: "nowrap",
+      }}>
+        🚀 ブレイク
+      </div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: "#eeeeee", flex: 1 }}>{t.name}<span style={{ color: "#8a8a8a", fontSize: 10 }}> ({t.code})</span></div>
+      <div style={{ fontSize: 10, color: "#9a9a9a", textAlign: "right" }}>
+        <div>ピボット {currency}{ch.pivot?.toLocaleString()}</div>
+        <div>カップ{ch.cup_weeks}週・深さ{ch.cup_depth_pct}%</div>
+      </div>
+    </div>
+  );
+}
+
+function CupHandleFormingRow({ t, currency }) {
+  const ch = t.cup_handle || {};
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "#0d0d0d", borderRadius: 6, border: "1px solid #ffd16633", marginBottom: 5 }}>
+      <div style={{
+        fontSize: 9, fontWeight: 700, color: "#ffd166", border: "1px solid #ffd16655", borderRadius: 999,
         padding: "2px 7px", whiteSpace: "nowrap",
       }}>
-        {isBreakout ? "🚀 ブレイク" : "🫖 ハンドル形成中"}
+        🫖 ハンドル形成中
       </div>
       <div style={{ fontSize: 11, color: "#eeeeee", flex: 1 }}>{t.name}<span style={{ color: "#6a6a6a", fontSize: 9 }}> ({t.code})</span></div>
       <div style={{ fontSize: 9, color: "#8a8a8a", textAlign: "right" }}>
@@ -1262,10 +1285,18 @@ function CupHandleRow({ t, currency }) {
 function CupHandlePanel({ screener, currency, refreshedAt }) {
   const list = screener?.cup_handle || [];
   if (list.length === 0) return null;
+  const breakouts = list.filter(t => t.cup_handle?.stage === "breakout");
+  const forming = list.filter(t => t.cup_handle?.stage !== "breakout");
+  const formingShown = forming.slice(0, CUP_HANDLE_FORMING_LIMIT);
+  const formingHidden = forming.length - formingShown.length;
   return (
     <div style={{ background: "#0d1410", border: "1px solid #00ff9d33", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#00ff9d", marginBottom: 8 }}>🫖 カップウィズハンドル候補</div>
-      {list.map((t, i) => <CupHandleRow key={i} t={t} currency={currency} />)}
+      {breakouts.map((t, i) => <CupHandleBreakoutRow key={`b-${i}`} t={t} currency={currency} />)}
+      {formingShown.map((t, i) => <CupHandleFormingRow key={`f-${i}`} t={t} currency={currency} />)}
+      {formingHidden > 0 && (
+        <div style={{ fontSize: 9, color: "#6a6a6a", marginTop: 4 }}>他{formingHidden}件が形成中(ブレイクまでは非表示)</div>
+      )}
       <div style={{ fontSize: 9, color: "#5a5a5a", marginTop: 8 }}>
         ※週足でカップ形状（深さ10〜50%・7〜65週）、日足でハンドル（右リムから15%以内の浅い調整）を機械的に検出した参考値です。ピボット＝ハンドル高値（出来高を伴って上抜けるとブレイク）。パターンの成立や今後の値動きを保証するものではありません。
         {refreshedAt && ` 最終更新: ${new Date(refreshedAt).toLocaleString("ja-JP")}`}
