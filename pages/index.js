@@ -1940,7 +1940,7 @@ export default function SwingStation() {
     <>
       <Head>
         <title>KabuBocchi</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@800;900&display=swap" rel="stylesheet" />
       </Head>
       <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#0a0a0a", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#d0d0d0", maxWidth:600, margin:"0 auto", borderLeft:"1px solid #1a1a1a", borderRight:"1px solid #1a1a1a" }}>
