@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Head from "next/head";
 import { track } from "@vercel/analytics";
 
@@ -750,6 +751,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
   const mode = MODE_LABELS[briefing.mode] || MODE_LABELS.normal;
   const sign = briefing.nikkei_diff >= 0 ? "+" : "-";
   const todayInfo = getTodayInfo(briefing.is_trading_day);
+  const [isChartOpen, setIsChartOpen] = useState(false);
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
@@ -854,11 +856,39 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
         <div style={{ marginBottom: 16, background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: 8 }}>
           <img
             src={`/api/chart?d=${encodeURIComponent(briefing.date)}`}
-            alt="日経225チャート（ローソク足・MA・MACD）"
-            style={{ width: "100%", height: "auto", display: "block", borderRadius: 6 }}
+            alt="日経225チャート（ローソク足・MA・MACD）タップで拡大"
+            style={{ width: "100%", height: "auto", display: "block", borderRadius: 6, cursor: "zoom-in" }}
             onError={(ev) => { ev.target.style.display = "none"; }}
+            onClick={() => setIsChartOpen(true)}
           />
         </div>
+      )}
+      {isChartOpen && typeof document !== "undefined" && createPortal(
+        <div
+          onClick={() => setIsChartOpen(false)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.9)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            padding: 16, cursor: "zoom-out",
+          }}
+        >
+          <button
+            onClick={() => setIsChartOpen(false)}
+            style={{
+              position: "absolute", top: 14, right: 14, background: "none", border: "1px solid #444",
+              borderRadius: 6, color: "#ccc", fontSize: 12, padding: "5px 10px", cursor: "pointer", fontFamily: "inherit",
+            }}
+          >
+            閉じる ✕
+          </button>
+          <img
+            src={`/api/chart?d=${encodeURIComponent(briefing.date)}`}
+            alt="日経225チャート（ローソク足・MA・MACD）拡大表示"
+            style={{ maxWidth: "100%", maxHeight: "100%", width: "auto", height: "auto", objectFit: "contain", borderRadius: 8 }}
+            onClick={(ev) => ev.stopPropagation()}
+          />
+        </div>,
+        document.body
       )}
 
       <WeeklyContentCard icon="📅" label="今週の振り返り" data={briefing.weekly_review} ignoreStaleness={ignoreStaleness} />
