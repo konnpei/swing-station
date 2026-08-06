@@ -1,0 +1,26 @@
+name: Evening Review
+
+# 平日21時頃（日本の決算発表がおおむね出そろう時間帯）に、その日の振り返りを
+# 生成してdata/latest.jsonに保存する軽量ワークフロー。Claude APIは使うが、
+# Discordには投稿しない（サイト表示専用）。
+#
+# 平日21:00 JST（12:00 UTC）に実行。
+
+on:
+  schedule:
+    - cron: '0 12 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install anthropic requests yfinance pandas numpy
+      - run: python scripts/evening_review.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_PAT: ${{ secrets.GH_PAT }}

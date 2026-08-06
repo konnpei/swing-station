@@ -921,6 +921,37 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
         </div>
       )}
 
+      {briefing.evening_review?.date === briefing.date && (
+        <div style={{ background: "#121212", border: "1px solid #262626", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#e8e8e8", marginBottom: 8 }}>🌙 夜のふりかえり</div>
+          {briefing.evening_review.reflection && (
+            <div style={{ marginBottom: briefing.evening_review.earnings_recap ? 12 : 0 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#8a8a8a", marginBottom: 4 }}>反省点</div>
+              <div style={{ fontSize: 11, lineHeight: 1.7, color: "#b8b8b8" }}>{briefing.evening_review.reflection}</div>
+            </div>
+          )}
+          {briefing.evening_review.earnings_recap && (
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#8a8a8a", marginBottom: 4 }}>決算振り返り</div>
+              <div style={{ fontSize: 11, lineHeight: 1.7, color: "#b8b8b8" }}>{briefing.evening_review.earnings_recap}</div>
+              {briefing.evening_review.earnings_today?.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                  {briefing.evening_review.earnings_today.map((e, i) => (
+                    <div key={i} style={{
+                      fontSize: 10, padding: "3px 8px", borderRadius: 6,
+                      background: "#0d0d0d", border: "1px solid #262626",
+                      color: e.pct >= 0 ? "#00ff9d" : "#ff5566",
+                    }}>
+                      {e.name} {e.pct >= 0 ? "+" : ""}{e.pct}%
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }
