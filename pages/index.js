@@ -1889,13 +1889,11 @@ function EventsView({ briefing, onJump }) {
 export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
   const [highlightTarget, setHighlightTarget] = useState(null); // { market: 'jp'|'us', code: string }
-  const [flagSide, setFlagSide] = useState("jp"); // 'jp' | 'us' — header flag toggle's current face
-  const [flipCount, setFlipCount] = useState(0);
+  const [flagSide, setFlagSide] = useState("jp"); // 'jp' | 'us' — which flag is currently up front
 
   const flipFlag = () => {
     const next = flagSide === "jp" ? "us" : "jp";
-    setFlipCount(c => c + 1);
-    setTimeout(() => setFlagSide(next), 175); // swap emoji at the halfway point (edge-on, invisible)
+    setFlagSide(next);
     setTab(next);
   };
 
@@ -2005,19 +2003,25 @@ export default function SwingStation() {
             onClick={flipFlag}
             title={flagSide === "jp" ? "日本株を表示中（タップで米国株へ）" : "米国株を表示中（タップで日本株へ）"}
             style={{
-              width:22, height:22, flexShrink:0, marginLeft:2, padding:0,
-              background:"#121212", border:"1px solid #262626", borderRadius:"50%",
-              cursor:"pointer", perspective:200,
+              position:"relative", width:30, height:24, flexShrink:0, marginLeft:2, padding:0,
+              background:"none", border:"none", cursor:"pointer",
             }}
           >
-            <span style={{
-              display:"block", fontSize:12, lineHeight:"20px",
-              transform:`rotateY(${flipCount * 180}deg)`,
-              transition:"transform 0.35s ease",
-              transformStyle:"preserve-3d",
-            }}>
-              {flagSide === "jp" ? "🇯🇵" : "🇺🇸"}
-            </span>
+            {["jp", "us"].map(side => {
+              const isFront = flagSide === side;
+              return (
+                <span key={side} style={{
+                  position:"absolute", left:0, top:0, fontSize:15, lineHeight:1,
+                  zIndex: isFront ? 2 : 1,
+                  opacity: isFront ? 1 : 0.5,
+                  filter: isFront ? "none" : "grayscale(30%)",
+                  transform: isFront ? "translate(0,0) scale(1)" : "translate(11px,9px) scale(0.55)",
+                  transition: "transform 0.28s cubic-bezier(.34,1.4,.64,1), opacity 0.28s ease, filter 0.28s ease",
+                }}>
+                  {side === "jp" ? "🇯🇵" : "🇺🇸"}
+                </span>
+              );
+            })}
           </button>
           <div className="kb-subtitle" style={{ fontSize:8, color:"#6a6a6a", marginLeft:2, whiteSpace:"nowrap" }}>数日〜1週間の押し目スイング特化</div>
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
