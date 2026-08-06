@@ -1889,6 +1889,15 @@ function EventsView({ briefing, onJump }) {
 export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
   const [highlightTarget, setHighlightTarget] = useState(null); // { market: 'jp'|'us', code: string }
+  const [flagSide, setFlagSide] = useState("jp"); // 'jp' | 'us' — header flag toggle's current face
+  const [flipCount, setFlipCount] = useState(0);
+
+  const flipFlag = () => {
+    const next = flagSide === "jp" ? "us" : "jp";
+    setFlipCount(c => c + 1);
+    setTimeout(() => setFlagSide(next), 175); // swap emoji at the halfway point (edge-on, invisible)
+    setTab(next);
+  };
 
   const jumpToStock = (market, code) => {
     setTab(market);
@@ -1992,6 +2001,24 @@ export default function SwingStation() {
           <div style={{ fontFamily:"'Orbitron',monospace", fontSize:13, fontWeight:900, color:"#e8e8e8", letterSpacing:2 }}>
             KabuBocchi
           </div>
+          <button
+            onClick={flipFlag}
+            title={flagSide === "jp" ? "日本株を表示中（タップで米国株へ）" : "米国株を表示中（タップで日本株へ）"}
+            style={{
+              width:22, height:22, flexShrink:0, marginLeft:2, padding:0,
+              background:"#121212", border:"1px solid #262626", borderRadius:"50%",
+              cursor:"pointer", perspective:200,
+            }}
+          >
+            <span style={{
+              display:"block", fontSize:12, lineHeight:"20px",
+              transform:`rotateY(${flipCount * 180}deg)`,
+              transition:"transform 0.35s ease",
+              transformStyle:"preserve-3d",
+            }}>
+              {flagSide === "jp" ? "🇯🇵" : "🇺🇸"}
+            </span>
+          </button>
           <div className="kb-subtitle" style={{ fontSize:8, color:"#6a6a6a", marginLeft:2, whiteSpace:"nowrap" }}>数日〜1週間の押し目スイング特化</div>
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
             <button
