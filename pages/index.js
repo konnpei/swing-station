@@ -2003,7 +2003,7 @@ export default function SwingStation() {
             onClick={flipFlag}
             title={flagSide === "jp" ? "日本株を表示中（タップで米国株へ）" : "米国株を表示中（タップで日本株へ）"}
             style={{
-              position:"relative", width:30, height:24, flexShrink:0, marginLeft:2, padding:0,
+              position:"relative", width:42, height:34, flexShrink:0, marginLeft:2, padding:0,
               background:"none", border:"none", cursor:"pointer",
             }}
           >
@@ -2011,11 +2011,11 @@ export default function SwingStation() {
               const isFront = flagSide === side;
               return (
                 <span key={side} style={{
-                  position:"absolute", left:0, top:0, fontSize:15, lineHeight:1,
+                  position:"absolute", left:0, top:0, fontSize:22, lineHeight:1,
                   zIndex: isFront ? 2 : 1,
                   opacity: isFront ? 1 : 0.5,
                   filter: isFront ? "none" : "grayscale(30%)",
-                  transform: isFront ? "translate(0,0) scale(1)" : "translate(11px,9px) scale(0.55)",
+                  transform: isFront ? "translate(0,0) scale(1)" : "translate(15px,12px) scale(0.55)",
                   transition: "transform 0.28s cubic-bezier(.34,1.4,.64,1), opacity 0.28s ease, filter 0.28s ease",
                 }}>
                   {side === "jp" ? "🇯🇵" : "🇺🇸"}
