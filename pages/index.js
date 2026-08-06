@@ -1891,10 +1891,14 @@ export default function SwingStation() {
   const [highlightTarget, setHighlightTarget] = useState(null); // { market: 'jp'|'us', code: string }
   const [flagSide, setFlagSide] = useState("jp"); // 'jp' | 'us' — which flag is currently up front
 
+  // タブが「日本株」「米国株」タブ自体のクリックやジャンプなど、国旗ボタン以外の
+  // 経路で切り替わったときも国旗の表示を実際のタブと一致させる。
+  useEffect(() => {
+    if (tab === "jp" || tab === "us") setFlagSide(tab);
+  }, [tab]);
+
   const flipFlag = () => {
-    const next = flagSide === "jp" ? "us" : "jp";
-    setFlagSide(next);
-    setTab(next);
+    setTab(flagSide === "jp" ? "us" : "jp");
   };
 
   const jumpToStock = (market, code) => {
