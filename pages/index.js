@@ -192,7 +192,7 @@ function TodayFocusPoints({ briefing }) {
   const shown = points.slice(0, 4);
 
   return (
-    <div style={{ background: "#13161C", border: "1px solid #3a3f52", borderRadius: 10, padding: "10px 14px", marginBottom: 8 }}>
+    <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "12px 16px", marginBottom: 10 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 6 }}>🎯 今日の注目ポイント</div>
       {shown.length > 0 ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -317,7 +317,7 @@ const FG_LABEL_JP = {
 function FearGreedGauge({ value, label, diff }) {
   if (typeof value !== "number") {
     return (
-      <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "12px 14px", marginBottom: 14, textAlign: "center", color: "#6B7280", fontSize: 11 }}>
+      <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "12px 14px", marginBottom: 14, textAlign: "center", color: "#6B7280", fontSize: 11 }}>
         Fear &amp; Greed指数はまだ取得できていません
       </div>
     );
@@ -333,7 +333,7 @@ function FearGreedGauge({ value, label, diff }) {
   const diffColor = typeof diff === "number" ? (diff >= 0 ? "#00E0A3" : "#ff5566") : "#A1A7B3";
 
   return (
-    <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 14px 6px", marginBottom: 14 }}>
+    <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 14px 6px", marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 4 }}>Fear &amp; Greed指数</div>
       <svg viewBox="0 0 200 112" style={{ width: "100%", maxWidth: 260, height: "auto", display: "block", margin: "0 auto" }}>
         <defs>
@@ -479,7 +479,7 @@ function MarketDashboard({ briefing, todayInfo }) {
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))", gap: 10, marginBottom: 14 }}>
-      <div style={{ background: "linear-gradient(145deg,#151515,#080D10)", border: `1px solid ${meta.color}55`, boxShadow: `0 0 28px ${meta.color}16`, borderRadius: 14, padding: "14px 14px 12px" }}>
+      <div style={{ background: "linear-gradient(145deg,#151B20,#0B0F12)", border: `1px solid ${meta.color}55`, boxShadow: `0 0 28px ${meta.color}16`, borderRadius: 20, padding: "14px 14px 12px" }}>
         <div style={{ fontSize: 10, color: "#A1A7B3", letterSpacing: 1 }}>TODAY'S MARKET SCORE</div>
         {todayInfo?.isWeekend && (
           <div style={{ fontSize: 9, color: "#FFB020", marginTop: 3 }}>
@@ -517,7 +517,7 @@ function MarketDashboard({ briefing, todayInfo }) {
       </div>
 
       <div style={{ display: "grid", gap: 10 }}>
-        <div style={{ background: "#13161C", border: "1px solid #2c2c2c", borderRadius: 14, padding: "12px 14px" }}>
+        <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "12px 14px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 9 }}>
             <div style={{ fontSize: 12, fontWeight: 800, color: "#f0f0f0" }}>今日の3行戦略</div>
             <div style={{ fontSize: 9, color: meta.color }}>ACTION</div>
@@ -530,7 +530,7 @@ function MarketDashboard({ briefing, todayInfo }) {
           ))}
         </div>
 
-        <div style={{ background: "#13161C", border: `1px solid ${eventMeta.color}44`, borderLeft: `4px solid ${eventMeta.color}`, borderRadius: 14, padding: "11px 14px" }}>
+        <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: `1px solid ${eventMeta.color}44`, borderLeft: `4px solid ${eventMeta.color}`, borderRadius: 20, padding: "11px 14px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
             <div>
               <div style={{ fontSize: 10, color: "#A1A7B3" }}>今日は何の日？ / NEXT EVENT</div>
@@ -567,8 +567,8 @@ function EarningsStraddleWarning({ briefing, onJump }) {
 
   return (
     <div style={{
-      background: "#1a1408", border: "1px solid #FFB02055", borderRadius: 10,
-      padding: "10px 14px", marginBottom: 12,
+      background: "linear-gradient(155deg, #1c1608, #151008)", border: "1px solid #FFB02040", borderRadius: 18,
+      padding: "12px 16px", marginBottom: 12,
     }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#FFB020", marginBottom: 6 }}>
         ⚠️ 決算またぎ警告（3営業日以内に決算予定の監視銘柄）
@@ -579,8 +579,8 @@ function EarningsStraddleWarning({ briefing, onJump }) {
             key={i}
             onClick={() => onJump(e.market, e.code)}
             style={{
-              display: "flex", alignItems: "center", gap: 8, padding: "6px 8px",
-              background: "#13161C", border: "1px solid #FFB02033", borderRadius: 6,
+              display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
+              background: "rgba(255,255,255,0.03)", border: "1px solid #FFB02030", borderRadius: 12,
               textAlign: "left", fontFamily: "inherit", color: "inherit", cursor: "pointer", width: "100%",
             }}
           >
@@ -634,7 +634,7 @@ function VolumeMonitor({ items, refreshedAt }) {
     j === "商い活発" ? "#00E0A3" : j === "通常" ? "#FFB020" : j === "薄商い" ? "#FFB020" : "#6B7280"
   );
   return (
-    <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+    <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px", marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>主要指数 出来高モニター（先物・代替ETF）</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 6 }}>
         {items.map((it, i) => (
@@ -688,8 +688,8 @@ function MacroEventWarning({ briefing, days = 3 }) {
 
   return (
     <div style={{
-      background: "#1a0e0e", border: "1px solid #ff556655", borderRadius: 10,
-      padding: "10px 14px", marginBottom: 12,
+      background: "linear-gradient(155deg, #1c0e0e, #150a0a)", border: "1px solid #ff556645", borderRadius: 18,
+      padding: "12px 16px", marginBottom: 12,
     }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#ff5566", marginBottom: 6 }}>
         📢 マクロイベント注意（3営業日以内・最重要）
@@ -697,8 +697,8 @@ function MacroEventWarning({ briefing, days = 3 }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
         {upcoming.map((e, i) => (
           <div key={i} style={{
-            display: "flex", alignItems: "center", gap: 8, padding: "6px 8px",
-            background: "#13161C", border: "1px solid #ff556633", borderRadius: 6,
+            display: "flex", alignItems: "center", gap: 8, padding: "7px 10px",
+            background: "rgba(255,255,255,0.03)", border: "1px solid #ff556630", borderRadius: 12,
           }}>
             <span style={{ fontSize: 9, color: "#A1A7B3", width: 32, flexShrink: 0 }}>{e.region}</span>
             <span style={{ fontSize: 11, color: "#FFFFFF", flex: 1 }}>{e.text}</span>
@@ -714,8 +714,8 @@ function TopHeadlines({ headlines }) {
   if (!headlines || headlines.length === 0) return null;
   return (
     <div style={{
-      background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10,
-      padding: "10px 14px", marginBottom: 12,
+      background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18,
+      padding: "12px 16px", marginBottom: 12,
     }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 6 }}>📡 経済ニュース速報（Yahoo!ニュース）</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -838,8 +838,8 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
       <MacroEventWarning briefing={briefing} />
       <TopHeadlines headlines={briefing.top_news_headlines} />
       <div style={{
-        background: "#13161C", border: `1px solid ${mode.color}44`,
-        borderRadius: 10, padding: "10px 14px", marginBottom: 12,
+        background: `linear-gradient(155deg, ${mode.color}14, #101519)`, border: `1px solid ${mode.color}44`,
+        borderRadius: 18, padding: "12px 16px", marginBottom: 12,
       }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: mode.color }}>
           {mode.label} <span style={{ color: "#A1A7B3", fontWeight: 400, fontSize: 10 }}>
@@ -894,7 +894,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
       )}
 
       {briefing.date && (
-        <div style={{ marginBottom: 16, background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: 8 }}>
+        <div style={{ marginBottom: 16, background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: 8 }}>
           <img
             src={`/api/chart?d=${encodeURIComponent(briefing.date)}`}
             alt="日経225チャート（ローソク足・MA・MACD）タップで拡大"
@@ -938,7 +938,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
       <NextActionsCard onNavigate={onNavigate} />
 
       {(briefing.surges?.length > 0 || briefing.drops?.length > 0) && (
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+        <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>本日の急騰・急落</div>
           {briefing.surges?.map((s, i) => (
             <div key={i} style={{ display:"flex", justifyContent:"space-between", fontSize: 11, color: "#00E0A3", marginBottom: 4 }}>
@@ -956,14 +956,14 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
       )}
 
       {briefing.consideration?.main && (
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+        <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "12px 14px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 6 }}>かぶぼっちの考察</div>
           <div style={{ fontSize: 11, lineHeight: 1.7, color: "#A1A7B3" }}>{briefing.consideration.main}</div>
         </div>
       )}
 
       {briefing.evening_review?.date === briefing.date && (
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+        <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "12px 14px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>🌙 夜のふりかえり</div>
           {briefing.evening_review.reflection && (
             <div style={{ marginBottom: briefing.evening_review.earnings_recap ? 12 : 0 }}>
@@ -1095,7 +1095,7 @@ function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey, ref
   };
 
   return (
-    <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+    <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px", marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>セクター別ヒートマップ（前日比・タップで日足チャート＋銘柄一覧）</div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 6 }}>
         {heatmap.map((h, i) => {
@@ -1174,7 +1174,7 @@ function SectorHeatmap({ heatmap, allChanges, currency, history, heatmapKey, ref
 function TopMovers({ movers, currency }) {
   if (!movers || movers.length === 0) return null;
   return (
-    <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+    <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px", marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>値動き上位10銘柄</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
         {movers.map((m, i) => {
@@ -1414,7 +1414,7 @@ function ScreenerPanel({ screener, currency, refreshedAt }) {
   const top = screener?.top || [];
   if (top.length === 0) {
     return (
-      <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "12px 14px", marginBottom: 14, color: "#6B7280", fontSize: 11 }}>
+      <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "12px 14px", marginBottom: 14, color: "#6B7280", fontSize: 11 }}>
         スクリーナーデータはまだありません。「Refresh Screener Only」ワークフローの実行後に表示されます。
       </div>
     );
@@ -1423,7 +1423,7 @@ function ScreenerPanel({ screener, currency, refreshedAt }) {
     <>
       <HighConvictionPanel screener={screener} currency={currency} refreshedAt={refreshedAt} />
       <CupHandlePanel screener={screener} currency={currency} refreshedAt={refreshedAt} />
-      <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px", marginBottom: 14 }}>
+      <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px", marginBottom: 14 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>テクニカルスクリーナー（AIスコア上位・参考値）</div>
         {top.map((t, i) => <ScreenerRow key={i} t={t} currency={currency} />)}
         <div style={{ fontSize: 9, color: "#6B7280", marginTop: 8 }}>
@@ -1593,7 +1593,7 @@ function IndexCompareChart({ history }) {
 
   if (allDates.length < 2 || series.every(s => s.data.length < 2)) {
     return (
-      <div style={{ marginBottom: 16, background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px" }}>
+      <div style={{ marginBottom: 16, background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px" }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>年間チャート：日経225 / NASDAQ / S&P500 / SOX</div>
         <div style={{ fontSize: 10, color: "#6B7280" }}>データ蓄積中です。数日分たまるとチャートが表示されます。</div>
       </div>
@@ -1615,7 +1615,7 @@ function IndexCompareChart({ history }) {
   const gridYs = [minV, (minV + maxV) / 2, maxV];
 
   return (
-    <div style={{ marginBottom: 16, background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px" }}>
+    <div style={{ marginBottom: 16, background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 6 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF" }}>年間チャート：日経225 / NASDAQ / S&P500 / SOX</div>
         <div style={{ display: "flex", gap: 10 }}>
@@ -1706,7 +1706,7 @@ function HistoryView({ history }) {
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
 
       {/* 日付ピッカー */}
-      <div style={{ marginBottom: 16, background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px" }}>
+      <div style={{ marginBottom: 16, background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px" }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>過去の朝刊を呼び出す</div>
         <input
           type="date"
@@ -1741,7 +1741,7 @@ function HistoryView({ history }) {
       </div>
 
       {/* 日経平均推移 */}
-      <div style={{ marginBottom: 16, background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px" }}>
+      <div style={{ marginBottom: 16, background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px" }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>日経平均 直近推移</div>
         {[...history].reverse().map((h, i) => (
           <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0", borderBottom: "1px solid #13161C" }}>
@@ -1828,7 +1828,7 @@ function YearlyFlowView({ eventsJp, eventsUs }) {
     : MONTHLY_FLOW.filter(mo => mo.m === currentMonth || mo.m === nextMonth);
 
   return (
-    <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 10, padding: "10px 12px", marginBottom: 18 }}>
+    <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 12px", marginBottom: 18 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF" }}>
           {showAll ? "年間の値動きが起こりやすい月（参考・タップで日程を表示）" : "直近の値動きが起こりやすい月（参考・タップで日程を表示）"}
