@@ -758,24 +758,40 @@ function MorningHero({ briefing, todayInfo }) {
         position: "absolute", bottom: -70, left: -30, width: 200, height: 200, borderRadius: "50%",
         background: "radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)", pointerEvents: "none",
       }} />
-      <div style={{ position: "relative" }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.16em", textTransform: "uppercase" }}>Morning Brief</div>
-        <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF", marginTop: 8, lineHeight: 1.3, textWrap: "balance" }}>日米マーケット朝刊</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 12, fontWeight: 700, color: "#A1A7B3" }}>
-          <span>🇯🇵 JAPAN</span><span style={{ color: "#00E0A3" }}>×</span><span>🇺🇸 USA</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16 }}>
-          <div style={{ fontSize: 11, color: "#68747C", fontVariantNumeric: "tabular-nums" }}>{briefing.date}</div>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700,
-            padding: "3px 10px", borderRadius: 20,
-            background: statusOn ? "#00E0A31c" : "#68747C1c",
-            border: `1px solid ${statusOn ? "#00E0A355" : "#68747C40"}`,
-            color: statusOn ? "#00E0A3" : "#9AA5AD",
-          }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
-            {statusLabel}
+      <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.16em", textTransform: "uppercase" }}>Morning Brief</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF", marginTop: 8, lineHeight: 1.3, textWrap: "balance" }}>日米マーケット朝刊</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 12, fontWeight: 700, color: "#A1A7B3" }}>
+            <span>🇯🇵 JAPAN</span><span style={{ color: "#00E0A3" }}>×</span><span>🇺🇸 USA</span>
           </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16 }}>
+            <div style={{ fontSize: 11, color: "#68747C", fontVariantNumeric: "tabular-nums" }}>{briefing.date}</div>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700,
+              padding: "3px 10px", borderRadius: 20,
+              background: statusOn ? "#00E0A31c" : "#68747C1c",
+              border: `1px solid ${statusOn ? "#00E0A355" : "#68747C40"}`,
+              color: statusOn ? "#00E0A3" : "#9AA5AD",
+            }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
+              {statusLabel}
+            </div>
+          </div>
+        </div>
+        <div style={{ position: "relative", flex: "0 0 auto", width: 108, height: 108 }}>
+          <div style={{
+            position: "absolute", inset: -14, borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
+            filter: "blur(6px)", pointerEvents: "none",
+          }} />
+          <img
+            src="/earth-hero.webp"
+            alt=""
+            width={108}
+            height={108}
+            style={{ position: "relative", width: 108, height: 108, objectFit: "contain", animation: "earthDrift 8s ease-in-out infinite" }}
+          />
         </div>
       </div>
     </div>
@@ -2085,6 +2101,7 @@ export default function SwingStation() {
           @keyframes ssP{0%,100%{opacity:1}50%{opacity:.2}}
           @keyframes ssSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
           @keyframes orbSpin{from{background-position:0 0}to{background-position:-60px 0}}
+          @keyframes earthDrift{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-4px) rotate(1.5deg)}}
           *{box-sizing:border-box}
           html,body{height:100%;margin:0;padding:0;background:#080D10}
           ::-webkit-scrollbar{width:3px}
