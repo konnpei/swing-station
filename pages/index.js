@@ -1228,14 +1228,17 @@ function EarningsCalendarRow({ e, market, onJump }) {
   );
 }
 
-function EarningsView({ briefing, onJump }) {
+function EarningsView({ briefing, onJump, marketFilter = "all" }) {
   const jpCal = briefing?.jp_earnings_calendar || [];
   const usCal = briefing?.us_earnings_calendar || [];
 
-  const calendar = [
+  let calendar = [
     ...jpCal.map(e => ({ ...e, market: "日本" })),
     ...usCal.map(e => ({ ...e, market: "米国" })),
   ].sort((a, b) => (a.next_earnings_date || "").localeCompare(b.next_earnings_date || ""));
+
+  if (marketFilter === "jp") calendar = calendar.filter(e => e.market === "日本");
+  if (marketFilter === "us") calendar = calendar.filter(e => e.market === "米国");
 
   const hasAny = calendar.length > 0;
   const hasExtreme = calendar.some(e => typeof e.last_surprise_pct === "number" && Math.abs(e.last_surprise_pct) > 300);
@@ -1610,6 +1613,7 @@ function HistoryView({ history }) {
   const [dayData, setDayData] = useState(null);
   const [dayLoading, setDayLoading] = useState(false);
   const [dayError, setDayError] = useState("");
+  const [rankMarket, setRankMarket] = useState("jp"); // 'jp' | 'us' — 出現ランキングの市場切り替え
 
   const loadDay = (fileDate) => {
     if (!fileDate) return;
@@ -1633,7 +1637,7 @@ function HistoryView({ history }) {
 
   const fileDates = history.map(h => h.fileDate).filter(Boolean).sort();
 
-  // 銘柄出現頻度ランキング
+  // 銘柄出現頻度ランキング(日本株: 複数銘柄/日、米国株: 1銘柄/日)
   const stockCount = {};
   history.forEach(h => {
     (h.stocks_jp || []).forEach(s => {
@@ -1642,6 +1646,16 @@ function HistoryView({ history }) {
     });
   });
   const topStocks = Object.entries(stockCount).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+  const usStockCount = {};
+  history.forEach(h => {
+    const s = h.stock_us;
+    if (s?.name) {
+      const key = `${s.name}（${s.ticker || s.code || ""}）`;
+      usStockCount[key] = (usStockCount[key] || 0) + 1;
+    }
+  });
+  const topUsStocks = Object.entries(usStockCount).sort((a,b) => b[1]-a[1]).slice(0, 5);
 
   // モード統計
   const modeStat = {};
@@ -1702,11 +1716,27 @@ function HistoryView({ history }) {
 
       {/* 注目銘柄ランキング */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>注目銘柄 出現ランキング</div>
-        {topStocks.length === 0 ? (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF" }}>注目銘柄 出現ランキング</div>
+          <div style={{ display: "flex", gap: 6 }}>
+            {[{ id: "jp", label: "🇯🇵 日本株" }, { id: "us", label: "🇺🇸 米国株" }].map(m => (
+              <button
+                key={m.id}
+                onClick={() => setRankMarket(m.id)}
+                style={{
+                  padding: "3px 9px", fontSize: 10, borderRadius: 20, fontFamily: "inherit", cursor: "pointer", fontWeight: 700,
+                  background: rankMarket === m.id ? "#00E0A322" : "transparent",
+                  border: `1px solid ${rankMarket === m.id ? "#00E0A388" : "#1B1F26"}`,
+                  color: rankMarket === m.id ? "#00E0A3" : "#6B7280",
+                }}
+              >{m.label}</button>
+            ))}
+          </div>
+        </div>
+        {(rankMarket === "jp" ? topStocks : topUsStocks).length === 0 ? (
           <div style={{ color: "#6B7280", fontSize: 11 }}>データ蓄積中...</div>
         ) : (
-          topStocks.map(([name, count], i) => (
+          (rankMarket === "jp" ? topStocks : topUsStocks).map(([name, count], i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 12px", marginBottom: 6 }}>
               <div style={{ fontSize: 11, color: "#FFFFFF" }}>{i+1}. {name}</div>
               <div style={{ fontSize: 11, color: "#FFB020" }}>{count}回</div>
@@ -1834,7 +1864,7 @@ function YearlyFlowView({ eventsJp, eventsUs }) {
   );
 }
 
-function CalendarView({ briefing }) {
+function CalendarView({ briefing, marketFilter = "all" }) {
   if (!briefing) {
     return (
       <div style={{ padding: 20, textAlign: "center", color: "#6B7280", fontSize: 12 }}>
@@ -1842,21 +1872,29 @@ function CalendarView({ briefing }) {
       </div>
     );
   }
+  const showJp = marketFilter !== "us";
+  const showUs = marketFilter !== "jp";
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", marginBottom: 14 }}>月次イベントカレンダー</div>
-      <YearlyFlowView eventsJp={briefing.events_jp} eventsUs={briefing.events_us} />
-      <CalendarSection title="日本" events={briefing.events_jp} />
-      <CalendarSection title="米国" events={briefing.events_us} />
+      <YearlyFlowView eventsJp={showJp ? briefing.events_jp : []} eventsUs={showUs ? briefing.events_us : []} />
+      {showJp && <CalendarSection title="日本" events={briefing.events_jp} />}
+      {showUs && <CalendarSection title="米国" events={briefing.events_us} />}
     </div>
   );
 }
 
 function EventsView({ briefing, onJump }) {
   const [sub, setSub] = useState("earnings");
+  const [marketFilter, setMarketFilter] = useState("all"); // 'all' | 'jp' | 'us'
   const subTabs = [
     { id: "earnings", label: "決算" },
     { id: "calendar", label: "予定" },
+  ];
+  const filters = [
+    { id: "all", label: "すべて" },
+    { id: "jp", label: "🇯🇵 日本" },
+    { id: "us", label: "🇺🇸 米国" },
   ];
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -1874,12 +1912,26 @@ function EventsView({ briefing, onJump }) {
           >{t.label}</button>
         ))}
       </div>
+      <div style={{ display: "flex", gap: 6, padding: "8px 14px 0", flexShrink: 0 }}>
+        {filters.map(f => (
+          <button
+            key={f.id}
+            onClick={() => setMarketFilter(f.id)}
+            style={{
+              padding: "4px 10px", fontSize: 10, borderRadius: 20, fontFamily: "inherit", cursor: "pointer", fontWeight: 700,
+              background: marketFilter === f.id ? "#00E0A322" : "transparent",
+              border: `1px solid ${marketFilter === f.id ? "#00E0A388" : "#1B1F26"}`,
+              color: marketFilter === f.id ? "#00E0A3" : "#6B7280",
+            }}
+          >{f.label}</button>
+        ))}
+      </div>
       <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
         <div style={{ display: sub === "earnings" ? "block" : "none", height: "100%" }}>
-          <EarningsView briefing={briefing} onJump={onJump} />
+          <EarningsView briefing={briefing} onJump={onJump} marketFilter={marketFilter} />
         </div>
         <div style={{ display: sub === "calendar" ? "block" : "none", height: "100%" }}>
-          <CalendarView briefing={briefing} />
+          <CalendarView briefing={briefing} marketFilter={marketFilter} />
         </div>
       </div>
     </div>
