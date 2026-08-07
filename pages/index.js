@@ -1966,10 +1966,12 @@ export default function SwingStation() {
 
   const B = ({ style, ...p }) => <button style={{ fontFamily: "inherit", cursor: "pointer", border: "none", ...style }} {...p} />;
 
+  // 「日本株」「米国株」は別々のタブではなく、ヘッダーの国旗と連動する1つの
+  // タブにまとめる（旗がJP/US切り替えの唯一の主役）。朝刊・履歴は元々
+  // 日本株/米国株を横断した内容なので旗の影響を受けず今まで通り。
   const TABS = [
     { id: "briefing", label: "朝刊" },
-    { id: "jp", label: "日本株" },
-    { id: "us", label: "米国株" },
+    { id: "stocks", label: flagSide === "jp" ? "日本株" : "米国株", isActive: tab === "jp" || tab === "us", onSelect: () => setTab(flagSide) },
     { id: "events", label: "イベント" },
     { id: "history", label: "履歴" },
   ];
@@ -2056,16 +2058,33 @@ export default function SwingStation() {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs — 選択中は前面に大きく浮き上がり、非選択は奥へ小さく沈む
+            (ヘッダーの国旗トグルと同じ「前面/奥」の立体表現に揃えている) */}
         <div style={{ display:"flex", background:"#080808", borderBottom:"1px solid #1f1f1f", flexShrink:0 }}>
-          {TABS.map(t => (
-            <B key={t.id} onClick={() => setTab(t.id)} style={{
-              flex:1, padding:"8px", fontSize:11,
-              background: tab===t.id ? "#121212" : "transparent",
-              borderBottom: tab===t.id ? "2px solid #e8e8e8" : "2px solid transparent",
-              color: tab===t.id ? "#e8e8e8" : "#5a5a5a",
-            }}>{t.label}</B>
-          ))}
+          {TABS.map(t => {
+            const active = t.isActive ?? tab === t.id;
+            return (
+              <B key={t.id} onClick={() => (t.onSelect ? t.onSelect() : setTab(t.id))} style={{
+                flex:1, padding:"9px 4px", position:"relative", background:"transparent", overflow:"visible",
+              }}>
+                <span style={{
+                  display:"inline-block",
+                  fontSize: active ? 12 : 10.5,
+                  fontWeight: active ? 700 : 500,
+                  color: active ? "#e8e8e8" : "#5a5a5a",
+                  transform: active ? "translateY(-1px) scale(1.08)" : "translateY(1px) scale(0.92)",
+                  textShadow: active ? "0 2px 8px rgba(0,255,157,0.2)" : "none",
+                  transition: "transform 0.24s cubic-bezier(.34,1.35,.64,1), color 0.24s ease",
+                }}>{t.label}</span>
+                <span style={{
+                  position:"absolute", left:"22%", right:"22%", bottom:0, height:2, borderRadius:"2px 2px 0 0",
+                  background: active ? "#00ff9d" : "transparent",
+                  boxShadow: active ? "0 0 8px rgba(0,255,157,0.55)" : "none",
+                  transition: "background 0.24s ease, box-shadow 0.24s ease",
+                }} />
+              </B>
+            );
+          })}
         </div>
 
         {/* Content */}
