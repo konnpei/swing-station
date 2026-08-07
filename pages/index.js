@@ -739,6 +739,81 @@ function TopHeadlines({ headlines }) {
   );
 }
 
+function MorningHero({ briefing, todayInfo }) {
+  const statusLabel = todayInfo.isMarketOpen ? "東証OPEN" : todayInfo.isUSMarket ? "NY OPEN" : todayInfo.isRealWeekend ? "休場中" : `${todayInfo.day}曜`;
+  const statusOn = todayInfo.isMarketOpen || todayInfo.isUSMarket;
+  return (
+    <div style={{
+      position: "relative", overflow: "hidden", minHeight: 168, borderRadius: 28,
+      padding: "22px 22px 20px", marginBottom: 14,
+      background: "linear-gradient(155deg, #151B20 0%, #101519 55%, #0B0F12 100%)",
+      border: "1px solid rgba(255,255,255,0.07)",
+      boxShadow: "0 24px 48px -24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)",
+    }}>
+      <div style={{
+        position: "absolute", top: -60, right: -40, width: 220, height: 220, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(0,224,163,0.16) 0%, transparent 70%)", pointerEvents: "none",
+      }} />
+      <div style={{
+        position: "absolute", bottom: -70, left: -30, width: 200, height: 200, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)", pointerEvents: "none",
+      }} />
+      <div style={{ position: "relative" }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.16em", textTransform: "uppercase" }}>Morning Brief</div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF", marginTop: 8, lineHeight: 1.3, textWrap: "balance" }}>日米マーケット朝刊</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 12, fontWeight: 700, color: "#A1A7B3" }}>
+          <span>🇯🇵 JAPAN</span><span style={{ color: "#00E0A3" }}>×</span><span>🇺🇸 USA</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16 }}>
+          <div style={{ fontSize: 11, color: "#68747C", fontVariantNumeric: "tabular-nums" }}>{briefing.date}</div>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700,
+            padding: "3px 10px", borderRadius: 20,
+            background: statusOn ? "#00E0A31c" : "#68747C1c",
+            border: `1px solid ${statusOn ? "#00E0A355" : "#68747C40"}`,
+            color: statusOn ? "#00E0A3" : "#9AA5AD",
+          }}>
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
+            {statusLabel}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MarketPulse({ briefing }) {
+  const items = [
+    { label: "日経平均", value: briefing.nikkei?.toLocaleString(), pct: briefing.nikkei_pct, icon: "🇯🇵" },
+    { label: "SOX", value: briefing.sox?.toLocaleString(), pct: briefing.sox_pct, icon: "💾" },
+    { label: "NASDAQ", value: briefing.nasdaq?.toLocaleString(), pct: briefing.nasdaq_pct, icon: "🇺🇸" },
+    { label: "VIX", value: briefing.vix, pct: briefing.vix_pct, invert: true, icon: "🌊" },
+    { label: "USD/JPY", value: briefing.usd_jpy, pct: briefing.usd_jpy_pct, icon: "💱" },
+  ];
+  return (
+    <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 14, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
+      {items.map((it, i) => {
+        const hasPct = typeof it.pct === "number";
+        const positive = it.invert ? it.pct < 0 : it.pct >= 0;
+        const color = hasPct ? (positive ? "#00E0A3" : "#FF5A67") : "#68747C";
+        return (
+          <div key={i} style={{
+            flex: "0 0 auto", minWidth: 108, background: "#101519", border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 18, padding: "10px 12px",
+          }}>
+            <div style={{ fontSize: 14 }}>{it.icon}</div>
+            <div style={{ fontSize: 9.5, fontWeight: 700, color: "#9AA5AD", marginTop: 6, letterSpacing: "0.02em" }}>{it.label}</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#F5F7F8", marginTop: 2, fontVariantNumeric: "tabular-nums" }}>{it.value ?? "—"}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color, marginTop: 2, fontVariantNumeric: "tabular-nums" }}>
+              {hasPct ? `${it.pct >= 0 ? "+" : ""}${it.pct.toFixed(2)}%` : "—"}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
   if (!briefing) {
     return (
@@ -749,12 +824,13 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
   }
 
   const mode = MODE_LABELS[briefing.mode] || MODE_LABELS.normal;
-  const sign = briefing.nikkei_diff >= 0 ? "+" : "-";
   const todayInfo = getTodayInfo(briefing.is_trading_day);
   const [isChartOpen, setIsChartOpen] = useState(false);
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <MorningHero briefing={briefing} todayInfo={todayInfo} />
+      <MarketPulse briefing={briefing} />
       <TodayFocusPoints briefing={briefing} />
       <LastUpdatedBanner briefing={briefing} />
       <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} nextTradingDay={briefing.next_trading_day} />
@@ -777,44 +853,9 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
         <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>日経平均</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.nikkei?.toLocaleString()}円</div>
-          <div style={{ fontSize: 10, color: briefing.nikkei_diff >= 0 ? "#00E0A3" : "#ff5566" }}>
-            {sign}{Math.abs(briefing.nikkei_diff)?.toLocaleString()}円 ({briefing.nikkei_pct?.toFixed(2)}%)
-          </div>
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>ドル円</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.usd_jpy}円</div>
-          {typeof briefing.usd_jpy_pct === "number" && (
-            <div style={{ fontSize: 10, color: briefing.usd_jpy_pct >= 0 ? "#00E0A3" : "#ff5566" }}>
-              {briefing.usd_jpy_pct >= 0 ? "+" : ""}{briefing.usd_jpy_pct.toFixed(2)}%
-            </div>
-          )}
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>SOX指数</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.sox ? briefing.sox.toLocaleString() : "—"}</div>
-          <div style={{ fontSize: 10, color: (briefing.sox_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>{typeof briefing.sox_pct === "number" ? (briefing.sox_pct >= 0 ? "+" : "") + briefing.sox_pct.toFixed(2) + "%" : "—"}</div>
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>VIX</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.vix}</div>
-          {typeof briefing.vix_pct === "number" && (
-            <div style={{ fontSize: 10, color: briefing.vix_pct >= 0 ? "#ff5566" : "#00E0A3" }}>
-              {briefing.vix_pct >= 0 ? "+" : ""}{briefing.vix_pct.toFixed(2)}%
-            </div>
-          )}
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#A1A7B3" }}>TOPIX</div>
           <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.topix ? briefing.topix.toLocaleString() : "—"}</div>
           <div style={{ fontSize: 10, color: (briefing.topix_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>{briefing.topix_pct ? (briefing.topix_pct >= 0 ? "+" : "") + briefing.topix_pct.toFixed(2) + "%" : "—"}</div>
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>NASDAQ</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.nasdaq ? briefing.nasdaq.toLocaleString() : "—"}</div>
-          <div style={{ fontSize: 10, color: (briefing.nasdaq_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>{briefing.nasdaq_pct ? briefing.nasdaq_pct.toFixed(2) + "%" : "—"}</div>
         </div>
         <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
           <div style={{ fontSize: 9, color: "#A1A7B3" }}>S&P500</div>
