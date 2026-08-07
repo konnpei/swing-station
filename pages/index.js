@@ -1995,16 +1995,89 @@ function EventsView({ briefing, onJump }) {
   );
 }
 
+function IntroSplash({ onSelect }) {
+  const [spinKey, setSpinKey] = useState(0);
+  const flagBtnStyle = {
+    flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+    padding: "13px 8px", borderRadius: 16, fontFamily: "inherit", fontSize: 13, fontWeight: 700,
+    color: "#FFFFFF", background: "linear-gradient(155deg, #151B20, #101519)",
+    border: "1px solid rgba(255,255,255,0.12)", cursor: "pointer",
+  };
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 999, maxWidth: 600, margin: "0 auto",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      padding: "24px 28px", background: "#080D10", overflow: "hidden",
+      fontFamily: "'JetBrains Mono','Courier New',monospace",
+    }}>
+      <style>{`
+        @keyframes earthDrift{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-4px) rotate(1.5deg)}}
+        @keyframes splashSpin{from{transform:rotate(0deg) scale(0.94)}to{transform:rotate(360deg) scale(1)}}
+      `}</style>
+      <div style={{
+        position: "absolute", top: "18%", left: "50%", transform: "translateX(-50%)",
+        width: 320, height: 320, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(0,224,163,0.14) 0%, transparent 70%)", pointerEvents: "none",
+      }} />
+      <div
+        onClick={() => setSpinKey(k => k + 1)}
+        title="タップで回転"
+        style={{ position: "relative", width: 176, height: 176, cursor: "pointer", flexShrink: 0 }}
+      >
+        <div style={{
+          position: "absolute", inset: -20, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
+          filter: "blur(8px)", pointerEvents: "none",
+        }} />
+        <img
+          key={spinKey}
+          src="/earth-hero.webp"
+          alt=""
+          width={176}
+          height={176}
+          style={{
+            position: "relative", width: 176, height: 176, objectFit: "contain",
+            animation: spinKey === 0 ? "earthDrift 8s ease-in-out infinite" : "splashSpin 0.9s cubic-bezier(.22,.9,.3,1)",
+          }}
+        />
+      </div>
+      <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.2em", marginTop: 20 }}>SWING STATION</div>
+      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", marginTop: 8, textAlign: "center" }}>日米マーケット朝刊</div>
+      <div style={{ fontSize: 12, color: "#A1A7B3", marginTop: 8, textAlign: "center" }}>見たい市場を選んでね</div>
+      <div style={{ display: "flex", gap: 10, marginTop: 24, width: "100%", maxWidth: 300 }}>
+        <button onClick={() => onSelect("jp")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇯🇵</span>日本株</button>
+        <button onClick={() => onSelect("us")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇺🇸</span>米国株</button>
+      </div>
+      <button
+        onClick={() => onSelect(null)}
+        style={{ marginTop: 16, background: "none", border: "none", color: "#68747C", fontSize: 11, textDecoration: "underline", fontFamily: "inherit", cursor: "pointer" }}
+      >
+        あとで選ぶ
+      </button>
+    </div>
+  );
+}
+
 export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
   const [highlightTarget, setHighlightTarget] = useState(null); // { market: 'jp'|'us', code: string }
   const [flagSide, setFlagSide] = useState("jp"); // 'jp' | 'us' — which flag is currently up front
+  const [showIntro, setShowIntro] = useState(false); // 初回セッションのみ地球オープニングを表示
 
   // タブが「日本株」「米国株」タブ自体のクリックやジャンプなど、国旗ボタン以外の
   // 経路で切り替わったときも国旗の表示を実際のタブと一致させる。
   useEffect(() => {
     if (tab === "jp" || tab === "us") setFlagSide(tab);
   }, [tab]);
+
+  // セッション内で未表示なら初回だけオープニング画面を出す(SSRと初回描画は
+  // 常にfalseで揃え、マウント後にsessionStorageを見て切り替えるのでハイドレーション
+  // ミスマッチにならない)。
+  useEffect(() => {
+    if (typeof window !== "undefined" && !sessionStorage.getItem("kb_intro_seen")) {
+      setShowIntro(true);
+    }
+  }, []);
 
   const flipFlag = () => {
     setTab(flagSide === "jp" ? "us" : "jp");
@@ -2088,6 +2161,21 @@ export default function SwingStation() {
   const lastUpdatedLabel = lastUpdated
     ? `${lastUpdated.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" })} ${lastUpdated.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
     : "--:--";
+
+  // ブラウザセッション最初の1回だけ、地球ビジュアルで日本株/米国株を選ぶ
+  // オープニング画面を挟む。データ取得(loadData等)はこの間も裏で進むので、
+  // 選択後はすぐいつもの画面に切り替わる。
+  if (showIntro) {
+    return (
+      <IntroSplash
+        onSelect={(side) => {
+          if (side) setFlagSide(side);
+          if (typeof window !== "undefined") sessionStorage.setItem("kb_intro_seen", "1");
+          setShowIntro(false);
+        }}
+      />
+    );
+  }
 
   return (
     <>
