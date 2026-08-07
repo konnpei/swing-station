@@ -1987,12 +1987,13 @@ export default function SwingStation() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@800;900&display=swap" rel="stylesheet" />
       </Head>
-      <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#0a0a0a", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#d0d0d0", maxWidth:600, margin:"0 auto", borderLeft:"1px solid #13161C", borderRight:"1px solid #13161C" }}>
+      <div style={{ height:"100%", display:"flex", flexDirection:"column", overflow:"hidden", background:"#080D10", fontFamily:"'JetBrains Mono','Courier New',monospace", color:"#d0d0d0", maxWidth:600, margin:"0 auto", borderLeft:"1px solid #13161C", borderRight:"1px solid #13161C" }}>
         <style>{`
           @keyframes ssP{0%,100%{opacity:1}50%{opacity:.2}}
           @keyframes ssSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+          @keyframes orbSpin{from{background-position:0 0}to{background-position:-60px 0}}
           *{box-sizing:border-box}
-          html,body{height:100%;margin:0;padding:0;background:#050505}
+          html,body{height:100%;margin:0;padding:0;background:#080D10}
           ::-webkit-scrollbar{width:3px}
           ::-webkit-scrollbar-thumb{background:#FFFFFF25;border-radius:2px}
           button{cursor:pointer}
@@ -2009,25 +2010,32 @@ export default function SwingStation() {
             onClick={flipFlag}
             title={flagSide === "jp" ? "日本株を表示中（タップで米国株へ）" : "米国株を表示中（タップで日本株へ）"}
             style={{
-              position:"relative", width:42, height:34, flexShrink:0, marginLeft:2, padding:0,
-              background:"none", border:"none", cursor:"pointer",
+              position:"relative", display:"flex", alignItems:"center", gap:3,
+              flexShrink:0, marginLeft:2, padding:0, background:"none", border:"none", cursor:"pointer",
             }}
           >
-            {["jp", "us"].map(side => {
-              const isFront = flagSide === side;
-              return (
-                <span key={side} style={{
-                  position:"absolute", left:0, top:0, fontSize:22, lineHeight:1,
-                  zIndex: isFront ? 2 : 1,
-                  opacity: isFront ? 1 : 0.5,
-                  filter: isFront ? "none" : "grayscale(30%)",
-                  transform: isFront ? "translate(0,0) scale(1)" : "translate(15px,12px) scale(0.55)",
-                  transition: "transform 0.28s cubic-bezier(.34,1.4,.64,1), opacity 0.28s ease, filter 0.28s ease",
-                }}>
-                  {side === "jp" ? "🇯🇵" : "🇺🇸"}
-                </span>
-              );
-            })}
+            <span style={{
+              fontSize:15, lineHeight:1,
+              opacity: flagSide === "jp" ? 1 : 0.4,
+              filter: flagSide === "jp" ? "none" : "grayscale(40%)",
+              transform: flagSide === "jp" ? "scale(1.1)" : "scale(0.85)",
+              transition: "all 0.32s cubic-bezier(.34,1.3,.64,1)",
+            }}>🇯🇵</span>
+            <span style={{
+              width:20, height:20, borderRadius:"50%", flexShrink:0,
+              background:
+                "radial-gradient(circle at 35% 30%, #2a6b52 0%, #0d3a2c 45%, #061f18 75%)," +
+                "repeating-linear-gradient(100deg, transparent 0 5px, rgba(255,255,255,0.08) 5px 6px)",
+              boxShadow:"0 0 8px rgba(0,224,163,0.45), inset -3px -3px 5px rgba(0,0,0,0.6)",
+              animation:"orbSpin 5s linear infinite",
+            }} />
+            <span style={{
+              fontSize:15, lineHeight:1,
+              opacity: flagSide === "us" ? 1 : 0.4,
+              filter: flagSide === "us" ? "none" : "grayscale(40%)",
+              transform: flagSide === "us" ? "scale(1.1)" : "scale(0.85)",
+              transition: "all 0.32s cubic-bezier(.34,1.3,.64,1)",
+            }}>🇺🇸</span>
           </button>
           <div className="kb-subtitle" style={{ fontSize:8, color:"#6B7280", marginLeft:2, whiteSpace:"nowrap" }}>数日〜1週間の押し目スイング特化</div>
           <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
