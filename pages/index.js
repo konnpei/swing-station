@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Head from "next/head";
 import { track } from "@vercel/analytics";
@@ -779,7 +779,7 @@ function MorningHero({ briefing, todayInfo }) {
             </div>
           </div>
         </div>
-        <div style={{ position: "relative", flex: "0 0 auto", width: 108, height: 108 }}>
+        <div style={{ position: "relative", flex: "0 0 auto", width: 108, height: 108, animation: "earthBob 4.5s ease-in-out infinite" }}>
           <div style={{
             position: "absolute", inset: -14, borderRadius: "50%",
             background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
@@ -790,7 +790,7 @@ function MorningHero({ briefing, todayInfo }) {
             alt=""
             width={108}
             height={108}
-            style={{ position: "relative", width: 108, height: 108, objectFit: "contain", animation: "earthDrift 8s ease-in-out infinite" }}
+            style={{ position: "relative", width: 108, height: 108, objectFit: "contain", animation: "earthSpin 12s linear infinite" }}
           />
         </div>
       </div>
@@ -1996,7 +1996,14 @@ function EventsView({ briefing, onJump }) {
 }
 
 function IntroSplash({ onSelect }) {
-  const [spinKey, setSpinKey] = useState(0);
+  const [boost, setBoost] = useState(false);
+  const boostTimer = useRef(null);
+  const handleTap = () => {
+    setBoost(true);
+    clearTimeout(boostTimer.current);
+    boostTimer.current = setTimeout(() => setBoost(false), 650);
+  };
+  useEffect(() => () => clearTimeout(boostTimer.current), []);
   const flagBtnStyle = {
     flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
     padding: "13px 8px", borderRadius: 16, fontFamily: "inherit", fontSize: 13, fontWeight: 700,
@@ -2011,18 +2018,21 @@ function IntroSplash({ onSelect }) {
       fontFamily: "'JetBrains Mono','Courier New',monospace",
     }}>
       <style>{`
-        @keyframes earthDrift{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-4px) rotate(1.5deg)}}
-        @keyframes splashSpin{from{transform:rotate(0deg) scale(0.94)}to{transform:rotate(360deg) scale(1)}}
+        @keyframes earthBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+        @keyframes earthSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        @keyframes earthSpinBoost{from{transform:rotate(0deg)}to{transform:rotate(1080deg)}}
+        @keyframes ringPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
       `}</style>
       <div style={{
         position: "absolute", top: "18%", left: "50%", transform: "translateX(-50%)",
         width: 320, height: 320, borderRadius: "50%",
         background: "radial-gradient(circle, rgba(0,224,163,0.14) 0%, transparent 70%)", pointerEvents: "none",
+        animation: "ringPulse 3.2s ease-in-out infinite",
       }} />
       <div
-        onClick={() => setSpinKey(k => k + 1)}
+        onClick={handleTap}
         title="タップで回転"
-        style={{ position: "relative", width: 176, height: 176, cursor: "pointer", flexShrink: 0 }}
+        style={{ position: "relative", width: 176, height: 176, cursor: "pointer", flexShrink: 0, animation: "earthBob 4.5s ease-in-out infinite" }}
       >
         <div style={{
           position: "absolute", inset: -20, borderRadius: "50%",
@@ -2030,14 +2040,13 @@ function IntroSplash({ onSelect }) {
           filter: "blur(8px)", pointerEvents: "none",
         }} />
         <img
-          key={spinKey}
           src="/earth-hero.webp"
           alt=""
           width={176}
           height={176}
           style={{
             position: "relative", width: 176, height: 176, objectFit: "contain",
-            animation: spinKey === 0 ? "earthDrift 8s ease-in-out infinite" : "splashSpin 0.9s cubic-bezier(.22,.9,.3,1)",
+            animation: boost ? "earthSpinBoost 0.65s cubic-bezier(.22,.9,.3,1) 1" : "earthSpin 9s linear infinite",
           }}
         />
       </div>
@@ -2189,7 +2198,8 @@ export default function SwingStation() {
           @keyframes ssP{0%,100%{opacity:1}50%{opacity:.2}}
           @keyframes ssSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
           @keyframes orbSpin{from{background-position:0 0}to{background-position:-60px 0}}
-          @keyframes earthDrift{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-4px) rotate(1.5deg)}}
+          @keyframes earthBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+          @keyframes earthSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
           *{box-sizing:border-box}
           html,body{height:100%;margin:0;padding:0;background:#080D10}
           ::-webkit-scrollbar{width:3px}
