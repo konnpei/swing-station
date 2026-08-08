@@ -1996,7 +1996,7 @@ const GLOBE_STYLE_CSS = `
   .globe-surface-boost{animation:globeSpin 8s linear infinite}
   @keyframes globeSpin{
     from{background-position:0 0,0 0; -webkit-mask-position-x:0; mask-position-x:0}
-    to{background-position:-16px 0,-15px 0; -webkit-mask-position-x:-400px; mask-position-x:-400px}
+    to{background-position:-16px 0,-15px 0; -webkit-mask-position-x:-700px; mask-position-x:-700px}
   }
   .globe-btn{transition:background .15s ease, transform .1s ease}
   .globe-btn:active{transform:scale(0.98)}
@@ -2006,16 +2006,14 @@ const GLOBE_STYLE_CSS = `
   }
 `;
 
-// 大陸っぽい塊(だ円4つ)を横400px周期でタイル化したマスク。ドット層に
-// このマスクをかけることで、ドットが「陸地の塊」の形にだけ集まって見える
-// ようにする(実在の地図の正確な再現ではなく抽象的な手がかり)。
-// mask-position-xを表面と同じキーフレームで一緒に流すことで、陸地の並び
-// ごと自転しているように見せる。
-const GLOBE_CONTINENT_MASK =
-  "radial-gradient(ellipse 70px 42% at 12% 46%, #000 0%, #000 55%, transparent 80%), " +
-  "radial-gradient(ellipse 55px 44% at 44% 38%, #000 0%, #000 55%, transparent 80%), " +
-  "radial-gradient(ellipse 95px 40% at 68% 34%, #000 0%, #000 55%, transparent 80%), " +
-  "radial-gradient(ellipse 32px 22% at 86% 66%, #000 0%, #000 55%, transparent 80%)";
+// 簡略化した世界地図(北米/グリーンランド/南米/ヨーロッパ/アフリカ/アジア/
+// インド亜大陸/オーストラリア)をSVGパスで表現し、ドット層のマスクに使う。
+// 正距円筒図法のviewBox(800x400、経度0〜360degをx0〜800にマッピング)で
+// 描いていて、両端(x=0付近とx=800付近)はどちらも太平洋にあたり陸地が
+// ないため、横に繰り返しても継ぎ目が目立たない。厳密な海岸線の再現では
+// なく「大陸の輪郭として認識できる」レベルの簡略ポリゴン。
+const GLOBE_WORLD_MAP_SVG =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNDAwIj4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTgsNzIgTDg4LDU0IEwxMjgsNDggTDE2NSw1OCBMMTk4LDcyIEwyMjIsNTggTDI0OCw2NCBMMjUyLDg4IEwyMzYsMTA4IEwyMjIsMTI4IEwyMDQsMTQ4IEwxODYsMTc4IEwxNzAsMjA4IEwxNTQsMjI4IEwxMzMsMjM2IEwxMTUsMjIyIEwxMDAsMjAwIEw4NCwxNzYgTDY4LDE1MCBMNTQsMTIwIEw1MCw5NSBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTI4MCw0NCBMMzA2LDM2IEwzMjgsNDQgTDMyMiw2NiBMMzAwLDc0IEwyODAsNjMgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xOTYsMjM2IEwyMjIsMjMwIEwyMzYsMjQ2IEwyNDYsMjcyIEwyNDksMzAyIEwyNDAsMzMyIEwyMjQsMzU3IEwyMDgsMzcxIEwxOTgsMzYwIEwxOTQsMzMwIEwxODcsMzAwIEwxODQsMjcwIEwxODgsMjUwIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMzk2LDkwIEw0MjIsODAgTDQ0Nyw4NSBMNDU3LDEwMSBMNDUxLDExNiBMNDM1LDEyNiBMNDE0LDEzMSBMMzk5LDEyMCBMMzkyLDEwNSBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTM5NiwxNjIgTDQyMiwxNTEgTDQ0NywxNTYgTDQ2MiwxNzEgTDQ3MiwxOTEgTDQ2NiwyMTEgTDQ3MSwyMzEgTDQ2MSwyNTEgTDQ1MSwyNzEgTDQ0MSwyOTIgTDQyOSwzMTIgTDQxNywzMjYgTDQwNCwzMTYgTDM5NywyOTYgTDM5MSwyNzEgTDM4NywyNDYgTDM4NCwyMjEgTDM4OCwxOTYgTDM5MiwxNzYgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik00NTYsODAgTDQ5Miw2MCBMNTMyLDU1IEw1NzIsNjAgTDYxMiw1NSBMNjUyLDY2IEw2ODIsODEgTDY5NywxMDEgTDY4NiwxMjEgTDY3MSwxMzYgTDY0MSwxNDYgTDYxMCwxNTEgTDU5MCwxNjYgTDU3NSwxODYgTDU2MCwyMTEgTDU0NSwyMzEgTDUyNSwyMjYgTDUxNSwyMDYgTDUwNCwxOTEgTDQ5NCwxNzYgTDQ3OSwxNjEgTDQ2NCwxNDEgTDQ1NSwxMTYgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik01MjgsMjMyIEw1NDgsMjI2IEw1NjMsMjQwIEw1NjgsMjYyIEw1NTYsMjc4IEw1MzgsMjcwIEw1MjgsMjUwIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNNjMxLDI5MSBMNjYxLDI4NSBMNjg2LDI5NiBMNjk2LDMxMSBMNjkwLDMyNiBMNjcwLDMzMyBMNjQ0LDMyOSBMNjI4LDMxNiBMNjIyLDMwMSBaIi8+Cjwvc3ZnPgo=";
 const GLOBE_EDGE_MASK = "radial-gradient(circle, #000 55%, rgba(0,0,0,.85) 68%, rgba(0,0,0,.25) 88%, transparent 100%)";
 
 // KabuBocchi独自の抽象デジタル地球。写真を回すのではなく、
@@ -2075,10 +2073,10 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
             backgroundImage: "radial-gradient(circle, rgba(170,220,255,0.9) 0.9px, transparent 1.4px)",
             backgroundSize: "6px 6px",
             backgroundRepeat: "repeat",
-            WebkitMaskImage: GLOBE_CONTINENT_MASK,
-            maskImage: GLOBE_CONTINENT_MASK,
-            WebkitMaskSize: "400px 100%",
-            maskSize: "400px 100%",
+            WebkitMaskImage: `url("${GLOBE_WORLD_MAP_SVG}")`,
+            maskImage: `url("${GLOBE_WORLD_MAP_SVG}")`,
+            WebkitMaskSize: "700px 100%",
+            maskSize: "700px 100%",
             WebkitMaskRepeat: "repeat-x",
             maskRepeat: "repeat-x",
           }}
