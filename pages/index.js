@@ -1994,13 +1994,28 @@ function EventsView({ briefing, onJump }) {
 const GLOBE_STYLE_CSS = `
   .globe-surface-spin{animation:globeSpin 80s linear infinite}
   .globe-surface-boost{animation:globeSpin 10s linear infinite}
-  @keyframes globeSpin{from{background-position:0 0,0 0,0 0}to{background-position:-16px 0,-15px 0,0 0}}
+  @keyframes globeSpin{
+    from{background-position:0 0,0 0; -webkit-mask-position-x:0; mask-position-x:0}
+    to{background-position:-16px 0,-15px 0; -webkit-mask-position-x:-400px; mask-position-x:-400px}
+  }
   .globe-atmo{animation:globeAtmoBreath 7s ease-in-out infinite}
   @keyframes globeAtmoBreath{0%,100%{opacity:.75}50%{opacity:1}}
   @media (prefers-reduced-motion: reduce) {
     .globe-surface-spin, .globe-surface-boost, .globe-atmo { animation: none; }
   }
 `;
+
+// 大陸っぽい塊(だ円4つ)を横400px周期でタイル化したマスク。ドット層に
+// このマスクをかけることで、ドットが「陸地の塊」の形にだけ集まって見える
+// ようにする(実在の地図の正確な再現ではなく抽象的な手がかり)。
+// mask-position-xを表面と同じキーフレームで一緒に流すことで、陸地の並び
+// ごと自転しているように見せる。
+const GLOBE_CONTINENT_MASK =
+  "radial-gradient(ellipse 70px 42% at 12% 46%, #000 0%, #000 55%, transparent 80%), " +
+  "radial-gradient(ellipse 55px 44% at 44% 38%, #000 0%, #000 55%, transparent 80%), " +
+  "radial-gradient(ellipse 95px 40% at 68% 34%, #000 0%, #000 55%, transparent 80%), " +
+  "radial-gradient(ellipse 32px 22% at 86% 66%, #000 0%, #000 55%, transparent 80%)";
+const GLOBE_EDGE_MASK = "radial-gradient(circle, #000 55%, rgba(0,0,0,.85) 68%, rgba(0,0,0,.25) 88%, transparent 100%)";
 
 // KabuBocchi独自の抽象デジタル地球。写真を回すのではなく、
 // 「球体そのものは固定し、内部の表面テクスチャ(ドット+グリッド)だけを
@@ -2023,25 +2038,40 @@ function SpinningEarth({ size = 108, boost = false, onClick, title }) {
         border: "1px solid rgba(110,190,255,0.22)", zIndex: 0, pointerEvents: "none",
       }} />
 
-      {/* 球体本体(固定。ここ自体は動かない) */}
+      {/* 球体本体(固定。ここ自体は動かない。縁はここでフェードさせて球面感を出す) */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden", zIndex: 1,
-        background: "radial-gradient(circle at 38% 32%, #1c3f61 0%, #102846 35%, #081a30 65%, #050f1d 100%)",
+        background: "radial-gradient(circle at 38% 32%, #163454 0%, #0c2038 35%, #061527 65%, #040d1a 100%)",
         boxShadow: "inset -6px -6px 14px rgba(0,0,0,0.5)",
+        WebkitMaskImage: GLOBE_EDGE_MASK,
+        maskImage: GLOBE_EDGE_MASK,
       }}>
-        {/* 表面テクスチャ(ここだけが一方向へ流れる) */}
+        {/* 緯度経度グリッド(海陸問わず全面、ごく薄く) */}
         <div
-          className={`globe-surface ${boost ? "globe-surface-boost" : "globe-surface-spin"}`}
+          className={boost ? "globe-surface-boost" : "globe-surface-spin"}
           style={{
             position: "absolute", inset: "-2px -6px",
             backgroundImage:
-              "radial-gradient(circle, rgba(150,205,255,0.55) 0.8px, transparent 1.3px), " +
-              "repeating-linear-gradient(90deg, rgba(150,205,255,0.13) 0px, rgba(150,205,255,0.13) 1px, transparent 1px, transparent 15px), " +
-              "repeating-linear-gradient(0deg, rgba(150,205,255,0.07) 0px, rgba(150,205,255,0.07) 1px, transparent 1px, transparent 19px)",
-            backgroundSize: "8px 8px, 15px 100%, 100% 19px",
+              "repeating-linear-gradient(90deg, rgba(150,205,255,0.10) 0px, rgba(150,205,255,0.10) 1px, transparent 1px, transparent 15px), " +
+              "repeating-linear-gradient(0deg, rgba(150,205,255,0.06) 0px, rgba(150,205,255,0.06) 1px, transparent 1px, transparent 19px)",
+            backgroundSize: "15px 100%, 100% 19px",
             backgroundRepeat: "repeat",
-            WebkitMaskImage: "radial-gradient(circle, #000 55%, rgba(0,0,0,.85) 68%, rgba(0,0,0,.25) 88%, transparent 100%)",
-            maskImage: "radial-gradient(circle, #000 55%, rgba(0,0,0,.85) 68%, rgba(0,0,0,.25) 88%, transparent 100%)",
+          }}
+        />
+        {/* 陸地ドット(大陸の塊の形にだけ集まる。ここが「地球っぽさ」の要) */}
+        <div
+          className={boost ? "globe-surface-boost" : "globe-surface-spin"}
+          style={{
+            position: "absolute", inset: "-2px -6px",
+            backgroundImage: "radial-gradient(circle, rgba(160,215,255,0.85) 0.9px, transparent 1.4px)",
+            backgroundSize: "6px 6px",
+            backgroundRepeat: "repeat",
+            WebkitMaskImage: GLOBE_CONTINENT_MASK,
+            maskImage: GLOBE_CONTINENT_MASK,
+            WebkitMaskSize: "400px 100%",
+            maskSize: "400px 100%",
+            WebkitMaskRepeat: "repeat-x",
+            maskRepeat: "repeat-x",
           }}
         />
         {/* 影(固定・地形と一緒に動かさない) */}
