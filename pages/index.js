@@ -1991,35 +1991,60 @@ function EventsView({ briefing, onJump }) {
 
 // SpinningEarthが使うCSS(キーフレーム+reduced-motion対応)。IntroSplashと
 // 朝刊ヒーロー側それぞれの<style>タグに差し込んで使う共通定義。
+// 【技術メモ】mask-position(SVGマスクの位置)をCSS @keyframesで継続的に
+// アニメーションさせると、このページ全体のDOM規模ではSVGマスクを使った
+// レイヤーが描画されなくなる(陸地が消える)現象を実機相当の検証で確認した。
+// 単純化した再現HTMLでは問題なく動くため、ページ全体の複雑さに起因する
+// ブラウザ側の描画バグと判断し、mask-positionは静止値で固定している。
+// (「静止状態でもデザインが成立するように」という以前の指示とも合致する)
+// タップ時のフィードバックはmask-positionを一切動かさない
+// transform:scaleのみのパルスにして、同じ問題を避けている。
 const GLOBE_STYLE_CSS = `
-  .globe-surface-spin{animation:globeSpin 80s linear infinite}
-  .globe-surface-boost{animation:globeSpin 30s linear infinite}
-  @keyframes globeSpin{
-    from{background-position:0 0,0 0; -webkit-mask-position-x:0; mask-position-x:0}
-    to{background-position:-16px 0,-15px 0; -webkit-mask-position-x:-700px; mask-position-x:-700px}
-  }
+  @keyframes globeTapPulse{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}
+  .globe-tap-pulse{animation:globeTapPulse 0.6s cubic-bezier(.22,.9,.3,1) 1}
   .globe-btn{transition:background .15s ease, transform .1s ease}
   .globe-btn:active{transform:scale(0.98)}
   @media (hover:hover) { .globe-btn:hover{background:rgba(0,229,200,0.06)} }
   @media (prefers-reduced-motion: reduce) {
-    .globe-surface-spin, .globe-surface-boost { animation: none; }
+    .globe-tap-pulse { animation: none; }
   }
 `;
 
-// 簡略化した世界地図(北米/グリーンランド/南米/ヨーロッパ/アフリカ/アジア/
-// インド亜大陸/オーストラリア)をSVGパスで表現し、ドット層のマスクに使う。
-// 正距円筒図法のviewBox(800x400、経度0〜360degをx0〜800にマッピング)で
-// 描いていて、両端(x=0付近とx=800付近)はどちらも太平洋にあたり陸地が
-// ないため、横に繰り返しても継ぎ目が目立たない。厳密な海岸線の再現では
-// なく「大陸の輪郭として認識できる」レベルの簡略ポリゴン。
-const GLOBE_WORLD_MAP_SVG =
-  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgNDAwIj4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNNTgsNzIgTDg4LDU0IEwxMjgsNDggTDE2NSw1OCBMMTk4LDcyIEwyMjIsNTggTDI0OCw2NCBMMjUyLDg4IEwyMzYsMTA4IEwyMjIsMTI4IEwyMDQsMTQ4IEwxODYsMTc4IEwxNzAsMjA4IEwxNTQsMjI4IEwxMzMsMjM2IEwxMTUsMjIyIEwxMDAsMjAwIEw4NCwxNzYgTDY4LDE1MCBMNTQsMTIwIEw1MCw5NSBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTI4MCw0NCBMMzA2LDM2IEwzMjgsNDQgTDMyMiw2NiBMMzAwLDc0IEwyODAsNjMgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xOTYsMjM2IEwyMjIsMjMwIEwyMzYsMjQ2IEwyNDYsMjcyIEwyNDksMzAyIEwyNDAsMzMyIEwyMjQsMzU3IEwyMDgsMzcxIEwxOTgsMzYwIEwxOTQsMzMwIEwxODcsMzAwIEwxODQsMjcwIEwxODgsMjUwIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMzk2LDkwIEw0MjIsODAgTDQ0Nyw4NSBMNDU3LDEwMSBMNDUxLDExNiBMNDM1LDEyNiBMNDE0LDEzMSBMMzk5LDEyMCBMMzkyLDEwNSBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTM5NiwxNjIgTDQyMiwxNTEgTDQ0NywxNTYgTDQ2MiwxNzEgTDQ3MiwxOTEgTDQ2NiwyMTEgTDQ3MSwyMzEgTDQ2MSwyNTEgTDQ1MSwyNzEgTDQ0MSwyOTIgTDQyOSwzMTIgTDQxNywzMjYgTDQwNCwzMTYgTDM5NywyOTYgTDM5MSwyNzEgTDM4NywyNDYgTDM4NCwyMjEgTDM4OCwxOTYgTDM5MiwxNzYgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik00NTYsODAgTDQ5Miw2MCBMNTMyLDU1IEw1NzIsNjAgTDYxMiw1NSBMNjUyLDY2IEw2ODIsODEgTDY5NywxMDEgTDY4NiwxMjEgTDY3MSwxMzYgTDY0MSwxNDYgTDYxMCwxNTEgTDU5MCwxNjYgTDU3NSwxODYgTDU2MCwyMTEgTDU0NSwyMzEgTDUyNSwyMjYgTDUxNSwyMDYgTDUwNCwxOTEgTDQ5NCwxNzYgTDQ3OSwxNjEgTDQ2NCwxNDEgTDQ1NSwxMTYgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik01MjgsMjMyIEw1NDgsMjI2IEw1NjMsMjQwIEw1NjgsMjYyIEw1NTYsMjc4IEw1MzgsMjcwIEw1MjgsMjUwIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNNjMxLDI5MSBMNjYxLDI4NSBMNjg2LDI5NiBMNjk2LDMxMSBMNjkwLDMyNiBMNjcwLDMzMyBMNjQ0LDMyOSBMNjI4LDMxNiBMNjIyLDMwMSBaIi8+Cjwvc3ZnPgo=";
-const GLOBE_EDGE_MASK = "radial-gradient(circle, #000 55%, rgba(0,0,0,.85) 68%, rgba(0,0,0,.25) 88%, transparent 100%)";
+// 実際の海岸線をベースにした簡略世界地図(北米/グリーンランド/南米/
+// ヨーロッパ/アフリカ/アラビア/アジア大陸/朝鮮半島/日本(北海道・本州・
+// 四国・九州を個別に)/台湾/フィリピン/インドシナ/インドネシア/インド/
+// オーストラリア)をSVGパスで表現。正距円筒図法のviewBox(1600x800、
+// 経度をx0〜1600、緯度をy0〜800にマッピング)。両端(x=0/x=1600付近、
+// 太平洋上)には陸地を置いていないので、横に繰り返しても継ぎ目が出ない。
+// KabuBocchiは日本株を扱うため、基準位置(mask-position-x初期値)は
+// 日本列島が画面中央に来るよう経度をシフトしてある。
+//
+// 陸地は「ドットで塗る」のではなく「正確な陸地シルエットをマスクにして、
+// その内側だけにドットを敷き詰める」方式。同じマスクを陸地ベース(薄い
+// 塗り)・ドット・アウトライン(細い縁取り)の3レイヤーで共有し、常に
+// 同じ位置を指すよう揃えている。
+const GLOBE_WORLD_MAP_FILL =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDgwMCI+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTY2LjcsOTcuOCBMMTExLDg0LjQgTDE3Ny44LDg4LjkgTDI0NC40LDk3LjggTDI0OC45LDE4Mi4yIEwyNTcuOCwyMzUuNiBMMjgwLDI1Ny44IEwzMTEuMSwyOTMuMyBMMzY4LjksMjg0LjQgTDQwMCwyNzEuMSBMNDM1LjYsMjg4LjkgTDQ0NC40LDI1Ny44IEw0NjYuNywyMjIuMiBMNDg4LjksMjA0LjQgTDUxMS4xLDE5MS4xIEw0ODguOSwxNDIuMiBMMzc3LjgsMTI0LjQgTDMxMS4xLDk3LjggTDE3Ny44LDg4LjkgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik00NzUuNiwxMzMuMyBMNTU1LjYsMTA2LjcgTDcxMS4xLDM1LjYgTDY4OC45LDMxLjEgTDYwMCw0NC40IEw1MTEuMSw4MCBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTQ1OC43LDM1NS42IEw0ODguOSwzNzcuOCBMNTY4LjksNDA4LjkgTDY0NC40LDQzNS42IEw2MjIuMiw1MDIuMiBMNTg2LjcsNTI0LjQgTDU0Mi4yLDU1NS42IEw1MjQuNCw1ODYuNyBMNDk3LjgsNjMxLjEgTDQ4OC45LDY0NC40IEw0NzUuNiw2MjIuMiBMNDg0LjQsNTQ2LjcgTDQ4NC40LDQ4MCBMNDU4LjcsNDE3LjggWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik03NjAsMjA4LjkgTDc2MCwyNDAgTDgxMy4zLDI0MCBMODUzLjMsMjM1LjYgTDg4MCwyMjIuMiBMODg0LjQsMjEzLjMgTDkyNC40LDIxNy44IEw5NzcuOCwxOTUuNiBMOTY4LjksMTg2LjcgTDkzMy4zLDE3Ny44IEw4ODguOSwxNjAgTDkxMS4xLDEzMy4zIEw4NjYuNywxMjAgTDg0OC45LDE0Mi4yIEw4NDQuNCw5Ny44IEw4MjIuMiwxMjQuNCBMNzc3LjgsMTQyLjIgTDc2MCwxNjguOSBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTcyNC40LDMwNi43IEw3MjQuNCwzMzMuMyBMNzI4LjksMzQ2LjcgTDg0MCwzODIuMiBMODQwLDQwNC40IEw4NTMuMyw0MjYuNyBMODgwLDQ4MCBMODgwLDU1MS4xIEw5MTUuNiw1NDYuNyBMOTQ3LjgsNTIwIEw5NzcuOCw0NjYuNyBMOTkxLjEsNDA4LjkgTDEwMjYuNywzNTUuNiBMOTkxLjEsMzUxLjEgTDk1NS42LDMzMy4zIEw5NDcuOCwyNzUuNiBMOTExLjEsMjU3LjggTDg0OC45LDI1My4zIEw3NzMuMywyNDAgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik05NTUuNiwyNzEuMSBMMTAxMy4zLDI2Ni43IEwxMDU3LjgsMzAyLjIgTDEwMzEuMSwzMzMuMyBMOTk1LjYsMzQyLjIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik05NjguOSwxODYuNyBMMTA0NC40LDE3Ny44IEwxMDY2LjcsMTU1LjYgTDExMTEuMSwxNDIuMiBMMTIwMCwxMTEuMSBMMTI4OC45LDg4LjkgTDE0MjIuMiw5Ny44IEwxNTExLjEsMTExLjEgTDE1NTUuNiwxMTEuMSBMMTUxMS4xLDEzMy4zIEwxNDIyLjIsMTY4LjkgTDE0MDAsMjAwIEwxMzQyLjIsMjIyLjIgTDEzMzMuMywyNTcuOCBMMTI4OC45LDMwMi4yIEwxMjQ0LjQsMzAyLjIgTDEyMDguOSwyODQuNCBMMTE1NS42LDI3NS42IEwxMTExLjEsMjMxLjEgTDEwNDQuNCwyMzEuMSBMMTAxMy4zLDIyMi4yIEwxMDAwLDIxMy4zIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTM1My4zLDIyMi4yIEwxMzU3LjgsMjMxLjEgTDEzNjIuMiwyMzMuMyBMMTM3NS42LDI0Mi4yIEwxMzc1LjYsMjM1LjYgTDEzNjguOSwyMjYuNyBMMTM2NC40LDIxNy44IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTQyNS42LDE5Ny44IEwxNDQ0LjQsMjA2LjcgTDE0NDYuNywyMTMuMyBMMTQzMS4xLDIxNS42IEwxNDIxLjMsMjExLjEgTDE0MjQuNCwyMDIuMiBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE0MjguOSwyMTUuNiBMMTQzMC4yLDIyNC40IEwxNDI1LjgsMjM3LjggTDE0MjEuMywyNDQuNCBMMTQxMy4zLDI0NS42IEwxNDA2LjcsMjQ2LjIgTDE0MDAsMjQ4LjkgTDEzOTEuMSwyNDggTDEzODQuNCwyNDguOSBMMTM4Ni43LDI0Mi4yIEwxNDAwLDIzNS42IEwxNDA4LjksMjM0LjIgTDE0MTcuOCwyMjguOSBMMTQyMi4yLDIyMi4yIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTM4OSwyNDggTDEzOTcuOCwyNDcuNiBMMTM5OC43LDI1MS42IEwxMzkyLjQsMjUzLjggTDEzODcuNiwyNTIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMzgyLjIsMjQ4LjkgTDEzOTAsMjUyIEwxMzg3LjMsMjYxLjMgTDEzODIuMiwyNjIuMiBMMTM4MCwyNTUuNiBMMTM4MS4zLDI1MC43IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTMzOS45LDI4Ni41IEwxMzQyLjIsMjkyLjIgTDEzMzcsMzAwIEwxMzMzLjMsMjk0LjQgTDEzMzUuNiwyODcuOCBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzMzUuNiwzMTcuOCBMMTM0Mi4yLDMyNC40IEwxMzQyLjIsMzM1LjYgTDEzMzcuOCwzNDIuMiBMMTMzMy4zLDMzMy4zIEwxMzMzLjMsMzIyLjIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMzU3LjgsMzU3LjggTDEzNjIuMiwzNjYuNyBMMTM1NS42LDM3NS42IEwxMzQ0LjQsMzY4LjkgTDEzNDYuNywzNjAgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMjM1LjYsMjc1LjYgTDEyMTcuOCwzMTEuMSBMMTIzNS42LDMyOC45IEwxMjUzLjMsMzU1LjYgTDEyNjIuMiwzNjQuNCBMMTI2MCwzODYuNyBMMTI2Mi4yLDM3My4zIEwxMjc1LjYsMzU1LjYgTDEyODQuNCwzNDIuMiBMMTI3NS42LDMxMS4xIEwxMjUzLjMsMjk3LjggWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMjI0LjQsMzc1LjYgTDEyNDAsMzkxLjEgTDEyNjguOSw0MjUuOCBMMTI1My4zLDQxMy4zIEwxMjMxLjEsMzk1LjYgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMjY4LDQzMC4yIEwxMjk3LjgsNDM0LjcgTDEzMDguOSw0MzYuOSBMMTI4NC40LDQzMC43IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTI4NC40LDM4Mi4yIEwxMzIwLDM4MCBMMTMyOC45LDQxNy44IEwxMzA2LjcsNDE3LjggTDEyODQuNCwzOTUuNiBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzMzMuMywzOTUuNiBMMTM1MS4xLDQwMCBMMTM0Ni43LDQxNy44IEwxMzMxLjEsNDE3LjggWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMTAyLjIsMjkzLjMgTDExMjAsMzA2LjcgTDExMjQuNCwzMzMuMyBMMTEzNy44LDM1NS42IEwxMTQyLjIsMzY0LjQgTDExNTUuNiwzNjAgTDExNTUuNiwzNDIuMiBMMTE4Mi4yLDMyNC40IEwxMTkxLjEsMzAyLjIgTDEyMDguOSwyOTMuMyBMMTE5MS4xLDI4NC40IEwxMTU1LjYsMjY2LjcgTDExMjguOSwyNTMuMyBMMTExMS4xLDI3NS42IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTMwMi4yLDQ5Ny44IEwxMzQyLjIsNDgwIEwxMzczLjMsNDY2LjcgTDE0MDQuNCw0NTMuMyBMMTQzMS4xLDQ0OC45IEwxNDQ0LjQsNDc1LjYgTDE0NjYuNyw0OTcuOCBMMTQ4MCw1MjQuNCBMMTQ2Ni43LDU2NC40IEwxNDIyLjIsNTY4LjkgTDEzODIuMiw1NDIuMiBMMTMxMS4xLDU1MS4xIEwxMzAyLjIsNTE1LjYgWiIvPgo8L3N2Zz4K";
+const GLOBE_WORLD_MAP_OUTLINE =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDgwMCI+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTY2LjcsOTcuOCBMMTExLDg0LjQgTDE3Ny44LDg4LjkgTDI0NC40LDk3LjggTDI0OC45LDE4Mi4yIEwyNTcuOCwyMzUuNiBMMjgwLDI1Ny44IEwzMTEuMSwyOTMuMyBMMzY4LjksMjg0LjQgTDQwMCwyNzEuMSBMNDM1LjYsMjg4LjkgTDQ0NC40LDI1Ny44IEw0NjYuNywyMjIuMiBMNDg4LjksMjA0LjQgTDUxMS4xLDE5MS4xIEw0ODguOSwxNDIuMiBMMzc3LjgsMTI0LjQgTDMxMS4xLDk3LjggTDE3Ny44LDg4LjkgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik00NzUuNiwxMzMuMyBMNTU1LjYsMTA2LjcgTDcxMS4xLDM1LjYgTDY4OC45LDMxLjEgTDYwMCw0NC40IEw1MTEuMSw4MCBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTQ1OC43LDM1NS42IEw0ODguOSwzNzcuOCBMNTY4LjksNDA4LjkgTDY0NC40LDQzNS42IEw2MjIuMiw1MDIuMiBMNTg2LjcsNTI0LjQgTDU0Mi4yLDU1NS42IEw1MjQuNCw1ODYuNyBMNDk3LjgsNjMxLjEgTDQ4OC45LDY0NC40IEw0NzUuNiw2MjIuMiBMNDg0LjQsNTQ2LjcgTDQ4NC40LDQ4MCBMNDU4LjcsNDE3LjggWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik03NjAsMjA4LjkgTDc2MCwyNDAgTDgxMy4zLDI0MCBMODUzLjMsMjM1LjYgTDg4MCwyMjIuMiBMODg0LjQsMjEzLjMgTDkyNC40LDIxNy44IEw5NzcuOCwxOTUuNiBMOTY4LjksMTg2LjcgTDkzMy4zLDE3Ny44IEw4ODguOSwxNjAgTDkxMS4xLDEzMy4zIEw4NjYuNywxMjAgTDg0OC45LDE0Mi4yIEw4NDQuNCw5Ny44IEw4MjIuMiwxMjQuNCBMNzc3LjgsMTQyLjIgTDc2MCwxNjguOSBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTcyNC40LDMwNi43IEw3MjQuNCwzMzMuMyBMNzI4LjksMzQ2LjcgTDg0MCwzODIuMiBMODQwLDQwNC40IEw4NTMuMyw0MjYuNyBMODgwLDQ4MCBMODgwLDU1MS4xIEw5MTUuNiw1NDYuNyBMOTQ3LjgsNTIwIEw5NzcuOCw0NjYuNyBMOTkxLjEsNDA4LjkgTDEwMjYuNywzNTUuNiBMOTkxLjEsMzUxLjEgTDk1NS42LDMzMy4zIEw5NDcuOCwyNzUuNiBMOTExLjEsMjU3LjggTDg0OC45LDI1My4zIEw3NzMuMywyNDAgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik05NTUuNiwyNzEuMSBMMTAxMy4zLDI2Ni43IEwxMDU3LjgsMzAyLjIgTDEwMzEuMSwzMzMuMyBMOTk1LjYsMzQyLjIgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik05NjguOSwxODYuNyBMMTA0NC40LDE3Ny44IEwxMDY2LjcsMTU1LjYgTDExMTEuMSwxNDIuMiBMMTIwMCwxMTEuMSBMMTI4OC45LDg4LjkgTDE0MjIuMiw5Ny44IEwxNTExLjEsMTExLjEgTDE1NTUuNiwxMTEuMSBMMTUxMS4xLDEzMy4zIEwxNDIyLjIsMTY4LjkgTDE0MDAsMjAwIEwxMzQyLjIsMjIyLjIgTDEzMzMuMywyNTcuOCBMMTI4OC45LDMwMi4yIEwxMjQ0LjQsMzAyLjIgTDEyMDguOSwyODQuNCBMMTE1NS42LDI3NS42IEwxMTExLjEsMjMxLjEgTDEwNDQuNCwyMzEuMSBMMTAxMy4zLDIyMi4yIEwxMDAwLDIxMy4zIFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTM1My4zLDIyMi4yIEwxMzU3LjgsMjMxLjEgTDEzNjIuMiwyMzMuMyBMMTM3NS42LDI0Mi4yIEwxMzc1LjYsMjM1LjYgTDEzNjguOSwyMjYuNyBMMTM2NC40LDIxNy44IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTQyNS42LDE5Ny44IEwxNDQ0LjQsMjA2LjcgTDE0NDYuNywyMTMuMyBMMTQzMS4xLDIxNS42IEwxNDIxLjMsMjExLjEgTDE0MjQuNCwyMDIuMiBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTE0MjguOSwyMTUuNiBMMTQzMC4yLDIyNC40IEwxNDI1LjgsMjM3LjggTDE0MjEuMywyNDQuNCBMMTQxMy4zLDI0NS42IEwxNDA2LjcsMjQ2LjIgTDE0MDAsMjQ4LjkgTDEzOTEuMSwyNDggTDEzODQuNCwyNDguOSBMMTM4Ni43LDI0Mi4yIEwxNDAwLDIzNS42IEwxNDA4LjksMjM0LjIgTDE0MTcuOCwyMjguOSBMMTQyMi4yLDIyMi4yIFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTM4OSwyNDggTDEzOTcuOCwyNDcuNiBMMTM5OC43LDI1MS42IEwxMzkyLjQsMjUzLjggTDEzODcuNiwyNTIgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMzgyLjIsMjQ4LjkgTDEzOTAsMjUyIEwxMzg3LjMsMjYxLjMgTDEzODIuMiwyNjIuMiBMMTM4MCwyNTUuNiBMMTM4MS4zLDI1MC43IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTMzOS45LDI4Ni41IEwxMzQyLjIsMjkyLjIgTDEzMzcsMzAwIEwxMzMzLjMsMjk0LjQgTDEzMzUuNiwyODcuOCBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEzMzUuNiwzMTcuOCBMMTM0Mi4yLDMyNC40IEwxMzQyLjIsMzM1LjYgTDEzMzcuOCwzNDIuMiBMMTMzMy4zLDMzMy4zIEwxMzMzLjMsMzIyLjIgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMzU3LjgsMzU3LjggTDEzNjIuMiwzNjYuNyBMMTM1NS42LDM3NS42IEwxMzQ0LjQsMzY4LjkgTDEzNDYuNywzNjAgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMjM1LjYsMjc1LjYgTDEyMTcuOCwzMTEuMSBMMTIzNS42LDMyOC45IEwxMjUzLjMsMzU1LjYgTDEyNjIuMiwzNjQuNCBMMTI2MCwzODYuNyBMMTI2Mi4yLDM3My4zIEwxMjc1LjYsMzU1LjYgTDEyODQuNCwzNDIuMiBMMTI3NS42LDMxMS4xIEwxMjUzLjMsMjk3LjggWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMjI0LjQsMzc1LjYgTDEyNDAsMzkxLjEgTDEyNjguOSw0MjUuOCBMMTI1My4zLDQxMy4zIEwxMjMxLjEsMzk1LjYgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMjY4LDQzMC4yIEwxMjk3LjgsNDM0LjcgTDEzMDguOSw0MzYuOSBMMTI4NC40LDQzMC43IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTI4NC40LDM4Mi4yIEwxMzIwLDM4MCBMMTMyOC45LDQxNy44IEwxMzA2LjcsNDE3LjggTDEyODQuNCwzOTUuNiBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEzMzMuMywzOTUuNiBMMTM1MS4xLDQwMCBMMTM0Ni43LDQxNy44IEwxMzMxLjEsNDE3LjggWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMTAyLjIsMjkzLjMgTDExMjAsMzA2LjcgTDExMjQuNCwzMzMuMyBMMTEzNy44LDM1NS42IEwxMTQyLjIsMzY0LjQgTDExNTUuNiwzNjAgTDExNTUuNiwzNDIuMiBMMTE4Mi4yLDMyNC40IEwxMTkxLjEsMzAyLjIgTDEyMDguOSwyOTMuMyBMMTE5MS4xLDI4NC40IEwxMTU1LjYsMjY2LjcgTDExMjguOSwyNTMuMyBMMTExMS4xLDI3NS42IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTMwMi4yLDQ5Ny44IEwxMzQyLjIsNDgwIEwxMzczLjMsNDY2LjcgTDE0MDQuNCw0NTMuMyBMMTQzMS4xLDQ0OC45IEwxNDQ0LjQsNDc1LjYgTDE0NjYuNyw0OTcuOCBMMTQ4MCw1MjQuNCBMMTQ2Ni43LDU2NC40IEwxNDIyLjIsNTY4LjkgTDEzODIuMiw1NDIuMiBMMTMxMS4xLDU1MS4xIEwxMzAyLjIsNTE1LjYgWiIvPgo8L3N2Zz4K";
+const GLOBE_EDGE_MASK = "radial-gradient(circle, #000 65%, rgba(0,0,0,.85) 78%, rgba(0,0,0,.25) 92%, transparent 100%)";
+// 日本列島だけを抜き出したマスク(Hokkaido/Honshu/Shikoku/Kyushu)。日本株
+// サイトとして、周辺よりわずかに明るく見せるための専用ハイライトに使う。
+const GLOBE_JAPAN_MASK =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDgwMCI+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE0MjUuNiwxOTcuOCBMMTQ0NC40LDIwNi43IEwxNDQ2LjcsMjEzLjMgTDE0MzEuMSwyMTUuNiBMMTQyMS4zLDIxMS4xIEwxNDI0LjQsMjAyLjIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xNDI4LjksMjE1LjYgTDE0MzAuMiwyMjQuNCBMMTQyNS44LDIzNy44IEwxNDIxLjMsMjQ0LjQgTDE0MTMuMywyNDUuNiBMMTQwNi43LDI0Ni4yIEwxNDAwLDI0OC45IEwxMzkxLjEsMjQ4IEwxMzg0LjQsMjQ4LjkgTDEzODYuNywyNDIuMiBMMTQwMCwyMzUuNiBMMTQwOC45LDIzNC4yIEwxNDE3LjgsMjI4LjkgTDE0MjIuMiwyMjIuMiBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzODksMjQ4IEwxMzk3LjgsMjQ3LjYgTDEzOTguNywyNTEuNiBMMTM5Mi40LDI1My44IEwxMzg3LjYsMjUyIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTM4Mi4yLDI0OC45IEwxMzkwLDI1MiBMMTM4Ny4zLDI2MS4zIEwxMzgyLjIsMjYyLjIgTDEzODAsMjU1LjYgTDEzODEuMywyNTAuNyBaIi8+Cjwvc3ZnPgo=";
+// 陸地マスク群(land/dots/outline/japan)は全て同じviewBox(1600x800)・同じ
+// mask-size・同じmask-positionで揃えて使うことで、常にピタリと重なる。
+// アスペクト比を保ったサイズ指定でないとSVGマスクが描画されない
+// (ブラウザの既知の挙動)ため、高さは明示せず"auto"にして幅だけ指定する。
+const GLOBE_MASK_SIZE = "1400px auto";
+// 日本列島が正面(円の中央)に来るよう固定した位置。静止状態の基準位置。
+const GLOBE_MASK_POSITION = "-1124px -180px";
 
-// KabuBocchi独自の抽象デジタル地球。写真を回すのではなく、
-// 「球体そのものは固定し、内部の表面テクスチャ(ドット+グリッド)だけを
-// 一方向へゆっくり流す」ことで自転しているように見せる。光源(ハイライト/影)
-// は表面と別レイヤーにして固定し、地形と一緒に動かさない。
+// KabuBocchi独自の抽象デジタル地球。実際の海岸線ベースの世界地図(日本列島が
+// 正面に来る位置に固定)を、ドット+輪郭線+薄いシルエットの3レイヤーで表現。
+// mask-positionは静止値固定(理由は上のメモ参照)。光源(ハイライト/影)も
+// 別レイヤーにして完全に固定し、地形と一緒に動かさない。タップ時は
+// transform:scaleの短いパルスのみで反応する。
 // opacity/ringPower/glowPowerで、オープニング(主役)と朝刊ヒーロー(脇役)の
 // 見せ方だけを調整できる。自転ロジック自体は完全に共通。
 function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1, ringPower = 1, glowPower = 1 }) {
@@ -2045,46 +2070,72 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
         border: `1px solid rgba(140,205,255,${0.16 * ringPower})`, zIndex: 0, pointerEvents: "none",
       }} />
 
-      {/* 球体本体(固定。ここ自体は動かない。縁はここでフェードさせて球面感を出す) */}
-      <div style={{
+      {/* 球体本体(固定。ここ自体は動かない。縁はここでフェードさせて球面感を出す。
+          タップ時はtransform:scaleのみの短いパルスで反応を返す(mask-positionは
+          一切動かさない — 動かすと陸地レイヤーが描画されなくなる問題を回避) */}
+      <div className={boost ? "globe-tap-pulse" : undefined} style={{
         position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden", zIndex: 1,
         background: "radial-gradient(circle at 32% 26%, #1c4468 0%, #0c2038 34%, #061527 64%, #030a15 100%)",
         boxShadow: "inset -9px -9px 20px rgba(0,0,0,0.6)",
         WebkitMaskImage: GLOBE_EDGE_MASK,
-        maskImage: GLOBE_EDGE_MASK,
       }}>
-        {/* 緯度経度グリッド(海陸問わず全面、ごく薄く) */}
-        <div
-          className={boost ? "globe-surface-boost" : "globe-surface-spin"}
-          style={{
-            position: "absolute", inset: "-2px -6px",
-            backgroundImage:
-              "repeating-linear-gradient(90deg, rgba(150,205,255,0.10) 0px, rgba(150,205,255,0.10) 1px, transparent 1px, transparent 15px), " +
-              "repeating-linear-gradient(0deg, rgba(150,205,255,0.06) 0px, rgba(150,205,255,0.06) 1px, transparent 1px, transparent 19px)",
-            backgroundSize: "15px 100%, 100% 19px",
-            backgroundRepeat: "repeat",
-          }}
-        />
-        {/* 陸地ドット(大陸の塊の形にだけ集まる。ここが「地球っぽさ」の要) */}
-        <div
-          className={boost ? "globe-surface-boost" : "globe-surface-spin"}
-          style={{
-            position: "absolute", inset: "-2px -6px",
-            backgroundImage: "radial-gradient(circle, rgba(170,220,255,0.9) 0.9px, transparent 1.4px)",
-            backgroundSize: "6px 6px",
-            backgroundRepeat: "repeat",
-            WebkitMaskImage: `url("${GLOBE_WORLD_MAP_SVG}")`,
-            maskImage: `url("${GLOBE_WORLD_MAP_SVG}")`,
-            WebkitMaskSize: "700px 100%",
-            maskSize: "700px 100%",
-            WebkitMaskRepeat: "repeat-x",
-            maskRepeat: "repeat-x",
-          }}
-        />
-        {/* 左右端を暗く落として球面のカーブを強調 */}
+        {/* 緯度経度グリッド(海陸問わず全面、陸地より確実に薄く、固定) */}
+        <div style={{
+          position: "absolute", inset: "-2px -6px",
+          backgroundImage:
+            "repeating-linear-gradient(90deg, rgba(150,205,255,0.05) 0px, rgba(150,205,255,0.05) 1px, transparent 1px, transparent 15px), " +
+            "repeating-linear-gradient(0deg, rgba(150,205,255,0.03) 0px, rgba(150,205,255,0.03) 1px, transparent 1px, transparent 19px)",
+          backgroundSize: "15px 100%, 100% 19px",
+          backgroundRepeat: "repeat",
+        }} />
+        {/* 陸地ベース(薄いシルエット。ドットだけに頼らず輪郭そのものを見せる)。
+            位置は固定(日本列島が正面に来る経度)。 */}
+        <div style={{
+          position: "absolute", inset: "-2px -6px",
+          background: "rgba(150,205,255,0.22)",
+          WebkitMaskImage: `url("${GLOBE_WORLD_MAP_FILL}")`,
+          WebkitMaskSize: GLOBE_MASK_SIZE,
+          WebkitMaskRepeat: "repeat-x",
+          WebkitMaskPosition: GLOBE_MASK_POSITION,
+        }} />
+        {/* 陸地ドット(輪郭の内側だけに極小ドットを高密度配置。ランダムな点群ではない) */}
+        <div style={{
+          position: "absolute", inset: "-2px -6px",
+          backgroundImage: "radial-gradient(circle, rgba(200,230,255,0.85) 0.5px, transparent 0.9px)",
+          backgroundSize: "4px 4px",
+          backgroundRepeat: "repeat",
+          WebkitMaskImage: `url("${GLOBE_WORLD_MAP_FILL}")`,
+          WebkitMaskSize: GLOBE_MASK_SIZE,
+          WebkitMaskRepeat: "repeat-x",
+          WebkitMaskPosition: GLOBE_MASK_POSITION,
+        }} />
+        {/* 日本列島のみ、周辺よりわずかに明るく(日本株サイトとしての手がかり) */}
+        <div style={{
+          position: "absolute", inset: "-2px -6px",
+          background: "rgba(210,235,255,0.16)",
+          WebkitMaskImage: `url("${GLOBE_JAPAN_MASK}")`,
+          WebkitMaskSize: GLOBE_MASK_SIZE,
+          WebkitMaskRepeat: "repeat-x",
+          WebkitMaskPosition: GLOBE_MASK_POSITION,
+        }} />
+        {/* 陸地アウトライン(輪郭をシャープに保つための極細の縁取り) */}
+        <div style={{
+          position: "absolute", inset: "-2px -6px",
+          background: "rgba(130,215,255,0.4)",
+          WebkitMaskImage: `url("${GLOBE_WORLD_MAP_OUTLINE}")`,
+          WebkitMaskSize: GLOBE_MASK_SIZE,
+          WebkitMaskRepeat: "repeat-x",
+          WebkitMaskPosition: GLOBE_MASK_POSITION,
+        }} />
+        {/* 左右端を暗く落として球面のカーブを強調(中央70%は輪郭をシャープに保つ) */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          background: "linear-gradient(to right, rgba(0,0,0,.5) 0%, transparent 22%, transparent 78%, rgba(0,0,0,.55) 100%)",
+          background: "linear-gradient(to right, rgba(0,0,0,.55) 0%, transparent 16%, transparent 84%, rgba(0,0,0,.6) 100%)",
+        }} />
+        {/* ハイライト(固定・左上寄りの強い光) */}
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          background: "radial-gradient(circle at 30% 22%, rgba(255,255,255,.75) 0%, rgba(170,225,255,.28) 10%, transparent 28%)",
         }} />
         {/* 影(固定・地形と一緒に動かさない。下側がより深くなるよう2枚重ね) */}
         <div style={{
@@ -2094,11 +2145,6 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
           background: "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,.3) 100%)",
-        }} />
-        {/* ハイライト(固定・左上寄りの強い光) */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(circle at 30% 22%, rgba(255,255,255,.75) 0%, rgba(170,225,255,.28) 10%, transparent 28%)",
         }} />
         {/* 弱いリムライト(球の輪郭にごく細く沿う縁取り) */}
         <div style={{
@@ -2217,7 +2263,7 @@ function IntroSplash({ onSelect, briefing }) {
               background: "radial-gradient(circle, rgba(0,229,200,0.24) 0%, transparent 68%)",
               filter: "blur(10px)", pointerEvents: "none",
             }} />
-            <SpinningEarth size={224} boost={boost} onClick={handleTap} title="タップで自転を加速" />
+            <SpinningEarth size={224} boost={boost} onClick={handleTap} title="タップで反応" />
           </div>
         </div>
         <div style={{
