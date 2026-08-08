@@ -785,13 +785,7 @@ function MorningHero({ briefing, todayInfo }) {
             background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
             filter: "blur(6px)", pointerEvents: "none",
           }} />
-          <img
-            src="/earth-hero.webp"
-            alt=""
-            width={108}
-            height={108}
-            style={{ position: "relative", width: 108, height: 108, objectFit: "contain", animation: "earthSpin 12s linear infinite" }}
-          />
+          <SpinningEarth size={108} />
         </div>
       </div>
     </div>
@@ -1995,6 +1989,42 @@ function EventsView({ briefing, onJump }) {
   );
 }
 
+// 地球画像(左右反転を継ぎ足したシームレスな帯 /earth-tile.webp)をbackground-position-x
+// でパンさせ、実際に球面が自転しているように見せるコンポーネント。
+// (単純にimgをtransform:rotateで回すと、円盤が♻️アイコンのようにグルグル
+// 傾いて回るだけになり「自転」に見えないための対策)
+function SpinningEarth({ size = 108, boost = false, onClick, title }) {
+  // ズームした地球テクスチャの中の「安全な内側だけ」を左右にパン(往復)させて、
+  // 球面が自転しているように見せる。パン範囲は画像の縁(アルファがフェードして
+  // 消える部分)まで届かないよう十分内側に収めているので、継ぎ目やハゲが出ない。
+  const amp = Math.round(size * 0.2); // パンの振れ幅(px)
+  const ampBoost = Math.round(size * 0.34);
+  return (
+    <div
+      onClick={onClick}
+      title={title}
+      style={{
+        position: "relative", width: size, height: size, borderRadius: "50%", overflow: "hidden",
+        flexShrink: 0, cursor: onClick ? "pointer" : "default",
+        boxShadow: "inset -6px -6px 14px rgba(0,0,0,0.55), inset 3px 3px 8px rgba(255,255,255,0.08)",
+      }}
+    >
+      <div style={{
+        position: "absolute", inset: 0, "--amp": `${amp}px`, "--amp-boost": `${ampBoost}px`,
+        backgroundImage: "url(/earth-sphere.webp)",
+        backgroundSize: `auto ${Math.round(size * 1.3)}px`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center center",
+        animation: boost ? "earthPanBoost 0.6s cubic-bezier(.3,.6,.3,1) 1" : "earthPan 6s ease-in-out infinite",
+      }} />
+      <div style={{
+        position: "absolute", inset: 0, borderRadius: "50%", pointerEvents: "none",
+        background: "radial-gradient(circle at 30% 26%, transparent 0%, transparent 40%, rgba(0,0,0,0.5) 100%)",
+      }} />
+    </div>
+  );
+}
+
 function IntroSplash({ onSelect }) {
   const [boost, setBoost] = useState(false);
   const boostTimer = useRef(null);
@@ -2019,8 +2049,8 @@ function IntroSplash({ onSelect }) {
     }}>
       <style>{`
         @keyframes earthBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-        @keyframes earthSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        @keyframes earthSpinBoost{from{transform:rotate(0deg)}to{transform:rotate(1080deg)}}
+        @keyframes earthPan{0%,100%{background-position-x:calc(50% - var(--amp))}50%{background-position-x:calc(50% + var(--amp))}}
+        @keyframes earthPanBoost{0%,100%{background-position-x:calc(50% - var(--amp-boost))}50%{background-position-x:calc(50% + var(--amp-boost))}}
         @keyframes ringPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
       `}</style>
       <div style={{
@@ -2029,26 +2059,13 @@ function IntroSplash({ onSelect }) {
         background: "radial-gradient(circle, rgba(0,224,163,0.14) 0%, transparent 70%)", pointerEvents: "none",
         animation: "ringPulse 3.2s ease-in-out infinite",
       }} />
-      <div
-        onClick={handleTap}
-        title="タップで回転"
-        style={{ position: "relative", width: 176, height: 176, cursor: "pointer", flexShrink: 0, animation: "earthBob 4.5s ease-in-out infinite" }}
-      >
+      <div style={{ position: "relative", flexShrink: 0, animation: "earthBob 4.5s ease-in-out infinite" }}>
         <div style={{
           position: "absolute", inset: -20, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
           filter: "blur(8px)", pointerEvents: "none",
         }} />
-        <img
-          src="/earth-hero.webp"
-          alt=""
-          width={176}
-          height={176}
-          style={{
-            position: "relative", width: 176, height: 176, objectFit: "contain",
-            animation: boost ? "earthSpinBoost 0.65s cubic-bezier(.22,.9,.3,1) 1" : "earthSpin 9s linear infinite",
-          }}
-        />
+        <SpinningEarth size={176} boost={boost} onClick={handleTap} title="タップで自転を加速" />
       </div>
       <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.2em", marginTop: 20 }}>SWING STATION</div>
       <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", marginTop: 8, textAlign: "center" }}>日米マーケット朝刊</div>
@@ -2199,7 +2216,8 @@ export default function SwingStation() {
           @keyframes ssSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
           @keyframes orbSpin{from{background-position:0 0}to{background-position:-60px 0}}
           @keyframes earthBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-          @keyframes earthSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+          @keyframes earthPan{0%,100%{background-position-x:calc(50% - var(--amp))}50%{background-position-x:calc(50% + var(--amp))}}
+          @keyframes earthPanBoost{0%,100%{background-position-x:calc(50% - var(--amp-boost))}50%{background-position-x:calc(50% + var(--amp-boost))}}
           *{box-sizing:border-box}
           html,body{height:100%;margin:0;padding:0;background:#080D10}
           ::-webkit-scrollbar{width:3px}
