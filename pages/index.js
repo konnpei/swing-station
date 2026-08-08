@@ -2117,9 +2117,29 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
   );
 }
 
+// 東京/NYの現在時刻を軽量に表示するミニウィジェット。setIntervalは30秒に
+// 1回のテキスト更新のみ(アニメーションループではない)なので負荷は無視できる。
+function useWorldClocks() {
+  const [clocks, setClocks] = useState(null);
+  useEffect(() => {
+    const update = () => {
+      const now = new Date();
+      setClocks({
+        tokyo: now.toLocaleTimeString("ja-JP", { timeZone: "Asia/Tokyo", hour: "2-digit", minute: "2-digit", hour12: false }),
+        ny: now.toLocaleTimeString("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hour12: false }),
+      });
+    };
+    update();
+    const id = setInterval(update, 30000);
+    return () => clearInterval(id);
+  }, []);
+  return clocks;
+}
+
 function IntroSplash({ onSelect }) {
   const [boost, setBoost] = useState(false);
   const boostTimer = useRef(null);
+  const clocks = useWorldClocks();
   const handleTap = () => {
     setBoost(true);
     clearTimeout(boostTimer.current);
@@ -2130,13 +2150,16 @@ function IntroSplash({ onSelect }) {
     flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
     minHeight: 54, borderRadius: 15, fontFamily: "inherit", fontSize: 13, fontWeight: 700,
     color: "#FFFFFF", background: "linear-gradient(155deg, #151F27, #101820)",
-    border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 2px 10px rgba(0,0,0,0.25)", cursor: "pointer",
+    border: "1px solid rgba(255,255,255,0.08)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.07), 0 4px 14px rgba(0,0,0,0.3)",
+    cursor: "pointer",
   };
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 999, maxWidth: 600, margin: "0 auto",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: "40px 28px 24px", background: "#081117", overflow: "hidden",
+      display: "flex", flexDirection: "column", alignItems: "center",
+      padding: "40px 28px calc(16px + env(safe-area-inset-bottom, 0px))",
+      background: "#081117", overflow: "hidden",
       fontFamily: "'JetBrains Mono','Courier New',monospace",
     }}>
       <style>{`
@@ -2145,32 +2168,71 @@ function IntroSplash({ onSelect }) {
         @keyframes ringPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
         @media (prefers-reduced-motion: reduce) { .splash-ring-pulse { animation: none; } }
       `}</style>
+      {/* 背景の奥行き(アンビエントな光だまり+極薄い星、静止画像のみでアニメーションなし) */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage:
+          "radial-gradient(circle, rgba(255,255,255,0.5) 0.5px, transparent 1px), " +
+          "radial-gradient(circle, rgba(255,255,255,0.35) 0.5px, transparent 1px), " +
+          "radial-gradient(circle, rgba(255,255,255,0.25) 0.5px, transparent 1px)",
+        backgroundSize: "47px 47px, 71px 71px, 113px 113px",
+        backgroundPosition: "0 0, 23px 41px, 60px 12px",
+      }} />
+      <div style={{
+        position: "absolute", top: -60, right: -60, width: 260, height: 260, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(41,163,255,0.10) 0%, transparent 72%)", pointerEvents: "none",
+      }} />
+      <div style={{
+        position: "absolute", bottom: -40, left: -60, width: 240, height: 240, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(0,229,200,0.08) 0%, transparent 72%)", pointerEvents: "none",
+      }} />
       <div className="splash-ring-pulse" style={{
         position: "absolute", top: "16%", left: "50%", transform: "translateX(-50%)",
         width: 340, height: 340, borderRadius: "50%",
         background: "radial-gradient(circle, rgba(0,229,200,0.10) 0%, transparent 70%)", pointerEvents: "none",
       }} />
-      <div style={{ position: "relative", flexShrink: 0 }}>
-        <div style={{
-          position: "absolute", inset: -18, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,229,200,0.22) 0%, transparent 68%)",
-          filter: "blur(8px)", pointerEvents: "none",
-        }} />
-        <SpinningEarth size={204} boost={boost} onClick={handleTap} title="タップで自転を加速" />
+
+      {/* コンテンツ本体(縦方向は自身の中で中央寄せ、下にブランドフッターを別に確保) */}
+      <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 0 }}>
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <div style={{
+            position: "absolute", inset: -18, borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(0,229,200,0.22) 0%, transparent 68%)",
+            filter: "blur(8px)", pointerEvents: "none",
+          }} />
+          <SpinningEarth size={204} boost={boost} onClick={handleTap} title="タップで自転を加速" />
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: "#00E5C8", letterSpacing: "0.22em", marginTop: 32 }}>SWING STATION</div>
+        <div style={{ fontSize: 21, fontWeight: 700, color: "#FFFFFF", marginTop: 12, textAlign: "center", letterSpacing: "0.02em" }}>日米マーケット朝刊</div>
+        <div style={{ fontSize: 12, color: "#8892A3", marginTop: 10, textAlign: "center" }}>見たい市場を選んでね</div>
+
+        <div style={{ display: "flex", gap: 10, marginTop: 28, width: "100%", maxWidth: 300 }}>
+          <button className="globe-btn" onClick={() => onSelect("jp")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇯🇵</span>日本株</button>
+          <button className="globe-btn" onClick={() => onSelect("us")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇺🇸</span>米国株</button>
+        </div>
+        <button
+          onClick={() => onSelect(null)}
+          style={{ marginTop: 22, background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 11, fontFamily: "inherit", cursor: "pointer" }}
+        >
+          あとで選ぶ
+        </button>
+
+        {/* 東京/NYのミニ時計。「世界市場が動いている」空気を静かに添える */}
+        {clocks && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 10, marginTop: 30,
+            fontSize: 10, color: "rgba(255,255,255,0.32)", letterSpacing: "0.04em", fontVariantNumeric: "tabular-nums",
+          }}>
+            <span>🇯🇵 TOKYO {clocks.tokyo}</span>
+            <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.2)" }} />
+            <span>🇺🇸 NY {clocks.ny}</span>
+          </div>
+        )}
       </div>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "#00E5C8", letterSpacing: "0.22em", marginTop: 32 }}>SWING STATION</div>
-      <div style={{ fontSize: 21, fontWeight: 700, color: "#FFFFFF", marginTop: 12, textAlign: "center" }}>日米マーケット朝刊</div>
-      <div style={{ fontSize: 12, color: "#8892A3", marginTop: 10, textAlign: "center" }}>見たい市場を選んでね</div>
-      <div style={{ display: "flex", gap: 10, marginTop: 28, width: "100%", maxWidth: 300 }}>
-        <button className="globe-btn" onClick={() => onSelect("jp")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇯🇵</span>日本株</button>
-        <button className="globe-btn" onClick={() => onSelect("us")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇺🇸</span>米国株</button>
+
+      <div style={{ position: "relative", fontSize: 9, color: "rgba(255,255,255,0.22)", letterSpacing: "0.18em", flexShrink: 0, paddingTop: 12 }}>
+        KABUBOCCHI
       </div>
-      <button
-        onClick={() => onSelect(null)}
-        style={{ marginTop: 24, background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 11, fontFamily: "inherit", cursor: "pointer" }}
-      >
-        あとで選ぶ
-      </button>
     </div>
   );
 }
