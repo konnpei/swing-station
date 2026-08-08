@@ -761,7 +761,7 @@ function MorningHero({ briefing, todayInfo }) {
       <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.16em", textTransform: "uppercase" }}>Morning Brief</div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: "#FFFFFF", marginTop: 8, lineHeight: 1.3, textWrap: "balance" }}>日米マーケット朝刊</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#FFFFFF", marginTop: 8, lineHeight: 1.3, textWrap: "balance" }}>日米マーケット朝刊</div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 12, fontWeight: 700, color: "#A1A7B3" }}>
             <span>🇯🇵 JAPAN</span><span style={{ color: "#00E0A3" }}>×</span><span>🇺🇸 USA</span>
           </div>
@@ -779,13 +779,13 @@ function MorningHero({ briefing, todayInfo }) {
             </div>
           </div>
         </div>
-        <div style={{ position: "relative", flex: "0 0 auto", width: 108, height: 108 }}>
+        <div style={{ position: "relative", flex: "0 0 auto", width: 124, height: 124 }}>
           <div style={{
             position: "absolute", inset: -14, borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
+            background: "radial-gradient(circle, rgba(0,224,163,0.28) 0%, transparent 68%)",
             filter: "blur(6px)", pointerEvents: "none",
           }} />
-          <SpinningEarth size={108} />
+          <SpinningEarth size={124} opacity={0.85} ringPower={0.8} glowPower={0.8} />
         </div>
       </div>
     </div>
@@ -1992,14 +1992,17 @@ function EventsView({ briefing, onJump }) {
 // SpinningEarthが使うCSS(キーフレーム+reduced-motion対応)。IntroSplashと
 // 朝刊ヒーロー側それぞれの<style>タグに差し込んで使う共通定義。
 const GLOBE_STYLE_CSS = `
-  .globe-surface-spin{animation:globeSpin 80s linear infinite}
-  .globe-surface-boost{animation:globeSpin 10s linear infinite}
+  .globe-surface-spin{animation:globeSpin 32s linear infinite}
+  .globe-surface-boost{animation:globeSpin 8s linear infinite}
   @keyframes globeSpin{
     from{background-position:0 0,0 0; -webkit-mask-position-x:0; mask-position-x:0}
     to{background-position:-16px 0,-15px 0; -webkit-mask-position-x:-400px; mask-position-x:-400px}
   }
   .globe-atmo{animation:globeAtmoBreath 7s ease-in-out infinite}
-  @keyframes globeAtmoBreath{0%,100%{opacity:.75}50%{opacity:1}}
+  @keyframes globeAtmoBreath{0%,100%{opacity:.7}50%{opacity:1}}
+  .globe-btn{transition:background .15s ease, transform .1s ease}
+  .globe-btn:active{transform:scale(0.98)}
+  @media (hover:hover) { .globe-btn:hover{background:rgba(255,255,255,0.07)} }
   @media (prefers-reduced-motion: reduce) {
     .globe-surface-spin, .globe-surface-boost, .globe-atmo { animation: none; }
   }
@@ -2021,28 +2024,36 @@ const GLOBE_EDGE_MASK = "radial-gradient(circle, #000 55%, rgba(0,0,0,.85) 68%, 
 // 「球体そのものは固定し、内部の表面テクスチャ(ドット+グリッド)だけを
 // 一方向へゆっくり流す」ことで自転しているように見せる。光源(ハイライト/影)
 // は表面と別レイヤーにして固定し、地形と一緒に動かさない。
-function SpinningEarth({ size = 108, boost = false, onClick, title }) {
+// opacity/ringPower/glowPowerで、オープニング(主役)と朝刊ヒーロー(脇役)の
+// 見せ方だけを調整できる。自転ロジック自体は完全に共通。
+function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1, ringPower = 1, glowPower = 1 }) {
   return (
     <div
       onClick={onClick}
       title={title}
       style={{
         position: "relative", width: size, height: size, flexShrink: 0,
-        cursor: onClick ? "pointer" : "default",
+        cursor: onClick ? "pointer" : "default", opacity,
       }}
     >
-      {/* 軌道リング(球の奥側) */}
+      {/* 軌道リング(最奥・かなり暗い) */}
       <div style={{
-        position: "absolute", left: "50%", top: "52%", width: size * 1.46, height: size * 0.4,
-        transform: "translate(-50%, -50%) rotate(-9deg)", borderRadius: "50%",
-        border: "1px solid rgba(110,190,255,0.22)", zIndex: 0, pointerEvents: "none",
+        position: "absolute", left: "50%", top: "51%", width: size * 1.5, height: size * 0.4,
+        transform: "translate(-50%, -50%) rotate(-8deg)", borderRadius: "50%",
+        border: `1px solid rgba(120,195,255,${0.12 * ringPower})`, zIndex: 0, pointerEvents: "none",
+      }} />
+      {/* 軌道リング(横・中程度、球の少し外側を通す) */}
+      <div style={{
+        position: "absolute", left: "50%", top: "53%", width: size * 1.4, height: size * 0.34,
+        transform: "translate(-50%, -50%) rotate(-8deg)", borderRadius: "50%",
+        border: `1px solid rgba(140,205,255,${0.2 * ringPower})`, zIndex: 0, pointerEvents: "none",
       }} />
 
       {/* 球体本体(固定。ここ自体は動かない。縁はここでフェードさせて球面感を出す) */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden", zIndex: 1,
-        background: "radial-gradient(circle at 38% 32%, #163454 0%, #0c2038 35%, #061527 65%, #040d1a 100%)",
-        boxShadow: "inset -6px -6px 14px rgba(0,0,0,0.5)",
+        background: "radial-gradient(circle at 36% 30%, #17395c 0%, #0c2038 32%, #061527 62%, #040d1a 100%)",
+        boxShadow: "inset -7px -7px 16px rgba(0,0,0,0.55)",
         WebkitMaskImage: GLOBE_EDGE_MASK,
         maskImage: GLOBE_EDGE_MASK,
       }}>
@@ -2074,29 +2085,33 @@ function SpinningEarth({ size = 108, boost = false, onClick, title }) {
             maskRepeat: "repeat-x",
           }}
         />
-        {/* 影(固定・地形と一緒に動かさない) */}
+        {/* 影(固定・地形と一緒に動かさない。下側がより深くなるよう2枚重ね) */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(circle at 35% 35%, transparent 20%, rgba(0,0,0,.15) 48%, rgba(0,0,0,.72) 100%)",
+          background: "radial-gradient(circle at 34% 32%, transparent 18%, rgba(0,0,0,.15) 46%, rgba(0,0,0,.74) 100%)",
         }} />
-        {/* ハイライト(固定) */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(circle at 72% 20%, rgba(255,255,255,.5) 0%, rgba(130,205,255,.18) 8%, transparent 24%)",
+          background: "linear-gradient(to bottom, transparent 55%, rgba(0,0,0,.22) 100%)",
+        }} />
+        {/* ハイライト(固定・弱いリムライト) */}
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          background: "radial-gradient(circle at 70% 18%, rgba(255,255,255,.4) 0%, rgba(130,205,255,.14) 8%, transparent 24%)",
         }} />
       </div>
 
-      {/* 大気光(固定・非常に弱い呼吸のみ) */}
+      {/* 大気光(固定・非常に弱い呼吸のみ、最小限のグロー) */}
       <div className="globe-atmo" style={{
         position: "absolute", inset: 0, borderRadius: "50%", pointerEvents: "none", zIndex: 2,
-        boxShadow: `inset 0 0 ${Math.round(size * 0.22)}px rgba(80,170,255,.28), 0 0 ${Math.round(size * 0.24)}px rgba(40,130,255,.2)`,
+        boxShadow: `inset 0 0 ${Math.round(size * 0.16)}px rgba(80,170,255,${0.2 * glowPower}), 0 0 ${Math.round(size * 0.18)}px rgba(41,163,255,${0.14 * glowPower})`,
       }} />
 
-      {/* 軌道リング(球の手前側) */}
+      {/* 軌道リング(最前面・少し明るい、球を貫通しているように見せる) */}
       <div style={{
-        position: "absolute", left: "50%", top: "60%", width: size * 1.28, height: size * 0.28,
-        transform: "translate(-50%, -50%) rotate(7deg)", borderRadius: "50%",
-        border: "1px solid rgba(160,220,255,0.32)", zIndex: 3, pointerEvents: "none",
+        position: "absolute", left: "50%", top: "60%", width: size * 1.3, height: size * 0.28,
+        transform: "translate(-50%, -50%) rotate(6deg)", borderRadius: "50%",
+        border: `1px solid rgba(180,225,255,${0.28 * ringPower})`, zIndex: 3, pointerEvents: "none",
       }} />
     </div>
   );
@@ -2112,16 +2127,16 @@ function IntroSplash({ onSelect }) {
   };
   useEffect(() => () => clearTimeout(boostTimer.current), []);
   const flagBtnStyle = {
-    flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-    padding: "13px 8px", borderRadius: 16, fontFamily: "inherit", fontSize: 13, fontWeight: 700,
-    color: "#FFFFFF", background: "linear-gradient(155deg, #151B20, #101519)",
-    border: "1px solid rgba(255,255,255,0.12)", cursor: "pointer",
+    flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+    minHeight: 54, borderRadius: 15, fontFamily: "inherit", fontSize: 13, fontWeight: 700,
+    color: "#FFFFFF", background: "linear-gradient(155deg, #151F27, #101820)",
+    border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 2px 10px rgba(0,0,0,0.25)", cursor: "pointer",
   };
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 999, maxWidth: 600, margin: "0 auto",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: "24px 28px", background: "#080D10", overflow: "hidden",
+      padding: "40px 28px 24px", background: "#081117", overflow: "hidden",
       fontFamily: "'JetBrains Mono','Courier New',monospace",
     }}>
       <style>{`
@@ -2131,28 +2146,28 @@ function IntroSplash({ onSelect }) {
         @media (prefers-reduced-motion: reduce) { .splash-ring-pulse { animation: none; } }
       `}</style>
       <div className="splash-ring-pulse" style={{
-        position: "absolute", top: "18%", left: "50%", transform: "translateX(-50%)",
-        width: 320, height: 320, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(0,224,163,0.14) 0%, transparent 70%)", pointerEvents: "none",
+        position: "absolute", top: "16%", left: "50%", transform: "translateX(-50%)",
+        width: 340, height: 340, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(0,229,200,0.10) 0%, transparent 70%)", pointerEvents: "none",
       }} />
       <div style={{ position: "relative", flexShrink: 0 }}>
         <div style={{
-          position: "absolute", inset: -20, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
+          position: "absolute", inset: -18, borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(0,229,200,0.22) 0%, transparent 68%)",
           filter: "blur(8px)", pointerEvents: "none",
         }} />
-        <SpinningEarth size={176} boost={boost} onClick={handleTap} title="タップで自転を加速" />
+        <SpinningEarth size={204} boost={boost} onClick={handleTap} title="タップで自転を加速" />
       </div>
-      <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.2em", marginTop: 20 }}>SWING STATION</div>
-      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", marginTop: 8, textAlign: "center" }}>日米マーケット朝刊</div>
-      <div style={{ fontSize: 12, color: "#A1A7B3", marginTop: 8, textAlign: "center" }}>見たい市場を選んでね</div>
-      <div style={{ display: "flex", gap: 10, marginTop: 24, width: "100%", maxWidth: 300 }}>
-        <button onClick={() => onSelect("jp")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇯🇵</span>日本株</button>
-        <button onClick={() => onSelect("us")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇺🇸</span>米国株</button>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#00E5C8", letterSpacing: "0.22em", marginTop: 32 }}>SWING STATION</div>
+      <div style={{ fontSize: 21, fontWeight: 700, color: "#FFFFFF", marginTop: 12, textAlign: "center" }}>日米マーケット朝刊</div>
+      <div style={{ fontSize: 12, color: "#8892A3", marginTop: 10, textAlign: "center" }}>見たい市場を選んでね</div>
+      <div style={{ display: "flex", gap: 10, marginTop: 28, width: "100%", maxWidth: 300 }}>
+        <button className="globe-btn" onClick={() => onSelect("jp")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇯🇵</span>日本株</button>
+        <button className="globe-btn" onClick={() => onSelect("us")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇺🇸</span>米国株</button>
       </div>
       <button
         onClick={() => onSelect(null)}
-        style={{ marginTop: 16, background: "none", border: "none", color: "#68747C", fontSize: 11, textDecoration: "underline", fontFamily: "inherit", cursor: "pointer" }}
+        style={{ marginTop: 24, background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 11, fontFamily: "inherit", cursor: "pointer" }}
       >
         あとで選ぶ
       </button>
