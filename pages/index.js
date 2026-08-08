@@ -1992,8 +1992,8 @@ function EventsView({ briefing, onJump }) {
 // SpinningEarthが使うCSS(キーフレーム+reduced-motion対応)。IntroSplashと
 // 朝刊ヒーロー側それぞれの<style>タグに差し込んで使う共通定義。
 const GLOBE_STYLE_CSS = `
-  .globe-surface-spin{animation:globeSpin 30s linear infinite}
-  .globe-surface-boost{animation:globeSpin 8s linear infinite}
+  .globe-surface-spin{animation:globeSpin 80s linear infinite}
+  .globe-surface-boost{animation:globeSpin 30s linear infinite}
   @keyframes globeSpin{
     from{background-position:0 0,0 0; -webkit-mask-position-x:0; mask-position-x:0}
     to{background-position:-16px 0,-15px 0; -webkit-mask-position-x:-700px; mask-position-x:-700px}
