@@ -1992,14 +1992,13 @@ function EventsView({ briefing, onJump }) {
 // SpinningEarthが使うCSS(キーフレーム+reduced-motion対応)。IntroSplashと
 // 朝刊ヒーロー側それぞれの<style>タグに差し込んで使う共通定義。
 const GLOBE_STYLE_CSS = `
-  .globe-surface-spin{animation:globeSpin 32s linear infinite}
+  .globe-surface-spin{animation:none}
   .globe-surface-boost{animation:globeSpin 8s linear infinite}
   @keyframes globeSpin{
     from{background-position:0 0,0 0; -webkit-mask-position-x:0; mask-position-x:0}
     to{background-position:-16px 0,-15px 0; -webkit-mask-position-x:-400px; mask-position-x:-400px}
   }
-  .globe-atmo{animation:globeAtmoBreath 7s ease-in-out infinite}
-  @keyframes globeAtmoBreath{0%,100%{opacity:.7}50%{opacity:1}}
+  .globe-atmo{animation:none}
   .globe-btn{transition:background .15s ease, transform .1s ease}
   .globe-btn:active{transform:scale(0.98)}
   @media (hover:hover) { .globe-btn:hover{background:rgba(255,255,255,0.07)} }
@@ -2164,9 +2163,6 @@ function IntroSplash({ onSelect }) {
     }}>
       <style>{`
         ${GLOBE_STYLE_CSS}
-        .splash-ring-pulse{animation:ringPulse 3.2s ease-in-out infinite}
-        @keyframes ringPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
-        @media (prefers-reduced-motion: reduce) { .splash-ring-pulse { animation: none; } }
       `}</style>
       {/* 背景の奥行き(アンビエントな光だまり+極薄い星、静止画像のみでアニメーションなし) */}
       <div style={{
@@ -2186,7 +2182,7 @@ function IntroSplash({ onSelect }) {
         position: "absolute", bottom: -40, left: -60, width: 240, height: 240, borderRadius: "50%",
         background: "radial-gradient(circle, rgba(0,229,200,0.08) 0%, transparent 72%)", pointerEvents: "none",
       }} />
-      <div className="splash-ring-pulse" style={{
+      <div style={{
         position: "absolute", top: "16%", left: "50%", transform: "translateX(-50%)",
         width: 340, height: 340, borderRadius: "50%",
         background: "radial-gradient(circle, rgba(0,229,200,0.10) 0%, transparent 70%)", pointerEvents: "none",
