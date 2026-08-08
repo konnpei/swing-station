@@ -779,7 +779,7 @@ function MorningHero({ briefing, todayInfo }) {
             </div>
           </div>
         </div>
-        <div style={{ position: "relative", flex: "0 0 auto", width: 108, height: 108, animation: "earthBob 4.5s ease-in-out infinite" }}>
+        <div style={{ position: "relative", flex: "0 0 auto", width: 108, height: 108 }}>
           <div style={{
             position: "absolute", inset: -14, borderRadius: "50%",
             background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
@@ -1989,37 +1989,84 @@ function EventsView({ briefing, onJump }) {
   );
 }
 
-// 地球画像(左右反転を継ぎ足したシームレスな帯 /earth-tile.webp)をbackground-position-x
-// でパンさせ、実際に球面が自転しているように見せるコンポーネント。
-// (単純にimgをtransform:rotateで回すと、円盤が♻️アイコンのようにグルグル
-// 傾いて回るだけになり「自転」に見えないための対策)
+// SpinningEarthが使うCSS(キーフレーム+reduced-motion対応)。IntroSplashと
+// 朝刊ヒーロー側それぞれの<style>タグに差し込んで使う共通定義。
+const GLOBE_STYLE_CSS = `
+  .globe-surface-spin{animation:globeSpin 80s linear infinite}
+  .globe-surface-boost{animation:globeSpin 10s linear infinite}
+  @keyframes globeSpin{from{background-position:0 0,0 0,0 0}to{background-position:-16px 0,-15px 0,0 0}}
+  .globe-atmo{animation:globeAtmoBreath 7s ease-in-out infinite}
+  @keyframes globeAtmoBreath{0%,100%{opacity:.75}50%{opacity:1}}
+  @media (prefers-reduced-motion: reduce) {
+    .globe-surface-spin, .globe-surface-boost, .globe-atmo { animation: none; }
+  }
+`;
+
+// KabuBocchi独自の抽象デジタル地球。写真を回すのではなく、
+// 「球体そのものは固定し、内部の表面テクスチャ(ドット+グリッド)だけを
+// 一方向へゆっくり流す」ことで自転しているように見せる。光源(ハイライト/影)
+// は表面と別レイヤーにして固定し、地形と一緒に動かさない。
 function SpinningEarth({ size = 108, boost = false, onClick, title }) {
-  // ズームした地球テクスチャの中の「安全な内側だけ」を左右にパン(往復)させて、
-  // 球面が自転しているように見せる。パン範囲は画像の縁(アルファがフェードして
-  // 消える部分)まで届かないよう十分内側に収めているので、継ぎ目やハゲが出ない。
-  const amp = Math.round(size * 0.2); // パンの振れ幅(px)
-  const ampBoost = Math.round(size * 0.34);
   return (
     <div
       onClick={onClick}
       title={title}
       style={{
-        position: "relative", width: size, height: size, borderRadius: "50%", overflow: "hidden",
-        flexShrink: 0, cursor: onClick ? "pointer" : "default",
-        boxShadow: "inset -6px -6px 14px rgba(0,0,0,0.55), inset 3px 3px 8px rgba(255,255,255,0.08)",
+        position: "relative", width: size, height: size, flexShrink: 0,
+        cursor: onClick ? "pointer" : "default",
       }}
     >
+      {/* 軌道リング(球の奥側) */}
       <div style={{
-        position: "absolute", inset: 0, "--amp": `${amp}px`, "--amp-boost": `${ampBoost}px`,
-        backgroundImage: "url(/earth-sphere.webp)",
-        backgroundSize: `auto ${Math.round(size * 1.3)}px`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "center center",
-        animation: boost ? "earthPanBoost 0.6s cubic-bezier(.3,.6,.3,1) 1" : "earthPan 6s ease-in-out infinite",
+        position: "absolute", left: "50%", top: "52%", width: size * 1.46, height: size * 0.4,
+        transform: "translate(-50%, -50%) rotate(-9deg)", borderRadius: "50%",
+        border: "1px solid rgba(110,190,255,0.22)", zIndex: 0, pointerEvents: "none",
       }} />
+
+      {/* 球体本体(固定。ここ自体は動かない) */}
       <div style={{
-        position: "absolute", inset: 0, borderRadius: "50%", pointerEvents: "none",
-        background: "radial-gradient(circle at 30% 26%, transparent 0%, transparent 40%, rgba(0,0,0,0.5) 100%)",
+        position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden", zIndex: 1,
+        background: "radial-gradient(circle at 38% 32%, #1c3f61 0%, #102846 35%, #081a30 65%, #050f1d 100%)",
+        boxShadow: "inset -6px -6px 14px rgba(0,0,0,0.5)",
+      }}>
+        {/* 表面テクスチャ(ここだけが一方向へ流れる) */}
+        <div
+          className={`globe-surface ${boost ? "globe-surface-boost" : "globe-surface-spin"}`}
+          style={{
+            position: "absolute", inset: "-2px -6px",
+            backgroundImage:
+              "radial-gradient(circle, rgba(150,205,255,0.55) 0.8px, transparent 1.3px), " +
+              "repeating-linear-gradient(90deg, rgba(150,205,255,0.13) 0px, rgba(150,205,255,0.13) 1px, transparent 1px, transparent 15px), " +
+              "repeating-linear-gradient(0deg, rgba(150,205,255,0.07) 0px, rgba(150,205,255,0.07) 1px, transparent 1px, transparent 19px)",
+            backgroundSize: "8px 8px, 15px 100%, 100% 19px",
+            backgroundRepeat: "repeat",
+            WebkitMaskImage: "radial-gradient(circle, #000 55%, rgba(0,0,0,.85) 68%, rgba(0,0,0,.25) 88%, transparent 100%)",
+            maskImage: "radial-gradient(circle, #000 55%, rgba(0,0,0,.85) 68%, rgba(0,0,0,.25) 88%, transparent 100%)",
+          }}
+        />
+        {/* 影(固定・地形と一緒に動かさない) */}
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          background: "radial-gradient(circle at 35% 35%, transparent 20%, rgba(0,0,0,.15) 48%, rgba(0,0,0,.72) 100%)",
+        }} />
+        {/* ハイライト(固定) */}
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          background: "radial-gradient(circle at 72% 20%, rgba(255,255,255,.5) 0%, rgba(130,205,255,.18) 8%, transparent 24%)",
+        }} />
+      </div>
+
+      {/* 大気光(固定・非常に弱い呼吸のみ) */}
+      <div className="globe-atmo" style={{
+        position: "absolute", inset: 0, borderRadius: "50%", pointerEvents: "none", zIndex: 2,
+        boxShadow: `inset 0 0 ${Math.round(size * 0.22)}px rgba(80,170,255,.28), 0 0 ${Math.round(size * 0.24)}px rgba(40,130,255,.2)`,
+      }} />
+
+      {/* 軌道リング(球の手前側) */}
+      <div style={{
+        position: "absolute", left: "50%", top: "60%", width: size * 1.28, height: size * 0.28,
+        transform: "translate(-50%, -50%) rotate(7deg)", borderRadius: "50%",
+        border: "1px solid rgba(160,220,255,0.32)", zIndex: 3, pointerEvents: "none",
       }} />
     </div>
   );
@@ -2048,18 +2095,17 @@ function IntroSplash({ onSelect }) {
       fontFamily: "'JetBrains Mono','Courier New',monospace",
     }}>
       <style>{`
-        @keyframes earthBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-        @keyframes earthPan{0%,100%{background-position-x:calc(50% - var(--amp))}50%{background-position-x:calc(50% + var(--amp))}}
-        @keyframes earthPanBoost{0%,100%{background-position-x:calc(50% - var(--amp-boost))}50%{background-position-x:calc(50% + var(--amp-boost))}}
+        ${GLOBE_STYLE_CSS}
+        .splash-ring-pulse{animation:ringPulse 3.2s ease-in-out infinite}
         @keyframes ringPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.9;transform:scale(1.08)}}
+        @media (prefers-reduced-motion: reduce) { .splash-ring-pulse { animation: none; } }
       `}</style>
-      <div style={{
+      <div className="splash-ring-pulse" style={{
         position: "absolute", top: "18%", left: "50%", transform: "translateX(-50%)",
         width: 320, height: 320, borderRadius: "50%",
         background: "radial-gradient(circle, rgba(0,224,163,0.14) 0%, transparent 70%)", pointerEvents: "none",
-        animation: "ringPulse 3.2s ease-in-out infinite",
       }} />
-      <div style={{ position: "relative", flexShrink: 0, animation: "earthBob 4.5s ease-in-out infinite" }}>
+      <div style={{ position: "relative", flexShrink: 0 }}>
         <div style={{
           position: "absolute", inset: -20, borderRadius: "50%",
           background: "radial-gradient(circle, rgba(0,224,163,0.35) 0%, transparent 68%)",
@@ -2215,9 +2261,7 @@ export default function SwingStation() {
           @keyframes ssP{0%,100%{opacity:1}50%{opacity:.2}}
           @keyframes ssSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
           @keyframes orbSpin{from{background-position:0 0}to{background-position:-60px 0}}
-          @keyframes earthBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-          @keyframes earthPan{0%,100%{background-position-x:calc(50% - var(--amp))}50%{background-position-x:calc(50% + var(--amp))}}
-          @keyframes earthPanBoost{0%,100%{background-position-x:calc(50% - var(--amp-boost))}50%{background-position-x:calc(50% + var(--amp-boost))}}
+          ${GLOBE_STYLE_CSS}
           *{box-sizing:border-box}
           html,body{height:100%;margin:0;padding:0;background:#080D10}
           ::-webkit-scrollbar{width:3px}
