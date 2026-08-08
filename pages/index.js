@@ -1992,18 +1992,17 @@ function EventsView({ briefing, onJump }) {
 // SpinningEarthが使うCSS(キーフレーム+reduced-motion対応)。IntroSplashと
 // 朝刊ヒーロー側それぞれの<style>タグに差し込んで使う共通定義。
 const GLOBE_STYLE_CSS = `
-  .globe-surface-spin{animation:none}
+  .globe-surface-spin{animation:globeSpin 30s linear infinite}
   .globe-surface-boost{animation:globeSpin 8s linear infinite}
   @keyframes globeSpin{
     from{background-position:0 0,0 0; -webkit-mask-position-x:0; mask-position-x:0}
     to{background-position:-16px 0,-15px 0; -webkit-mask-position-x:-400px; mask-position-x:-400px}
   }
-  .globe-atmo{animation:none}
   .globe-btn{transition:background .15s ease, transform .1s ease}
   .globe-btn:active{transform:scale(0.98)}
-  @media (hover:hover) { .globe-btn:hover{background:rgba(255,255,255,0.07)} }
+  @media (hover:hover) { .globe-btn:hover{background:rgba(0,229,200,0.06)} }
   @media (prefers-reduced-motion: reduce) {
-    .globe-surface-spin, .globe-surface-boost, .globe-atmo { animation: none; }
+    .globe-surface-spin, .globe-surface-boost { animation: none; }
   }
 `;
 
@@ -2037,22 +2036,22 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
     >
       {/* 軌道リング(最奥・かなり暗い) */}
       <div style={{
-        position: "absolute", left: "50%", top: "51%", width: size * 1.5, height: size * 0.4,
+        position: "absolute", left: "50%", top: "51%", width: size * 1.52, height: size * 0.4,
         transform: "translate(-50%, -50%) rotate(-8deg)", borderRadius: "50%",
-        border: `1px solid rgba(120,195,255,${0.12 * ringPower})`, zIndex: 0, pointerEvents: "none",
+        border: `1px solid rgba(120,195,255,${0.07 * ringPower})`, zIndex: 0, pointerEvents: "none",
       }} />
-      {/* 軌道リング(横・中程度、球の少し外側を通す) */}
+      {/* 軌道リング(横・中程度) */}
       <div style={{
         position: "absolute", left: "50%", top: "53%", width: size * 1.4, height: size * 0.34,
         transform: "translate(-50%, -50%) rotate(-8deg)", borderRadius: "50%",
-        border: `1px solid rgba(140,205,255,${0.2 * ringPower})`, zIndex: 0, pointerEvents: "none",
+        border: `1px solid rgba(140,205,255,${0.16 * ringPower})`, zIndex: 0, pointerEvents: "none",
       }} />
 
       {/* 球体本体(固定。ここ自体は動かない。縁はここでフェードさせて球面感を出す) */}
       <div style={{
         position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden", zIndex: 1,
-        background: "radial-gradient(circle at 36% 30%, #17395c 0%, #0c2038 32%, #061527 62%, #040d1a 100%)",
-        boxShadow: "inset -7px -7px 16px rgba(0,0,0,0.55)",
+        background: "radial-gradient(circle at 32% 26%, #1c4468 0%, #0c2038 34%, #061527 64%, #030a15 100%)",
+        boxShadow: "inset -9px -9px 20px rgba(0,0,0,0.6)",
         WebkitMaskImage: GLOBE_EDGE_MASK,
         maskImage: GLOBE_EDGE_MASK,
       }}>
@@ -2073,7 +2072,7 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
           className={boost ? "globe-surface-boost" : "globe-surface-spin"}
           style={{
             position: "absolute", inset: "-2px -6px",
-            backgroundImage: "radial-gradient(circle, rgba(160,215,255,0.85) 0.9px, transparent 1.4px)",
+            backgroundImage: "radial-gradient(circle, rgba(170,220,255,0.9) 0.9px, transparent 1.4px)",
             backgroundSize: "6px 6px",
             backgroundRepeat: "repeat",
             WebkitMaskImage: GLOBE_CONTINENT_MASK,
@@ -2084,33 +2083,43 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
             maskRepeat: "repeat-x",
           }}
         />
+        {/* 左右端を暗く落として球面のカーブを強調 */}
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          background: "linear-gradient(to right, rgba(0,0,0,.5) 0%, transparent 22%, transparent 78%, rgba(0,0,0,.55) 100%)",
+        }} />
         {/* 影(固定・地形と一緒に動かさない。下側がより深くなるよう2枚重ね) */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(circle at 34% 32%, transparent 18%, rgba(0,0,0,.15) 46%, rgba(0,0,0,.74) 100%)",
+          background: "radial-gradient(circle at 32% 28%, transparent 14%, rgba(0,0,0,.18) 44%, rgba(0,0,0,.8) 100%)",
         }} />
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          background: "linear-gradient(to bottom, transparent 55%, rgba(0,0,0,.22) 100%)",
+          background: "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,.3) 100%)",
         }} />
-        {/* ハイライト(固定・弱いリムライト) */}
+        {/* ハイライト(固定・左上寄りの強い光) */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(circle at 70% 18%, rgba(255,255,255,.4) 0%, rgba(130,205,255,.14) 8%, transparent 24%)",
+          background: "radial-gradient(circle at 30% 22%, rgba(255,255,255,.75) 0%, rgba(170,225,255,.28) 10%, transparent 28%)",
+        }} />
+        {/* 弱いリムライト(球の輪郭にごく細く沿う縁取り) */}
+        <div style={{
+          position: "absolute", inset: 0, borderRadius: "50%", pointerEvents: "none",
+          boxShadow: "inset 0 0 0 1px rgba(140,210,255,0.18)",
         }} />
       </div>
 
-      {/* 大気光(固定・非常に弱い呼吸のみ、最小限のグロー) */}
-      <div className="globe-atmo" style={{
+      {/* 大気光(固定、最小限のグロー) */}
+      <div style={{
         position: "absolute", inset: 0, borderRadius: "50%", pointerEvents: "none", zIndex: 2,
-        boxShadow: `inset 0 0 ${Math.round(size * 0.16)}px rgba(80,170,255,${0.2 * glowPower}), 0 0 ${Math.round(size * 0.18)}px rgba(41,163,255,${0.14 * glowPower})`,
+        boxShadow: `inset 0 0 ${Math.round(size * 0.16)}px rgba(80,170,255,${0.22 * glowPower}), 0 0 ${Math.round(size * 0.2)}px rgba(41,163,255,${0.16 * glowPower})`,
       }} />
 
-      {/* 軌道リング(最前面・少し明るい、球を貫通しているように見せる) */}
+      {/* 軌道リング(最前面・teal寄りの明るいアクセント、球を貫通しているように見せる) */}
       <div style={{
         position: "absolute", left: "50%", top: "60%", width: size * 1.3, height: size * 0.28,
         transform: "translate(-50%, -50%) rotate(6deg)", borderRadius: "50%",
-        border: `1px solid rgba(180,225,255,${0.28 * ringPower})`, zIndex: 3, pointerEvents: "none",
+        border: `1px solid rgba(0,229,200,${0.42 * ringPower})`, zIndex: 3, pointerEvents: "none",
       }} />
     </div>
   );
@@ -2135,7 +2144,23 @@ function useWorldClocks() {
   return clocks;
 }
 
-function IntroSplash({ onSelect }) {
+function MarketStatRow({ label, value, pct, align = "right" }) {
+  const hasPct = typeof pct === "number";
+  const positive = hasPct && pct >= 0;
+  return (
+    <div style={{ textAlign: align }}>
+      <div style={{ fontSize: 8.5, color: "rgba(255,255,255,0.38)", letterSpacing: "0.08em" }}>{label}</div>
+      <div style={{ fontSize: 12.5, fontWeight: 700, color: "#FFFFFF", marginTop: 1, fontVariantNumeric: "tabular-nums" }}>{value}</div>
+      {hasPct && (
+        <div style={{ fontSize: 9.5, color: positive ? "#00E5C8" : "#ff5566", fontVariantNumeric: "tabular-nums" }}>
+          {positive ? "+" : ""}{pct.toFixed(2)}%
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IntroSplash({ onSelect, briefing }) {
   const [boost, setBoost] = useState(false);
   const boostTimer = useRef(null);
   const clocks = useWorldClocks();
@@ -2147,86 +2172,120 @@ function IntroSplash({ onSelect }) {
   useEffect(() => () => clearTimeout(boostTimer.current), []);
   const flagBtnStyle = {
     flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-    minHeight: 54, borderRadius: 15, fontFamily: "inherit", fontSize: 13, fontWeight: 700,
-    color: "#FFFFFF", background: "linear-gradient(155deg, #151F27, #101820)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.07), 0 4px 14px rgba(0,0,0,0.3)",
+    minHeight: 56, borderRadius: 17, fontFamily: "inherit", fontSize: 13.5, fontWeight: 700,
+    color: "#FFFFFF", background: "linear-gradient(155deg, rgba(0,229,200,0.09), #101820 55%)",
+    border: "1px solid rgba(0,229,200,0.32)",
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(0,229,200,0.08), 0 4px 14px rgba(0,0,0,0.35)",
     cursor: "pointer",
   };
+  // 実データが既に読み込まれている場合のみ表示する(架空データ・API変更は禁止)
+  const hasMarketData = briefing && (briefing.nikkei != null || briefing.sp500 != null || briefing.usd_jpy != null);
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 999, maxWidth: 600, margin: "0 auto",
       display: "flex", flexDirection: "column", alignItems: "center",
-      padding: "40px 28px calc(16px + env(safe-area-inset-bottom, 0px))",
-      background: "#081117", overflow: "hidden",
+      padding: "calc(22px + env(safe-area-inset-top, 0px)) 20px calc(16px + env(safe-area-inset-bottom, 0px))",
+      background: "radial-gradient(ellipse 120% 60% at 50% 0%, #0B2133 0%, #071520 42%, #040A10 78%)",
+      overflow: "hidden",
       fontFamily: "'JetBrains Mono','Courier New',monospace",
     }}>
       <style>{`
         ${GLOBE_STYLE_CSS}
       `}</style>
-      {/* 背景の奥行き(アンビエントな光だまり+極薄い星、静止画像のみでアニメーションなし) */}
+      {/* 背景の奥行き(大小2種類の極薄い星、静止画像のみでアニメーションなし) */}
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none",
         backgroundImage:
-          "radial-gradient(circle, rgba(255,255,255,0.5) 0.5px, transparent 1px), " +
-          "radial-gradient(circle, rgba(255,255,255,0.35) 0.5px, transparent 1px), " +
-          "radial-gradient(circle, rgba(255,255,255,0.25) 0.5px, transparent 1px)",
-        backgroundSize: "47px 47px, 71px 71px, 113px 113px",
-        backgroundPosition: "0 0, 23px 41px, 60px 12px",
+          "radial-gradient(circle, rgba(255,255,255,0.45) 0.7px, transparent 1.1px), " +
+          "radial-gradient(circle, rgba(255,255,255,0.22) 0.5px, transparent 1px)",
+        backgroundSize: "130px 130px, 87px 87px",
+        backgroundPosition: "14px 20px, 60px 70px",
       }} />
       <div style={{
-        position: "absolute", top: -60, right: -60, width: 260, height: 260, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(41,163,255,0.10) 0%, transparent 72%)", pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", bottom: -40, left: -60, width: 240, height: 240, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(0,229,200,0.08) 0%, transparent 72%)", pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", top: "16%", left: "50%", transform: "translateX(-50%)",
-        width: 340, height: 340, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(0,229,200,0.10) 0%, transparent 70%)", pointerEvents: "none",
+        position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)",
+        width: 380, height: 380, borderRadius: "50%",
+        background: "radial-gradient(circle, rgba(0,229,200,0.12) 0%, transparent 68%)", pointerEvents: "none",
       }} />
 
-      {/* コンテンツ本体(縦方向は自身の中で中央寄せ、下にブランドフッターを別に確保) */}
-      <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 0 }}>
-        <div style={{ position: "relative", flexShrink: 0 }}>
-          <div style={{
-            position: "absolute", inset: -18, borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(0,229,200,0.22) 0%, transparent 68%)",
-            filter: "blur(8px)", pointerEvents: "none",
-          }} />
-          <SpinningEarth size={204} boost={boost} onClick={handleTap} title="タップで自転を加速" />
+      {/* 地球エリア: 画面上部を大胆に使うヒーロービジュアル。左にGLOBAL MARKETS、
+          右に主要指数(データが揃っている時だけ、実データのみ)を添える。
+          地球のリング/ドットが数字に重なって視認性を落とさないよう、テキスト側は
+          背景チップ+高いz-indexで確実に前面・可読に出す。 */}
+      <div style={{ position: "relative", width: "100%", flexShrink: 0, marginTop: 4 }}>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <div style={{
+              position: "absolute", inset: -22, borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(0,229,200,0.24) 0%, transparent 68%)",
+              filter: "blur(10px)", pointerEvents: "none",
+            }} />
+            <SpinningEarth size={224} boost={boost} onClick={handleTap} title="タップで自転を加速" />
+          </div>
         </div>
-        <div style={{ fontSize: 11, fontWeight: 700, color: "#00E5C8", letterSpacing: "0.22em", marginTop: 32 }}>SWING STATION</div>
-        <div style={{ fontSize: 21, fontWeight: 700, color: "#FFFFFF", marginTop: 12, textAlign: "center", letterSpacing: "0.02em" }}>日米マーケット朝刊</div>
-        <div style={{ fontSize: 12, color: "#8892A3", marginTop: 10, textAlign: "center" }}>見たい市場を選んでね</div>
+        <div style={{
+          position: "absolute", left: 0, top: "42%", zIndex: 5, pointerEvents: "none",
+          background: "rgba(4,10,16,0.5)", borderRadius: 8, padding: "5px 8px",
+        }}>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: "0.16em", lineHeight: 1.6 }}>GLOBAL</div>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: "0.16em", lineHeight: 1.6 }}>MARKETS</div>
+        </div>
+        {hasMarketData && (
+          <div style={{
+            position: "absolute", right: 0, top: "6%", zIndex: 5,
+            display: "flex", flexDirection: "column", gap: 10,
+            background: "rgba(4,10,16,0.5)", borderRadius: 10, padding: "8px 10px",
+          }}>
+            <MarketStatRow label="NIKKEI 225" value={briefing.nikkei?.toLocaleString()} pct={briefing.nikkei_pct} />
+            <MarketStatRow label="S&P 500" value={briefing.sp500?.toLocaleString()} pct={briefing.sp500_pct} />
+            <MarketStatRow label="USD/JPY" value={briefing.usd_jpy} pct={briefing.usd_jpy_pct} />
+          </div>
+        )}
+      </div>
 
-        <div style={{ display: "flex", gap: 10, marginTop: 28, width: "100%", maxWidth: 300 }}>
-          <button className="globe-btn" onClick={() => onSelect("jp")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇯🇵</span>日本株</button>
-          <button className="globe-btn" onClick={() => onSelect("us")} style={flagBtnStyle}><span style={{ fontSize: 16 }}>🇺🇸</span>米国株</button>
+      {/* コンテンツ本体 */}
+      <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 26 }}>
+          <span style={{ width: 20, height: 1, background: "rgba(0,229,200,0.4)" }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: "#00E5C8", letterSpacing: "0.26em" }}>SWING STATION</span>
+          <span style={{ width: 20, height: 1, background: "rgba(0,229,200,0.4)" }} />
+        </div>
+        <div style={{ fontSize: 25, fontWeight: 700, color: "#FFFFFF", marginTop: 12, textAlign: "center", letterSpacing: "0.01em" }}>日米マーケット朝刊</div>
+        <div style={{ fontSize: 13, color: "#8892A3", marginTop: 10, textAlign: "center" }}>見たい市場を選んでね</div>
+
+        <div style={{ display: "flex", gap: 10, marginTop: 26, width: "100%", maxWidth: 320 }}>
+          <button className="globe-btn" onClick={() => onSelect("jp")} style={flagBtnStyle}><span style={{ fontSize: 17 }}>🇯🇵</span>日本株</button>
+          <button className="globe-btn" onClick={() => onSelect("us")} style={flagBtnStyle}><span style={{ fontSize: 17 }}>🇺🇸</span>米国株</button>
         </div>
         <button
           onClick={() => onSelect(null)}
-          style={{ marginTop: 22, background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 11, fontFamily: "inherit", cursor: "pointer" }}
+          style={{ marginTop: 22, background: "none", border: "none", color: "rgba(255,255,255,0.5)", fontSize: 12, fontFamily: "inherit", cursor: "pointer" }}
         >
           あとで選ぶ
         </button>
 
         {/* 東京/NYのミニ時計。「世界市場が動いている」空気を静かに添える */}
         {clocks && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: 10, marginTop: 30,
-            fontSize: 10, color: "rgba(255,255,255,0.32)", letterSpacing: "0.04em", fontVariantNumeric: "tabular-nums",
-          }}>
-            <span>🇯🇵 TOKYO {clocks.tokyo}</span>
-            <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.2)" }} />
-            <span>🇺🇸 NY {clocks.ny}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 26 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 12 }}>🇯🇵</span>
+              <div>
+                <div style={{ fontSize: 8.5, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em" }}>TOKYO</div>
+                <div style={{ fontSize: 12.5, color: "#00E5C8", fontVariantNumeric: "tabular-nums", fontWeight: 700 }}>{clocks.tokyo}</div>
+              </div>
+            </div>
+            <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,0.25)" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 12 }}>🇺🇸</span>
+              <div>
+                <div style={{ fontSize: 8.5, color: "rgba(255,255,255,0.4)", letterSpacing: "0.14em" }}>NEW YORK</div>
+                <div style={{ fontSize: 12.5, color: "#00E5C8", fontVariantNumeric: "tabular-nums", fontWeight: 700 }}>{clocks.ny}</div>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
-      <div style={{ position: "relative", fontSize: 9, color: "rgba(255,255,255,0.22)", letterSpacing: "0.18em", flexShrink: 0, paddingTop: 12 }}>
+      <div style={{ position: "relative", fontSize: 9, color: "rgba(255,255,255,0.25)", letterSpacing: "0.24em", flexShrink: 0, paddingTop: 12 }}>
         KABUBOCCHI
       </div>
     </div>
@@ -2343,6 +2402,7 @@ export default function SwingStation() {
   if (showIntro) {
     return (
       <IntroSplash
+        briefing={briefing}
         onSelect={(side) => {
           if (side) setFlagSide(side);
           if (typeof window !== "undefined") sessionStorage.setItem("kb_intro_seen", "1");
