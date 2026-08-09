@@ -1992,18 +1992,88 @@ function EventsView({ briefing, onJump }) {
 // SpinningEarthが使うCSS。IntroSplashと朝刊ヒーロー側それぞれの<style>タグに
 // 差し込んで使う共通定義。
 // 【技術メモ】以前、mask-position(SVGマスクの位置)をCSS @keyframesで
-// 「無限ループ」でアニメーションさせた際に陸地レイヤーが描画されない現象が
-// あったが、原因はページのコードではなく検証環境側の古いnextサーバープロセスが
-// 居座っていたことによる誤検知だった(サーバーを完全に再起動して解消済み)。
-// そのためmask-positionのアニメーション自体は問題なく動く。ただし自転は
-// 「ずっと回り続ける」演出ではなく、初回に一度だけ・タップ時に一度だけの
-// 有限アニメーションにする方針のため、CSSの@keyframes(infiniteループ向き)
-// ではなく、Reactのstate + inline transitionで「今の角度→次の角度」を
-// 一度だけ動かす実装にしている(SpinningEarth内)。
+// アニメーションさせた際に陸地レイヤーが描画されない現象が起きたことがあるが、
+// 原因はページのコードではなく検証環境側の古いnextサーバープロセスが居座って
+// いたことによる誤検知だった(サーバーを完全に再起動して解消済み)。そのため
+// mask-positionのアニメーション自体は問題なく動く。
+// オープニング画面(spinMode="continuous")は「地球表面が一方向へ回り続ける」
+// 演出のため、CSSの@keyframes+animation:infiniteで実装している(GLOBE_MASK_TILE_PX
+// ぶんだけmask-position-xを動かすとちょうど地図1周分になり、そこから先は
+// 同じ絵の繰り返しになるので継ぎ目が出ない)。朝刊ヒーロー側(spinMode="once",
+// 既定値)は従来どおり、初回マウント時に一度だけ・減速して停止する有限
+// アニメーションのままで、Reactのstate + inline transitionで実装している
+// (SpinningEarth内)。
+// 陸地マスク群(land/dots/outline/japan)は全て同じviewBox(1600x800)・同じ
+// mask-size・同じmask-positionで揃えて使うことで、常にピタリと重なる。
+// アスペクト比を保ったサイズ指定でないとSVGマスクが描画されない
+// (ブラウザの既知の挙動)ため、高さは明示せず"auto"にして幅だけ指定する。
+const GLOBE_MASK_SIZE = "1400px auto";
+const GLOBE_MASK_TILE_PX = 1400; // GLOBE_MASK_SIZEの幅(=経度360度・1タイル分)
+// 日本列島が正面(円の中央)に来るよう置いた基準位置(x/y)。自転はこのx値から
+// 経度方向(横)だけをずらして表現し、yは常に固定する。
+const GLOBE_MASK_BASE_X = -1124;
+const GLOBE_MASK_BASE_Y = -180;
+// マスク画像の表示幅(1400px、GLOBE_MASK_SIZE参照)が経度360度分にあたるため、
+// 「経度n度」を「px」に変換する係数。
+const GLOBE_PX_PER_DEG = 1400 / 360;
+// オープニング画面の連続自転:1周(GLOBE_MASK_TILE_PXぶん)にかかる秒数。
+const GLOBE_CONTINUOUS_SPIN_S = 32;
+
 const GLOBE_STYLE_CSS = `
   .globe-btn{transition:background .15s ease, transform .1s ease}
   .globe-btn:active{transform:scale(0.98)}
   @media (hover:hover) { .globe-btn:hover{background:rgba(0,229,200,0.06)} }
+
+  /* 地球表面の連続自転(オープニング画面のみ)。地球の円盤自体(球体・光源・
+     影・軌道線・HUD)は一切動かさず、内部の陸地レイヤーのmask-position-xだけを
+     一方向に一定速度で動かし続ける。ちょうど1タイル分動かして元の見た目に
+     戻すため、継ぎ目・逆回転・往復は発生しない。 */
+  @keyframes globeSurfaceSpin {
+    from { -webkit-mask-position-x: ${GLOBE_MASK_BASE_X}px; }
+    to   { -webkit-mask-position-x: ${GLOBE_MASK_BASE_X - GLOBE_MASK_TILE_PX}px; }
+  }
+  .globe-continuous-spin { animation: globeSurfaceSpin ${GLOBE_CONTINUOUS_SPIN_S}s linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .globe-continuous-spin { animation-duration: ${GLOBE_CONTINUOUS_SPIN_S * 8}s; }
+  }
+
+  /* 緑の軌道線上をたまに走る流星。常時表示ではなく、1周期のうち一部の
+     区間だけ現れて尾を引きながら通過し、あとは非表示に戻る。振幅は
+     --mr-w/--mr-h(軌道リングの実寸)からの相対値にしてあるため、
+     どのサイズのSpinningEarthでも比率が崩れない。2本を別周期・別ディレイに
+     ずらして、機械的に同期して見えないようにしている。 */
+  @keyframes globeMeteorRun {
+    0%, 10%   { opacity: 0;   transform: translate(calc(var(--mr-w) * -0.444), calc(var(--mr-h) * 0))      scale(.8); }
+    13%       { opacity: .15; transform: translate(calc(var(--mr-w) * -0.381), calc(var(--mr-h) * -0.204)) scale(.9); }
+    17%       { opacity: 1;   transform: translate(calc(var(--mr-w) * -0.267), calc(var(--mr-h) * -0.398)); }
+    21%       { opacity: 1;   transform: translate(calc(var(--mr-w) * -0.122), calc(var(--mr-h) * -0.491)) scale(1.05); }
+    25%       { opacity: 1;   transform: translate(calc(var(--mr-w) * 0.046),  calc(var(--mr-h) * -0.481)) scale(1.05); }
+    29%       { opacity: .9;  transform: translate(calc(var(--mr-w) * 0.208),  calc(var(--mr-h) * -0.370)); }
+    33%       { opacity: .35; transform: translate(calc(var(--mr-w) * 0.348),  calc(var(--mr-h) * -0.157)) scale(.9); }
+    36%, 100% { opacity: 0;   transform: translate(calc(var(--mr-w) * 0.444),  calc(var(--mr-h) * 0.019))  scale(.8); }
+  }
+  .globe-meteor {
+    position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px;
+    border-radius: 50%; background: #eafff8; opacity: 0;
+    box-shadow: 0 0 5px #fff, 0 0 10px rgba(103,255,216,.85), 0 0 17px rgba(0,245,184,.85);
+    animation: globeMeteorRun var(--mr-dur) linear infinite;
+  }
+  .globe-meteor-tail {
+    position: absolute; right: 2px; top: 50%; height: 2px;
+    width: calc(var(--mr-w) * 0.183); transform: translateY(-50%); border-radius: 999px;
+    background: linear-gradient(90deg, transparent 0%, rgba(0,245,184,.12) 20%, rgba(0,245,184,.85) 78%, #eafff8 100%);
+  }
+  .globe-meteor-blur {
+    position: absolute; right: 5px; top: 50%; height: 6px;
+    width: calc(var(--mr-w) * 0.089); transform: translateY(-50%); border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(0,245,184,.24), rgba(235,255,250,.78));
+    filter: blur(2.5px);
+  }
+  .globe-meteor.m2 { animation-delay: -4.4s; filter: brightness(.9); }
+  .globe-meteor.m2 .globe-meteor-tail { opacity: .72; }
+  @media (prefers-reduced-motion: reduce) {
+    .globe-meteor { animation: none; display: none; }
+  }
 `;
 
 // 実際の海岸線をベースにした世界地図(北米/グリーンランド/南米/ヨーロッパ/
@@ -2030,19 +2100,8 @@ const GLOBE_EDGE_MASK = "radial-gradient(circle, #000 65%, rgba(0,0,0,.85) 78%, 
 // サイトとして、周辺よりわずかに明るく見せるための専用ハイライトに使う。
 const GLOBE_JAPAN_MASK =
   "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDgwMCI+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE0MjUuNiwxOTcuOCBMMTQ0NC40LDIwNi43IEwxNDQ2LjcsMjEzLjMgTDE0MzEuMSwyMTUuNiBMMTQyMS4zLDIxMS4xIEwxNDI0LjQsMjAyLjIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xNDI4LjksMjE1LjYgTDE0MzAuMiwyMjQuNCBMMTQyNS44LDIzNy44IEwxNDIxLjMsMjQ0LjQgTDE0MTMuMywyNDUuNiBMMTQwNi43LDI0Ni4yIEwxNDAwLDI0OC45IEwxMzkxLjEsMjQ4IEwxMzg0LjQsMjQ4LjkgTDEzODYuNywyNDIuMiBMMTQwMCwyMzUuNiBMMTQwOC45LDIzNC4yIEwxNDE3LjgsMjI4LjkgTDE0MjIuMiwyMjIuMiBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzODksMjQ4IEwxMzk3LjgsMjQ3LjYgTDEzOTguNywyNTEuNiBMMTM5Mi40LDI1My44IEwxMzg3LjYsMjUyIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTM4Mi4yLDI0OC45IEwxMzkwLDI1MiBMMTM4Ny4zLDI2MS4zIEwxMzgyLjIsMjYyLjIgTDEzODAsMjU1LjYgTDEzODEuMywyNTAuNyBaIi8+Cjwvc3ZnPgo=";
-// 陸地マスク群(land/dots/outline/japan)は全て同じviewBox(1600x800)・同じ
-// mask-size・同じmask-positionで揃えて使うことで、常にピタリと重なる。
-// アスペクト比を保ったサイズ指定でないとSVGマスクが描画されない
-// (ブラウザの既知の挙動)ため、高さは明示せず"auto"にして幅だけ指定する。
-const GLOBE_MASK_SIZE = "1400px auto";
-// 日本列島が正面(円の中央)に来るよう置いた基準位置(x/y)。自転はこのx値から
-// 経度方向(横)だけをずらして表現し、yは常に固定する。
-const GLOBE_MASK_BASE_X = -1124;
-const GLOBE_MASK_BASE_Y = -180;
-// マスク画像の表示幅(1400px、GLOBE_MASK_SIZE参照)が経度360度分にあたるため、
-// 「経度n度」を「px」に変換する係数。
-const GLOBE_PX_PER_DEG = 1400 / 360;
-// 初回オープニング時の自転パラメータ(無限ループではなく一度きり)。
+// 初回オープニング時の自転パラメータ(朝刊ヒーロー側=spinMode既定値"once"用。
+// 無限ループではなく一度きり)。
 // 開始まで少し間を置いてから、ゆっくり減速しながら一方向にだけ回って止まる。
 const GLOBE_INTRO_DELAY_MS = 700;
 const GLOBE_INTRO_DURATION_MS = 8000;
@@ -2055,15 +2114,28 @@ const GLOBE_ROTATE_EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 // KabuBocchi独自の抽象デジタル地球。実際の海岸線ベースの世界地図(日本列島が
 // 正面に来る位置を基準)を、ドット+輪郭線+薄いシルエットの3レイヤーで表現。
-// 自転は「ずっと回り続ける」演出ではなく、初回マウント時に一度だけ・タップ時に
-// 一度だけの有限アニメーション(animation-iteration-count:infinite相当は使わない)。
-// 経度(横方向のmask-position-x)だけをReact stateで動かし、CSSのtransitionで
-// 減速しながら目標角度まで動いて完全に止まる。光源(ハイライト/影)・グリッド・
-// リング・HUDは別レイヤーで完全に固定し、地形と一緒には動かさない。
+// 光源(ハイライト/影)・グリッド・リング・HUDは別レイヤーで完全に固定し、
+// 地形と一緒には動かさない(円盤自体をtransform:rotate()することは一切ない)。
+//
+// spinMode:
+//   "once"(既定値。朝刊ヒーロー側で使用) … 初回マウント時に一度だけ・タップ時に
+//     一度だけ、減速しながら目標角度まで動いて完全に止まる有限アニメーション。
+//     経度(mask-position-x)をReact stateで動かし、CSSのtransitionで実現。
+//   "continuous"(オープニング画面で使用) … 地球表面が途切れなく一方向へ流れ
+//     続ける演出。CSSの@keyframes+animation:infiniteで実現(GLOBE_MASK_TILE_PX
+//     ぶんだけ動かすとちょうど1周分になり継ぎ目が出ない)。
+// meteors: trueの場合、最前面の軌道リングに沿って流星エフェクトを2本重ねる
+//   (常時点灯ではなく、周期の一部だけ現れて尾を引きながら通過する)。
 // opacity/ringPower/glowPowerで、オープニング(主役)と朝刊ヒーロー(脇役)の
-// 見せ方だけを調整できる。自転ロジック自体は完全に共通。
-function SpinningEarth({ size = 108, onClick, title, opacity = 1, ringPower = 1, glowPower = 1 }) {
+// 見せ方だけを調整できる。
+function SpinningEarth({
+  size = 108, onClick, title, opacity = 1, ringPower = 1, glowPower = 1,
+  spinMode = "once", meteors = false,
+}) {
+  const continuous = spinMode === "continuous";
+
   // rotationDeg: 基準位置からの累積回転量(度)。常に加算のみ(一方向・往復しない)。
+  // spinMode="once"のときだけ使う(continuousはCSSの@keyframes任せ)。
   const [rotationDeg, setRotationDeg] = useState(0);
   const [transitionMs, setTransitionMs] = useState(GLOBE_INTRO_DURATION_MS);
   const introTimer = useRef(null);
@@ -2074,16 +2146,17 @@ function SpinningEarth({ size = 108, onClick, title, opacity = 1, ringPower = 1,
       typeof window !== "undefined" &&
       window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (continuous) return undefined; // continuousはCSS側(@media prefers-reduced-motion)で減速する
     if (reducedMotionRef.current) return undefined; // 動きを減らす設定の場合は自転させない
     introTimer.current = setTimeout(() => {
       setTransitionMs(GLOBE_INTRO_DURATION_MS);
       setRotationDeg((deg) => deg + GLOBE_INTRO_DEGREES);
     }, GLOBE_INTRO_DELAY_MS);
     return () => clearTimeout(introTimer.current);
-  }, []);
+  }, [continuous]);
 
   const handleTap = () => {
-    if (!reducedMotionRef.current) {
+    if (!continuous && !reducedMotionRef.current) {
       setTransitionMs(GLOBE_TAP_DURATION_MS);
       setRotationDeg((deg) => deg + GLOBE_TAP_DEGREES);
     }
@@ -2094,10 +2167,20 @@ function SpinningEarth({ size = 108, onClick, title, opacity = 1, ringPower = 1,
   // 自転していく。この向きに固定することで、停止位置が必ず陸地の多い
   // アジア〜インド方面になるようにしている(太平洋側は陸地が少なく、
   // 自転後に何もない海だけが見える構図になってしまうため避けている)。
+  // ※continuousモードではこの値は使わず、CSSの@keyframesが動かす。
   const maskPositionX = `${GLOBE_MASK_BASE_X + rotationDeg * GLOBE_PX_PER_DEG}px`;
   const maskTransition = reducedMotionRef.current
     ? "none"
     : `-webkit-mask-position-x ${transitionMs}ms ${GLOBE_ROTATE_EASING}`;
+  // 陸地4レイヤー共通のmask-position関連props。continuousモードではCSS
+  // クラス(.globe-continuous-spin)にx方向のアニメーションを任せ、inline
+  // styleのx/transitionは指定しない(二重に競合させない)。
+  const surfaceMaskProps = continuous
+    ? { className: "globe-continuous-spin", style: { WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px` } }
+    : { style: { WebkitMaskPositionX: maskPositionX, WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`, transition: maskTransition } };
+  // 最前面の軌道リングと同じ寸法(流星の移動振幅をこのリングに揃えるため)。
+  const meteorRingW = size * 1.3;
+  const meteorRingH = size * 0.28;
 
   return (
     <div
@@ -2139,52 +2222,57 @@ function SpinningEarth({ size = 108, onClick, title, opacity = 1, ringPower = 1,
           backgroundRepeat: "repeat",
         }} />
         {/* 陸地ベース(薄いシルエット。ドットだけに頼らず輪郭そのものを見せる)。
-            初回マウント時とタップ時、それぞれ一度だけ・減速しながらx位置が動く。 */}
-        <div style={{
-          position: "absolute", inset: "-2px -6px",
-          background: "rgba(150,205,255,0.22)",
-          WebkitMaskImage: `url("${GLOBE_WORLD_MAP_FILL}")`,
-          WebkitMaskSize: GLOBE_MASK_SIZE,
-          WebkitMaskRepeat: "repeat-x",
-          WebkitMaskPositionX: maskPositionX,
-          WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`,
-          transition: maskTransition,
-        }} />
+            spinMode="once"なら初回マウント時とタップ時に一度だけ、
+            "continuous"ならCSSの@keyframesで途切れずx位置が動き続ける。 */}
+        <div
+          className={surfaceMaskProps.className}
+          style={{
+            position: "absolute", inset: "-2px -6px",
+            background: "rgba(150,205,255,0.22)",
+            WebkitMaskImage: `url("${GLOBE_WORLD_MAP_FILL}")`,
+            WebkitMaskSize: GLOBE_MASK_SIZE,
+            WebkitMaskRepeat: "repeat-x",
+            ...surfaceMaskProps.style,
+          }}
+        />
         {/* 陸地ドット(輪郭の内側だけに極小ドットを高密度配置。ランダムな点群ではない) */}
-        <div style={{
-          position: "absolute", inset: "-2px -6px",
-          backgroundImage: "radial-gradient(circle, rgba(200,230,255,0.85) 0.5px, transparent 0.9px)",
-          backgroundSize: "4px 4px",
-          backgroundRepeat: "repeat",
-          WebkitMaskImage: `url("${GLOBE_WORLD_MAP_FILL}")`,
-          WebkitMaskSize: GLOBE_MASK_SIZE,
-          WebkitMaskRepeat: "repeat-x",
-          WebkitMaskPositionX: maskPositionX,
-          WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`,
-          transition: maskTransition,
-        }} />
+        <div
+          className={surfaceMaskProps.className}
+          style={{
+            position: "absolute", inset: "-2px -6px",
+            backgroundImage: "radial-gradient(circle, rgba(200,230,255,0.85) 0.5px, transparent 0.9px)",
+            backgroundSize: "4px 4px",
+            backgroundRepeat: "repeat",
+            WebkitMaskImage: `url("${GLOBE_WORLD_MAP_FILL}")`,
+            WebkitMaskSize: GLOBE_MASK_SIZE,
+            WebkitMaskRepeat: "repeat-x",
+            ...surfaceMaskProps.style,
+          }}
+        />
         {/* 日本列島のみ、周辺よりわずかに明るく(日本株サイトとしての手がかり) */}
-        <div style={{
-          position: "absolute", inset: "-2px -6px",
-          background: "rgba(210,235,255,0.16)",
-          WebkitMaskImage: `url("${GLOBE_JAPAN_MASK}")`,
-          WebkitMaskSize: GLOBE_MASK_SIZE,
-          WebkitMaskRepeat: "repeat-x",
-          WebkitMaskPositionX: maskPositionX,
-          WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`,
-          transition: maskTransition,
-        }} />
+        <div
+          className={surfaceMaskProps.className}
+          style={{
+            position: "absolute", inset: "-2px -6px",
+            background: "rgba(210,235,255,0.16)",
+            WebkitMaskImage: `url("${GLOBE_JAPAN_MASK}")`,
+            WebkitMaskSize: GLOBE_MASK_SIZE,
+            WebkitMaskRepeat: "repeat-x",
+            ...surfaceMaskProps.style,
+          }}
+        />
         {/* 陸地アウトライン(輪郭をシャープに保つための極細の縁取り) */}
-        <div style={{
-          position: "absolute", inset: "-2px -6px",
-          background: "rgba(130,215,255,0.4)",
-          WebkitMaskImage: `url("${GLOBE_WORLD_MAP_OUTLINE}")`,
-          WebkitMaskSize: GLOBE_MASK_SIZE,
-          WebkitMaskRepeat: "repeat-x",
-          WebkitMaskPositionX: maskPositionX,
-          WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`,
-          transition: maskTransition,
-        }} />
+        <div
+          className={surfaceMaskProps.className}
+          style={{
+            position: "absolute", inset: "-2px -6px",
+            background: "rgba(130,215,255,0.4)",
+            WebkitMaskImage: `url("${GLOBE_WORLD_MAP_OUTLINE}")`,
+            WebkitMaskSize: GLOBE_MASK_SIZE,
+            WebkitMaskRepeat: "repeat-x",
+            ...surfaceMaskProps.style,
+          }}
+        />
         {/* 左右端を暗く落として球面のカーブを強調(中央70%は輪郭をシャープに保つ) */}
         <div style={{
           position: "absolute", inset: 0, pointerEvents: "none",
@@ -2223,6 +2311,30 @@ function SpinningEarth({ size = 108, onClick, title, opacity = 1, ringPower = 1,
         transform: "translate(-50%, -50%) rotate(6deg)", borderRadius: "50%",
         border: `1px solid rgba(0,229,200,${0.42 * ringPower})`, zIndex: 3, pointerEvents: "none",
       }} />
+
+      {/* 流星(meteors=trueの時のみ)。上の最前面リングと全く同じ位置・サイズ・
+          回転角に重ねて配置し、そのリングに沿って走っているように見せる。
+          リング自体・HUDは一切動かさず、この2つのドット(span)だけがCSSの
+          @keyframesで一定周期のうち一部だけ現れて通過する。 */}
+      {meteors && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute", left: "50%", top: "60%", width: meteorRingW, height: meteorRingH,
+            transform: "translate(-50%, -50%) rotate(6deg)", zIndex: 4, pointerEvents: "none",
+            "--mr-w": `${meteorRingW}px`, "--mr-h": `${meteorRingH}px`,
+          }}
+        >
+          <span className="globe-meteor" style={{ "--mr-dur": "8.6s" }}>
+            <span className="globe-meteor-tail" />
+            <span className="globe-meteor-blur" />
+          </span>
+          <span className="globe-meteor m2" style={{ "--mr-dur": "13.8s" }}>
+            <span className="globe-meteor-tail" />
+            <span className="globe-meteor-blur" />
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -2313,7 +2425,7 @@ function IntroSplash({ onSelect, briefing }) {
               background: "radial-gradient(circle, rgba(0,229,200,0.24) 0%, transparent 68%)",
               filter: "blur(10px)", pointerEvents: "none",
             }} />
-            <SpinningEarth size={224} onClick={() => {}} title="タップで少し自転" />
+            <SpinningEarth size={224} spinMode="continuous" meteors />
           </div>
         </div>
         <div style={{
