@@ -2433,11 +2433,91 @@ function IntroSplash({ onSelect, briefing }) {
   );
 }
 
+// タブバーの既定の並び順(タブID)。「stocks」は日本株/米国株を束ねた
+// 疑似タブ(実際に表示されるのはflagSideに連動した"jp"か"us")。
+const DEFAULT_TAB_ORDER = ["briefing", "stocks", "events", "history"];
+
 export default function SwingStation() {
   const [tab, setTab] = useState("briefing");
   const [highlightTarget, setHighlightTarget] = useState(null); // { market: 'jp'|'us', code: string }
   const [flagSide, setFlagSide] = useState("jp"); // 'jp' | 'us' — which flag is currently up front
-  const [showIntro, setShowIntro] = useState(false); // 初回セッションのみ地球オープニングを表示
+  const [showIntro, setShowIntro] = useState(false); // 初回セッションのみ地球ビジュアルで日本株/米国株を選ぶオープニング画面を表示
+
+  // タブの並び替え・表示/非表示(自由に移動・追加/削除したいという要望への対応)。
+  // データ取得やAPI・ルーティングには一切影響しない、見た目の並び順だけを
+  // 端末のlocalStorageに保存する軽量な機能。SSRとの不一致を避けるため、
+  // 初回描画は常に既定値で揃え、マウント後にlocalStorageを見て復元する。
+  const [tabOrder, setTabOrder] = useState(DEFAULT_TAB_ORDER);
+  const [hiddenTabIds, setHiddenTabIds] = useState([]);
+  const [editingTabs, setEditingTabs] = useState(false);
+  // localStorageからの復元が終わるまでは保存用useEffectを走らせない(state)。
+  // ref ではなく state にしているのは重要で、復元effect内でこれをtrueにした
+  // 直後の「同じコミット」ではまだ古いレンダーの値のまま判定させ、復元が
+  // 実際に反映された次のコミットで初めて保存を許可するため。refだと復元と
+  // 同じコミット内で即trueになってしまい、復元前の既定値でlocalStorageを
+  // 上書きしてしまう(=並び替えがリロードで消える)不具合になる。
+  const [tabPrefsHydrated, setTabPrefsHydrated] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") { setTabPrefsHydrated(true); return; }
+    try {
+      const savedOrder = JSON.parse(localStorage.getItem("kb_tab_order") || "null");
+      if (Array.isArray(savedOrder) && savedOrder.length) {
+        // 保存後にタブ構成が変わっていても壊れないよう、未知のIDは捨て、
+        // 新しく増えた既定タブは末尾に足す。
+        const known = savedOrder.filter((id) => DEFAULT_TAB_ORDER.includes(id));
+        const missing = DEFAULT_TAB_ORDER.filter((id) => !known.includes(id));
+        setTabOrder([...known, ...missing]);
+      }
+      const savedHidden = JSON.parse(localStorage.getItem("kb_tab_hidden") || "null");
+      if (Array.isArray(savedHidden)) {
+        setHiddenTabIds(savedHidden.filter((id) => DEFAULT_TAB_ORDER.includes(id)));
+      }
+    } catch (e) {
+      // 壊れた保存データは無視して既定値のまま使う
+    } finally {
+      setTabPrefsHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!tabPrefsHydrated || typeof window === "undefined") return;
+    localStorage.setItem("kb_tab_order", JSON.stringify(tabOrder));
+  }, [tabOrder, tabPrefsHydrated]);
+
+  useEffect(() => {
+    if (!tabPrefsHydrated || typeof window === "undefined") return;
+    localStorage.setItem("kb_tab_hidden", JSON.stringify(hiddenTabIds));
+  }, [hiddenTabIds, tabPrefsHydrated]);
+
+  const moveTab = (id, dir) => {
+    setTabOrder((prev) => {
+      const idx = prev.indexOf(id);
+      const newIdx = idx + dir;
+      if (idx < 0 || newIdx < 0 || newIdx >= prev.length) return prev;
+      const next = prev.slice();
+      [next[idx], next[newIdx]] = [next[newIdx], next[idx]];
+      return next;
+    });
+  };
+
+  const toggleTabHidden = (id) => {
+    setHiddenTabIds((prev) => {
+      const isHidden = prev.includes(id);
+      if (!isHidden && prev.length >= tabOrder.length - 1) return prev; // 最低1つは表示に残す
+      return isHidden ? prev.filter((x) => x !== id) : [...prev, id];
+    });
+  };
+
+  // 表示中のタブが非表示にされたら、先頭の表示中タブへ自動的に退避する。
+  useEffect(() => {
+    const activeId = tab === "jp" || tab === "us" ? "stocks" : tab;
+    if (!hiddenTabIds.includes(activeId)) return;
+    const fallback = tabOrder.find((id) => !hiddenTabIds.includes(id));
+    if (!fallback) return;
+    setTab(fallback === "stocks" ? flagSide : fallback);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hiddenTabIds, tabOrder]);
 
   // タブが「日本株」「米国株」タブ自体のクリックやジャンプなど、国旗ボタン以外の
   // 経路で切り替わったときも国旗の表示を実際のタブと一致させる。
@@ -2532,6 +2612,10 @@ export default function SwingStation() {
     { id: "events", label: "イベント" },
     { id: "history", label: "履歴" },
   ];
+  // ユーザーが並び替えた順・非表示設定を反映した、実際にタブバーへ出す一覧。
+  const visibleTabs = tabOrder
+    .map((id) => TABS.find((t) => t.id === id))
+    .filter((t) => t && !hiddenTabIds.includes(t.id));
 
   const lastUpdatedLabel = lastUpdated
     ? `${lastUpdated.toLocaleDateString("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit" })} ${lastUpdated.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}`
@@ -2642,8 +2726,8 @@ export default function SwingStation() {
 
         {/* Tabs — 選択中は前面に大きく浮き上がり、非選択は奥へ小さく沈む
             (ヘッダーの国旗トグルと同じ「前面/奥」の立体表現に揃えている) */}
-        <div style={{ display:"flex", background:"#080D10", borderBottom:"1px solid #1f1f1f", flexShrink:0 }}>
-          {TABS.map(t => {
+        <div style={{ display:"flex", alignItems:"stretch", background:"#080D10", borderBottom:"1px solid #1f1f1f", flexShrink:0 }}>
+          {visibleTabs.map(t => {
             const active = t.isActive ?? tab === t.id;
             return (
               <B key={t.id} onClick={() => (t.onSelect ? t.onSelect() : setTab(t.id))} style={{
@@ -2667,7 +2751,58 @@ export default function SwingStation() {
               </B>
             );
           })}
+          <B
+            onClick={() => setEditingTabs(v => !v)}
+            title="タブの並び替え・表示/非表示"
+            style={{
+              flexShrink:0, width:34, background: editingTabs ? "#13161C" : "transparent",
+              borderLeft:"1px solid #1f1f1f", color: editingTabs ? "#00E0A3" : "#6B7280", fontSize:13,
+            }}
+          >⋮⋮</B>
         </div>
+
+        {/* タブ編集パネル — 並び替え(↑↓)・表示/非表示のみ。データ取得やAPIには
+            触れず、端末内の見た目設定を変えるだけ(localStorageに保存)。 */}
+        {editingTabs && (
+          <div style={{ background:"#0C0F14", borderBottom:"1px solid #1f1f1f", padding:"8px 12px", flexShrink:0 }}>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
+              <span style={{ fontSize:9, color:"#6B7280" }}>タブの並び替え・表示/非表示(この端末にのみ保存)</span>
+              <button
+                onClick={() => { setTabOrder(DEFAULT_TAB_ORDER); setHiddenTabIds([]); }}
+                style={{ background:"none", border:"none", color:"#6B7280", fontSize:9, textDecoration:"underline", cursor:"pointer", fontFamily:"inherit" }}
+              >既定順に戻す</button>
+            </div>
+            {tabOrder.map((id, idx) => {
+              const t = TABS.find(x => x.id === id);
+              if (!t) return null;
+              const hidden = hiddenTabIds.includes(id);
+              const isLastVisible = !hidden && visibleTabs.length <= 1;
+              return (
+                <div key={id} style={{ display:"flex", alignItems:"center", gap:8, padding:"5px 2px", opacity: hidden ? 0.45 : 1 }}>
+                  <span style={{ flex:1, fontSize:11, color:"#D0D0D0" }}>{t.label}</span>
+                  <button onClick={() => moveTab(id, -1)} disabled={idx === 0} style={{
+                    background:"#13161C", border:"1px solid #1B1F26", borderRadius:6, color: idx === 0 ? "#3A3F47" : "#A1A7B3",
+                    width:26, height:26, fontSize:11, cursor: idx === 0 ? "default" : "pointer", fontFamily:"inherit",
+                  }}>↑</button>
+                  <button onClick={() => moveTab(id, 1)} disabled={idx === tabOrder.length - 1} style={{
+                    background:"#13161C", border:"1px solid #1B1F26", borderRadius:6, color: idx === tabOrder.length - 1 ? "#3A3F47" : "#A1A7B3",
+                    width:26, height:26, fontSize:11, cursor: idx === tabOrder.length - 1 ? "default" : "pointer", fontFamily:"inherit",
+                  }}>↓</button>
+                  <button
+                    onClick={() => toggleTabHidden(id)}
+                    disabled={isLastVisible}
+                    title={isLastVisible ? "最低1つのタブは表示しておく必要があります" : (hidden ? "表示する" : "非表示にする")}
+                    style={{
+                      background: hidden ? "#13161C" : "#0a2a20", border:`1px solid ${hidden ? "#1B1F26" : "#00E0A344"}`, borderRadius:6,
+                      color: isLastVisible ? "#3A3F47" : (hidden ? "#A1A7B3" : "#00E0A3"),
+                      width:56, height:26, fontSize:9.5, cursor: isLastVisible ? "default" : "pointer", fontFamily:"inherit",
+                    }}
+                  >{hidden ? "非表示" : "表示中"}</button>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Content */}
         <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
