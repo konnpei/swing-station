@@ -1989,34 +1989,32 @@ function EventsView({ briefing, onJump }) {
   );
 }
 
-// SpinningEarthが使うCSS(キーフレーム+reduced-motion対応)。IntroSplashと
-// 朝刊ヒーロー側それぞれの<style>タグに差し込んで使う共通定義。
-// 【技術メモ】mask-position(SVGマスクの位置)をCSS @keyframesで継続的に
-// アニメーションさせると、このページ全体のDOM規模ではSVGマスクを使った
-// レイヤーが描画されなくなる(陸地が消える)現象を実機相当の検証で確認した。
-// 単純化した再現HTMLでは問題なく動くため、ページ全体の複雑さに起因する
-// ブラウザ側の描画バグと判断し、mask-positionは静止値で固定している。
-// (「静止状態でもデザインが成立するように」という以前の指示とも合致する)
-// タップ時のフィードバックはmask-positionを一切動かさない
-// transform:scaleのみのパルスにして、同じ問題を避けている。
+// SpinningEarthが使うCSS。IntroSplashと朝刊ヒーロー側それぞれの<style>タグに
+// 差し込んで使う共通定義。
+// 【技術メモ】以前、mask-position(SVGマスクの位置)をCSS @keyframesで
+// 「無限ループ」でアニメーションさせた際に陸地レイヤーが描画されない現象が
+// あったが、原因はページのコードではなく検証環境側の古いnextサーバープロセスが
+// 居座っていたことによる誤検知だった(サーバーを完全に再起動して解消済み)。
+// そのためmask-positionのアニメーション自体は問題なく動く。ただし自転は
+// 「ずっと回り続ける」演出ではなく、初回に一度だけ・タップ時に一度だけの
+// 有限アニメーションにする方針のため、CSSの@keyframes(infiniteループ向き)
+// ではなく、Reactのstate + inline transitionで「今の角度→次の角度」を
+// 一度だけ動かす実装にしている(SpinningEarth内)。
 const GLOBE_STYLE_CSS = `
-  @keyframes globeTapPulse{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}
-  .globe-tap-pulse{animation:globeTapPulse 0.6s cubic-bezier(.22,.9,.3,1) 1}
   .globe-btn{transition:background .15s ease, transform .1s ease}
   .globe-btn:active{transform:scale(0.98)}
   @media (hover:hover) { .globe-btn:hover{background:rgba(0,229,200,0.06)} }
-  @media (prefers-reduced-motion: reduce) {
-    .globe-tap-pulse { animation: none; }
-  }
 `;
 
-// 実際の海岸線をベースにした簡略世界地図(北米/グリーンランド/南米/
-// ヨーロッパ/アフリカ/アラビア/アジア大陸/朝鮮半島/日本(北海道・本州・
-// 四国・九州を個別に)/台湾/フィリピン/インドシナ/インドネシア/インド/
-// オーストラリア)をSVGパスで表現。正距円筒図法のviewBox(1600x800、
-// 経度をx0〜1600、緯度をy0〜800にマッピング)。両端(x=0/x=1600付近、
-// 太平洋上)には陸地を置いていないので、横に繰り返しても継ぎ目が出ない。
-// KabuBocchiは日本株を扱うため、基準位置(mask-position-x初期値)は
+// 実際の海岸線をベースにした世界地図(北米/グリーンランド/南米/ヨーロッパ/
+// アフリカ/アラビア半島/アジア大陸〈シベリア〜中国沿岸〉/朝鮮半島/
+// 日本〈北海道・本州・四国・九州を個別に〉/台湾/フィリピン/インドシナ/
+// インドネシア/インド/オーストラリア)をSVGパスで表現。特定の地域だけで
+// なく全世界で同じ精度・同じ考え方(実座標を単純化した多角形)に揃えている。
+// 正距円筒図法のviewBox(1600x800、経度をx0〜1600、緯度をy0〜800に
+// マッピング)。両端(x=0/x=1600付近、太平洋上)には陸地を置いていないので、
+// 横に繰り返しても継ぎ目が出ない。
+// KabuBocchiは日本株を扱うため、基準位置(mask-position初期値)は
 // 日本列島が画面中央に来るよう経度をシフトしてある。
 //
 // 陸地は「ドットで塗る」のではなく「正確な陸地シルエットをマスクにして、
@@ -2024,9 +2022,9 @@ const GLOBE_STYLE_CSS = `
 // 塗り)・ドット・アウトライン(細い縁取り)の3レイヤーで共有し、常に
 // 同じ位置を指すよう揃えている。
 const GLOBE_WORLD_MAP_FILL =
-  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDgwMCI+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTY2LjcsOTcuOCBMMTExLDg0LjQgTDE3Ny44LDg4LjkgTDI0NC40LDk3LjggTDI0OC45LDE4Mi4yIEwyNTcuOCwyMzUuNiBMMjgwLDI1Ny44IEwzMTEuMSwyOTMuMyBMMzY4LjksMjg0LjQgTDQwMCwyNzEuMSBMNDM1LjYsMjg4LjkgTDQ0NC40LDI1Ny44IEw0NjYuNywyMjIuMiBMNDg4LjksMjA0LjQgTDUxMS4xLDE5MS4xIEw0ODguOSwxNDIuMiBMMzc3LjgsMTI0LjQgTDMxMS4xLDk3LjggTDE3Ny44LDg4LjkgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik00NzUuNiwxMzMuMyBMNTU1LjYsMTA2LjcgTDcxMS4xLDM1LjYgTDY4OC45LDMxLjEgTDYwMCw0NC40IEw1MTEuMSw4MCBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTQ1OC43LDM1NS42IEw0ODguOSwzNzcuOCBMNTY4LjksNDA4LjkgTDY0NC40LDQzNS42IEw2MjIuMiw1MDIuMiBMNTg2LjcsNTI0LjQgTDU0Mi4yLDU1NS42IEw1MjQuNCw1ODYuNyBMNDk3LjgsNjMxLjEgTDQ4OC45LDY0NC40IEw0NzUuNiw2MjIuMiBMNDg0LjQsNTQ2LjcgTDQ4NC40LDQ4MCBMNDU4LjcsNDE3LjggWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik03NjAsMjA4LjkgTDc2MCwyNDAgTDgxMy4zLDI0MCBMODUzLjMsMjM1LjYgTDg4MCwyMjIuMiBMODg0LjQsMjEzLjMgTDkyNC40LDIxNy44IEw5NzcuOCwxOTUuNiBMOTY4LjksMTg2LjcgTDkzMy4zLDE3Ny44IEw4ODguOSwxNjAgTDkxMS4xLDEzMy4zIEw4NjYuNywxMjAgTDg0OC45LDE0Mi4yIEw4NDQuNCw5Ny44IEw4MjIuMiwxMjQuNCBMNzc3LjgsMTQyLjIgTDc2MCwxNjguOSBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTcyNC40LDMwNi43IEw3MjQuNCwzMzMuMyBMNzI4LjksMzQ2LjcgTDg0MCwzODIuMiBMODQwLDQwNC40IEw4NTMuMyw0MjYuNyBMODgwLDQ4MCBMODgwLDU1MS4xIEw5MTUuNiw1NDYuNyBMOTQ3LjgsNTIwIEw5NzcuOCw0NjYuNyBMOTkxLjEsNDA4LjkgTDEwMjYuNywzNTUuNiBMOTkxLjEsMzUxLjEgTDk1NS42LDMzMy4zIEw5NDcuOCwyNzUuNiBMOTExLjEsMjU3LjggTDg0OC45LDI1My4zIEw3NzMuMywyNDAgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik05NTUuNiwyNzEuMSBMMTAxMy4zLDI2Ni43IEwxMDU3LjgsMzAyLjIgTDEwMzEuMSwzMzMuMyBMOTk1LjYsMzQyLjIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik05NjguOSwxODYuNyBMMTA0NC40LDE3Ny44IEwxMDY2LjcsMTU1LjYgTDExMTEuMSwxNDIuMiBMMTIwMCwxMTEuMSBMMTI4OC45LDg4LjkgTDE0MjIuMiw5Ny44IEwxNTExLjEsMTExLjEgTDE1NTUuNiwxMTEuMSBMMTUxMS4xLDEzMy4zIEwxNDIyLjIsMTY4LjkgTDE0MDAsMjAwIEwxMzQyLjIsMjIyLjIgTDEzMzMuMywyNTcuOCBMMTI4OC45LDMwMi4yIEwxMjQ0LjQsMzAyLjIgTDEyMDguOSwyODQuNCBMMTE1NS42LDI3NS42IEwxMTExLjEsMjMxLjEgTDEwNDQuNCwyMzEuMSBMMTAxMy4zLDIyMi4yIEwxMDAwLDIxMy4zIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTM1My4zLDIyMi4yIEwxMzU3LjgsMjMxLjEgTDEzNjIuMiwyMzMuMyBMMTM3NS42LDI0Mi4yIEwxMzc1LjYsMjM1LjYgTDEzNjguOSwyMjYuNyBMMTM2NC40LDIxNy44IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTQyNS42LDE5Ny44IEwxNDQ0LjQsMjA2LjcgTDE0NDYuNywyMTMuMyBMMTQzMS4xLDIxNS42IEwxNDIxLjMsMjExLjEgTDE0MjQuNCwyMDIuMiBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE0MjguOSwyMTUuNiBMMTQzMC4yLDIyNC40IEwxNDI1LjgsMjM3LjggTDE0MjEuMywyNDQuNCBMMTQxMy4zLDI0NS42IEwxNDA2LjcsMjQ2LjIgTDE0MDAsMjQ4LjkgTDEzOTEuMSwyNDggTDEzODQuNCwyNDguOSBMMTM4Ni43LDI0Mi4yIEwxNDAwLDIzNS42IEwxNDA4LjksMjM0LjIgTDE0MTcuOCwyMjguOSBMMTQyMi4yLDIyMi4yIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTM4OSwyNDggTDEzOTcuOCwyNDcuNiBMMTM5OC43LDI1MS42IEwxMzkyLjQsMjUzLjggTDEzODcuNiwyNTIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMzgyLjIsMjQ4LjkgTDEzOTAsMjUyIEwxMzg3LjMsMjYxLjMgTDEzODIuMiwyNjIuMiBMMTM4MCwyNTUuNiBMMTM4MS4zLDI1MC43IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTMzOS45LDI4Ni41IEwxMzQyLjIsMjkyLjIgTDEzMzcsMzAwIEwxMzMzLjMsMjk0LjQgTDEzMzUuNiwyODcuOCBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzMzUuNiwzMTcuOCBMMTM0Mi4yLDMyNC40IEwxMzQyLjIsMzM1LjYgTDEzMzcuOCwzNDIuMiBMMTMzMy4zLDMzMy4zIEwxMzMzLjMsMzIyLjIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMzU3LjgsMzU3LjggTDEzNjIuMiwzNjYuNyBMMTM1NS42LDM3NS42IEwxMzQ0LjQsMzY4LjkgTDEzNDYuNywzNjAgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMjM1LjYsMjc1LjYgTDEyMTcuOCwzMTEuMSBMMTIzNS42LDMyOC45IEwxMjUzLjMsMzU1LjYgTDEyNjIuMiwzNjQuNCBMMTI2MCwzODYuNyBMMTI2Mi4yLDM3My4zIEwxMjc1LjYsMzU1LjYgTDEyODQuNCwzNDIuMiBMMTI3NS42LDMxMS4xIEwxMjUzLjMsMjk3LjggWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMjI0LjQsMzc1LjYgTDEyNDAsMzkxLjEgTDEyNjguOSw0MjUuOCBMMTI1My4zLDQxMy4zIEwxMjMxLjEsMzk1LjYgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMjY4LDQzMC4yIEwxMjk3LjgsNDM0LjcgTDEzMDguOSw0MzYuOSBMMTI4NC40LDQzMC43IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTI4NC40LDM4Mi4yIEwxMzIwLDM4MCBMMTMyOC45LDQxNy44IEwxMzA2LjcsNDE3LjggTDEyODQuNCwzOTUuNiBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzMzMuMywzOTUuNiBMMTM1MS4xLDQwMCBMMTM0Ni43LDQxNy44IEwxMzMxLjEsNDE3LjggWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMTAyLjIsMjkzLjMgTDExMjAsMzA2LjcgTDExMjQuNCwzMzMuMyBMMTEzNy44LDM1NS42IEwxMTQyLjIsMzY0LjQgTDExNTUuNiwzNjAgTDExNTUuNiwzNDIuMiBMMTE4Mi4yLDMyNC40IEwxMTkxLjEsMzAyLjIgTDEyMDguOSwyOTMuMyBMMTE5MS4xLDI4NC40IEwxMTU1LjYsMjY2LjcgTDExMjguOSwyNTMuMyBMMTExMS4xLDI3NS42IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTMwMi4yLDQ5Ny44IEwxMzQyLjIsNDgwIEwxMzczLjMsNDY2LjcgTDE0MDQuNCw0NTMuMyBMMTQzMS4xLDQ0OC45IEwxNDQ0LjQsNDc1LjYgTDE0NjYuNyw0OTcuOCBMMTQ4MCw1MjQuNCBMMTQ2Ni43LDU2NC40IEwxNDIyLjIsNTY4LjkgTDEzODIuMiw1NDIuMiBMMTMxMS4xLDU1MS4xIEwxMzAyLjIsNTE1LjYgWiIvPgo8L3N2Zz4K";
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDgwMCI+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTY2LjcsOTcuOCBMMTExLjEsODQuNCBMMTczLjMsODguOSBMMjIyLjIsMTU1LjYgTDI0OC45LDE4Ni43IEwyNDguOSwyMjIuMiBMMjgwLDI1Ny44IEwyOTcuOCwyNjIuMiBMMzMzLjMsMzExLjEgTDM2OC45LDMyOC45IEw0MDAsMzIwIEw0MTMuMywzMDYuNyBMMzY4LjksMjg0LjQgTDM4Ni43LDI3MS4xIEw0NDAsMjg4LjkgTDQ0NC40LDI1Ny44IEw0NjYuNywyNDQuNCBMNDcxLjEsMjIyLjIgTDUwMi4yLDIwMCBMNTE1LjYsMTgyLjIgTDUxMS4xLDEzMy4zIEw0MjIuMiwxMjQuNCBMMzc3LjgsMTQyLjIgTDM4Mi4yLDkzLjMgTDI4OC45LDg4LjkgTDE3My4zLDg4LjkgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik00NzUuNiwxMzMuMyBMNTQyLjIsMTMzLjMgTDYwMCwxMjguOSBMNzAyLjIsODguOSBMNzExLjEsNTcuOCBMNjQ0LjQsMzEuMSBMNTU1LjYsMzUuNiBMNDk3LjgsNjIuMiBMNDc1LjYsOTcuOCBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTQ1Ny44LDM2NC40IEw0NDguOSwzOTEuMSBMNDQwLDQxNy44IEw0ODQuNCw0ODAgTDQ4OC45LDUzMy4zIEw0ODQuNCw1NzcuOCBMNDcxLjEsNjMxLjEgTDQ5Ny44LDY0NC40IEw1MTEuMSw2MzEuMSBMNTI0LjQsNTc3LjggTDU0Ni43LDU1NS42IEw1ODYuNyw1MTEuMSBMNjIyLjIsNDY2LjcgTDY0NC40LDQzNS42IEw2MDQuNCw0MDguOSBMNTczLjMsNDAwIEw1MzMuMywzNjQuNCBMNDgwLDM1MS4xIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNNzYwLDIzNS42IEw3NjAsMjA4LjkgTDc2MCwxODYuNyBMNzczLjMsMTY0LjQgTDgzNS42LDE0Mi4yIEw4ODguOSw5Ny44IEw5NTUuNiwxMzMuMyBMOTYwLDE3Ny44IEw5MzMuMywyMDguOSBMODkzLjMsMjI2LjcgTDg2Mi4yLDIyNi43IEw4MjIuMiwyMDguOSBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTcyNC40LDMwNi43IEw3MjQuNCwzMzcuOCBMNzYwLDM3Ny44IEw4MTMuMywzNzcuOCBMODQwLDM4Mi4yIEw4NDAsNDI2LjcgTDg1Ny44LDQyNi43IEw4NTMuMyw0ODAgTDg2Ni43LDUyMCBMODgwLDU1MS4xIEw5MTUuNiw1NDYuNyBMOTQ2LjcsNTIwIEw5NTUuNiw0ODQuNCBMOTc3LjgsNDY2LjcgTDk3Ny44LDQxNy44IEw5ODYuNywzOTEuMSBMMTAyNi43LDM1NS42IEw5OTEuMSwzNDYuNyBMOTY0LjQsMzMzLjMgTDk1NS42LDI3NS42IEw5MTEuMSwyNTcuOCBMODQ0LjQsMjUzLjMgTDg0MCwyMzUuNiBMNzczLjMsMjQwIEw3NjAsMjU3LjggWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik05NTUuNiwyNzEuMSBMMTAxMy4zLDI2Ni43IEwxMDU3LjgsMzAyLjIgTDEwMzEuMSwzMzMuMyBMOTk1LjYsMzQyLjIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik05NTUuNiwyMTMuMyBMOTMzLjMsMTk1LjYgTDk2MCwxNzcuOCBMOTgyLjIsMTg2LjcgTDEwMjIuMiwxNzcuOCBMMTA2Ni43LDE0Mi4yIEwxMTAyLjIsMTExLjEgTDExNTUuNiw4NC40IEwxMjQ0LjQsNzEuMSBMMTMzMy4zLDcxLjEgTDE0MjIuMiw3NS42IEwxNTExLjEsODguOSBMMTU1NS42LDEwNi43IEwxNTI0LjQsMTMzLjMgTDE1MDIuMiwxNjQuNCBMMTQyMi4yLDE4Ni43IEwxMzg2LjcsMjA4LjkgTDEzNTEuMSwyMjIuMiBMMTMzNy44LDI2Mi4yIEwxMzA2LjcsMzAyLjIgTDEyODAsMzA2LjcgTDEyMzUuNiwzMDYuNyBMMTIwOC45LDI4MCBMMTE1NS42LDI2Ni43IEwxMTMzLjMsMjQ0LjQgTDEwOTcuOCwyMzUuNiBMMTA3MS4xLDI4OC45IEwxMDMxLjEsMjY2LjcgTDEwMTMuMywyMTMuMyBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzNTMuMywyMjIuMiBMMTM1Ny44LDIzMS4xIEwxMzYyLjIsMjMzLjMgTDEzNzUuNiwyNDIuMiBMMTM3NS42LDIzNS42IEwxMzY4LjksMjI2LjcgTDEzNjQuNCwyMTcuOCBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE0MjUuNiwxOTcuOCBMMTQ0NC40LDIwNi43IEwxNDQ2LjcsMjEzLjMgTDE0MzEuMSwyMTUuNiBMMTQyMS4zLDIxMS4xIEwxNDI0LjQsMjAyLjIgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xNDI4LjksMjE1LjYgTDE0MzAuMiwyMjQuNCBMMTQyNS44LDIzNy44IEwxNDIxLjMsMjQ0LjQgTDE0MTMuMywyNDUuNiBMMTQwNi43LDI0Ni4yIEwxNDAwLDI0OC45IEwxMzkxLjEsMjQ4IEwxMzg0LjQsMjQ4LjkgTDEzODYuNywyNDIuMiBMMTQwMCwyMzUuNiBMMTQwOC45LDIzNC4yIEwxNDE3LjgsMjI4LjkgTDE0MjIuMiwyMjIuMiBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzODksMjQ4IEwxMzk3LjgsMjQ3LjYgTDEzOTguNywyNTEuNiBMMTM5Mi40LDI1My44IEwxMzg3LjYsMjUyIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTM4Mi4yLDI0OC45IEwxMzkwLDI1MiBMMTM4Ny4zLDI2MS4zIEwxMzgyLjIsMjYyLjIgTDEzODAsMjU1LjYgTDEzODEuMywyNTAuNyBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzMzkuOSwyODYuNSBMMTM0Mi4yLDI5Mi4yIEwxMzM3LDMwMCBMMTMzMy4zLDI5NC40IEwxMzM1LjYsMjg3LjggWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMzM1LjYsMzE3LjggTDEzNDIuMiwzMjQuNCBMMTM0Mi4yLDMzNS42IEwxMzM3LjgsMzQyLjIgTDEzMzMuMywzMzMuMyBMMTMzMy4zLDMyMi4yIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTM1Ny44LDM1Ny44IEwxMzYyLjIsMzY2LjcgTDEzNTUuNiwzNzUuNiBMMTM0NC40LDM2OC45IEwxMzQ2LjcsMzYwIFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTIzNS42LDI3NS42IEwxMjE3LjgsMzExLjEgTDEyMzUuNiwzMjguOSBMMTI1My4zLDM1NS42IEwxMjYyLjIsMzY0LjQgTDEyNjAsMzg2LjcgTDEyNjIuMiwzNzMuMyBMMTI3NS42LDM1NS42IEwxMjg0LjQsMzQyLjIgTDEyNzUuNiwzMTEuMSBMMTI1My4zLDI5Ny44IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTIyNC40LDM3NS42IEwxMjQwLDM5MS4xIEwxMjY4LjksNDI1LjggTDEyNTMuMyw0MTMuMyBMMTIzMS4xLDM5NS42IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTI2OCw0MzAuMiBMMTI5Ny44LDQzNC43IEwxMzA4LjksNDM2LjkgTDEyODQuNCw0MzAuNyBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEyODQuNCwzODIuMiBMMTMyMCwzODAgTDEzMjguOSw0MTcuOCBMMTMwNi43LDQxNy44IEwxMjg0LjQsMzk1LjYgWiIvPgogIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0xMzMzLjMsMzk1LjYgTDEzNTEuMSw0MDAgTDEzNDYuNyw0MTcuOCBMMTMzMS4xLDQxNy44IFoiLz4KICA8cGF0aCBmaWxsPSIjZmZmIiBkPSJNMTEwMi4yLDI5My4zIEwxMTIwLDMwNi43IEwxMTI0LjQsMzMzLjMgTDExMzcuOCwzNTUuNiBMMTE0Mi4yLDM2NC40IEwxMTU1LjYsMzYwIEwxMTU1LjYsMzQyLjIgTDExODIuMiwzMjQuNCBMMTE5MS4xLDMwMi4yIEwxMjA4LjksMjkzLjMgTDExOTEuMSwyODQuNCBMMTE1NS42LDI2Ni43IEwxMTI4LjksMjUzLjMgTDExMTEuMSwyNzUuNiBaIi8+CiAgPHBhdGggZmlsbD0iI2ZmZiIgZD0iTTEzMDIuMiw0OTcuOCBMMTM0Mi4yLDQ4MCBMMTM3My4zLDQ2Ni43IEwxNDA0LjQsNDUzLjMgTDE0MzEuMSw0NDguOSBMMTQ0NC40LDQ3NS42IEwxNDY2LjcsNDk3LjggTDE0ODAsNTI0LjQgTDE0NjYuNyw1NjQuNCBMMTQyMi4yLDU2OC45IEwxMzgyLjIsNTQyLjIgTDEzMTEuMSw1NTEuMSBMMTMwMi4yLDUxNS42IFoiLz4KPC9zdmc+Cg==";
 const GLOBE_WORLD_MAP_OUTLINE =
-  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDgwMCI+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTY2LjcsOTcuOCBMMTExLDg0LjQgTDE3Ny44LDg4LjkgTDI0NC40LDk3LjggTDI0OC45LDE4Mi4yIEwyNTcuOCwyMzUuNiBMMjgwLDI1Ny44IEwzMTEuMSwyOTMuMyBMMzY4LjksMjg0LjQgTDQwMCwyNzEuMSBMNDM1LjYsMjg4LjkgTDQ0NC40LDI1Ny44IEw0NjYuNywyMjIuMiBMNDg4LjksMjA0LjQgTDUxMS4xLDE5MS4xIEw0ODguOSwxNDIuMiBMMzc3LjgsMTI0LjQgTDMxMS4xLDk3LjggTDE3Ny44LDg4LjkgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik00NzUuNiwxMzMuMyBMNTU1LjYsMTA2LjcgTDcxMS4xLDM1LjYgTDY4OC45LDMxLjEgTDYwMCw0NC40IEw1MTEuMSw4MCBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTQ1OC43LDM1NS42IEw0ODguOSwzNzcuOCBMNTY4LjksNDA4LjkgTDY0NC40LDQzNS42IEw2MjIuMiw1MDIuMiBMNTg2LjcsNTI0LjQgTDU0Mi4yLDU1NS42IEw1MjQuNCw1ODYuNyBMNDk3LjgsNjMxLjEgTDQ4OC45LDY0NC40IEw0NzUuNiw2MjIuMiBMNDg0LjQsNTQ2LjcgTDQ4NC40LDQ4MCBMNDU4LjcsNDE3LjggWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik03NjAsMjA4LjkgTDc2MCwyNDAgTDgxMy4zLDI0MCBMODUzLjMsMjM1LjYgTDg4MCwyMjIuMiBMODg0LjQsMjEzLjMgTDkyNC40LDIxNy44IEw5NzcuOCwxOTUuNiBMOTY4LjksMTg2LjcgTDkzMy4zLDE3Ny44IEw4ODguOSwxNjAgTDkxMS4xLDEzMy4zIEw4NjYuNywxMjAgTDg0OC45LDE0Mi4yIEw4NDQuNCw5Ny44IEw4MjIuMiwxMjQuNCBMNzc3LjgsMTQyLjIgTDc2MCwxNjguOSBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTcyNC40LDMwNi43IEw3MjQuNCwzMzMuMyBMNzI4LjksMzQ2LjcgTDg0MCwzODIuMiBMODQwLDQwNC40IEw4NTMuMyw0MjYuNyBMODgwLDQ4MCBMODgwLDU1MS4xIEw5MTUuNiw1NDYuNyBMOTQ3LjgsNTIwIEw5NzcuOCw0NjYuNyBMOTkxLjEsNDA4LjkgTDEwMjYuNywzNTUuNiBMOTkxLjEsMzUxLjEgTDk1NS42LDMzMy4zIEw5NDcuOCwyNzUuNiBMOTExLjEsMjU3LjggTDg0OC45LDI1My4zIEw3NzMuMywyNDAgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik05NTUuNiwyNzEuMSBMMTAxMy4zLDI2Ni43IEwxMDU3LjgsMzAyLjIgTDEwMzEuMSwzMzMuMyBMOTk1LjYsMzQyLjIgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik05NjguOSwxODYuNyBMMTA0NC40LDE3Ny44IEwxMDY2LjcsMTU1LjYgTDExMTEuMSwxNDIuMiBMMTIwMCwxMTEuMSBMMTI4OC45LDg4LjkgTDE0MjIuMiw5Ny44IEwxNTExLjEsMTExLjEgTDE1NTUuNiwxMTEuMSBMMTUxMS4xLDEzMy4zIEwxNDIyLjIsMTY4LjkgTDE0MDAsMjAwIEwxMzQyLjIsMjIyLjIgTDEzMzMuMywyNTcuOCBMMTI4OC45LDMwMi4yIEwxMjQ0LjQsMzAyLjIgTDEyMDguOSwyODQuNCBMMTE1NS42LDI3NS42IEwxMTExLjEsMjMxLjEgTDEwNDQuNCwyMzEuMSBMMTAxMy4zLDIyMi4yIEwxMDAwLDIxMy4zIFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTM1My4zLDIyMi4yIEwxMzU3LjgsMjMxLjEgTDEzNjIuMiwyMzMuMyBMMTM3NS42LDI0Mi4yIEwxMzc1LjYsMjM1LjYgTDEzNjguOSwyMjYuNyBMMTM2NC40LDIxNy44IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTQyNS42LDE5Ny44IEwxNDQ0LjQsMjA2LjcgTDE0NDYuNywyMTMuMyBMMTQzMS4xLDIxNS42IEwxNDIxLjMsMjExLjEgTDE0MjQuNCwyMDIuMiBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTE0MjguOSwyMTUuNiBMMTQzMC4yLDIyNC40IEwxNDI1LjgsMjM3LjggTDE0MjEuMywyNDQuNCBMMTQxMy4zLDI0NS42IEwxNDA2LjcsMjQ2LjIgTDE0MDAsMjQ4LjkgTDEzOTEuMSwyNDggTDEzODQuNCwyNDguOSBMMTM4Ni43LDI0Mi4yIEwxNDAwLDIzNS42IEwxNDA4LjksMjM0LjIgTDE0MTcuOCwyMjguOSBMMTQyMi4yLDIyMi4yIFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTM4OSwyNDggTDEzOTcuOCwyNDcuNiBMMTM5OC43LDI1MS42IEwxMzkyLjQsMjUzLjggTDEzODcuNiwyNTIgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMzgyLjIsMjQ4LjkgTDEzOTAsMjUyIEwxMzg3LjMsMjYxLjMgTDEzODIuMiwyNjIuMiBMMTM4MCwyNTUuNiBMMTM4MS4zLDI1MC43IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTMzOS45LDI4Ni41IEwxMzQyLjIsMjkyLjIgTDEzMzcsMzAwIEwxMzMzLjMsMjk0LjQgTDEzMzUuNiwyODcuOCBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEzMzUuNiwzMTcuOCBMMTM0Mi4yLDMyNC40IEwxMzQyLjIsMzM1LjYgTDEzMzcuOCwzNDIuMiBMMTMzMy4zLDMzMy4zIEwxMzMzLjMsMzIyLjIgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMzU3LjgsMzU3LjggTDEzNjIuMiwzNjYuNyBMMTM1NS42LDM3NS42IEwxMzQ0LjQsMzY4LjkgTDEzNDYuNywzNjAgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMjM1LjYsMjc1LjYgTDEyMTcuOCwzMTEuMSBMMTIzNS42LDMyOC45IEwxMjUzLjMsMzU1LjYgTDEyNjIuMiwzNjQuNCBMMTI2MCwzODYuNyBMMTI2Mi4yLDM3My4zIEwxMjc1LjYsMzU1LjYgTDEyODQuNCwzNDIuMiBMMTI3NS42LDMxMS4xIEwxMjUzLjMsMjk3LjggWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMjI0LjQsMzc1LjYgTDEyNDAsMzkxLjEgTDEyNjguOSw0MjUuOCBMMTI1My4zLDQxMy4zIEwxMjMxLjEsMzk1LjYgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMjY4LDQzMC4yIEwxMjk3LjgsNDM0LjcgTDEzMDguOSw0MzYuOSBMMTI4NC40LDQzMC43IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTI4NC40LDM4Mi4yIEwxMzIwLDM4MCBMMTMyOC45LDQxNy44IEwxMzA2LjcsNDE3LjggTDEyODQuNCwzOTUuNiBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEzMzMuMywzOTUuNiBMMTM1MS4xLDQwMCBMMTM0Ni43LDQxNy44IEwxMzMxLjEsNDE3LjggWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMTAyLjIsMjkzLjMgTDExMjAsMzA2LjcgTDExMjQuNCwzMzMuMyBMMTEzNy44LDM1NS42IEwxMTQyLjIsMzY0LjQgTDExNTUuNiwzNjAgTDExNTUuNiwzNDIuMiBMMTE4Mi4yLDMyNC40IEwxMTkxLjEsMzAyLjIgTDEyMDguOSwyOTMuMyBMMTE5MS4xLDI4NC40IEwxMTU1LjYsMjY2LjcgTDExMjguOSwyNTMuMyBMMTExMS4xLDI3NS42IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTMwMi4yLDQ5Ny44IEwxMzQyLjIsNDgwIEwxMzczLjMsNDY2LjcgTDE0MDQuNCw0NTMuMyBMMTQzMS4xLDQ0OC45IEwxNDQ0LjQsNDc1LjYgTDE0NjYuNyw0OTcuOCBMMTQ4MCw1MjQuNCBMMTQ2Ni43LDU2NC40IEwxNDIyLjIsNTY4LjkgTDEzODIuMiw1NDIuMiBMMTMxMS4xLDU1MS4xIEwxMzAyLjIsNTE1LjYgWiIvPgo8L3N2Zz4K";
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNjAwIDgwMCI+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTY2LjcsOTcuOCBMMTExLjEsODQuNCBMMTczLjMsODguOSBMMjIyLjIsMTU1LjYgTDI0OC45LDE4Ni43IEwyNDguOSwyMjIuMiBMMjgwLDI1Ny44IEwyOTcuOCwyNjIuMiBMMzMzLjMsMzExLjEgTDM2OC45LDMyOC45IEw0MDAsMzIwIEw0MTMuMywzMDYuNyBMMzY4LjksMjg0LjQgTDM4Ni43LDI3MS4xIEw0NDAsMjg4LjkgTDQ0NC40LDI1Ny44IEw0NjYuNywyNDQuNCBMNDcxLjEsMjIyLjIgTDUwMi4yLDIwMCBMNTE1LjYsMTgyLjIgTDUxMS4xLDEzMy4zIEw0MjIuMiwxMjQuNCBMMzc3LjgsMTQyLjIgTDM4Mi4yLDkzLjMgTDI4OC45LDg4LjkgTDE3My4zLDg4LjkgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik00NzUuNiwxMzMuMyBMNTQyLjIsMTMzLjMgTDYwMCwxMjguOSBMNzAyLjIsODguOSBMNzExLjEsNTcuOCBMNjQ0LjQsMzEuMSBMNTU1LjYsMzUuNiBMNDk3LjgsNjIuMiBMNDc1LjYsOTcuOCBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTQ1Ny44LDM2NC40IEw0NDguOSwzOTEuMSBMNDQwLDQxNy44IEw0ODQuNCw0ODAgTDQ4OC45LDUzMy4zIEw0ODQuNCw1NzcuOCBMNDcxLjEsNjMxLjEgTDQ5Ny44LDY0NC40IEw1MTEuMSw2MzEuMSBMNTI0LjQsNTc3LjggTDU0Ni43LDU1NS42IEw1ODYuNyw1MTEuMSBMNjIyLjIsNDY2LjcgTDY0NC40LDQzNS42IEw2MDQuNCw0MDguOSBMNTczLjMsNDAwIEw1MzMuMywzNjQuNCBMNDgwLDM1MS4xIFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNNzYwLDIzNS42IEw3NjAsMjA4LjkgTDc2MCwxODYuNyBMNzczLjMsMTY0LjQgTDgzNS42LDE0Mi4yIEw4ODguOSw5Ny44IEw5NTUuNiwxMzMuMyBMOTYwLDE3Ny44IEw5MzMuMywyMDguOSBMODkzLjMsMjI2LjcgTDg2Mi4yLDIyNi43IEw4MjIuMiwyMDguOSBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTcyNC40LDMwNi43IEw3MjQuNCwzMzcuOCBMNzYwLDM3Ny44IEw4MTMuMywzNzcuOCBMODQwLDM4Mi4yIEw4NDAsNDI2LjcgTDg1Ny44LDQyNi43IEw4NTMuMyw0ODAgTDg2Ni43LDUyMCBMODgwLDU1MS4xIEw5MTUuNiw1NDYuNyBMOTQ2LjcsNTIwIEw5NTUuNiw0ODQuNCBMOTc3LjgsNDY2LjcgTDk3Ny44LDQxNy44IEw5ODYuNywzOTEuMSBMMTAyNi43LDM1NS42IEw5OTEuMSwzNDYuNyBMOTY0LjQsMzMzLjMgTDk1NS42LDI3NS42IEw5MTEuMSwyNTcuOCBMODQ0LjQsMjUzLjMgTDg0MCwyMzUuNiBMNzczLjMsMjQwIEw3NjAsMjU3LjggWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik05NTUuNiwyNzEuMSBMMTAxMy4zLDI2Ni43IEwxMDU3LjgsMzAyLjIgTDEwMzEuMSwzMzMuMyBMOTk1LjYsMzQyLjIgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik05NTUuNiwyMTMuMyBMOTMzLjMsMTk1LjYgTDk2MCwxNzcuOCBMOTgyLjIsMTg2LjcgTDEwMjIuMiwxNzcuOCBMMTA2Ni43LDE0Mi4yIEwxMTAyLjIsMTExLjEgTDExNTUuNiw4NC40IEwxMjQ0LjQsNzEuMSBMMTMzMy4zLDcxLjEgTDE0MjIuMiw3NS42IEwxNTExLjEsODguOSBMMTU1NS42LDEwNi43IEwxNTI0LjQsMTMzLjMgTDE1MDIuMiwxNjQuNCBMMTQyMi4yLDE4Ni43IEwxMzg2LjcsMjA4LjkgTDEzNTEuMSwyMjIuMiBMMTMzNy44LDI2Mi4yIEwxMzA2LjcsMzAyLjIgTDEyODAsMzA2LjcgTDEyMzUuNiwzMDYuNyBMMTIwOC45LDI4MCBMMTE1NS42LDI2Ni43IEwxMTMzLjMsMjQ0LjQgTDEwOTcuOCwyMzUuNiBMMTA3MS4xLDI4OC45IEwxMDMxLjEsMjY2LjcgTDEwMTMuMywyMTMuMyBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEzNTMuMywyMjIuMiBMMTM1Ny44LDIzMS4xIEwxMzYyLjIsMjMzLjMgTDEzNzUuNiwyNDIuMiBMMTM3NS42LDIzNS42IEwxMzY4LjksMjI2LjcgTDEzNjQuNCwyMTcuOCBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTE0MjUuNiwxOTcuOCBMMTQ0NC40LDIwNi43IEwxNDQ2LjcsMjEzLjMgTDE0MzEuMSwyMTUuNiBMMTQyMS4zLDIxMS4xIEwxNDI0LjQsMjAyLjIgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xNDI4LjksMjE1LjYgTDE0MzAuMiwyMjQuNCBMMTQyNS44LDIzNy44IEwxNDIxLjMsMjQ0LjQgTDE0MTMuMywyNDUuNiBMMTQwNi43LDI0Ni4yIEwxNDAwLDI0OC45IEwxMzkxLjEsMjQ4IEwxMzg0LjQsMjQ4LjkgTDEzODYuNywyNDIuMiBMMTQwMCwyMzUuNiBMMTQwOC45LDIzNC4yIEwxNDE3LjgsMjI4LjkgTDE0MjIuMiwyMjIuMiBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEzODksMjQ4IEwxMzk3LjgsMjQ3LjYgTDEzOTguNywyNTEuNiBMMTM5Mi40LDI1My44IEwxMzg3LjYsMjUyIFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTM4Mi4yLDI0OC45IEwxMzkwLDI1MiBMMTM4Ny4zLDI2MS4zIEwxMzgyLjIsMjYyLjIgTDEzODAsMjU1LjYgTDEzODEuMywyNTAuNyBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEzMzkuOSwyODYuNSBMMTM0Mi4yLDI5Mi4yIEwxMzM3LDMwMCBMMTMzMy4zLDI5NC40IEwxMzM1LjYsMjg3LjggWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMzM1LjYsMzE3LjggTDEzNDIuMiwzMjQuNCBMMTM0Mi4yLDMzNS42IEwxMzM3LjgsMzQyLjIgTDEzMzMuMywzMzMuMyBMMTMzMy4zLDMyMi4yIFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTM1Ny44LDM1Ny44IEwxMzYyLjIsMzY2LjcgTDEzNTUuNiwzNzUuNiBMMTM0NC40LDM2OC45IEwxMzQ2LjcsMzYwIFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTIzNS42LDI3NS42IEwxMjE3LjgsMzExLjEgTDEyMzUuNiwzMjguOSBMMTI1My4zLDM1NS42IEwxMjYyLjIsMzY0LjQgTDEyNjAsMzg2LjcgTDEyNjIuMiwzNzMuMyBMMTI3NS42LDM1NS42IEwxMjg0LjQsMzQyLjIgTDEyNzUuNiwzMTEuMSBMMTI1My4zLDI5Ny44IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTIyNC40LDM3NS42IEwxMjQwLDM5MS4xIEwxMjY4LjksNDI1LjggTDEyNTMuMyw0MTMuMyBMMTIzMS4xLDM5NS42IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTI2OCw0MzAuMiBMMTI5Ny44LDQzNC43IEwxMzA4LjksNDM2LjkgTDEyODQuNCw0MzAuNyBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEyODQuNCwzODIuMiBMMTMyMCwzODAgTDEzMjguOSw0MTcuOCBMMTMwNi43LDQxNy44IEwxMjg0LjQsMzk1LjYgWiIvPgogIDxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjYiIGQ9Ik0xMzMzLjMsMzk1LjYgTDEzNTEuMSw0MDAgTDEzNDYuNyw0MTcuOCBMMTMzMS4xLDQxNy44IFoiLz4KICA8cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMS42IiBkPSJNMTEwMi4yLDI5My4zIEwxMTIwLDMwNi43IEwxMTI0LjQsMzMzLjMgTDExMzcuOCwzNTUuNiBMMTE0Mi4yLDM2NC40IEwxMTU1LjYsMzYwIEwxMTU1LjYsMzQyLjIgTDExODIuMiwzMjQuNCBMMTE5MS4xLDMwMi4yIEwxMjA4LjksMjkzLjMgTDExOTEuMSwyODQuNCBMMTE1NS42LDI2Ni43IEwxMTI4LjksMjUzLjMgTDExMTEuMSwyNzUuNiBaIi8+CiAgPHBhdGggZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjEuNiIgZD0iTTEzMDIuMiw0OTcuOCBMMTM0Mi4yLDQ4MCBMMTM3My4zLDQ2Ni43IEwxNDA0LjQsNDUzLjMgTDE0MzEuMSw0NDguOSBMMTQ0NC40LDQ3NS42IEwxNDY2LjcsNDk3LjggTDE0ODAsNTI0LjQgTDE0NjYuNyw1NjQuNCBMMTQyMi4yLDU2OC45IEwxMzgyLjIsNTQyLjIgTDEzMTEuMSw1NTEuMSBMMTMwMi4yLDUxNS42IFoiLz4KPC9zdmc+Cg==";
 const GLOBE_EDGE_MASK = "radial-gradient(circle, #000 65%, rgba(0,0,0,.85) 78%, rgba(0,0,0,.25) 92%, transparent 100%)";
 // 日本列島だけを抜き出したマスク(Hokkaido/Honshu/Shikoku/Kyushu)。日本株
 // サイトとして、周辺よりわずかに明るく見せるための専用ハイライトに使う。
@@ -2037,20 +2035,73 @@ const GLOBE_JAPAN_MASK =
 // アスペクト比を保ったサイズ指定でないとSVGマスクが描画されない
 // (ブラウザの既知の挙動)ため、高さは明示せず"auto"にして幅だけ指定する。
 const GLOBE_MASK_SIZE = "1400px auto";
-// 日本列島が正面(円の中央)に来るよう固定した位置。静止状態の基準位置。
-const GLOBE_MASK_POSITION = "-1124px -180px";
+// 日本列島が正面(円の中央)に来るよう置いた基準位置(x/y)。自転はこのx値から
+// 経度方向(横)だけをずらして表現し、yは常に固定する。
+const GLOBE_MASK_BASE_X = -1124;
+const GLOBE_MASK_BASE_Y = -180;
+// マスク画像の表示幅(1400px、GLOBE_MASK_SIZE参照)が経度360度分にあたるため、
+// 「経度n度」を「px」に変換する係数。
+const GLOBE_PX_PER_DEG = 1400 / 360;
+// 初回オープニング時の自転パラメータ(無限ループではなく一度きり)。
+// 開始まで少し間を置いてから、ゆっくり減速しながら一方向にだけ回って止まる。
+const GLOBE_INTRO_DELAY_MS = 700;
+const GLOBE_INTRO_DURATION_MS = 8000;
+const GLOBE_INTRO_DEGREES = 45;
+// タップ時に追加でほんの少しだけ回る量(こちらも一方向・減速して停止・無限ループなし)。
+const GLOBE_TAP_DURATION_MS = 3000;
+const GLOBE_TAP_DEGREES = 25;
+// 減速して止まる見え方のイージング(ease-out寄り)。
+const GLOBE_ROTATE_EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
 
 // KabuBocchi独自の抽象デジタル地球。実際の海岸線ベースの世界地図(日本列島が
-// 正面に来る位置に固定)を、ドット+輪郭線+薄いシルエットの3レイヤーで表現。
-// mask-positionは静止値固定(理由は上のメモ参照)。光源(ハイライト/影)も
-// 別レイヤーにして完全に固定し、地形と一緒に動かさない。タップ時は
-// transform:scaleの短いパルスのみで反応する。
+// 正面に来る位置を基準)を、ドット+輪郭線+薄いシルエットの3レイヤーで表現。
+// 自転は「ずっと回り続ける」演出ではなく、初回マウント時に一度だけ・タップ時に
+// 一度だけの有限アニメーション(animation-iteration-count:infinite相当は使わない)。
+// 経度(横方向のmask-position-x)だけをReact stateで動かし、CSSのtransitionで
+// 減速しながら目標角度まで動いて完全に止まる。光源(ハイライト/影)・グリッド・
+// リング・HUDは別レイヤーで完全に固定し、地形と一緒には動かさない。
 // opacity/ringPower/glowPowerで、オープニング(主役)と朝刊ヒーロー(脇役)の
 // 見せ方だけを調整できる。自転ロジック自体は完全に共通。
-function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1, ringPower = 1, glowPower = 1 }) {
+function SpinningEarth({ size = 108, onClick, title, opacity = 1, ringPower = 1, glowPower = 1 }) {
+  // rotationDeg: 基準位置からの累積回転量(度)。常に加算のみ(一方向・往復しない)。
+  const [rotationDeg, setRotationDeg] = useState(0);
+  const [transitionMs, setTransitionMs] = useState(GLOBE_INTRO_DURATION_MS);
+  const introTimer = useRef(null);
+  const reducedMotionRef = useRef(false);
+
+  useEffect(() => {
+    reducedMotionRef.current =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotionRef.current) return undefined; // 動きを減らす設定の場合は自転させない
+    introTimer.current = setTimeout(() => {
+      setTransitionMs(GLOBE_INTRO_DURATION_MS);
+      setRotationDeg((deg) => deg + GLOBE_INTRO_DEGREES);
+    }, GLOBE_INTRO_DELAY_MS);
+    return () => clearTimeout(introTimer.current);
+  }, []);
+
+  const handleTap = () => {
+    if (!reducedMotionRef.current) {
+      setTransitionMs(GLOBE_TAP_DURATION_MS);
+      setRotationDeg((deg) => deg + GLOBE_TAP_DEGREES);
+    }
+    if (onClick) onClick();
+  };
+
+  // +方向にずらすと、日本列島の西隣(中国大陸・朝鮮半島・インド方面)へ
+  // 自転していく。この向きに固定することで、停止位置が必ず陸地の多い
+  // アジア〜インド方面になるようにしている(太平洋側は陸地が少なく、
+  // 自転後に何もない海だけが見える構図になってしまうため避けている)。
+  const maskPositionX = `${GLOBE_MASK_BASE_X + rotationDeg * GLOBE_PX_PER_DEG}px`;
+  const maskTransition = reducedMotionRef.current
+    ? "none"
+    : `-webkit-mask-position-x ${transitionMs}ms ${GLOBE_ROTATE_EASING}`;
+
   return (
     <div
-      onClick={onClick}
+      onClick={onClick ? handleTap : undefined}
       title={title}
       style={{
         position: "relative", width: size, height: size, flexShrink: 0,
@@ -2070,10 +2121,9 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
         border: `1px solid rgba(140,205,255,${0.16 * ringPower})`, zIndex: 0, pointerEvents: "none",
       }} />
 
-      {/* 球体本体(固定。ここ自体は動かない。縁はここでフェードさせて球面感を出す。
-          タップ時はtransform:scaleのみの短いパルスで反応を返す(mask-positionは
-          一切動かさない — 動かすと陸地レイヤーが描画されなくなる問題を回避) */}
-      <div className={boost ? "globe-tap-pulse" : undefined} style={{
+      {/* 球体本体(球そのものは動かない。縁はここでフェードさせて球面感を出す)。
+          内部の陸地レイヤーだけがmask-position-xで一方向に自転する。 */}
+      <div style={{
         position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden", zIndex: 1,
         background: "radial-gradient(circle at 32% 26%, #1c4468 0%, #0c2038 34%, #061527 64%, #030a15 100%)",
         boxShadow: "inset -9px -9px 20px rgba(0,0,0,0.6)",
@@ -2089,14 +2139,16 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
           backgroundRepeat: "repeat",
         }} />
         {/* 陸地ベース(薄いシルエット。ドットだけに頼らず輪郭そのものを見せる)。
-            位置は固定(日本列島が正面に来る経度)。 */}
+            初回マウント時とタップ時、それぞれ一度だけ・減速しながらx位置が動く。 */}
         <div style={{
           position: "absolute", inset: "-2px -6px",
           background: "rgba(150,205,255,0.22)",
           WebkitMaskImage: `url("${GLOBE_WORLD_MAP_FILL}")`,
           WebkitMaskSize: GLOBE_MASK_SIZE,
           WebkitMaskRepeat: "repeat-x",
-          WebkitMaskPosition: GLOBE_MASK_POSITION,
+          WebkitMaskPositionX: maskPositionX,
+          WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`,
+          transition: maskTransition,
         }} />
         {/* 陸地ドット(輪郭の内側だけに極小ドットを高密度配置。ランダムな点群ではない) */}
         <div style={{
@@ -2107,7 +2159,9 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
           WebkitMaskImage: `url("${GLOBE_WORLD_MAP_FILL}")`,
           WebkitMaskSize: GLOBE_MASK_SIZE,
           WebkitMaskRepeat: "repeat-x",
-          WebkitMaskPosition: GLOBE_MASK_POSITION,
+          WebkitMaskPositionX: maskPositionX,
+          WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`,
+          transition: maskTransition,
         }} />
         {/* 日本列島のみ、周辺よりわずかに明るく(日本株サイトとしての手がかり) */}
         <div style={{
@@ -2116,7 +2170,9 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
           WebkitMaskImage: `url("${GLOBE_JAPAN_MASK}")`,
           WebkitMaskSize: GLOBE_MASK_SIZE,
           WebkitMaskRepeat: "repeat-x",
-          WebkitMaskPosition: GLOBE_MASK_POSITION,
+          WebkitMaskPositionX: maskPositionX,
+          WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`,
+          transition: maskTransition,
         }} />
         {/* 陸地アウトライン(輪郭をシャープに保つための極細の縁取り) */}
         <div style={{
@@ -2125,7 +2181,9 @@ function SpinningEarth({ size = 108, boost = false, onClick, title, opacity = 1,
           WebkitMaskImage: `url("${GLOBE_WORLD_MAP_OUTLINE}")`,
           WebkitMaskSize: GLOBE_MASK_SIZE,
           WebkitMaskRepeat: "repeat-x",
-          WebkitMaskPosition: GLOBE_MASK_POSITION,
+          WebkitMaskPositionX: maskPositionX,
+          WebkitMaskPositionY: `${GLOBE_MASK_BASE_Y}px`,
+          transition: maskTransition,
         }} />
         {/* 左右端を暗く落として球面のカーブを強調(中央70%は輪郭をシャープに保つ) */}
         <div style={{
@@ -2205,15 +2263,7 @@ function MarketStatRow({ label, value, pct, align = "right" }) {
 }
 
 function IntroSplash({ onSelect, briefing }) {
-  const [boost, setBoost] = useState(false);
-  const boostTimer = useRef(null);
   const clocks = useWorldClocks();
-  const handleTap = () => {
-    setBoost(true);
-    clearTimeout(boostTimer.current);
-    boostTimer.current = setTimeout(() => setBoost(false), 650);
-  };
-  useEffect(() => () => clearTimeout(boostTimer.current), []);
   const flagBtnStyle = {
     flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
     minHeight: 56, borderRadius: 17, fontFamily: "inherit", fontSize: 13.5, fontWeight: 700,
@@ -2263,7 +2313,7 @@ function IntroSplash({ onSelect, briefing }) {
               background: "radial-gradient(circle, rgba(0,229,200,0.24) 0%, transparent 68%)",
               filter: "blur(10px)", pointerEvents: "none",
             }} />
-            <SpinningEarth size={224} boost={boost} onClick={handleTap} title="タップで反応" />
+            <SpinningEarth size={224} onClick={() => {}} title="タップで少し自転" />
           </div>
         </div>
         <div style={{
