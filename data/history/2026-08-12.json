@@ -1,0 +1,3364 @@
+{
+  "date": "2026/08/12",
+  "mode": "surge",
+  "market_summary": "前営業日の日経225は+2.08%・+1,364円高の66,970円で終了。爆騰モードという言葉がこれほど似合う相場もそうはない。SOX+0.9%・VIX15.3と恐怖指数も落ち着いており、ドル円159.29円と円安も輸出株の追い風になりやすい地合いだ。かぶぼっちは思う、『波に乗れない臆病者のために波は待ってくれない』と。",
+  "nikkei": 66970,
+  "nikkei_diff": 1364,
+  "nikkei_pct": 2.0790781330975823,
+  "usd_jpy": 159.29,
+  "sox_pct": 0.8722073215682534,
+  "sox": 12098.5,
+  "vix": 15.3,
+  "topix": 4227.0,
+  "topix_pct": 0.88,
+  "nasdaq": 26445.4,
+  "nasdaq_pct": -0.6,
+  "sp500": 7728.2,
+  "sp500_pct": -0.32,
+  "news": [
+    {
+      "tag": "日本",
+      "headline": "日経66,970円で着地——爆騰モード継続か、過熱感か。今日が分岐点",
+      "body": "前営業日の日経225は+1,364円と大幅高。66,000円台を軽々と駆け上がり、市場参加者の強気ムードが加速している。一方でキーエンスRSI75.9・日立RSI88.4など個別では過熱銘柄も散見され、指数の上昇と個別の選別が混在する局面の可能性もある。"
+    },
+    {
+      "tag": "米国",
+      "headline": "SOX+0.9%・VIX15.3——半導体がリスクオンの旗手を務める夜",
+      "body": "米国市場では半導体指数SOXが+0.9%と底堅く推移し、AIセクターへの関心が衰えていない様子が伺える。VIX15.3は市場の楽観をそのまま映し出す数字であり、少なくとも今この瞬間は恐怖より欲の方が強い地合いだ。"
+    },
+    {
+      "tag": "チャンス",
+      "headline": "ドル円159.29円——輸出株と外需銘柄に再び追い風",
+      "body": "ドル円が159円台に定着する展開が続いており、トヨタ・ソニー・ファナックなど外需依存度の高い銘柄にとって収益押し上げ期待が高まりやすい。ただし円安の行き過ぎは政策リスクを呼び込む側面もあり、為替動向は引き続き注視が必要だ。"
+    },
+    {
+      "tag": "警戒",
+      "headline": "リクルートHD+22.8%・テルモ+8.5%——個別の過熱に乗り遅れ追いで火傷するな",
+      "body": "前営業日にリクルートHDが+22.8%、テルモが+8.5%と急騰した銘柄は、今日の寄り付きでギャップアップからの利食いに晒されるリスクがある。爆騰相場だからこそ『誰が乗っているか』より『どこで乗るか』の精度が問われる。追いかけは慎重に。"
+    }
+  ],
+  "stocks_jp": [
+    {
+      "pattern": "暴落リバウンド",
+      "code": "8035",
+      "name": "東京エレクトロン",
+      "score": 9,
+      "entry": "MA25付近への接近・RSI40前後での反発確認後",
+      "target": "+3%",
+      "stop": "-2%",
+      "reason": "前営業日+4.1%と大幅高を演じたが、MA25乖離は依然-10.2%と水面下。RSI37.8と売られすぎ圏からの急回復局面であり、SOX+0.9%の地合いを受けてさらなる押し目からのリバウンドが期待される展開の可能性がある。半導体セクターのモメンタムが続く限り、戻り余地は大きいとの見方もある。",
+      "comment": "乖離-10%超からの+4%——まだ地上に帰ってない、次の飛行機を待て。",
+      "ai_score": 37,
+      "rsi": 37.8,
+      "vol_ratio": 0.69
+    },
+    {
+      "pattern": "井村式急回復",
+      "code": "4063",
+      "name": "信越化学",
+      "score": 8,
+      "entry": "RSI30台維持・MA25乖離-5.7%付近での下げ渋り確認後",
+      "target": "+3%",
+      "stop": "-2%",
+      "reason": "前営業日+2.8%とリバウンドの兆しを見せ、RSI30.7と売られすぎ圏に位置。MA25乖離-5.7%と依然MA25に対して割安感があり、素材・半導体材料セクターの回復局面での恩恵を受ける可能性がある。出来高が伴い始めれば本格反発に移行するとの見方もできる。",
+      "comment": "化学の巨人が30台から目を覚ましつつある——寝坊した良株ほど、起きた時が速い。",
+      "ai_score": 44,
+      "rsi": 30.7,
+      "vol_ratio": 0.8
+    },
+    {
+      "pattern": "出来高急増",
+      "code": "6367",
+      "name": "ダイキン工業",
+      "score": 8,
+      "entry": "BB下限付近での反発・出来高1.6倍継続確認後",
+      "target": "+3%",
+      "stop": "-2%",
+      "reason": "出来高が通常の1.6倍に膨らみつつBB下限に位置し、RSI23.1と典型的な売られすぎシグナルが点灯している。強い相場環境の中でのBB下限+出来高急増の組み合わせは底打ちのサインとなる場合があり、今日の寄り付き後の値動きに注目したい。",
+      "comment": "冷房の王者がBB下限で汗をかいている——そろそろ冷却終了の気配じゃないか？",
+      "ai_score": 67,
+      "rsi": 23.1,
+      "vol_ratio": 1.6
+    },
+    {
+      "pattern": "モメンタム",
+      "code": "6758",
+      "name": "ソニーグループ",
+      "score": 7,
+      "entry": "BB上限付近での押し目・RSI60台維持を確認後",
+      "target": "+3%",
+      "stop": "-2%",
+      "reason": "前営業日+1.2%・MA25乖離+6.5%・RSI65.3とモメンタムが継続中。BB上限近辺で推移しており、爆騰相場においてはBB上限抜けから一段高に転じるケースも想定される。ゲーム・エンタメ・半導体設計と複数のAI関連テーマを内包する銘柄として物色が続く可能性がある。",
+      "comment": "エンタメ×AI×半導体の三刀流——この組み合わせを無視するのはもったいない。",
+      "ai_score": 48,
+      "rsi": 65.3,
+      "vol_ratio": 0.92
+    },
+    {
+      "pattern": "押し目買い",
+      "code": "9984",
+      "name": "ソフトバンクグループ",
+      "score": 7,
+      "entry": "MA25乖離-3%台付近・RSI50前後での下げ止まり確認後",
+      "target": "+3%",
+      "stop": "-2%",
+      "reason": "前営業日-1.2%とやや軟調ながら、MA25乖離-3.1%・RSI50.7とほぼ中立圏に位置。AIファンドへの期待と日経強気地合いが合わされば、押し目として拾いやすい水準との見方もある。孫正義氏の次の一手が市場で話題になるたびに急騰する性格を持つ銘柄であり、爆騰モード時の押し目は注目に値する。",
+      "comment": "孫さんはいつも大きな夢を語る——かぶぼっちは小さな押し目に夢を乗せる。",
+      "ai_score": 52,
+      "rsi": 50.7,
+      "vol_ratio": 0.89
+    }
+  ],
+  "stock_us": {
+    "pattern": "モメンタム",
+    "ticker": "$NVDA",
+    "name": "エヌビディア",
+    "score": 9,
+    "entry": "SOX連動・前日高値超えを確認後・5日MA付近での押し目",
+    "target": "+3%",
+    "stop": "-2%",
+    "reason": "SOX+0.9%の地合いを受け、AI半導体の旗手として引き続き資金が集まりやすい環境が続いている。日経225の爆騰モードと米国半導体の強さがシンクロする局面では、NVDAはその中心にいる可能性が高い。決算シーズンとの絡みや地政学リスクには引き続き注意が必要。",
+    "comment": "AIの心臓が動く限り、NVDAは止まらない——かぶぼっちはそう信じている。",
+    "ai_score": 60,
+    "rsi": 57.4,
+    "vol_ratio": 0.94
+  },
+  "consideration": {
+    "main": "今日8月12日（水）の東証は、前営業日の日経+2.08%という強烈な上昇を受けてのスタートとなる。爆騰モードが継続するか、一時的な調整が入るかの分岐点として非常に重要な一日だ。\n\n【寄り付き】前日大幅高を受けてギャップアップスタートの可能性があるが、リクルートHD(+22.8%)・テルモ(+8.5%)など直近急騰銘柄は寄り天に注意。逆に東京エレクトロン・信越化学・ダイキンなど売られすぎ圏の銘柄が強く買われるかどうかを確認したい。\n\n【前場】SOXの流れを受けた半導体・AI関連銘柄の動向に注目。ソニー・東京エレクトロンの上値追いが続くようなら相場全体の強さの確認となる。一方でキーエンスRSI75.9・日立RSI88.4など過熱銘柄の利益確定売りが出れば指数の重しになる場面もあり得る。\n\n【後場】前場の流れを受けて機関の動向を見極めながら、スイングトレードのポジション調整タイミングを探りたい。ダイキンの出来高動向は後場でも継続して確認することが重要だ。",
+    "point": "今日は『強さを確認してから乗る』日——乗り遅れ追いより、押し目確認後の乗車を。",
+    "action": "寄り付き後15分は動かず値動きを観察。売られすぎ圏銘柄（信越・東エレ・ダイキン）が反発するか、過熱銘柄（日立・キーエンス）が崩れないかを確認してから今日のポジションを決める。"
+  },
+  "surges": [
+    {
+      "code": "6098",
+      "name": "リクルートH",
+      "pct": 22.79,
+      "price": 16165
+    },
+    {
+      "code": "7733",
+      "name": "オリンパス",
+      "pct": 10.1,
+      "price": 2098
+    },
+    {
+      "code": "4543",
+      "name": "テルモ",
+      "pct": 8.53,
+      "price": 2575
+    },
+    {
+      "code": "6857",
+      "name": "アドバンテスト",
+      "pct": 6.43,
+      "price": 34260
+    },
+    {
+      "code": "6920",
+      "name": "レーザーテック",
+      "pct": 5.69,
+      "price": 39590
+    }
+  ],
+  "drops": [
+    {
+      "code": "5020",
+      "name": "ENEOSホールディングス",
+      "pct": -6.08,
+      "price": 1267
+    },
+    {
+      "code": "9433",
+      "name": "KDDI",
+      "pct": -5.07,
+      "price": 2830
+    },
+    {
+      "code": "8801",
+      "name": "三井不動産",
+      "pct": -3.97,
+      "price": 1464
+    },
+    {
+      "code": "8802",
+      "name": "三菱地所",
+      "pct": -3.03,
+      "price": 3717
+    }
+  ],
+  "sector_heatmap": [
+    {
+      "sector": "サービス",
+      "avg_pct": 10.12,
+      "count": 2,
+      "up": 1,
+      "down": 1,
+      "top_mover": {
+        "name": "リクルートH",
+        "code": "6098",
+        "pct": 22.79
+      }
+    },
+    {
+      "sector": "医療機器",
+      "avg_pct": 8.53,
+      "count": 1,
+      "up": 1,
+      "down": 0,
+      "top_mover": {
+        "name": "テルモ",
+        "code": "4543",
+        "pct": 8.53
+      }
+    },
+    {
+      "sector": "精密機器",
+      "avg_pct": 4.98,
+      "count": 2,
+      "up": 1,
+      "down": 1,
+      "top_mover": {
+        "name": "オリンパス",
+        "code": "7733",
+        "pct": 10.1
+      }
+    },
+    {
+      "sector": "半導体",
+      "avg_pct": 3.71,
+      "count": 5,
+      "up": 5,
+      "down": 0,
+      "top_mover": {
+        "name": "アドバンテスト",
+        "code": "6857",
+        "pct": 6.43
+      }
+    },
+    {
+      "sector": "医薬品",
+      "avg_pct": 2.5,
+      "count": 4,
+      "up": 4,
+      "down": 0,
+      "top_mover": {
+        "name": "中外製薬",
+        "code": "4519",
+        "pct": 3.72
+      }
+    },
+    {
+      "sector": "自動車",
+      "avg_pct": 1.76,
+      "count": 5,
+      "up": 5,
+      "down": 0,
+      "top_mover": {
+        "name": "スズキ",
+        "code": "7269",
+        "pct": 3.68
+      }
+    },
+    {
+      "sector": "ゲーム・娯楽",
+      "avg_pct": 1.7,
+      "count": 3,
+      "up": 3,
+      "down": 0,
+      "top_mover": {
+        "name": "任天堂",
+        "code": "7974",
+        "pct": 2.76
+      }
+    },
+    {
+      "sector": "機械",
+      "avg_pct": 1.64,
+      "count": 4,
+      "up": 3,
+      "down": 1,
+      "top_mover": {
+        "name": "SMC",
+        "code": "6273",
+        "pct": 5.59
+      }
+    },
+    {
+      "sector": "素材",
+      "avg_pct": 0.52,
+      "count": 4,
+      "up": 2,
+      "down": 2,
+      "top_mover": {
+        "name": "信越化学",
+        "code": "4063",
+        "pct": 2.78
+      }
+    },
+    {
+      "sector": "電機",
+      "avg_pct": 0.32,
+      "count": 6,
+      "up": 3,
+      "down": 2,
+      "top_mover": {
+        "name": "パナソニックHD",
+        "code": "6752",
+        "pct": 2.88
+      }
+    },
+    {
+      "sector": "生活必需品",
+      "avg_pct": 0.15,
+      "count": 5,
+      "up": 2,
+      "down": 3,
+      "top_mover": {
+        "name": "花王",
+        "code": "4452",
+        "pct": 2.3
+      }
+    },
+    {
+      "sector": "通信・IT",
+      "avg_pct": -0.15,
+      "count": 6,
+      "up": 4,
+      "down": 2,
+      "top_mover": {
+        "name": "KDDI",
+        "code": "9433",
+        "pct": -5.07
+      }
+    },
+    {
+      "sector": "商社",
+      "avg_pct": -0.28,
+      "count": 4,
+      "up": 1,
+      "down": 3,
+      "top_mover": {
+        "name": "三井物産",
+        "code": "8031",
+        "pct": -1.07
+      }
+    },
+    {
+      "sector": "運輸",
+      "avg_pct": -0.33,
+      "count": 3,
+      "up": 1,
+      "down": 2,
+      "top_mover": {
+        "name": "東海旅客鉄道",
+        "code": "9022",
+        "pct": -1.46
+      }
+    },
+    {
+      "sector": "小売",
+      "avg_pct": -0.47,
+      "count": 3,
+      "up": 0,
+      "down": 3,
+      "top_mover": {
+        "name": "ファーストリテイリング",
+        "code": "9983",
+        "pct": -0.74
+      }
+    },
+    {
+      "sector": "エネルギー",
+      "avg_pct": -1.43,
+      "count": 2,
+      "up": 1,
+      "down": 1,
+      "top_mover": {
+        "name": "ENEOSホールディングス",
+        "code": "5020",
+        "pct": -6.08
+      }
+    },
+    {
+      "sector": "金融",
+      "avg_pct": -1.86,
+      "count": 5,
+      "up": 0,
+      "down": 5,
+      "top_mover": {
+        "name": "みずほFG",
+        "code": "8411",
+        "pct": -2.39
+      }
+    },
+    {
+      "sector": "建設",
+      "avg_pct": -1.98,
+      "count": 1,
+      "up": 0,
+      "down": 1,
+      "top_mover": {
+        "name": "大成建設",
+        "code": "1801",
+        "pct": -1.98
+      }
+    },
+    {
+      "sector": "不動産",
+      "avg_pct": -3.5,
+      "count": 2,
+      "up": 0,
+      "down": 2,
+      "top_mover": {
+        "name": "三井不動産",
+        "code": "8801",
+        "pct": -3.97
+      }
+    }
+  ],
+  "jp_top_movers": [
+    {
+      "code": "6098",
+      "name": "リクルートH",
+      "pct": 22.79,
+      "price": 16165,
+      "sector": "サービス"
+    },
+    {
+      "code": "7733",
+      "name": "オリンパス",
+      "pct": 10.1,
+      "price": 2098,
+      "sector": "精密機器"
+    },
+    {
+      "code": "4543",
+      "name": "テルモ",
+      "pct": 8.53,
+      "price": 2575,
+      "sector": "医療機器"
+    },
+    {
+      "code": "6857",
+      "name": "アドバンテスト",
+      "pct": 6.43,
+      "price": 34260,
+      "sector": "半導体"
+    },
+    {
+      "code": "5020",
+      "name": "ENEOSホールディングス",
+      "pct": -6.08,
+      "price": 1267,
+      "sector": "エネルギー"
+    },
+    {
+      "code": "6920",
+      "name": "レーザーテック",
+      "pct": 5.69,
+      "price": 39590,
+      "sector": "半導体"
+    },
+    {
+      "code": "6273",
+      "name": "SMC",
+      "pct": 5.59,
+      "price": 78340,
+      "sector": "機械"
+    },
+    {
+      "code": "9433",
+      "name": "KDDI",
+      "pct": -5.07,
+      "price": 2830,
+      "sector": "通信・IT"
+    },
+    {
+      "code": "8035",
+      "name": "東京エレクトロン",
+      "pct": 4.13,
+      "price": 56750,
+      "sector": "半導体"
+    },
+    {
+      "code": "8801",
+      "name": "三井不動産",
+      "pct": -3.97,
+      "price": 1464,
+      "sector": "不動産"
+    }
+  ],
+  "jp_all_changes": [
+    {
+      "code": "7203",
+      "name": "トヨタ自動車",
+      "pct": 0.03,
+      "price": 2981,
+      "sector": "自動車"
+    },
+    {
+      "code": "9984",
+      "name": "ソフトバンクG",
+      "pct": -1.22,
+      "price": 5484,
+      "sector": "通信・IT"
+    },
+    {
+      "code": "6758",
+      "name": "ソニーG",
+      "pct": 1.16,
+      "price": 3764,
+      "sector": "電機"
+    },
+    {
+      "code": "6861",
+      "name": "キーエンス",
+      "pct": -0.13,
+      "price": 85000,
+      "sector": "精密機器"
+    },
+    {
+      "code": "8306",
+      "name": "三菱UFJ",
+      "pct": -1.52,
+      "price": 3510,
+      "sector": "金融"
+    },
+    {
+      "code": "9432",
+      "name": "NTT",
+      "pct": 0.88,
+      "price": 159,
+      "sector": "通信・IT"
+    },
+    {
+      "code": "4063",
+      "name": "信越化学",
+      "pct": 2.78,
+      "price": 6286,
+      "sector": "素材"
+    },
+    {
+      "code": "6954",
+      "name": "ファナック",
+      "pct": -0.43,
+      "price": 6507,
+      "sector": "機械"
+    },
+    {
+      "code": "8035",
+      "name": "東京エレクトロン",
+      "pct": 4.13,
+      "price": 56750,
+      "sector": "半導体"
+    },
+    {
+      "code": "6367",
+      "name": "ダイキン工業",
+      "pct": 0.07,
+      "price": 22225,
+      "sector": "機械"
+    },
+    {
+      "code": "8058",
+      "name": "三菱商事",
+      "pct": -0.39,
+      "price": 4849,
+      "sector": "商社"
+    },
+    {
+      "code": "6098",
+      "name": "リクルートH",
+      "pct": 22.79,
+      "price": 16165,
+      "sector": "サービス"
+    },
+    {
+      "code": "7974",
+      "name": "任天堂",
+      "pct": 2.76,
+      "price": 8265,
+      "sector": "ゲーム・娯楽"
+    },
+    {
+      "code": "4568",
+      "name": "第一三共",
+      "pct": 1.93,
+      "price": 2805,
+      "sector": "医薬品"
+    },
+    {
+      "code": "9983",
+      "name": "ファーストリテイリング",
+      "pct": -0.74,
+      "price": 78720,
+      "sector": "小売"
+    },
+    {
+      "code": "6501",
+      "name": "日立製作所",
+      "pct": 0.0,
+      "price": 5620,
+      "sector": "電機"
+    },
+    {
+      "code": "7267",
+      "name": "ホンダ",
+      "pct": 0.53,
+      "price": 1692,
+      "sector": "自動車"
+    },
+    {
+      "code": "2914",
+      "name": "JT",
+      "pct": -0.18,
+      "price": 7095,
+      "sector": "生活必需品"
+    },
+    {
+      "code": "4543",
+      "name": "テルモ",
+      "pct": 8.53,
+      "price": 2575,
+      "sector": "医療機器"
+    },
+    {
+      "code": "4519",
+      "name": "中外製薬",
+      "pct": 3.72,
+      "price": 7112,
+      "sector": "医薬品"
+    },
+    {
+      "code": "6857",
+      "name": "アドバンテスト",
+      "pct": 6.43,
+      "price": 34260,
+      "sector": "半導体"
+    },
+    {
+      "code": "6920",
+      "name": "レーザーテック",
+      "pct": 5.69,
+      "price": 39590,
+      "sector": "半導体"
+    },
+    {
+      "code": "4452",
+      "name": "花王",
+      "pct": 2.3,
+      "price": 3738,
+      "sector": "生活必需品"
+    },
+    {
+      "code": "9433",
+      "name": "KDDI",
+      "pct": -5.07,
+      "price": 2830,
+      "sector": "通信・IT"
+    },
+    {
+      "code": "8316",
+      "name": "三井住友FG",
+      "pct": -2.26,
+      "price": 6629,
+      "sector": "金融"
+    },
+    {
+      "code": "7751",
+      "name": "キヤノン",
+      "pct": -0.15,
+      "price": 4628,
+      "sector": "電機"
+    },
+    {
+      "code": "4901",
+      "name": "富士フイルム",
+      "pct": -2.29,
+      "price": 3162,
+      "sector": "電機"
+    },
+    {
+      "code": "6702",
+      "name": "富士通",
+      "pct": 1.2,
+      "price": 3719,
+      "sector": "通信・IT"
+    },
+    {
+      "code": "9022",
+      "name": "東海旅客鉄道",
+      "pct": -1.46,
+      "price": 3846,
+      "sector": "運輸"
+    },
+    {
+      "code": "8802",
+      "name": "三菱地所",
+      "pct": -3.03,
+      "price": 3717,
+      "sector": "不動産"
+    },
+    {
+      "code": "7201",
+      "name": "日産自動車",
+      "pct": 2.7,
+      "price": 350,
+      "sector": "自動車"
+    },
+    {
+      "code": "7269",
+      "name": "スズキ",
+      "pct": 3.68,
+      "price": 2028,
+      "sector": "自動車"
+    },
+    {
+      "code": "7270",
+      "name": "SUBARU",
+      "pct": 1.85,
+      "price": 2615,
+      "sector": "自動車"
+    },
+    {
+      "code": "4689",
+      "name": "LINEヤフー",
+      "pct": 0.97,
+      "price": 488,
+      "sector": "通信・IT"
+    },
+    {
+      "code": "4307",
+      "name": "野村総合研究所",
+      "pct": 2.33,
+      "price": 4972,
+      "sector": "通信・IT"
+    },
+    {
+      "code": "6503",
+      "name": "三菱電機",
+      "pct": 0.31,
+      "price": 5844,
+      "sector": "電機"
+    },
+    {
+      "code": "6752",
+      "name": "パナソニックHD",
+      "pct": 2.88,
+      "price": 4436,
+      "sector": "電機"
+    },
+    {
+      "code": "7733",
+      "name": "オリンパス",
+      "pct": 10.1,
+      "price": 2098,
+      "sector": "精密機器"
+    },
+    {
+      "code": "8411",
+      "name": "みずほFG",
+      "pct": -2.39,
+      "price": 8244,
+      "sector": "金融"
+    },
+    {
+      "code": "8604",
+      "name": "野村HD",
+      "pct": -0.77,
+      "price": 1550,
+      "sector": "金融"
+    },
+    {
+      "code": "8766",
+      "name": "東京海上HD",
+      "pct": -2.36,
+      "price": 7752,
+      "sector": "金融"
+    },
+    {
+      "code": "5401",
+      "name": "日本製鉄",
+      "pct": -1.16,
+      "price": 689,
+      "sector": "素材"
+    },
+    {
+      "code": "4188",
+      "name": "三菱ケミカルG",
+      "pct": 1.11,
+      "price": 1232,
+      "sector": "素材"
+    },
+    {
+      "code": "3407",
+      "name": "旭化成",
+      "pct": -0.65,
+      "price": 1681,
+      "sector": "素材"
+    },
+    {
+      "code": "6301",
+      "name": "コマツ",
+      "pct": 1.32,
+      "price": 7446,
+      "sector": "機械"
+    },
+    {
+      "code": "6273",
+      "name": "SMC",
+      "pct": 5.59,
+      "price": 78340,
+      "sector": "機械"
+    },
+    {
+      "code": "6723",
+      "name": "ルネサスエレクトロニクス",
+      "pct": 1.81,
+      "price": 3825,
+      "sector": "半導体"
+    },
+    {
+      "code": "3436",
+      "name": "SUMCO",
+      "pct": 0.49,
+      "price": 3487,
+      "sector": "半導体"
+    },
+    {
+      "code": "8031",
+      "name": "三井物産",
+      "pct": -1.07,
+      "price": 4880,
+      "sector": "商社"
+    },
+    {
+      "code": "8001",
+      "name": "伊藤忠商事",
+      "pct": 0.5,
+      "price": 2090,
+      "sector": "商社"
+    },
+    {
+      "code": "8053",
+      "name": "住友商事",
+      "pct": -0.14,
+      "price": 1785,
+      "sector": "商社"
+    },
+    {
+      "code": "4755",
+      "name": "楽天G",
+      "pct": -2.54,
+      "price": 864,
+      "sector": "サービス"
+    },
+    {
+      "code": "9697",
+      "name": "カプコン",
+      "pct": 1.78,
+      "price": 4223,
+      "sector": "ゲーム・娯楽"
+    },
+    {
+      "code": "7832",
+      "name": "バンダイナムコHD",
+      "pct": 0.57,
+      "price": 5429,
+      "sector": "ゲーム・娯楽"
+    },
+    {
+      "code": "4502",
+      "name": "武田薬品工業",
+      "pct": 0.76,
+      "price": 5582,
+      "sector": "医薬品"
+    },
+    {
+      "code": "4523",
+      "name": "エーザイ",
+      "pct": 3.58,
+      "price": 4949,
+      "sector": "医薬品"
+    },
+    {
+      "code": "3382",
+      "name": "セブン&アイHD",
+      "pct": -0.57,
+      "price": 2085,
+      "sector": "小売"
+    },
+    {
+      "code": "8267",
+      "name": "イオン",
+      "pct": -0.11,
+      "price": 1389,
+      "sector": "小売"
+    },
+    {
+      "code": "2502",
+      "name": "アサヒグループHD",
+      "pct": -0.5,
+      "price": 1686,
+      "sector": "生活必需品"
+    },
+    {
+      "code": "2503",
+      "name": "キリンHD",
+      "pct": -1.6,
+      "price": 2989,
+      "sector": "生活必需品"
+    },
+    {
+      "code": "2801",
+      "name": "キッコーマン",
+      "pct": 0.74,
+      "price": 1773,
+      "sector": "生活必需品"
+    },
+    {
+      "code": "9020",
+      "name": "東日本旅客鉄道",
+      "pct": -0.23,
+      "price": 3453,
+      "sector": "運輸"
+    },
+    {
+      "code": "9101",
+      "name": "日本郵船",
+      "pct": 0.69,
+      "price": 6157,
+      "sector": "運輸"
+    },
+    {
+      "code": "8801",
+      "name": "三井不動産",
+      "pct": -3.97,
+      "price": 1464,
+      "sector": "不動産"
+    },
+    {
+      "code": "5020",
+      "name": "ENEOSホールディングス",
+      "pct": -6.08,
+      "price": 1267,
+      "sector": "エネルギー"
+    },
+    {
+      "code": "1605",
+      "name": "INPEX",
+      "pct": 3.23,
+      "price": 3612,
+      "sector": "エネルギー"
+    },
+    {
+      "code": "1801",
+      "name": "大成建設",
+      "pct": -1.98,
+      "price": 12635,
+      "sector": "建設"
+    }
+  ],
+  "us_sector_heatmap": [
+    {
+      "sector": "エネルギー",
+      "avg_pct": 0.46,
+      "count": 2,
+      "up": 2,
+      "down": 0,
+      "top_mover": {
+        "name": "Chevron",
+        "code": "CVX",
+        "pct": 0.9
+      }
+    },
+    {
+      "sector": "資本財",
+      "avg_pct": 0.42,
+      "count": 3,
+      "up": 3,
+      "down": 0,
+      "top_mover": {
+        "name": "Caterpillar",
+        "code": "CAT",
+        "pct": 0.69
+      }
+    },
+    {
+      "sector": "金融",
+      "avg_pct": 0.28,
+      "count": 3,
+      "up": 2,
+      "down": 1,
+      "top_mover": {
+        "name": "JPMorgan Chase",
+        "code": "JPM",
+        "pct": 0.63
+      }
+    },
+    {
+      "sector": "半導体",
+      "avg_pct": -0.17,
+      "count": 3,
+      "up": 1,
+      "down": 2,
+      "top_mover": {
+        "name": "Broadcom",
+        "code": "AVGO",
+        "pct": -1.5
+      }
+    },
+    {
+      "sector": "通信・メディア",
+      "avg_pct": -0.31,
+      "count": 3,
+      "up": 2,
+      "down": 1,
+      "top_mover": {
+        "name": "Netflix",
+        "code": "NFLX",
+        "pct": -1.97
+      }
+    },
+    {
+      "sector": "消費・EC",
+      "avg_pct": -0.33,
+      "count": 3,
+      "up": 2,
+      "down": 1,
+      "top_mover": {
+        "name": "Amazon",
+        "code": "AMZN",
+        "pct": -2.09
+      }
+    },
+    {
+      "sector": "生活必需品",
+      "avg_pct": -0.72,
+      "count": 3,
+      "up": 0,
+      "down": 3,
+      "top_mover": {
+        "name": "Costco",
+        "code": "COST",
+        "pct": -0.88
+      }
+    },
+    {
+      "sector": "ヘルスケア",
+      "avg_pct": -1.25,
+      "count": 3,
+      "up": 0,
+      "down": 3,
+      "top_mover": {
+        "name": "UnitedHealth",
+        "code": "UNH",
+        "pct": -1.6
+      }
+    },
+    {
+      "sector": "テクノロジー",
+      "avg_pct": -1.79,
+      "count": 3,
+      "up": 0,
+      "down": 3,
+      "top_mover": {
+        "name": "Alphabet",
+        "code": "GOOGL",
+        "pct": -3.84
+      }
+    }
+  ],
+  "us_top_movers": [
+    {
+      "code": "GOOGL",
+      "name": "Alphabet",
+      "pct": -3.84,
+      "price": 343.8,
+      "sector": "テクノロジー"
+    },
+    {
+      "code": "AMZN",
+      "name": "Amazon",
+      "pct": -2.09,
+      "price": 272.27,
+      "sector": "消費・EC"
+    },
+    {
+      "code": "NFLX",
+      "name": "Netflix",
+      "pct": -1.97,
+      "price": 74.79,
+      "sector": "通信・メディア"
+    },
+    {
+      "code": "UNH",
+      "name": "UnitedHealth",
+      "pct": -1.6,
+      "price": 402.19,
+      "sector": "ヘルスケア"
+    },
+    {
+      "code": "AVGO",
+      "name": "Broadcom",
+      "pct": -1.5,
+      "price": 416.08,
+      "sector": "半導体"
+    },
+    {
+      "code": "LLY",
+      "name": "Eli Lilly",
+      "pct": -1.37,
+      "price": 1215.02,
+      "sector": "ヘルスケア"
+    },
+    {
+      "code": "AAPL",
+      "name": "Apple",
+      "pct": -1.09,
+      "price": 304.91,
+      "sector": "テクノロジー"
+    },
+    {
+      "code": "AMD",
+      "name": "AMD",
+      "pct": 1.01,
+      "price": 474.32,
+      "sector": "半導体"
+    },
+    {
+      "code": "CVX",
+      "name": "Chevron",
+      "pct": 0.9,
+      "price": 196.66,
+      "sector": "エネルギー"
+    },
+    {
+      "code": "COST",
+      "name": "Costco",
+      "pct": -0.88,
+      "price": 944.32,
+      "sector": "生活必需品"
+    }
+  ],
+  "us_all_changes": [
+    {
+      "code": "AAPL",
+      "name": "Apple",
+      "pct": -1.09,
+      "price": 304.91,
+      "sector": "テクノロジー"
+    },
+    {
+      "code": "MSFT",
+      "name": "Microsoft",
+      "pct": -0.44,
+      "price": 503.81,
+      "sector": "テクノロジー"
+    },
+    {
+      "code": "GOOGL",
+      "name": "Alphabet",
+      "pct": -3.84,
+      "price": 343.8,
+      "sector": "テクノロジー"
+    },
+    {
+      "code": "NVDA",
+      "name": "NVIDIA",
+      "pct": -0.02,
+      "price": 217.5,
+      "sector": "半導体"
+    },
+    {
+      "code": "AMD",
+      "name": "AMD",
+      "pct": 1.01,
+      "price": 474.32,
+      "sector": "半導体"
+    },
+    {
+      "code": "AVGO",
+      "name": "Broadcom",
+      "pct": -1.5,
+      "price": 416.08,
+      "sector": "半導体"
+    },
+    {
+      "code": "AMZN",
+      "name": "Amazon",
+      "pct": -2.09,
+      "price": 272.27,
+      "sector": "消費・EC"
+    },
+    {
+      "code": "TSLA",
+      "name": "Tesla",
+      "pct": 0.58,
+      "price": 332.81,
+      "sector": "消費・EC"
+    },
+    {
+      "code": "WMT",
+      "name": "Walmart",
+      "pct": 0.53,
+      "price": 113.26,
+      "sector": "消費・EC"
+    },
+    {
+      "code": "META",
+      "name": "Meta Platforms",
+      "pct": 0.71,
+      "price": 599.12,
+      "sector": "通信・メディア"
+    },
+    {
+      "code": "NFLX",
+      "name": "Netflix",
+      "pct": -1.97,
+      "price": 74.79,
+      "sector": "通信・メディア"
+    },
+    {
+      "code": "DIS",
+      "name": "Disney",
+      "pct": 0.34,
+      "price": 103.53,
+      "sector": "通信・メディア"
+    },
+    {
+      "code": "JPM",
+      "name": "JPMorgan Chase",
+      "pct": 0.63,
+      "price": 362.04,
+      "sector": "金融"
+    },
+    {
+      "code": "BAC",
+      "name": "Bank of America",
+      "pct": 0.22,
+      "price": 64.0,
+      "sector": "金融"
+    },
+    {
+      "code": "GS",
+      "name": "Goldman Sachs",
+      "pct": -0.01,
+      "price": 1034.41,
+      "sector": "金融"
+    },
+    {
+      "code": "JNJ",
+      "name": "Johnson & Johnson",
+      "pct": -0.77,
+      "price": 259.8,
+      "sector": "ヘルスケア"
+    },
+    {
+      "code": "UNH",
+      "name": "UnitedHealth",
+      "pct": -1.6,
+      "price": 402.19,
+      "sector": "ヘルスケア"
+    },
+    {
+      "code": "LLY",
+      "name": "Eli Lilly",
+      "pct": -1.37,
+      "price": 1215.02,
+      "sector": "ヘルスケア"
+    },
+    {
+      "code": "XOM",
+      "name": "ExxonMobil",
+      "pct": 0.01,
+      "price": 159.8,
+      "sector": "エネルギー"
+    },
+    {
+      "code": "CVX",
+      "name": "Chevron",
+      "pct": 0.9,
+      "price": 196.66,
+      "sector": "エネルギー"
+    },
+    {
+      "code": "KO",
+      "name": "Coca-Cola",
+      "pct": -0.45,
+      "price": 86.48,
+      "sector": "生活必需品"
+    },
+    {
+      "code": "PG",
+      "name": "Procter & Gamble",
+      "pct": -0.84,
+      "price": 145.21,
+      "sector": "生活必需品"
+    },
+    {
+      "code": "COST",
+      "name": "Costco",
+      "pct": -0.88,
+      "price": 944.32,
+      "sector": "生活必需品"
+    },
+    {
+      "code": "BA",
+      "name": "Boeing",
+      "pct": 0.19,
+      "price": 233.24,
+      "sector": "資本財"
+    },
+    {
+      "code": "CAT",
+      "name": "Caterpillar",
+      "pct": 0.69,
+      "price": 843.37,
+      "sector": "資本財"
+    },
+    {
+      "code": "GE",
+      "name": "GE Aerospace",
+      "pct": 0.37,
+      "price": 368.06,
+      "sector": "資本財"
+    }
+  ],
+  "events_jp": [
+    {
+      "date": "2026-08-12",
+      "text": "国内主要企業の決算発表が続く時期。個別銘柄の決算サプライズに注意。",
+      "importance": "medium",
+      "urgent": false
+    },
+    {
+      "date": "2026-08-13",
+      "text": "日本GDP速報値（4-6月期）発表予定。景気動向の確認に重要。",
+      "importance": "high",
+      "urgent": true
+    },
+    {
+      "date": "2026-08-14",
+      "text": "日本の貿易統計（7月分）発表予定。円安の輸出影響を確認できる指標。",
+      "importance": "medium",
+      "urgent": false
+    }
+  ],
+  "events_us": [
+    {
+      "date": "2026-08-12",
+      "text": "米国PPI（生産者物価指数・7月分）発表予定。インフレ動向とFOMC見通しに影響。",
+      "importance": "high",
+      "urgent": true
+    },
+    {
+      "date": "2026-08-13",
+      "text": "米国CPI（消費者物価指数・7月分）発表予定。FRBの利下げ見通しを左右する最重要指標。",
+      "importance": "high",
+      "urgent": true
+    },
+    {
+      "date": "2026-08-14",
+      "text": "米国小売売上高（7月分）発表予定。消費動向の確認として注目。",
+      "importance": "medium",
+      "urgent": false
+    }
+  ],
+  "x_posts": [
+    "日経+2.08%・66,970円で爆騰モード継続中。かぶぼっちは強い相場には素直に乗る派。でも追いかけより押し目派。あなたは今日どう動く？"
+  ],
+  "note_body": "【8/12（水）朝6:30｜かぶぼっちの相場ブリーフィング】\n\n■ 今日の相場を一言で\n「爆騰モードは続く。でも全部が上がるほど相場は優しくない。」\n\n---\n\n■ 今日の相場ポイント\n\n前営業日の日経平均は+1,364円・+2.08%の大幅高で66,970円に到達。爆騰モードという表現がこれほど適切な相場も珍しい。\n\n米国では半導体指数SOXが+0.9%と底堅く推移し、AIセクターへの資金流入が継続している様子だ。VIX15.3という落ち着いた恐怖指数は、市場参加者がリスクを取りやすい環境を示している。ドル円は159.29円と円安基調が続いており、トヨタ・ソニー・ファナックなどの外需株にとって業績押し上げ期待が続きやすい地合いとなっている。\n\n今日特に警戒すべきなのが個別銘柄の過熱だ。日立製作所はRSI88.4・MA25乖離+12.0%と高温状態にあり、キーエンスもRSI75.9と過熱圏に突入している。スイングトレードの観点からは、こうした過熱銘柄への追いかけは得策ではなく、むしろ売られすぎ圏からのリバウンドを狙う戦略が今日のメインシナリオとなり得る。\n\n今日は米国PPI発表も予定されており、インフレ指標がサプライズになれば後場の為替・金利動向に波及する可能性がある点にも注意したい。\n\n---\n\n■ 今日の注目銘柄\n\n★★★ 東京エレクトロン（8035）\n前営業日+4.1%の急反発もMA25乖離-10.2%・RSI37.8と依然として割安圏。半導体・AI関連のモメンタムが続く中で戻り余地は大きいとの見方がある。エントリーはMA25接近・RSI40前後での反発確認後が基本。利確+3%・損切-2%を基準に。急騰後の揺り戻しには注意。\n\n★★★ ダイキン工業（6367）\n出来高1.6倍・BB下限・RSI23.1という三拍子が揃った逆張り候補。爆騰相場の中で一人負けしている局面は底打ちサインとなる場合がある。寄り付き後の下げ渋り確認が絶対条件。値動きを見てから判断。\n\n★★ 信越化学（4063）\nRSI30.7・MA25乖離-5.7%の典型的な押し目。半導体材料セクターの回復シナリオに乗れる銘柄として2〜3日のスイングトレードで注目したい。\n\n---\n\n■ 寄り付き・前場・後場の見どころ\n\n【寄り付き】大幅高翌日はギャップアップからの売り先行もあり得る。リクルートHD（+22.8%急騰）・テルモ（+8.5%急騰）などは寄り天リスクを意識。焦らず15分は様子見が吉。\n\n【前場】SOX連動の半導体・AI銘柄（東京エレクトロン・ソニー）の動きが今日の相場の体温計になる。強ければモメンタム継続、弱ければ慎重モードに切り替え。\n\n【後場】米国PPI発表後の為替反応を確認。円安継続なら輸出株に強さが戻る可能性がある。ダイキンの出来高が後場も継続するかを確認してスイングの判断材料にしたい。\n\n---\n\n■ 今日の売買戦略\n\n・デイトレ：ダイキン・東エレの下げ渋りを確認してから短期エントリー。損切を明確に設定。\n・スイングトレード：信越化学・ソフトバンクGの押し目を今日仕込んで2〜3日保有を検討。\n・中長期：ソニーグループのAI×エンタメ×半導体テーマは週足で押し目を探す戦略が有効な可能性がある。\n\n---\n\n■ かぶぼっちより\n\n強い相場は強い。でも強さを盲信して追いかけるのは違う。今日かぶぼっちが見ているのは、爆騰の中で取り残された銘柄のリバウンドだ。祭りの喧騒の中に、静かに仕込む銘柄がある——そういう日こそ、あなたの本当のスキルが問われる。さあ、今日も丁寧にいこう。",
+  "note_cta": "毎朝の相場分析と注目銘柄は継続発信中。フォローしてお待ちください📊",
+  "usd_jpy_pct": 0.89,
+  "market_data_refreshed_at": "2026-08-12T06:44:28.555339+09:00",
+  "vix_pct": -1.03,
+  "us10y": 4.68,
+  "us10y_diff": -0.02,
+  "fear_greed_value": 60.8,
+  "fear_greed_label": "greed",
+  "jp_earnings_calendar": [
+    {
+      "code": "4755",
+      "name": "楽天G",
+      "sector": "サービス",
+      "next_earnings_date": "2026-08-10",
+      "days_until": -1,
+      "last_earnings_date": "2026-08-10",
+      "last_surprise_pct": 148.9,
+      "last_earnings_reaction_pct": null
+    },
+    {
+      "code": "8766",
+      "name": "東京海上HD",
+      "sector": "金融",
+      "next_earnings_date": "2026-08-12",
+      "days_until": 1,
+      "last_earnings_date": "2024-02-14",
+      "last_surprise_pct": 72.1,
+      "last_earnings_reaction_pct": 2.1
+    },
+    {
+      "code": "2502",
+      "name": "アサヒグループHD",
+      "sector": "生活必需品",
+      "next_earnings_date": "2026-08-14",
+      "days_until": 3,
+      "last_earnings_date": "2026-07-08",
+      "last_surprise_pct": -40.7,
+      "last_earnings_reaction_pct": 1.0
+    },
+    {
+      "code": "9983",
+      "name": "ファーストリテイリング",
+      "sector": "小売",
+      "next_earnings_date": "2026-10-08",
+      "days_until": 58,
+      "last_earnings_date": "2026-07-09",
+      "last_surprise_pct": 26.2,
+      "last_earnings_reaction_pct": -5.7
+    },
+    {
+      "code": "3382",
+      "name": "セブン&アイHD",
+      "sector": "小売",
+      "next_earnings_date": "2026-10-08",
+      "days_until": 58,
+      "last_earnings_date": "2026-07-09",
+      "last_surprise_pct": 115.4,
+      "last_earnings_reaction_pct": -0.4
+    },
+    {
+      "code": "8267",
+      "name": "イオン",
+      "sector": "小売",
+      "next_earnings_date": "2026-10-14",
+      "days_until": 64,
+      "last_earnings_date": "2026-07-10",
+      "last_surprise_pct": 72.7,
+      "last_earnings_reaction_pct": -0.8
+    },
+    {
+      "code": "4063",
+      "name": "信越化学",
+      "sector": "素材",
+      "next_earnings_date": "2026-10-23",
+      "days_until": 73,
+      "last_earnings_date": "2026-07-24",
+      "last_surprise_pct": 4.0,
+      "last_earnings_reaction_pct": -11.8
+    },
+    {
+      "code": "7751",
+      "name": "キヤノン",
+      "sector": "電機",
+      "next_earnings_date": "2026-10-26",
+      "days_until": 76,
+      "last_earnings_date": "2026-07-27",
+      "last_surprise_pct": 74.5,
+      "last_earnings_reaction_pct": -1.1
+    },
+    {
+      "code": "4519",
+      "name": "中外製薬",
+      "sector": "医薬品",
+      "next_earnings_date": "2026-10-27",
+      "days_until": 77,
+      "last_earnings_date": "2026-07-24",
+      "last_surprise_pct": -5.2,
+      "last_earnings_reaction_pct": -5.0
+    },
+    {
+      "code": "6857",
+      "name": "アドバンテスト",
+      "sector": "半導体",
+      "next_earnings_date": "2026-10-27",
+      "days_until": 77,
+      "last_earnings_date": "2026-07-29",
+      "last_surprise_pct": 42.9,
+      "last_earnings_reaction_pct": 9.5
+    },
+    {
+      "code": "8604",
+      "name": "野村HD",
+      "sector": "金融",
+      "next_earnings_date": "2026-10-27",
+      "days_until": 77,
+      "last_earnings_date": "2026-07-29",
+      "last_surprise_pct": 29.6,
+      "last_earnings_reaction_pct": -6.4
+    },
+    {
+      "code": "9022",
+      "name": "東海旅客鉄道",
+      "sector": "運輸",
+      "next_earnings_date": "2026-10-28",
+      "days_until": 78,
+      "last_earnings_date": "2026-07-31",
+      "last_surprise_pct": 3.4,
+      "last_earnings_reaction_pct": -6.5
+    },
+    {
+      "code": "6723",
+      "name": "ルネサスエレクトロニクス",
+      "sector": "半導体",
+      "next_earnings_date": "2026-10-28",
+      "days_until": 78,
+      "last_earnings_date": "2026-07-31",
+      "last_surprise_pct": 8.2,
+      "last_earnings_reaction_pct": 22.2
+    },
+    {
+      "code": "9697",
+      "name": "カプコン",
+      "sector": "ゲーム・娯楽",
+      "next_earnings_date": "2026-10-28",
+      "days_until": 78,
+      "last_earnings_date": "2026-07-28",
+      "last_surprise_pct": 30.7,
+      "last_earnings_reaction_pct": 20.2
+    },
+    {
+      "code": "6861",
+      "name": "キーエンス",
+      "sector": "精密機器",
+      "next_earnings_date": "2026-10-29",
+      "days_until": 79,
+      "last_earnings_date": "2026-07-28",
+      "last_surprise_pct": 23.9,
+      "last_earnings_reaction_pct": 4.6
+    }
+  ],
+  "jp_earnings_rank": {
+    "best": [
+      {
+        "code": "5020",
+        "name": "ENEOSホールディングス",
+        "sector": "エネルギー",
+        "next_earnings_date": "2026-11-11",
+        "days_until": 92,
+        "last_earnings_date": "2026-08-07",
+        "last_surprise_pct": 358.9,
+        "last_earnings_reaction_pct": -2.5
+      },
+      {
+        "code": "4755",
+        "name": "楽天G",
+        "sector": "サービス",
+        "next_earnings_date": "2026-08-10",
+        "days_until": -1,
+        "last_earnings_date": "2026-08-10",
+        "last_surprise_pct": 148.9,
+        "last_earnings_reaction_pct": null
+      },
+      {
+        "code": "4188",
+        "name": "三菱ケミカルG",
+        "sector": "素材",
+        "next_earnings_date": "2026-10-29",
+        "days_until": 79,
+        "last_earnings_date": "2026-07-31",
+        "last_surprise_pct": 138.1,
+        "last_earnings_reaction_pct": -0.2
+      },
+      {
+        "code": "3382",
+        "name": "セブン&アイHD",
+        "sector": "小売",
+        "next_earnings_date": "2026-10-08",
+        "days_until": 58,
+        "last_earnings_date": "2026-07-09",
+        "last_surprise_pct": 115.4,
+        "last_earnings_reaction_pct": -0.4
+      },
+      {
+        "code": "7201",
+        "name": "日産自動車",
+        "sector": "自動車",
+        "next_earnings_date": "2026-11-05",
+        "days_until": 86,
+        "last_earnings_date": "2026-08-03",
+        "last_surprise_pct": 109.4,
+        "last_earnings_reaction_pct": -4.2
+      },
+      {
+        "code": "7974",
+        "name": "任天堂",
+        "sector": "ゲーム・娯楽",
+        "next_earnings_date": "2026-11-03",
+        "days_until": 84,
+        "last_earnings_date": "2026-08-06",
+        "last_surprise_pct": 106.5,
+        "last_earnings_reaction_pct": 8.3
+      },
+      {
+        "code": "7733",
+        "name": "オリンパス",
+        "sector": "精密機器",
+        "next_earnings_date": "2026-11-10",
+        "days_until": 91,
+        "last_earnings_date": "2026-08-07",
+        "last_surprise_pct": 84.7,
+        "last_earnings_reaction_pct": 12.1
+      },
+      {
+        "code": "4543",
+        "name": "テルモ",
+        "sector": "医療機器",
+        "next_earnings_date": "2026-11-11",
+        "days_until": 92,
+        "last_earnings_date": "2026-08-07",
+        "last_surprise_pct": 76.8,
+        "last_earnings_reaction_pct": 11.4
+      },
+      {
+        "code": "7267",
+        "name": "ホンダ",
+        "sector": "自動車",
+        "next_earnings_date": "2026-11-05",
+        "days_until": 86,
+        "last_earnings_date": "2026-08-05",
+        "last_surprise_pct": 75.4,
+        "last_earnings_reaction_pct": 3.8
+      },
+      {
+        "code": "7751",
+        "name": "キヤノン",
+        "sector": "電機",
+        "next_earnings_date": "2026-10-26",
+        "days_until": 76,
+        "last_earnings_date": "2026-07-27",
+        "last_surprise_pct": 74.5,
+        "last_earnings_reaction_pct": -1.1
+      }
+    ],
+    "worst": [
+      {
+        "code": "3436",
+        "name": "SUMCO",
+        "sector": "半導体",
+        "next_earnings_date": "2026-11-11",
+        "days_until": 92,
+        "last_earnings_date": "2026-08-06",
+        "last_surprise_pct": -106.5,
+        "last_earnings_reaction_pct": -7.6
+      },
+      {
+        "code": "2502",
+        "name": "アサヒグループHD",
+        "sector": "生活必需品",
+        "next_earnings_date": "2026-08-14",
+        "days_until": 3,
+        "last_earnings_date": "2026-07-08",
+        "last_surprise_pct": -40.7,
+        "last_earnings_reaction_pct": 1.0
+      },
+      {
+        "code": "4901",
+        "name": "富士フイルム",
+        "sector": "電機",
+        "next_earnings_date": "2026-11-05",
+        "days_until": 86,
+        "last_earnings_date": "2026-08-06",
+        "last_surprise_pct": -34.5,
+        "last_earnings_reaction_pct": -15.5
+      },
+      {
+        "code": "7270",
+        "name": "SUBARU",
+        "sector": "自動車",
+        "next_earnings_date": "2026-11-09",
+        "days_until": 90,
+        "last_earnings_date": "2026-08-05",
+        "last_surprise_pct": -29.1,
+        "last_earnings_reaction_pct": -2.7
+      },
+      {
+        "code": "6920",
+        "name": "レーザーテック",
+        "sector": "半導体",
+        "next_earnings_date": "2026-10-29",
+        "days_until": 79,
+        "last_earnings_date": "2026-08-06",
+        "last_surprise_pct": -16.9,
+        "last_earnings_reaction_pct": -19.8
+      },
+      {
+        "code": "9020",
+        "name": "東日本旅客鉄道",
+        "sector": "運輸",
+        "next_earnings_date": "2026-10-29",
+        "days_until": 79,
+        "last_earnings_date": "2026-07-31",
+        "last_surprise_pct": -15.4,
+        "last_earnings_reaction_pct": -10.4
+      },
+      {
+        "code": "4568",
+        "name": "第一三共",
+        "sector": "医薬品",
+        "next_earnings_date": "2026-10-30",
+        "days_until": 80,
+        "last_earnings_date": "2026-07-31",
+        "last_surprise_pct": -12.0,
+        "last_earnings_reaction_pct": -11.0
+      },
+      {
+        "code": "8801",
+        "name": "三井不動産",
+        "sector": "不動産",
+        "next_earnings_date": "2026-11-06",
+        "days_until": 87,
+        "last_earnings_date": "2026-08-07",
+        "last_surprise_pct": -11.6,
+        "last_earnings_reaction_pct": -1.6
+      },
+      {
+        "code": "5401",
+        "name": "日本製鉄",
+        "sector": "素材",
+        "next_earnings_date": "2026-11-04",
+        "days_until": 85,
+        "last_earnings_date": "2026-08-04",
+        "last_surprise_pct": -7.1,
+        "last_earnings_reaction_pct": 3.9
+      },
+      {
+        "code": "4519",
+        "name": "中外製薬",
+        "sector": "医薬品",
+        "next_earnings_date": "2026-10-27",
+        "days_until": 77,
+        "last_earnings_date": "2026-07-24",
+        "last_surprise_pct": -5.2,
+        "last_earnings_reaction_pct": -5.0
+      }
+    ]
+  },
+  "us_earnings_calendar": [
+    {
+      "code": "WMT",
+      "name": "Walmart",
+      "sector": "消費・EC",
+      "next_earnings_date": "2026-08-20",
+      "days_until": 9,
+      "last_earnings_date": "2026-05-21",
+      "last_surprise_pct": 0.2,
+      "last_earnings_reaction_pct": -8.1
+    },
+    {
+      "code": "NVDA",
+      "name": "NVIDIA",
+      "sector": "半導体",
+      "next_earnings_date": "2026-08-26",
+      "days_until": 16,
+      "last_earnings_date": "2026-05-20",
+      "last_surprise_pct": 5.5,
+      "last_earnings_reaction_pct": -0.5
+    },
+    {
+      "code": "AVGO",
+      "name": "Broadcom",
+      "sector": "半導体",
+      "next_earnings_date": "2026-09-02",
+      "days_until": 23,
+      "last_earnings_date": "2026-06-03",
+      "last_surprise_pct": 1.7,
+      "last_earnings_reaction_pct": -13.0
+    },
+    {
+      "code": "COST",
+      "name": "Costco",
+      "sector": "生活必需品",
+      "next_earnings_date": "2026-09-24",
+      "days_until": 45,
+      "last_earnings_date": "2026-05-28",
+      "last_surprise_pct": -0.8,
+      "last_earnings_reaction_pct": -4.7
+    },
+    {
+      "code": "JPM",
+      "name": "JPMorgan Chase",
+      "sector": "金融",
+      "next_earnings_date": "2026-10-13",
+      "days_until": 63,
+      "last_earnings_date": "2026-07-14",
+      "last_surprise_pct": 5.9,
+      "last_earnings_reaction_pct": 3.7
+    },
+    {
+      "code": "GS",
+      "name": "Goldman Sachs",
+      "sector": "金融",
+      "next_earnings_date": "2026-10-13",
+      "days_until": 63,
+      "last_earnings_date": "2026-07-14",
+      "last_surprise_pct": 44.3,
+      "last_earnings_reaction_pct": 10.2
+    },
+    {
+      "code": "JNJ",
+      "name": "Johnson & Johnson",
+      "sector": "ヘルスケア",
+      "next_earnings_date": "2026-10-13",
+      "days_until": 63,
+      "last_earnings_date": "2026-07-15",
+      "last_surprise_pct": 1.6,
+      "last_earnings_reaction_pct": -1.5
+    },
+    {
+      "code": "BAC",
+      "name": "Bank of America",
+      "sector": "金融",
+      "next_earnings_date": "2026-10-14",
+      "days_until": 64,
+      "last_earnings_date": "2026-07-14",
+      "last_surprise_pct": 7.7,
+      "last_earnings_reaction_pct": 3.5
+    },
+    {
+      "code": "NFLX",
+      "name": "Netflix",
+      "sector": "通信・メディア",
+      "next_earnings_date": "2026-10-20",
+      "days_until": 71,
+      "last_earnings_date": "2026-07-16",
+      "last_surprise_pct": 1.4,
+      "last_earnings_reaction_pct": -6.4
+    },
+    {
+      "code": "KO",
+      "name": "Coca-Cola",
+      "sector": "生活必需品",
+      "next_earnings_date": "2026-10-20",
+      "days_until": 70,
+      "last_earnings_date": "2026-07-28",
+      "last_surprise_pct": 4.0,
+      "last_earnings_reaction_pct": 6.0
+    },
+    {
+      "code": "GE",
+      "name": "GE Aerospace",
+      "sector": "資本財",
+      "next_earnings_date": "2026-10-20",
+      "days_until": 70,
+      "last_earnings_date": "2026-07-16",
+      "last_surprise_pct": 8.6,
+      "last_earnings_reaction_pct": -3.2
+    },
+    {
+      "code": "TSLA",
+      "name": "Tesla",
+      "sector": "消費・EC",
+      "next_earnings_date": "2026-10-21",
+      "days_until": 72,
+      "last_earnings_date": "2026-07-22",
+      "last_surprise_pct": -38.4,
+      "last_earnings_reaction_pct": -15.6
+    },
+    {
+      "code": "PG",
+      "name": "Procter & Gamble",
+      "sector": "生活必需品",
+      "next_earnings_date": "2026-10-22",
+      "days_until": 72,
+      "last_earnings_date": "2026-07-29",
+      "last_surprise_pct": 1.6,
+      "last_earnings_reaction_pct": -3.3
+    },
+    {
+      "code": "UNH",
+      "name": "UnitedHealth",
+      "sector": "ヘルスケア",
+      "next_earnings_date": "2026-10-27",
+      "days_until": 77,
+      "last_earnings_date": "2026-07-16",
+      "last_surprise_pct": 29.8,
+      "last_earnings_reaction_pct": 1.8
+    },
+    {
+      "code": "MSFT",
+      "name": "Microsoft",
+      "sector": "テクノロジー",
+      "next_earnings_date": "2026-10-28",
+      "days_until": 79,
+      "last_earnings_date": "2026-07-29",
+      "last_surprise_pct": 11.8,
+      "last_earnings_reaction_pct": 14.7
+    }
+  ],
+  "us_earnings_rank": {
+    "best": [
+      {
+        "code": "AMZN",
+        "name": "Amazon",
+        "sector": "消費・EC",
+        "next_earnings_date": "2026-10-29",
+        "days_until": 80,
+        "last_earnings_date": "2026-07-30",
+        "last_surprise_pct": 215.0,
+        "last_earnings_reaction_pct": 19.8
+      },
+      {
+        "code": "GOOGL",
+        "name": "Alphabet",
+        "sector": "テクノロジー",
+        "next_earnings_date": "2026-10-28",
+        "days_until": 79,
+        "last_earnings_date": "2026-07-22",
+        "last_surprise_pct": 214.2,
+        "last_earnings_reaction_pct": -8.5
+      },
+      {
+        "code": "GS",
+        "name": "Goldman Sachs",
+        "sector": "金融",
+        "next_earnings_date": "2026-10-13",
+        "days_until": 63,
+        "last_earnings_date": "2026-07-14",
+        "last_surprise_pct": 44.3,
+        "last_earnings_reaction_pct": 10.2
+      },
+      {
+        "code": "CAT",
+        "name": "Caterpillar",
+        "sector": "資本財",
+        "next_earnings_date": "2026-10-29",
+        "days_until": 79,
+        "last_earnings_date": "2026-08-04",
+        "last_surprise_pct": 31.8,
+        "last_earnings_reaction_pct": 4.9
+      },
+      {
+        "code": "UNH",
+        "name": "UnitedHealth",
+        "sector": "ヘルスケア",
+        "next_earnings_date": "2026-10-27",
+        "days_until": 77,
+        "last_earnings_date": "2026-07-16",
+        "last_surprise_pct": 29.8,
+        "last_earnings_reaction_pct": 1.8
+      },
+      {
+        "code": "LLY",
+        "name": "Eli Lilly",
+        "sector": "ヘルスケア",
+        "next_earnings_date": "2026-10-29",
+        "days_until": 79,
+        "last_earnings_date": "2026-08-05",
+        "last_surprise_pct": 27.3,
+        "last_earnings_reaction_pct": 6.8
+      },
+      {
+        "code": "XOM",
+        "name": "ExxonMobil",
+        "sector": "エネルギー",
+        "next_earnings_date": "2026-10-30",
+        "days_until": 80,
+        "last_earnings_date": "2026-07-31",
+        "last_surprise_pct": 13.3,
+        "last_earnings_reaction_pct": -1.2
+      },
+      {
+        "code": "MSFT",
+        "name": "Microsoft",
+        "sector": "テクノロジー",
+        "next_earnings_date": "2026-10-28",
+        "days_until": 79,
+        "last_earnings_date": "2026-07-29",
+        "last_surprise_pct": 11.8,
+        "last_earnings_reaction_pct": 14.7
+      },
+      {
+        "code": "DIS",
+        "name": "Disney",
+        "sector": "通信・メディア",
+        "next_earnings_date": "2026-11-12",
+        "days_until": 93,
+        "last_earnings_date": "2026-08-05",
+        "last_surprise_pct": 11.1,
+        "last_earnings_reaction_pct": 6.6
+      },
+      {
+        "code": "CVX",
+        "name": "Chevron",
+        "sector": "エネルギー",
+        "next_earnings_date": "2026-10-30",
+        "days_until": 80,
+        "last_earnings_date": "2026-07-31",
+        "last_surprise_pct": 8.8,
+        "last_earnings_reaction_pct": 0.5
+      }
+    ],
+    "worst": [
+      {
+        "code": "BA",
+        "name": "Boeing",
+        "sector": "資本財",
+        "next_earnings_date": "2026-10-28",
+        "days_until": 78,
+        "last_earnings_date": "2026-07-28",
+        "last_surprise_pct": -141.5,
+        "last_earnings_reaction_pct": 1.2
+      },
+      {
+        "code": "TSLA",
+        "name": "Tesla",
+        "sector": "消費・EC",
+        "next_earnings_date": "2026-10-21",
+        "days_until": 72,
+        "last_earnings_date": "2026-07-22",
+        "last_surprise_pct": -38.4,
+        "last_earnings_reaction_pct": -15.6
+      },
+      {
+        "code": "META",
+        "name": "Meta Platforms",
+        "sector": "通信・メディア",
+        "next_earnings_date": "2026-10-28",
+        "days_until": 79,
+        "last_earnings_date": "2026-07-29",
+        "last_surprise_pct": -14.4,
+        "last_earnings_reaction_pct": -9.2
+      },
+      {
+        "code": "COST",
+        "name": "Costco",
+        "sector": "生活必需品",
+        "next_earnings_date": "2026-09-24",
+        "days_until": 45,
+        "last_earnings_date": "2026-05-28",
+        "last_surprise_pct": -0.8,
+        "last_earnings_reaction_pct": -4.7
+      },
+      {
+        "code": "WMT",
+        "name": "Walmart",
+        "sector": "消費・EC",
+        "next_earnings_date": "2026-08-20",
+        "days_until": 9,
+        "last_earnings_date": "2026-05-21",
+        "last_surprise_pct": 0.2,
+        "last_earnings_reaction_pct": -8.1
+      },
+      {
+        "code": "NFLX",
+        "name": "Netflix",
+        "sector": "通信・メディア",
+        "next_earnings_date": "2026-10-20",
+        "days_until": 71,
+        "last_earnings_date": "2026-07-16",
+        "last_surprise_pct": 1.4,
+        "last_earnings_reaction_pct": -6.4
+      },
+      {
+        "code": "JNJ",
+        "name": "Johnson & Johnson",
+        "sector": "ヘルスケア",
+        "next_earnings_date": "2026-10-13",
+        "days_until": 63,
+        "last_earnings_date": "2026-07-15",
+        "last_surprise_pct": 1.6,
+        "last_earnings_reaction_pct": -1.5
+      },
+      {
+        "code": "PG",
+        "name": "Procter & Gamble",
+        "sector": "生活必需品",
+        "next_earnings_date": "2026-10-22",
+        "days_until": 72,
+        "last_earnings_date": "2026-07-29",
+        "last_surprise_pct": 1.6,
+        "last_earnings_reaction_pct": -3.3
+      },
+      {
+        "code": "AVGO",
+        "name": "Broadcom",
+        "sector": "半導体",
+        "next_earnings_date": "2026-09-02",
+        "days_until": 23,
+        "last_earnings_date": "2026-06-03",
+        "last_surprise_pct": 1.7,
+        "last_earnings_reaction_pct": -13.0
+      },
+      {
+        "code": "AMD",
+        "name": "AMD",
+        "sector": "半導体",
+        "next_earnings_date": "2026-11-03",
+        "days_until": 85,
+        "last_earnings_date": "2026-08-04",
+        "last_surprise_pct": 3.2,
+        "last_earnings_reaction_pct": -0.5
+      }
+    ]
+  },
+  "earnings_refreshed_at": "2026-08-11T11:18:13.831224+09:00",
+  "btc": 63648.0,
+  "btc_pct": -0.41,
+  "dxy": 99.81,
+  "dxy_pct": 0.0,
+  "gold": 4433.1,
+  "gold_pct": 1.63,
+  "fear_greed_prev": 64.4,
+  "fear_greed_diff": -3.6,
+  "x_teaser_3line": "📈 今朝の爆騰相場、売られすぎ銘柄の中にチャンスが潜んでる気がしてる——詳しくはnoteで",
+  "jp_screener": {
+    "top": [
+      {
+        "code": "6367",
+        "name": "ダイキン工業",
+        "sector": "機械",
+        "price": 22225.0,
+        "change_pct": 0.07,
+        "ma25_diff": -7.9,
+        "bb_pos": 8.1,
+        "rsi": 23.1,
+        "vol_ratio": 1.6,
+        "ai_score": 67,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 24520.0,
+          "cup_depth_pct": 13.6,
+          "cup_weeks": 7
+        }
+      },
+      {
+        "code": "6098",
+        "name": "リクルートH",
+        "sector": "サービス",
+        "price": 16165.0,
+        "change_pct": 22.79,
+        "ma25_diff": 27.4,
+        "bb_pos": 160.3,
+        "rsi": 75.3,
+        "vol_ratio": 1.0,
+        "ai_score": 62,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "4452",
+        "name": "花王",
+        "sector": "生活必需品",
+        "price": 3738.0,
+        "change_pct": 2.3,
+        "ma25_diff": 12.5,
+        "bb_pos": 123.7,
+        "rsi": 69.9,
+        "vol_ratio": 1.59,
+        "ai_score": 62,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "6857",
+        "name": "アドバンテスト",
+        "sector": "半導体",
+        "price": 34260.0,
+        "change_pct": 6.43,
+        "ma25_diff": 14.8,
+        "bb_pos": 98.4,
+        "rsi": 64.0,
+        "vol_ratio": 0.83,
+        "ai_score": 61,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "8316",
+        "name": "三井住友FG",
+        "sector": "金融",
+        "price": 6629.0,
+        "change_pct": -2.26,
+        "ma25_diff": -3.5,
+        "bb_pos": 18.2,
+        "rsi": 47.6,
+        "vol_ratio": 0.81,
+        "ai_score": 60,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "4543",
+        "name": "テルモ",
+        "sector": "医療機器",
+        "price": 2575.5,
+        "change_pct": 8.53,
+        "ma25_diff": 12.9,
+        "bb_pos": 130.1,
+        "rsi": 69.1,
+        "vol_ratio": 1.1,
+        "ai_score": 59,
+        "cup_handle": {
+          "detected": true,
+          "stage": "cup",
+          "pivot": 2575.5,
+          "cup_depth_pct": 29.2,
+          "cup_weeks": 53
+        }
+      },
+      {
+        "code": "4568",
+        "name": "第一三共",
+        "sector": "医薬品",
+        "price": 2805.0,
+        "change_pct": 1.93,
+        "ma25_diff": 2.7,
+        "bb_pos": 68.0,
+        "rsi": 50.8,
+        "vol_ratio": 1.0,
+        "ai_score": 58,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "6503",
+        "name": "三菱電機",
+        "sector": "電機",
+        "price": 5844.0,
+        "change_pct": 0.31,
+        "ma25_diff": 2.9,
+        "bb_pos": 69.8,
+        "rsi": 59.5,
+        "vol_ratio": 0.99,
+        "ai_score": 58,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 5912.0,
+          "cup_depth_pct": 18.1,
+          "cup_weeks": 12
+        }
+      },
+      {
+        "code": "8801",
+        "name": "三井不動産",
+        "sector": "不動産",
+        "price": 1464.5,
+        "change_pct": -3.97,
+        "ma25_diff": -5.0,
+        "bb_pos": 4.1,
+        "rsi": 41.0,
+        "vol_ratio": 1.2,
+        "ai_score": 58,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "1605",
+        "name": "INPEX",
+        "sector": "エネルギー",
+        "price": 3612.0,
+        "change_pct": 3.23,
+        "ma25_diff": 3.0,
+        "bb_pos": 70.9,
+        "rsi": 59.9,
+        "vol_ratio": 1.03,
+        "ai_score": 58,
+        "cup_handle": {
+          "detected": false
+        }
+      }
+    ],
+    "bottom": [
+      {
+        "code": "8035",
+        "name": "東京エレクトロン",
+        "sector": "半導体",
+        "price": 56750.0,
+        "change_pct": 4.13,
+        "ma25_diff": -10.2,
+        "bb_pos": 28.5,
+        "rsi": 37.8,
+        "vol_ratio": 0.69,
+        "ai_score": 37,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "8001",
+        "name": "伊藤忠商事",
+        "sector": "商社",
+        "price": 2090.5,
+        "change_pct": 0.5,
+        "ma25_diff": 6.5,
+        "bb_pos": 101.0,
+        "rsi": 77.3,
+        "vol_ratio": 1.04,
+        "ai_score": 38,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 2090.5,
+          "cup_depth_pct": 18.4,
+          "cup_weeks": 25
+        }
+      },
+      {
+        "code": "2914",
+        "name": "JT",
+        "sector": "生活必需品",
+        "price": 7095.0,
+        "change_pct": -0.18,
+        "ma25_diff": 8.7,
+        "bb_pos": 89.8,
+        "rsi": 70.6,
+        "vol_ratio": 0.8,
+        "ai_score": 41,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "8053",
+        "name": "住友商事",
+        "sector": "商社",
+        "price": 1785.5,
+        "change_pct": -0.14,
+        "ma25_diff": 10.1,
+        "bb_pos": 106.9,
+        "rsi": 84.0,
+        "vol_ratio": 0.9,
+        "ai_score": 42,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 1788.0,
+          "cup_depth_pct": 19.4,
+          "cup_weeks": 14
+        }
+      },
+      {
+        "code": "3436",
+        "name": "SUMCO",
+        "sector": "半導体",
+        "price": 3487.0,
+        "change_pct": 0.49,
+        "ma25_diff": -13.2,
+        "bb_pos": 32.3,
+        "rsi": 41.6,
+        "vol_ratio": 0.74,
+        "ai_score": 42,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "6301",
+        "name": "コマツ",
+        "sector": "機械",
+        "price": 7446.0,
+        "change_pct": 1.32,
+        "ma25_diff": 10.3,
+        "bb_pos": 97.7,
+        "rsi": 72.8,
+        "vol_ratio": 0.91,
+        "ai_score": 42,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 7446.0,
+          "cup_depth_pct": 17.9,
+          "cup_weeks": 27
+        }
+      },
+      {
+        "code": "6861",
+        "name": "キーエンス",
+        "sector": "精密機器",
+        "price": 85000.0,
+        "change_pct": -0.13,
+        "ma25_diff": 9.7,
+        "bb_pos": 87.8,
+        "rsi": 75.9,
+        "vol_ratio": 0.98,
+        "ai_score": 42,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "5401",
+        "name": "日本製鉄",
+        "sector": "素材",
+        "price": 689.4,
+        "change_pct": -1.16,
+        "ma25_diff": 12.1,
+        "bb_pos": 87.8,
+        "rsi": 79.9,
+        "vol_ratio": 1.16,
+        "ai_score": 44,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "6501",
+        "name": "日立製作所",
+        "sector": "電機",
+        "price": 5620.0,
+        "change_pct": 0.0,
+        "ma25_diff": 12.0,
+        "bb_pos": 98.7,
+        "rsi": 88.4,
+        "vol_ratio": 1.02,
+        "ai_score": 44,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "4063",
+        "name": "信越化学",
+        "sector": "素材",
+        "price": 6286.0,
+        "change_pct": 2.78,
+        "ma25_diff": -5.7,
+        "bb_pos": 35.6,
+        "rsi": 30.7,
+        "vol_ratio": 0.8,
+        "ai_score": 44,
+        "cup_handle": {
+          "detected": false
+        }
+      }
+    ],
+    "high_conviction": [],
+    "cup_handle": [
+      {
+        "code": "6367",
+        "name": "ダイキン工業",
+        "sector": "機械",
+        "price": 22225.0,
+        "change_pct": 0.07,
+        "ma25_diff": -7.9,
+        "bb_pos": 8.1,
+        "rsi": 23.1,
+        "vol_ratio": 1.6,
+        "ai_score": 67,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 24520.0,
+          "cup_depth_pct": 13.6,
+          "cup_weeks": 7
+        }
+      },
+      {
+        "code": "6503",
+        "name": "三菱電機",
+        "sector": "電機",
+        "price": 5844.0,
+        "change_pct": 0.31,
+        "ma25_diff": 2.9,
+        "bb_pos": 69.8,
+        "rsi": 59.5,
+        "vol_ratio": 0.99,
+        "ai_score": 58,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 5912.0,
+          "cup_depth_pct": 18.1,
+          "cup_weeks": 12
+        }
+      },
+      {
+        "code": "4502",
+        "name": "武田薬品工業",
+        "sector": "医薬品",
+        "price": 5582.0,
+        "change_pct": 0.76,
+        "ma25_diff": 1.6,
+        "bb_pos": 64.1,
+        "rsi": 53.6,
+        "vol_ratio": 0.88,
+        "ai_score": 57,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 5847.0,
+          "cup_depth_pct": 15.1,
+          "cup_weeks": 20
+        }
+      },
+      {
+        "code": "9022",
+        "name": "東海旅客鉄道",
+        "sector": "運輸",
+        "price": 3846.0,
+        "change_pct": -1.46,
+        "ma25_diff": 0.4,
+        "bb_pos": 52.3,
+        "rsi": 53.6,
+        "vol_ratio": 0.83,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 4243.0,
+          "cup_depth_pct": 30.0,
+          "cup_weeks": 28
+        }
+      },
+      {
+        "code": "3382",
+        "name": "セブン&アイHD",
+        "sector": "小売",
+        "price": 2085.5,
+        "change_pct": -0.57,
+        "ma25_diff": 0.4,
+        "bb_pos": 52.7,
+        "rsi": 50.4,
+        "vol_ratio": 0.83,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 2256.0,
+          "cup_depth_pct": 20.8,
+          "cup_weeks": 27
+        }
+      },
+      {
+        "code": "7269",
+        "name": "スズキ",
+        "sector": "自動車",
+        "price": 2028.0,
+        "change_pct": 3.68,
+        "ma25_diff": -0.5,
+        "bb_pos": 46.3,
+        "rsi": 48.4,
+        "vol_ratio": 1.28,
+        "ai_score": 54,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 2153.5,
+          "cup_depth_pct": 27.3,
+          "cup_weeks": 38
+        }
+      },
+      {
+        "code": "5020",
+        "name": "ENEOSホールディングス",
+        "sector": "エネルギー",
+        "price": 1267.5,
+        "change_pct": -6.08,
+        "ma25_diff": -1.6,
+        "bb_pos": 33.7,
+        "rsi": 53.1,
+        "vol_ratio": 1.17,
+        "ai_score": 53,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 1349.5,
+          "cup_depth_pct": 17.4,
+          "cup_weeks": 25
+        }
+      },
+      {
+        "code": "2502",
+        "name": "アサヒグループHD",
+        "sector": "生活必需品",
+        "price": 1686.0,
+        "change_pct": -0.5,
+        "ma25_diff": 2.5,
+        "bb_pos": 69.9,
+        "rsi": 60.1,
+        "vol_ratio": 0.83,
+        "ai_score": 52,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 1776.5,
+          "cup_depth_pct": 24.3,
+          "cup_weeks": 54
+        }
+      },
+      {
+        "code": "7751",
+        "name": "キヤノン",
+        "sector": "電機",
+        "price": 4628.0,
+        "change_pct": -0.15,
+        "ma25_diff": 3.7,
+        "bb_pos": 84.2,
+        "rsi": 56.7,
+        "vol_ratio": 0.85,
+        "ai_score": 51,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 4750.0,
+          "cup_depth_pct": 17.5,
+          "cup_weeks": 28
+        }
+      },
+      {
+        "code": "9020",
+        "name": "東日本旅客鉄道",
+        "sector": "運輸",
+        "price": 3453.0,
+        "change_pct": -0.23,
+        "ma25_diff": -3.6,
+        "bb_pos": 27.3,
+        "rsi": 42.5,
+        "vol_ratio": 0.98,
+        "ai_score": 51,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 3935.0,
+          "cup_depth_pct": 18.2,
+          "cup_weeks": 34
+        }
+      }
+    ]
+  },
+  "us_screener": {
+    "top": [
+      {
+        "code": "UNH",
+        "name": "UnitedHealth",
+        "sector": "ヘルスケア",
+        "price": 402.19,
+        "change_pct": -1.6,
+        "ma25_diff": -4.2,
+        "bb_pos": 1.1,
+        "rsi": 28.7,
+        "vol_ratio": 0.74,
+        "ai_score": 64,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "NVDA",
+        "name": "NVIDIA",
+        "sector": "半導体",
+        "price": 217.5,
+        "change_pct": -0.02,
+        "ma25_diff": 4.8,
+        "bb_pos": 79.8,
+        "rsi": 57.4,
+        "vol_ratio": 0.94,
+        "ai_score": 60,
+        "cup_handle": {
+          "detected": true,
+          "stage": "cup",
+          "pivot": 224.0,
+          "cup_depth_pct": 14.5,
+          "cup_weeks": 14
+        }
+      },
+      {
+        "code": "AMZN",
+        "name": "Amazon",
+        "sector": "消費・EC",
+        "price": 272.27,
+        "change_pct": -2.09,
+        "ma25_diff": 7.7,
+        "bb_pos": 78.0,
+        "rsi": 62.2,
+        "vol_ratio": 0.7,
+        "ai_score": 58,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "LLY",
+        "name": "Eli Lilly",
+        "sector": "ヘルスケア",
+        "price": 1215.02,
+        "change_pct": -1.37,
+        "ma25_diff": 3.0,
+        "bb_pos": 79.2,
+        "rsi": 56.2,
+        "vol_ratio": 1.27,
+        "ai_score": 58,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "WMT",
+        "name": "Walmart",
+        "sector": "消費・EC",
+        "price": 113.26,
+        "change_pct": 0.53,
+        "ma25_diff": 0.9,
+        "bb_pos": 65.6,
+        "rsi": 59.5,
+        "vol_ratio": 0.89,
+        "ai_score": 56,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "COST",
+        "name": "Costco",
+        "sector": "生活必需品",
+        "price": 944.32,
+        "change_pct": -0.88,
+        "ma25_diff": 0.4,
+        "bb_pos": 56.3,
+        "rsi": 57.5,
+        "vol_ratio": 0.85,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 974.0,
+          "cup_depth_pct": 12.7,
+          "cup_weeks": 14
+        }
+      },
+      {
+        "code": "PG",
+        "name": "Procter & Gamble",
+        "sector": "生活必需品",
+        "price": 145.21,
+        "change_pct": -0.84,
+        "ma25_diff": -1.1,
+        "bb_pos": 24.2,
+        "rsi": 45.4,
+        "vol_ratio": 0.98,
+        "ai_score": 54,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 148.9,
+          "cup_depth_pct": 14.7,
+          "cup_weeks": 25
+        }
+      },
+      {
+        "code": "AAPL",
+        "name": "Apple",
+        "sector": "テクノロジー",
+        "price": 304.91,
+        "change_pct": -1.09,
+        "ma25_diff": -5.0,
+        "bb_pos": 14.8,
+        "rsi": 35.8,
+        "vol_ratio": 0.74,
+        "ai_score": 53,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "GOOGL",
+        "name": "Alphabet",
+        "sector": "テクノロジー",
+        "price": 343.8,
+        "change_pct": -3.84,
+        "ma25_diff": -1.8,
+        "bb_pos": 39.7,
+        "rsi": 48.8,
+        "vol_ratio": 0.84,
+        "ai_score": 53,
+        "cup_handle": {
+          "detected": true,
+          "stage": "cup",
+          "pivot": 377.6,
+          "cup_depth_pct": 20.2,
+          "cup_weeks": 15
+        }
+      },
+      {
+        "code": "GS",
+        "name": "Goldman Sachs",
+        "sector": "金融",
+        "price": 1034.41,
+        "change_pct": -0.01,
+        "ma25_diff": -2.0,
+        "bb_pos": 35.4,
+        "rsi": 40.3,
+        "vol_ratio": 0.8,
+        "ai_score": 53,
+        "cup_handle": {
+          "detected": false
+        }
+      }
+    ],
+    "bottom": [
+      {
+        "code": "NFLX",
+        "name": "Netflix",
+        "sector": "通信・メディア",
+        "price": 74.79,
+        "change_pct": -1.97,
+        "ma25_diff": 3.1,
+        "bb_pos": 72.5,
+        "rsi": 71.5,
+        "vol_ratio": 0.59,
+        "ai_score": 40,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "JPM",
+        "name": "JPMorgan Chase",
+        "sector": "金融",
+        "price": 362.04,
+        "change_pct": 0.63,
+        "ma25_diff": 3.9,
+        "bb_pos": 88.0,
+        "rsi": 67.6,
+        "vol_ratio": 0.65,
+        "ai_score": 43,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "AMD",
+        "name": "AMD",
+        "sector": "半導体",
+        "price": 474.32,
+        "change_pct": 1.01,
+        "ma25_diff": -6.1,
+        "bb_pos": 26.8,
+        "rsi": 38.6,
+        "vol_ratio": 0.93,
+        "ai_score": 44,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "TSLA",
+        "name": "Tesla",
+        "sector": "消費・EC",
+        "price": 332.81,
+        "change_pct": 0.58,
+        "ma25_diff": -4.8,
+        "bb_pos": 39.0,
+        "rsi": 32.4,
+        "vol_ratio": 0.73,
+        "ai_score": 45,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "BAC",
+        "name": "Bank of America",
+        "sector": "金融",
+        "price": 64.0,
+        "change_pct": 0.22,
+        "ma25_diff": 3.9,
+        "bb_pos": 91.4,
+        "rsi": 69.7,
+        "vol_ratio": 0.76,
+        "ai_score": 46,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "AVGO",
+        "name": "Broadcom",
+        "sector": "半導体",
+        "price": 416.08,
+        "change_pct": -1.5,
+        "ma25_diff": 5.4,
+        "bb_pos": 81.8,
+        "rsi": 63.6,
+        "vol_ratio": 0.77,
+        "ai_score": 47,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 427.8,
+          "cup_depth_pct": 19.2,
+          "cup_weeks": 12
+        }
+      },
+      {
+        "code": "MSFT",
+        "name": "Microsoft",
+        "sector": "テクノロジー",
+        "price": 503.81,
+        "change_pct": -0.44,
+        "ma25_diff": 18.4,
+        "bb_pos": 89.6,
+        "rsi": 83.3,
+        "vol_ratio": 0.76,
+        "ai_score": 47,
+        "cup_handle": {
+          "detected": true,
+          "stage": "cup",
+          "pivot": 506.1,
+          "cup_depth_pct": 31.6,
+          "cup_weeks": 43
+        }
+      },
+      {
+        "code": "BA",
+        "name": "Boeing",
+        "sector": "資本財",
+        "price": 233.24,
+        "change_pct": 0.19,
+        "ma25_diff": 5.7,
+        "bb_pos": 80.4,
+        "rsi": 69.7,
+        "vol_ratio": 0.76,
+        "ai_score": 48,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 240.2,
+          "cup_depth_pct": 24.4,
+          "cup_weeks": 30
+        }
+      },
+      {
+        "code": "XOM",
+        "name": "ExxonMobil",
+        "sector": "エネルギー",
+        "price": 159.8,
+        "change_pct": 0.01,
+        "ma25_diff": 5.7,
+        "bb_pos": 83.9,
+        "rsi": 63.4,
+        "vol_ratio": 1.01,
+        "ai_score": 48,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 159.8,
+          "cup_depth_pct": 19.6,
+          "cup_weeks": 21
+        }
+      },
+      {
+        "code": "DIS",
+        "name": "Disney",
+        "sector": "通信・メディア",
+        "price": 103.53,
+        "change_pct": 0.34,
+        "ma25_diff": 5.6,
+        "bb_pos": 92.9,
+        "rsi": 66.1,
+        "vol_ratio": 1.0,
+        "ai_score": 48,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 104.9,
+          "cup_depth_pct": 25.0,
+          "cup_weeks": 59
+        }
+      }
+    ],
+    "high_conviction": [],
+    "cup_handle": [
+      {
+        "code": "COST",
+        "name": "Costco",
+        "sector": "生活必需品",
+        "price": 944.32,
+        "change_pct": -0.88,
+        "ma25_diff": 0.4,
+        "bb_pos": 56.3,
+        "rsi": 57.5,
+        "vol_ratio": 0.85,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 974.0,
+          "cup_depth_pct": 12.7,
+          "cup_weeks": 14
+        }
+      },
+      {
+        "code": "PG",
+        "name": "Procter & Gamble",
+        "sector": "生活必需品",
+        "price": 145.21,
+        "change_pct": -0.84,
+        "ma25_diff": -1.1,
+        "bb_pos": 24.2,
+        "rsi": 45.4,
+        "vol_ratio": 0.98,
+        "ai_score": 54,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 148.9,
+          "cup_depth_pct": 14.7,
+          "cup_weeks": 25
+        }
+      },
+      {
+        "code": "CVX",
+        "name": "Chevron",
+        "sector": "エネルギー",
+        "price": 196.66,
+        "change_pct": 0.9,
+        "ma25_diff": 4.6,
+        "bb_pos": 83.1,
+        "rsi": 56.1,
+        "vol_ratio": 1.05,
+        "ai_score": 52,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 196.8,
+          "cup_depth_pct": 19.1,
+          "cup_weeks": 21
+        }
+      },
+      {
+        "code": "META",
+        "name": "Meta Platforms",
+        "sector": "通信・メディア",
+        "price": 599.12,
+        "change_pct": 0.71,
+        "ma25_diff": -2.4,
+        "bb_pos": 40.0,
+        "rsi": 36.8,
+        "vol_ratio": 0.78,
+        "ai_score": 48,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 627.2,
+          "cup_depth_pct": 32.9,
+          "cup_weeks": 53
+        }
+      },
+      {
+        "code": "DIS",
+        "name": "Disney",
+        "sector": "通信・メディア",
+        "price": 103.53,
+        "change_pct": 0.34,
+        "ma25_diff": 5.6,
+        "bb_pos": 92.9,
+        "rsi": 66.1,
+        "vol_ratio": 1.0,
+        "ai_score": 48,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 104.9,
+          "cup_depth_pct": 25.0,
+          "cup_weeks": 59
+        }
+      },
+      {
+        "code": "XOM",
+        "name": "ExxonMobil",
+        "sector": "エネルギー",
+        "price": 159.8,
+        "change_pct": 0.01,
+        "ma25_diff": 5.7,
+        "bb_pos": 83.9,
+        "rsi": 63.4,
+        "vol_ratio": 1.01,
+        "ai_score": 48,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 159.8,
+          "cup_depth_pct": 19.6,
+          "cup_weeks": 21
+        }
+      },
+      {
+        "code": "BA",
+        "name": "Boeing",
+        "sector": "資本財",
+        "price": 233.24,
+        "change_pct": 0.19,
+        "ma25_diff": 5.7,
+        "bb_pos": 80.4,
+        "rsi": 69.7,
+        "vol_ratio": 0.76,
+        "ai_score": 48,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 240.2,
+          "cup_depth_pct": 24.4,
+          "cup_weeks": 30
+        }
+      },
+      {
+        "code": "AVGO",
+        "name": "Broadcom",
+        "sector": "半導体",
+        "price": 416.08,
+        "change_pct": -1.5,
+        "ma25_diff": 5.4,
+        "bb_pos": 81.8,
+        "rsi": 63.6,
+        "vol_ratio": 0.77,
+        "ai_score": 47,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 427.8,
+          "cup_depth_pct": 19.2,
+          "cup_weeks": 12
+        }
+      }
+    ]
+  },
+  "screener_refreshed_at": "2026-08-12T05:55:45.885208+09:00",
+  "weekly_review": {
+    "date": "2026/08/08",
+    "title": "半導体が相場を牽引！日経は65000円台を回復した週",
+    "note_body": "# 今週の振り返り｜2026/07/31〜08/07\n\n## ① 今週の相場総括\n\n週明けは「サージ（急騰）」モードでスタートし、その後数日はAIテーマが相場を引っ張る展開。週後半にかけて落ち着いた「ノーマル」モードへと移行する、教科書みたいな一週間でした。\n\n日経平均は64,362円 → 65,258円と週間で**+1.39%**の上昇。65,000円台を回復し、ひとまず底堅さを見せた週です。ただ、週後半の失速感も正直気になるところ。\n\n---\n\n## ② 好調だったセクター\n\n今週のMVPは文句なしで**半導体**（週間+3.65%）。AIブームの波が改めて押し寄せた形で、関連銘柄が軒並み強い動きを見せました。続いて**機械**（+1.75%）、**精密機器**（+0.99%）、**電機**（+0.87%）、**金融**（+0.56%）と続きます。製造業系のリアル経済銘柄にも資金が向いていたのが印象的でした。\n\n---\n\n## ③ 不調だったセクター\n\n一方で逆風が吹いたのが**小売**（-1.44%）、**医薬品**（-1.32%）、**運輸**（-0.96%）。内需・ディフェンシブ系からグロース・製造業系へという、典型的なリスクオンのセクターローテーションが起きていた週でした。\n\n---\n\n## ④ 値動きが大きかった銘柄\n\n今週の主役は**パナソニックHD（6752）＋19.53%** と **SUMCO（3436）＋17.52%**、そして**アドバンテスト（6857）＋16.34%**。アドテストとSUMCOは半導体セクター好調そのまま、という動きですが、パナのこの上げは正直驚きました👀\n\n海外では**Amazon（AMZN）＋15.32%** も強烈で、AIクラウド需要への期待感が数字に出た印象。**ソフトバンクG（9984）＋13.96%** も力強く、AI関連への資金集中が続いています。\n\n一方で**富士フイルム（4901）-17.72%**、**野村総合研究所（4307）-15.96%** は大きく売られる展開に。何かネガティブなサプライズがあったのか、個別の事情を改めて確認しておきたいところです。\n\n---\n\n## ⑤ 来週への一言\n\n**「相場はいつも、熱狂の後に答え合わせをしてくる。」**\n\n週明けサージ→AI熱狂→平常運転、という流れは見ていてとても美しい。でもだからこそ、AIテーマの熱狂が冷めたタイミングで何が残るかを、ぼっちはじっくり観察していくつもりです。焦らず、粛々と。",
+    "discord_summary": "📊 **今週の相場まとめ（07/31〜08/07）**\n\n🗾 日経平均：64,362 → 65,258円（**+1.39%**）\n\n🔥 好調セクター：半導体(+3.65%) ＞ 機械 ＞ 精密機器\n❄️ 不調セクター：小売(-1.44%) ＞ 医薬品 ＞ 運輸\n\n📈 週間上昇Top：パナソニックHD +19.53% / SUMCO +17.52% / アドバンテスト +16.34%\n📉 週間下落Top：富士フイルム -17.72% / 野村総研 -15.96%\n\n週明けサージ→AI相場→通常運転の流れ。AIテーマへの集中続くも週後半は落ち着き。来週も引き続き半導体動向に注目です👀"
+  },
+  "weekly_preview": {
+    "date": "2026/08/09",
+    "title": "GDP・CPI・決算ラッシュ、来週は材料てんこ盛り週",
+    "note_body": "こんばんは、kabubocchiです。今週の日経平均は65,606円で週末を迎えました。前日比-0.12%とほぼ横ばいで着地。さて、来週は材料が重なる「イベント過密週」になりそうなので、しっかり整理しておきましょう。\n\n■ ①来週の重要イベント\n\n最大の注目は月曜（8/10）の【国内GDP速報値（第2四半期）】です。日本経済の実力を測る最重要指標のひとつ。強い数字が出れば円高・株高の両にらみになるケースもあり、素直に読みにくい場面が出てくるかもしれません。月曜の朝から相場が動く可能性があるので、週末に持ち越すポジションのサイズ感は意識しておきたいところです。\n\n続いて水曜（8/12）には【米CPI（消費者物価指数）】が発表されます。Fed（米連邦準備制度）の利下げ観測に直結する数字で、グローバルリスクオンの流れを左右します。国内株も無関係ではいられません。\n\n■ ②注目決算\n\n🔸楽天G（4755）：8/10発表予定。前回の決算サプライズ率は+51.1%と大きく上振れ、株価反応も+1.3%でした。モバイル事業の収益改善がどこまで進んでいるかが焦点になりそうです。\n\n🔸東京海上HD（8766）：8/12発表予定。前回サプライズ率+72.1%、株価反応+2.1%と実績は申し分なし。保険セクターのディフェンシブ人気と合わせて注目度は高め。\n\n🔸アサヒグループHD（2502）：8/14発表予定。前回サプライズ率が-40.7%と大きくミスしただけに、今回のリカバリーができるかが見どころ。ポジティブサプライズなら見直し買いが入る可能性もあります。\n\n■ ③想定される値動きシナリオ\n\nGDP・CPIともに市場予想を上回る強い結果となれば、リスクオンムードが続き日経平均の底堅さが期待できそうです。一方、どちらかが予想を下振れると、為替・金利経由で売り圧力がかかる場面も想定されます。決算との掛け合わせで、週半ばにかけてボラティリティが高まるシナリオには備えておきたいです。\n\n■ ④かぶぼっちらしい一言\n\n材料が多い週ほど、焦って動くと裏目を引きやすいんですよね。「待てる人が勝つ」週になりそうな予感。無理にポジションを取りにいかず、いい球が来たらスイングする、それだけで十分だと思います。良い週にしましょう🙌",
+    "discord_summary": "【来週の注目ポイント】\n📌 日経平均終値：65,606円（-0.12%）\n\n🗓 主要イベント\n・8/10(月) 国内GDP速報値（2Q）⚠️要注目\n・8/12(水) 米CPI発表⚠️要注目\n\n📊 注目決算\n・楽天G（4755）8/10｜前回サプライズ+51.1%\n・東京海上HD（8766）8/12｜前回サプライズ+72.1%\n・アサヒGHD（2502）8/14｜前回-40.7%からのリカバリーなるか\n\nイベント過密週。焦らず、いい球を待ちましょう🙌"
+  },
+  "strategy_lines": [
+    "【デイトレ】ダイキン(6367)：BB下限・RSI23.1・出来高1.6倍という三拍子が揃った銘柄。寄り付き後に下げ渋りを確認できたら打診買い。後場の出来高継続を見て判断。",
+    "【デイトレ】東京エレクトロン(8035)：前日+4.1%もMA25乖離-10.2%と戻り余地あり。SOX連動を確認しながら、前場の押し目で短期エントリーを狙う。利確は小刻みに。",
+    "【スイング】信越化学(4063)：RSI30.7・MA25乖離-5.7%の組み合わせは典型的な逆張りスイングの舞台。今日の前場下げ渋りを確認後、2〜3日保有を想定した押し目買いを検討。損切は明確に。",
+    "【スイング】ソフトバンクG(9984)：MA25乖離-3.1%の押し目水準。爆騰相場の中で出遅れているAI関連大型株として、相場全体の強さが続く間のリターンを狙うスイング戦略として注目。",
+    "【中長期】ソニーグループ(6758)：エンタメ・半導体・AI設計と複数のテーマを持つ複合銘柄。RSI65.3でまだ過熱感は限定的。爆騰相場の中で複数テーマが重なる銘柄は中長期でも保有候補となり得る。週足で確認しながら押し目を拾うアプローチが有効な可能性がある。"
+  ],
+  "nikkei_data_stale": false,
+  "jp_sector_heatmap_stale": false,
+  "jp_sector_heatmap_refreshed_at": "2026-08-12T06:44:28.555339+09:00",
+  "us_sector_heatmap_stale": false,
+  "us_sector_heatmap_refreshed_at": "2026-08-12T06:44:28.555339+09:00",
+  "is_trading_day": true,
+  "next_trading_day": "2026/08/13",
+  "top_news_headlines": [
+    {
+      "title": "台風帰省ラッシュ直撃 混乱広がる",
+      "source": "Yahoo!ニュース",
+      "link": "https://news.yahoo.co.jp/pickup/6591346?source=rss"
+    },
+    {
+      "title": "元・経団連会長 奥田碩さん死去",
+      "source": "Yahoo!ニュース",
+      "link": "https://news.yahoo.co.jp/pickup/6591379?source=rss"
+    },
+    {
+      "title": "イオン 爆発事故で遺族に補償方針",
+      "source": "Yahoo!ニュース",
+      "link": "https://news.yahoo.co.jp/pickup/6591365?source=rss"
+    }
+  ],
+  "market_volume": [
+    {
+      "key": "nikkei225_futures",
+      "label": "日経225先物",
+      "symbol": "NKD=F",
+      "source": "Yahoo Finance (yfinance)",
+      "volume": 2244,
+      "volume_prev_pct": -54.0,
+      "avg20d": 5816,
+      "avg20d_pct": 38.6,
+      "judgement": "薄商い",
+      "history": [
+        6331,
+        5934,
+        3775,
+        5779,
+        4979,
+        8927,
+        5338,
+        4573,
+        5745,
+        4276,
+        3894,
+        3959,
+        4879,
+        4879,
+        2244
+      ]
+    },
+    {
+      "key": "topix_etf",
+      "label": "TOPIX連動ETF",
+      "symbol": "1306.T",
+      "source": "Yahoo Finance (yfinance)",
+      "volume": 10609610,
+      "volume_prev_pct": -26.9,
+      "avg20d": 19821729,
+      "avg20d_pct": 53.5,
+      "judgement": "薄商い",
+      "history": [
+        20619610,
+        33929460,
+        11131220,
+        11065970,
+        14187050,
+        36925830,
+        18153180,
+        11897310,
+        41985870,
+        23173840,
+        22158610,
+        14596150,
+        17161180,
+        14522160,
+        10609610
+      ]
+    },
+    {
+      "key": "nasdaq100_futures",
+      "label": "NASDAQ100先物",
+      "symbol": "NQ=F",
+      "source": "Yahoo Finance (yfinance)",
+      "volume": 440061,
+      "volume_prev_pct": -17.1,
+      "avg20d": 583978,
+      "avg20d_pct": 75.4,
+      "judgement": "薄商い",
+      "history": [
+        456902,
+        667509,
+        599439,
+        596053,
+        668434,
+        815515,
+        737532,
+        679547,
+        550089,
+        643753,
+        567073,
+        556323,
+        531146,
+        531146,
+        440061
+      ]
+    },
+    {
+      "key": "sp500_futures",
+      "label": "S&P500先物",
+      "symbol": "ES=F",
+      "source": "Yahoo Finance (yfinance)",
+      "volume": 948011,
+      "volume_prev_pct": -23.3,
+      "avg20d": 1448799,
+      "avg20d_pct": 65.4,
+      "judgement": "薄商い",
+      "history": [
+        1056769,
+        1650704,
+        1450023,
+        1468720,
+        1389750,
+        2067427,
+        1739568,
+        1831952,
+        1457022,
+        1724914,
+        1500673,
+        1253438,
+        1236073,
+        1236073,
+        948011
+      ]
+    },
+    {
+      "key": "semiconductor_etf",
+      "label": "半導体ETF(SMH)",
+      "symbol": "SMH",
+      "source": "Yahoo Finance (yfinance)",
+      "volume": 4929020,
+      "volume_prev_pct": -23.9,
+      "avg20d": 12358730,
+      "avg20d_pct": 39.9,
+      "judgement": "薄商い",
+      "history": [
+        5249700,
+        7963200,
+        19156400,
+        38682200,
+        18429000,
+        19440900,
+        14175000,
+        14673900,
+        7283800,
+        9566200,
+        6209400,
+        6231700,
+        6505000,
+        6476700,
+        4929020
+      ]
+    },
+    {
+      "key": "kospi",
+      "label": "KOSPI",
+      "symbol": "^KS11",
+      "source": "Yahoo Finance (yfinance)",
+      "volume": 293700,
+      "volume_prev_pct": -1.9,
+      "avg20d": 376645,
+      "avg20d_pct": 78.0,
+      "judgement": "薄商い",
+      "history": [
+        391100,
+        373800,
+        397300,
+        397700,
+        275700,
+        331300,
+        457400,
+        378900,
+        434400,
+        273000,
+        313000,
+        338500,
+        284500,
+        299400,
+        293700
+      ]
+    }
+  ],
+  "market_volume_refreshed_at": "2026-08-12T06:44:28.555339+09:00",
+  "updated_items": [
+    "朝刊更新"
+  ],
+  "updated_items_date": "2026/08/12",
+  "generated_at": "2026-08-12T07:28:22.830570+09:00",
+  "market_score_weekly": 73,
+  "market_score_monthly": 83,
+  "market_score_weekly_label": "強気転換",
+  "market_score_monthly_label": "強気転換",
+  "evening_review": {
+    "date": "2026/08/10",
+    "generated_at": "2026-08-10T21:37:05.006869+09:00",
+    "reflection": "今朝の見立ては「SOX+2.6%の追い風を半導体・製造装置株がどこまで受け取れるか」という点に集中していたが、結果として日経平均は+2.1%近い大幅高となり、大局観としては悪くなかった。SOXも本日+2.6%水準をしっかりキープしており、前日の米国市場の強さが国内市場に素直に波及した形だ。東京エレクトロンやファナックへの寄り付き後の買い継続を見極めてからエントリーという慎重なアプローチは、この相場環境では少し機会損失につながった可能性がある。強いギャップアップ時には「確認してから」という判断が結果的に出遅れを生みやすい。一方でドル円が158円台後半まで進んでいた点は朝の見立てで明示的に触れられていなかった。円安の進行が輸出株の追い風として働いた側面は見落としていた視点であり、為替モメンタムをもう少しシナリオに組み込む習慣をつけたい。高RSIの日立・JTを追いかけなかった判断は継続して正解だと思う。",
+    "earnings_recap": "本日の主要決算は楽天グループ（4755）のみ。株価反応は前日比－2.5%と売りで反応した。市場の期待値に対して内容が物足りなかったと受け取られた可能性があり、決算発表日特有の「出尽くし」または「失望売り」の展開となった。全体相場が日経平均+2.1%という強い地合いの中でこの下落幅は相対的に見ても弱く、個別の悪材料が意識されたと判断できる。楽天Gは有利子負債の重さや黒字化の時間軸が常に問われる銘柄であり、地合い関係なく決算ごとに内容を精査する姿勢が求められる。決算跨ぎは引き続き慎重に。",
+    "earnings_today": [
+      {
+        "code": "4755",
+        "name": "楽天G",
+        "sector": "サービス",
+        "pct": -2.5
+      }
+    ]
+  }
+}
