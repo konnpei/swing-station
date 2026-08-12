@@ -1,0 +1,27 @@
+name: Refresh Trend Themes Only
+
+# 固定16テーマ × Google News RSS のニュース言及量から「今日の注目テーマ」を
+# 集計してdata/latest.jsonへ追記する軽量ワークフロー（AI情報収集・テーマ検出
+# Phase 1）。Claude APIもDiscordも使わないため、手動で何度実行してもコストや
+# 重複投稿の心配はない。
+#
+# 平日5:10 JST（20:10 UTC）、Morning Briefing（5:30予定）より前に実行し、
+# その日のニュース言及量を朝の配信前に捕捉する。
+
+on:
+  schedule:
+    - cron: '10 20 * * 0-4'
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - run: python scripts/refresh_trends.py
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
