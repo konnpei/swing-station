@@ -739,6 +739,47 @@ function TopHeadlines({ headlines }) {
   );
 }
 
+function TodayTrend({ themes }) {
+  // AI情報収集・テーマ検出 Phase 1: ニュース言及量ベースの参考指標。
+  // news_countが0のテーマ（その日話題に上らなかったテーマ）は表示しない。
+  const active = (themes || []).filter((t) => t.news_count > 0).slice(0, 6);
+  if (active.length === 0) return null;
+  return (
+    <div style={{
+      background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18,
+      padding: "12px 16px", marginBottom: 12,
+    }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>
+        🔥 TODAY'S TREND
+        <span style={{ fontWeight: 400, color: "#68747C", fontSize: 9, marginLeft: 6 }}>ニュース言及量ベースの参考指標</span>
+      </div>
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
+        {active.map((t) => {
+          const arrow = t.direction === "up" ? "↑" : t.direction === "down" ? "↓" : "→";
+          const color = t.direction === "up" ? "#00E0A3" : t.direction === "down" ? "#FF5A67" : "#68747C";
+          const stockNames = (t.related_stocks || []).slice(0, 2).map((s) => s.name).join("・");
+          return (
+            <div key={t.id} style={{
+              flex: "0 0 auto", minWidth: 96, background: "#0D1013", border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: 14, padding: "8px 10px",
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#F5F7F8" }}>{t.name}</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 4 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color, fontVariantNumeric: "tabular-nums" }}>{t.score}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color }}>{arrow}</span>
+              </div>
+              <div style={{ fontSize: 9, color: "#68747C", marginTop: 2 }}>{t.news_count}件</div>
+              {stockNames && (
+                <div style={{ fontSize: 9, color: "#4A5568", marginTop: 3 }}>{stockNames}</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function MorningHero({ briefing, todayInfo }) {
   const statusLabel = todayInfo.isMarketOpen ? "東証OPEN" : todayInfo.isUSMarket ? "NY OPEN" : todayInfo.isRealWeekend ? "休場中" : `${todayInfo.day}曜`;
   const statusOn = todayInfo.isMarketOpen || todayInfo.isUSMarket;
@@ -841,6 +882,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <MorningHero briefing={briefing} todayInfo={todayInfo} />
       <MarketPulse briefing={briefing} />
+      <TodayTrend themes={briefing.trend_themes} />
       <TodayFocusPoints briefing={briefing} />
       <LastUpdatedBanner briefing={briefing} />
       <WeekendBanner todayInfo={todayInfo} briefingDate={briefing.date} nextTradingDay={briefing.next_trading_day} />
