@@ -2365,7 +2365,7 @@ function IntroSplash({ onSelect, briefing }) {
           右に主要指数(データが揃っている時だけ、実データのみ)を添える。
           地球のリング/ドットが数字に重なって視認性を落とさないよう、テキスト側は
           背景チップ+高いz-indexで確実に前面・可読に出す。 */}
-      <div style={{ position: "relative", width: "100%", flexShrink: 0, marginTop: 4 }}>
+      <div style={{ position: "relative", width: "100%", flexShrink: 0, marginTop: 4, zIndex: 0 }}>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div style={{ position: "relative", flexShrink: 0 }}>
             <div style={{
@@ -2397,7 +2397,7 @@ function IntroSplash({ onSelect, briefing }) {
       </div>
 
       {/* コンテンツ本体 */}
-      <div style={{ position: "relative", flex: "1 0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ position: "relative", zIndex: 2, flex: "1 0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 26 }}>
           <span style={{ width: 20, height: 1, background: "rgba(0,229,200,0.4)" }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: "#00E5C8", letterSpacing: "0.26em" }}>SWING STATION</span>
