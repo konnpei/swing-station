@@ -2340,7 +2340,7 @@ function IntroSplash({ onSelect, briefing }) {
       display: "flex", flexDirection: "column", alignItems: "center",
       padding: "calc(22px + env(safe-area-inset-top, 0px)) 20px calc(16px + env(safe-area-inset-bottom, 0px))",
       background: "radial-gradient(ellipse 120% 60% at 50% 0%, #0B2133 0%, #071520 42%, #040A10 78%)",
-      overflow: "hidden",
+      overflowY: "auto", overflowX: "hidden",
       fontFamily: "'JetBrains Mono','Courier New',monospace",
     }}>
       <style>{`
@@ -2397,7 +2397,7 @@ function IntroSplash({ onSelect, briefing }) {
       </div>
 
       {/* コンテンツ本体 */}
-      <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 0 }}>
+      <div style={{ position: "relative", flex: "1 0 auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 26 }}>
           <span style={{ width: 20, height: 1, background: "rgba(0,229,200,0.4)" }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: "#00E5C8", letterSpacing: "0.26em" }}>SWING STATION</span>
