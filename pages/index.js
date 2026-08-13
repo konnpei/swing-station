@@ -806,7 +806,7 @@ function MorningHero({ briefing, todayInfo }) {
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 12, fontWeight: 700, color: "#A1A7B3" }}>
             <span>🇯🇵 JAPAN</span><span style={{ color: "#00E0A3" }}>×</span><span>🇺🇸 USA</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 16 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, rowGap: 6, marginTop: 16 }}>
             <div style={{ fontSize: 11, color: "#68747C", fontVariantNumeric: "tabular-nums" }}>{briefing.date}</div>
             <div style={{
               display: "flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700,
