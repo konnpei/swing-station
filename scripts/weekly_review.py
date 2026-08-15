@@ -93,17 +93,31 @@ def generate_review(summary):
   "note_body": "note用の本文（800〜1200文字）。構成：①今週の相場総括 ②好調だったセクター ③不調だったセクター ④値動きが大きかった銘柄 ⑤来週への一言（かぶぼっちらしい名言風コメント）",
   "discord_summary": "Discord用の短い要約（300文字程度）"
 }}"""
-    resp = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=2000,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    raw = resp.content[0].text.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-    return json.loads(raw)
+    # 2026/08/15: Claude応答がまれに不正なJSON(未エスケープの引用符等)を
+    # 返し、json.loads()が例外なく丸ごと失敗してWeekly Review自体が
+    # 未配信になったインシデントが発生した。morning_briefing.pyと同様に
+    # パースエラーの内容をログに残し、さらに1回だけ再試行することで、
+    # 一時的なJSON崩れによる配信スキップを防ぐ。
+    max_attempts = 2
+    last_err = None
+    for attempt in range(1, max_attempts + 1):
+        resp = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=2000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = resp.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError as e:
+            last_err = e
+            print(f"JSON parse error (attempt {attempt}/{max_attempts}): {e}")
+            print(f"Raw response: {raw[:500]}")
+    raise last_err
 
 
 def send_discord(text):
