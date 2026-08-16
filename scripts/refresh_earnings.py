@@ -26,6 +26,13 @@ TODAY = NOW.strftime("%Y/%m/%d")
 REPO = "konnpei/swing-station"
 GH_TOKEN = os.environ.get("GH_PAT", "")
 
+# 2026/08/16: JQUANTS_API_KEYを新規登録する際、本番のdata/latest.jsonを
+# 書き換える前に「本当にJ-Quantsが使われているか」「取得結果がどう変わるか」を
+# 確認できるようにするドライラン用フラグ。DRY_RUN=true の場合は取得結果を
+# ログに表示するのみで、GitHubへの書き込み(gh_get_json/gh_put_json)は
+# 一切行わない。
+DRY_RUN = os.environ.get("DRY_RUN", "").lower() in ("1", "true", "yes")
+
 
 def gh_get_json(path):
     url = f"https://api.github.com/repos/{REPO}/contents/{path}"
@@ -63,7 +70,9 @@ def merge_updated_items(latest, label):
 
 
 def main():
-    if not GH_TOKEN:
+    if DRY_RUN:
+        print("=== DRY_RUN=true: data/latest.jsonへの書き込みは行いません ===")
+    elif not GH_TOKEN:
         print("GH_PAT not set. 終了します。")
         return
 
@@ -71,10 +80,27 @@ def main():
     print("日本株の決算情報取得中...")
     jp_earnings = fetch_jp_earnings(debug_log=_debug_log)
     print(f"  取得件数: {len(jp_earnings)}")
+    # J-Quantsキーが実際に使われたか(jquants_fetched_ok)、未設定/失敗で
+    # yfinanceにフォールバックしたか(jquants_no_key/jquants_fetch_error)を
+    # 必ずログに残す。以前はdebug_logを集めるだけで出力しておらず、
+    # フォールバック発生に気づけなかった。
+    print(f"  取得経路のデバッグ情報: {json.dumps(_debug_log, ensure_ascii=False)}")
 
     print("米国株の決算情報取得中...")
     us_earnings = fetch_us_earnings(debug_log=_debug_log)
     print(f"  取得件数: {len(us_earnings)}")
+
+    if DRY_RUN:
+        jp_calendar = build_earnings_calendar(jp_earnings)
+        jp_rank = build_earnings_rank(jp_earnings)
+        us_calendar = build_earnings_calendar(us_earnings) if us_earnings else []
+        us_rank = build_earnings_rank(us_earnings) if us_earnings else {"best": [], "worst": []}
+        print("--- ドライラン結果プレビュー(実際には保存されません) ---")
+        print(f"jp_earnings_calendar ({len(jp_calendar)}件): {json.dumps(jp_calendar, ensure_ascii=False, indent=1)}")
+        print(f"jp_earnings_rank: {json.dumps(jp_rank, ensure_ascii=False, indent=1)}")
+        print(f"us_earnings_calendar ({len(us_calendar)}件、先頭3件のみ表示): {json.dumps(us_calendar[:3], ensure_ascii=False, indent=1)}")
+        print("=== ドライラン完了。data/latest.jsonは変更していません ===")
+        return
 
     print("data/latest.json 読み込み中...")
     latest, sha = gh_get_json("data/latest.json")

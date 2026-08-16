@@ -11,6 +11,12 @@ on:
   schedule:
     - cron: '0 0 * * 1-5'
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'true にすると取得結果をログ表示のみ(data/latest.jsonは書き換えない)。JQUANTS_API_KEYの動作確認用。'
+        required: false
+        default: 'false'
+        type: boolean
 
 jobs:
   refresh:
@@ -26,3 +32,5 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
           JQUANTS_API_KEY: ${{ secrets.JQUANTS_API_KEY }}
+          # スケジュール実行では常にfalse(inputsはworkflow_dispatch以外は空になるため)。
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
