@@ -26,10 +26,17 @@ DISCORD_WEBHOOK_MAIN = os.environ.get("DISCORD_WEBHOOK_MAIN", "")
 
 
 def send_discord(text):
+    # 2026/08/16: requests.post()はHTTPエラー応答(400/401/404等)では例外を
+    # 投げないため、ステータスコードを見ずに握りつぶすと通知が届かなくても
+    # 気づけない不具合があった。このスクリプトの本来の役割(鮮度チェック・
+    # 自動再実行)はDiscord通知の成否に関わらず続行すべきなので、ここでは
+    # 例外を投げず、失敗をログに残すだけに留める。
     if not DISCORD_WEBHOOK_MAIN:
         return
     try:
-        requests.post(DISCORD_WEBHOOK_MAIN, json={"content": text})
+        r = requests.post(DISCORD_WEBHOOK_MAIN, json={"content": text})
+        if r.status_code not in (200, 204):
+            print(f"Discord post failed: {r.status_code} {r.text[:300]}")
     except Exception as e:
         print(f"Discord error: {e}")
 

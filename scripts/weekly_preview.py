@@ -134,12 +134,15 @@ def generate_preview(summary):
 
 
 def send_discord(text):
+    # 2026/08/16: requests.post()はHTTPエラー応答(400/401/404等)では例外を
+    # 投げないため、ステータスコードを見ずに握りつぶすと「Discordには届いて
+    # いないのにワークフローは成功扱い」になる不具合があった。
+    # 同じ確認を追加し、失敗時は例外を投げてジョブ自体を失敗として可視化する。
     if not DISCORD_WEBHOOK_MAIN:
         return
-    try:
-        requests.post(DISCORD_WEBHOOK_MAIN, json={"content": text})
-    except Exception as e:
-        print(f"Discord error: {e}")
+    r = requests.post(DISCORD_WEBHOOK_MAIN, json={"content": text})
+    if r.status_code not in (200, 204):
+        raise RuntimeError(f"Discord post failed: {r.status_code} {r.text[:300]}")
 
 
 def main():
