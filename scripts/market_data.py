@@ -714,41 +714,6 @@ def build_earnings_rank(earnings_list, n=10):
     return {"best": best, "worst": worst}
 
 
-def _jquants_get_id_token(refresh_token, debug_log=None):
-    """
-    J-Quantsのリフレッシュトークン(アカウント画面の「API Key」)をIDトークンに
-    交換する。J-Quants APIはリフレッシュトークンをそのままデータ取得系
-    エンドポイントのヘッダーに使う方式ではなく、まずこの/v1/token/auth_refresh
-    でIDトークン(短命)を取得し、それをBearer認証で使う2段階方式のため。
-
-    2026/08/16: 直接x-api-keyヘッダーでリフレッシュトークンを送っていたところ
-    403 Forbiddenになる不具合があり、この関数を追加して2段階認証に変更した。
-    """
-    import requests
-
-    try:
-        resp = requests.post(
-            "https://api.jquants.com/v1/token/auth_refresh",
-            params={"refreshtoken": refresh_token},
-            timeout=15,
-        )
-        resp.raise_for_status()
-        id_token = resp.json().get("idToken", "")
-    except Exception as e:
-        if debug_log is not None:
-            debug_log.append({"stage": "jquants_auth_error", "error": str(e)})
-        return None
-
-    if not id_token:
-        if debug_log is not None:
-            debug_log.append({"stage": "jquants_auth_no_idtoken"})
-        return None
-
-    if debug_log is not None:
-        debug_log.append({"stage": "jquants_auth_ok"})
-    return id_token
-
-
 def fetch_jp_earnings_jquants(debug_log=None):
     """
     J-Quants API (/equities/earnings-calendar) を使って、監視銘柄のうち
@@ -775,10 +740,6 @@ def fetch_jp_earnings_jquants(debug_log=None):
             debug_log.append({"stage": "jquants_no_key"})
         return None
 
-    id_token = _jquants_get_id_token(api_key, debug_log=debug_log)
-    if not id_token:
-        return None
-
     # WATCH_LISTの"7203.T"形式 → J-Quantsの5桁コード"72030"形式に変換
     code_map = {}
     for code in WATCH_LIST:
@@ -786,17 +747,24 @@ def fetch_jp_earnings_jquants(debug_log=None):
         jq_code = f"{code_short}0"
         code_map[jq_code] = (code_short, WATCH_MAP.get(code, code_short), SECTOR_MAP.get(code_short, "その他"))
 
+    # J-Quants V2 APIはAPIキーをそのままx-api-keyヘッダーで送る方式
+    # (公式クイックスタートガイドで確認済み。トークン交換は不要)。
     try:
         resp = requests.get(
             "https://api.jquants.com/v2/equities/earnings-calendar",
-            headers={"Authorization": f"Bearer {id_token}"},
+            headers={"x-api-key": api_key},
             timeout=15,
         )
         resp.raise_for_status()
         payload = resp.json()
     except Exception as e:
         if debug_log is not None:
-            debug_log.append({"stage": "jquants_fetch_error", "error": str(e)})
+            debug_log.append({
+                "stage": "jquants_fetch_error",
+                "error": str(e),
+                "status_code": getattr(getattr(e, "response", None), "status_code", None),
+                "response_body": getattr(getattr(e, "response", None), "text", "")[:300],
+            })
         return None
 
     rows = payload.get("data", [])
