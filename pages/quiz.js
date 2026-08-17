@@ -2,8 +2,7 @@ import { useState, useMemo } from "react";
 import Head from "next/head";
 
 // pages/quiz.js
-// 「株ぼっち 用語集」— スイングトレード用語の解説ページ(Phase 1: 用語集のみ)。
-// クイズ機能はPhase 2で追加予定(このファイル名/URLはそのための先取り)。
+// 「株ぼっち 用語集・問題集」— スイングトレード用語の解説＋4択クイズページ。
 //
 // 設計方針:
 // - 既存のdata/latest.jsonやAPIには一切依存しない、完全に独立した静的ページ。
@@ -11,6 +10,9 @@ import Head from "next/head";
 // - 用語の説明はAIによる自動生成ではなく、サイト内で実際に使っている指標名・
 //   銘柄パターン名(scripts/morning_briefing.py, scripts/market_data.py)を
 //   根拠に手動で作成している(根拠不明なAI生成情報の表示を避けるため)。
+// - 問題集(クイズ)は、下のTERMS配列(用語集と共通のデータ)から出題を自動生成する。
+//   新しい文章をAIに作らせているわけではなく、既存の検証済みshort説明文を
+//   選択肢としてそのまま使うだけなので、事実誤認・ハルシネーションのリスクはゼロ。
 // - 投資助言ではないことを明示する。
 
 const CATEGORIES = [
@@ -175,10 +177,65 @@ const TERMS = [
   },
 ];
 
+// --- 問題集(4択クイズ) -------------------------------------------------
+// TERMSの short 説明文をそのまま選択肢として使う。新しい文章は生成しない。
+
+const QUIZ_LENGTH = 10;
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildQuiz() {
+  const pool = shuffleArray(TERMS).slice(0, Math.min(QUIZ_LENGTH, TERMS.length));
+  return pool.map((t) => {
+    const distractors = shuffleArray(TERMS.filter((o) => o.term !== t.term))
+      .slice(0, 3)
+      .map((o) => o.short);
+    const choices = shuffleArray([t.short, ...distractors]);
+    return {
+      term: t.term,
+      kana: t.kana,
+      detail: t.detail,
+      choices,
+      correctIndex: choices.indexOf(t.short),
+    };
+  });
+}
+
+function resultComment(score, total) {
+  const rate = score / total;
+  if (rate === 1) return "満点です。朝刊の用語はもうバッチリ読みこなせそうです。";
+  if (rate >= 0.7) return "よく理解できています。もう少しで満点です。";
+  if (rate >= 0.4) return "半分以上正解。用語集を見返すとさらに定着します。";
+  return "まずは用語集タブでひとつずつ確認してみましょう。";
+}
+
+const tabButtonStyle = (active) => ({
+  flex: 1, fontFamily: "inherit", fontSize: 12, fontWeight: 700,
+  padding: "9px 12px", borderRadius: 12, cursor: "pointer",
+  color: active ? "#00120C" : "#A1A7B3",
+  background: active ? "#00E0A3" : "#13161C",
+  border: `1px solid ${active ? "#00E0A3" : "#1B1F26"}`,
+});
+
+const primaryButtonStyle = {
+  fontFamily: "inherit", fontSize: 12.5, fontWeight: 700,
+  padding: "11px 20px", borderRadius: 12, cursor: "pointer",
+  color: "#00120C", background: "#00E0A3", border: "1px solid #00E0A3",
+};
+
 export default function QuizPage() {
+  const [tab, setTab] = useState("glossary"); // "glossary" | "quiz"
   const [activeCategory, setActiveCategory] = useState("all");
   const [query, setQuery] = useState("");
   const [openTerm, setOpenTerm] = useState(null);
+  const [quiz, setQuiz] = useState(null); // null = 未開始
 
   const filtered = useMemo(() => {
     const q = query.trim();
@@ -189,11 +246,30 @@ export default function QuizPage() {
     });
   }, [activeCategory, query]);
 
+  const startQuiz = () => setQuiz({ questions: buildQuiz(), index: 0, score: 0, selected: null, finished: false });
+
+  const selectAnswer = (idx) => {
+    if (!quiz || quiz.selected !== null) return;
+    const correct = idx === quiz.questions[quiz.index].correctIndex;
+    setQuiz({ ...quiz, selected: idx, score: quiz.score + (correct ? 1 : 0) });
+  };
+
+  const nextQuestion = () => {
+    if (!quiz) return;
+    if (quiz.index + 1 >= quiz.questions.length) {
+      setQuiz({ ...quiz, finished: true });
+    } else {
+      setQuiz({ ...quiz, index: quiz.index + 1, selected: null });
+    }
+  };
+
+  const currentQuestion = quiz && !quiz.finished ? quiz.questions[quiz.index] : null;
+
   return (
     <>
       <Head>
-        <title>用語集 | KabuBocchi</title>
-        <meta name="description" content="株ぼっち(KabuBocchi)のスイングトレード用語集。朝刊で使っている指標・銘柄パターンの意味をやさしく解説。" />
+        <title>用語集・問題集 | KabuBocchi</title>
+        <meta name="description" content="株ぼっち(KabuBocchi)のスイングトレード用語集と4択問題集。朝刊で使っている指標・銘柄パターンの意味をやさしく解説・確認できます。" />
         <meta name="robots" content="index,follow" />
       </Head>
       <div style={{
@@ -210,84 +286,187 @@ export default function QuizPage() {
           <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.16em", textTransform: "uppercase", marginTop: 10 }}>
             KabuBocchi Glossary
           </div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: "#FFFFFF", marginTop: 4 }}>株ぼっち 用語集</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: "#FFFFFF", marginTop: 4 }}>株ぼっち 用語集・問題集</div>
           <div style={{ fontSize: 11, color: "#8892A3", marginTop: 6, lineHeight: 1.6 }}>
             毎朝の朝刊で使っている指標・銘柄パターンの意味をまとめました。投資助言ではありません。
           </div>
 
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="用語を検索(例: RSI、出来高)"
-            style={{
-              width: "100%", marginTop: 14, padding: "10px 12px", borderRadius: 12,
-              background: "#13161C", border: "1px solid #1B1F26", color: "#F5F7F8",
-              fontFamily: "inherit", fontSize: 13, outline: "none", boxSizing: "border-box",
-            }}
-          />
-
-          <div style={{ display: "flex", gap: 6, overflowX: "auto", marginTop: 12, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
-            {CATEGORIES.map((c) => {
-              const active = activeCategory === c.id;
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => setActiveCategory(c.id)}
-                  style={{
-                    flex: "0 0 auto", fontFamily: "inherit", fontSize: 11, fontWeight: 700,
-                    padding: "7px 12px", borderRadius: 20, cursor: "pointer",
-                    color: active ? "#00120C" : "#A1A7B3",
-                    background: active ? "#00E0A3" : "#13161C",
-                    border: `1px solid ${active ? "#00E0A3" : "#1B1F26"}`,
-                  }}
-                >
-                  {c.label}
-                </button>
-              );
-            })}
+          <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+            <button onClick={() => setTab("glossary")} style={tabButtonStyle(tab === "glossary")}>用語集</button>
+            <button onClick={() => setTab("quiz")} style={tabButtonStyle(tab === "quiz")}>問題集</button>
           </div>
+
+          {tab === "glossary" && (
+            <>
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="用語を検索(例: RSI、出来高)"
+                style={{
+                  width: "100%", marginTop: 14, padding: "10px 12px", borderRadius: 12,
+                  background: "#13161C", border: "1px solid #1B1F26", color: "#F5F7F8",
+                  fontFamily: "inherit", fontSize: 13, outline: "none", boxSizing: "border-box",
+                }}
+              />
+
+              <div style={{ display: "flex", gap: 6, overflowX: "auto", marginTop: 12, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
+                {CATEGORIES.map((c) => {
+                  const active = activeCategory === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => setActiveCategory(c.id)}
+                      style={{
+                        flex: "0 0 auto", fontFamily: "inherit", fontSize: 11, fontWeight: 700,
+                        padding: "7px 12px", borderRadius: 20, cursor: "pointer",
+                        color: active ? "#00120C" : "#A1A7B3",
+                        background: active ? "#00E0A3" : "#13161C",
+                        border: `1px solid ${active ? "#00E0A3" : "#1B1F26"}`,
+                      }}
+                    >
+                      {c.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
 
-        <div style={{ padding: "8px 16px 0" }}>
-          <div style={{ fontSize: 10, color: "#4A5568", marginBottom: 10 }}>{filtered.length}件</div>
-          {filtered.length === 0 && (
-            <div style={{ fontSize: 12, color: "#68747C", padding: "24px 0", textAlign: "center" }}>
-              該当する用語が見つかりませんでした。
-            </div>
-          )}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {filtered.map((t) => {
-              const isOpen = openTerm === t.term;
-              return (
-                <div
-                  key={t.term}
-                  onClick={() => setOpenTerm(isOpen ? null : t.term)}
-                  style={{
-                    background: "#101519", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16,
-                    padding: "12px 14px", cursor: "pointer",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF" }}>{t.term}</div>
-                    <div style={{ fontSize: 14, color: "#68747C", flexShrink: 0 }}>{isOpen ? "−" : "+"}</div>
-                  </div>
-                  {t.kana && (
-                    <div style={{ fontSize: 9.5, color: "#4A5568", marginTop: 2 }}>{t.kana}</div>
-                  )}
-                  <div style={{ fontSize: 12, color: "#A1A7B3", marginTop: 6, lineHeight: 1.7 }}>{t.short}</div>
-                  {isOpen && (
-                    <div style={{
-                      fontSize: 11.5, color: "#8892A3", marginTop: 8, paddingTop: 8,
-                      borderTop: "1px solid rgba(255,255,255,0.06)", lineHeight: 1.8,
-                    }}>
-                      {t.detail}
+        {tab === "glossary" ? (
+          <div style={{ padding: "8px 16px 0" }}>
+            <div style={{ fontSize: 10, color: "#4A5568", marginBottom: 10 }}>{filtered.length}件</div>
+            {filtered.length === 0 && (
+              <div style={{ fontSize: 12, color: "#68747C", padding: "24px 0", textAlign: "center" }}>
+                該当する用語が見つかりませんでした。
+              </div>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {filtered.map((t) => {
+                const isOpen = openTerm === t.term;
+                return (
+                  <div
+                    key={t.term}
+                    onClick={() => setOpenTerm(isOpen ? null : t.term)}
+                    style={{
+                      background: "#101519", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16,
+                      padding: "12px 14px", cursor: "pointer",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#FFFFFF" }}>{t.term}</div>
+                      <div style={{ fontSize: 14, color: "#68747C", flexShrink: 0 }}>{isOpen ? "−" : "+"}</div>
                     </div>
+                    {t.kana && (
+                      <div style={{ fontSize: 9.5, color: "#4A5568", marginTop: 2 }}>{t.kana}</div>
+                    )}
+                    <div style={{ fontSize: 12, color: "#A1A7B3", marginTop: 6, lineHeight: 1.7 }}>{t.short}</div>
+                    {isOpen && (
+                      <div style={{
+                        fontSize: 11.5, color: "#8892A3", marginTop: 8, paddingTop: 8,
+                        borderTop: "1px solid rgba(255,255,255,0.06)", lineHeight: 1.8,
+                      }}>
+                        {t.detail}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: "16px 16px 0" }}>
+            {!quiz && (
+              <div style={{
+                background: "#101519", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16,
+                padding: "24px 16px", textAlign: "center",
+              }}>
+                <div style={{ fontSize: 13, color: "#A1A7B3", lineHeight: 1.8, marginBottom: 18 }}>
+                  用語集から{Math.min(QUIZ_LENGTH, TERMS.length)}問をランダム出題します。<br />
+                  4つの選択肢から意味を選んでください。
+                </div>
+                <button onClick={startQuiz} style={primaryButtonStyle}>
+                  {Math.min(QUIZ_LENGTH, TERMS.length)}問チャレンジ開始
+                </button>
+              </div>
+            )}
+
+            {currentQuestion && (
+              <div>
+                <div style={{ fontSize: 10, color: "#4A5568", marginBottom: 10 }}>
+                  問題 {quiz.index + 1} / {quiz.questions.length} ・ 正解 {quiz.score}問
+                </div>
+                <div style={{
+                  background: "#101519", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16,
+                  padding: "16px 14px", marginBottom: 12,
+                }}>
+                  <div style={{ fontSize: 10, color: "#68747C", marginBottom: 6 }}>次の用語の意味は？</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: "#FFFFFF" }}>{currentQuestion.term}</div>
+                  {currentQuestion.kana && (
+                    <div style={{ fontSize: 9.5, color: "#4A5568", marginTop: 2 }}>{currentQuestion.kana}</div>
                   )}
                 </div>
-              );
-            })}
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {currentQuestion.choices.map((choice, idx) => {
+                    const answered = quiz.selected !== null;
+                    const isCorrectChoice = idx === currentQuestion.correctIndex;
+                    const isSelected = quiz.selected === idx;
+                    let bg = "#13161C", border = "#1B1F26", color = "#F5F7F8";
+                    if (answered && isCorrectChoice) {
+                      bg = "rgba(0,224,163,0.12)"; border = "#00E0A3"; color = "#00E0A3";
+                    } else if (answered && isSelected) {
+                      bg = "rgba(255,107,107,0.12)"; border = "#FF6B6B"; color = "#FF6B6B";
+                    }
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => selectAnswer(idx)}
+                        disabled={answered}
+                        style={{
+                          textAlign: "left", fontFamily: "inherit", fontSize: 12.5, lineHeight: 1.6,
+                          padding: "12px 14px", borderRadius: 12,
+                          background: bg, border: `1px solid ${border}`, color,
+                          cursor: answered ? "default" : "pointer",
+                        }}
+                      >
+                        {choice}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {quiz.selected !== null && (
+                  <div style={{
+                    marginTop: 12, background: "#101519", border: "1px solid rgba(255,255,255,0.07)",
+                    borderRadius: 16, padding: "12px 14px",
+                  }}>
+                    <div style={{ fontSize: 11.5, color: "#8892A3", lineHeight: 1.8 }}>{currentQuestion.detail}</div>
+                    <button onClick={nextQuestion} style={{ ...primaryButtonStyle, marginTop: 12, width: "100%" }}>
+                      {quiz.index + 1 >= quiz.questions.length ? "結果を見る" : "次の問題へ"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {quiz && quiz.finished && (
+              <div style={{
+                background: "#101519", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16,
+                padding: "28px 16px", textAlign: "center",
+              }}>
+                <div style={{ fontSize: 11, color: "#68747C" }}>結果</div>
+                <div style={{ fontSize: 32, fontWeight: 700, color: "#00E0A3", marginTop: 8 }}>
+                  {quiz.score} / {quiz.questions.length}
+                </div>
+                <div style={{ fontSize: 12, color: "#A1A7B3", marginTop: 10, lineHeight: 1.8 }}>
+                  {resultComment(quiz.score, quiz.questions.length)}
+                </div>
+                <button onClick={startQuiz} style={{ ...primaryButtonStyle, marginTop: 18 }}>もう一度挑戦</button>
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
         <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", letterSpacing: "0.2em", textAlign: "center", marginTop: 32 }}>
           KABUBOCCHI
