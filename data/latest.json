@@ -5,16 +5,16 @@
   "nikkei": 69220,
   "nikkei_diff": 507,
   "nikkei_pct": 0.7378516437937508,
-  "usd_jpy": 159.32,
-  "sox_pct": 1.3305718833078164,
-  "sox": 12582.3,
+  "usd_jpy": 159.2,
+  "sox_pct": 1.7907427720154503,
+  "sox": 12639.4,
   "vix": 15.0,
   "topix": 4311.0,
   "topix_pct": -0.14,
-  "nasdaq": 26745.4,
-  "nasdaq_pct": 0.06,
-  "sp500": 7776.1,
-  "sp500_pct": -0.12,
+  "nasdaq": 26719.6,
+  "nasdaq_pct": -0.04,
+  "sp500": 7772.6,
+  "sp500_pct": -0.17,
   "news": [
     {
       "tag": "日本",
@@ -950,366 +950,366 @@
   "us_sector_heatmap": [
     {
       "sector": "金融",
-      "avg_pct": 0.45,
+      "avg_pct": 0.58,
       "count": 3,
       "up": 3,
       "down": 0,
       "top_mover": {
         "name": "Bank of America",
         "code": "BAC",
+        "pct": 0.85
+      }
+    },
+    {
+      "sector": "エネルギー",
+      "avg_pct": 0.54,
+      "count": 2,
+      "up": 2,
+      "down": 0,
+      "top_mover": {
+        "name": "Chevron",
+        "code": "CVX",
         "pct": 0.79
       }
     },
     {
       "sector": "資本財",
-      "avg_pct": 0.05,
+      "avg_pct": 0.17,
       "count": 3,
       "up": 2,
       "down": 1,
       "top_mover": {
-        "name": "Boeing",
-        "code": "BA",
-        "pct": -0.8
-      }
-    },
-    {
-      "sector": "エネルギー",
-      "avg_pct": -0.12,
-      "count": 2,
-      "up": 1,
-      "down": 1,
-      "top_mover": {
-        "name": "ExxonMobil",
-        "code": "XOM",
-        "pct": -0.38
+        "name": "Caterpillar",
+        "code": "CAT",
+        "pct": 1.95
       }
     },
     {
       "sector": "半導体",
-      "avg_pct": -0.24,
+      "avg_pct": 0.12,
       "count": 3,
       "up": 2,
       "down": 1,
       "top_mover": {
         "name": "AMD",
         "code": "AMD",
-        "pct": -1.02
+        "pct": -0.67
+      }
+    },
+    {
+      "sector": "ヘルスケア",
+      "avg_pct": 0.1,
+      "count": 3,
+      "up": 2,
+      "down": 1,
+      "top_mover": {
+        "name": "UnitedHealth",
+        "code": "UNH",
+        "pct": -1.28
       }
     },
     {
       "sector": "生活必需品",
-      "avg_pct": -0.51,
+      "avg_pct": -0.55,
       "count": 3,
-      "up": 0,
-      "down": 3,
+      "up": 1,
+      "down": 2,
       "top_mover": {
         "name": "Procter & Gamble",
         "code": "PG",
-        "pct": -0.81
-      }
-    },
-    {
-      "sector": "テクノロジー",
-      "avg_pct": -0.53,
-      "count": 3,
-      "up": 0,
-      "down": 3,
-      "top_mover": {
-        "name": "Microsoft",
-        "code": "MSFT",
-        "pct": -1.2
+        "pct": -0.84
       }
     },
     {
       "sector": "消費・EC",
-      "avg_pct": -0.56,
+      "avg_pct": -0.65,
       "count": 3,
       "up": 0,
       "down": 3,
       "top_mover": {
         "name": "Tesla",
         "code": "TSLA",
-        "pct": -1.22
+        "pct": -0.92
       }
     },
     {
-      "sector": "ヘルスケア",
-      "avg_pct": -0.81,
+      "sector": "テクノロジー",
+      "avg_pct": -1.15,
       "count": 3,
       "up": 0,
       "down": 3,
       "top_mover": {
-        "name": "UnitedHealth",
-        "code": "UNH",
-        "pct": -1.73
+        "name": "Microsoft",
+        "code": "MSFT",
+        "pct": -2.4
       }
     },
     {
       "sector": "通信・メディア",
-      "avg_pct": -0.85,
+      "avg_pct": -1.58,
       "count": 3,
       "up": 0,
       "down": 3,
       "top_mover": {
         "name": "Meta Platforms",
         "code": "META",
-        "pct": -1.37
+        "pct": -1.94
       }
     }
   ],
   "us_top_movers": [
     {
-      "code": "UNH",
-      "name": "UnitedHealth",
-      "pct": -1.73,
-      "price": 394.8,
-      "sector": "ヘルスケア"
+      "code": "MSFT",
+      "name": "Microsoft",
+      "pct": -2.4,
+      "price": 483.51,
+      "sector": "テクノロジー"
+    },
+    {
+      "code": "CAT",
+      "name": "Caterpillar",
+      "pct": 1.95,
+      "price": 873.26,
+      "sector": "資本財"
     },
     {
       "code": "META",
       "name": "Meta Platforms",
-      "pct": -1.37,
-      "price": 581.74,
+      "pct": -1.94,
+      "price": 578.39,
+      "sector": "通信・メディア"
+    },
+    {
+      "code": "BA",
+      "name": "Boeing",
+      "pct": -1.62,
+      "price": 227.92,
+      "sector": "資本財"
+    },
+    {
+      "code": "NFLX",
+      "name": "Netflix",
+      "pct": -1.57,
+      "price": 76.93,
+      "sector": "通信・メディア"
+    },
+    {
+      "code": "UNH",
+      "name": "UnitedHealth",
+      "pct": -1.28,
+      "price": 396.58,
+      "sector": "ヘルスケア"
+    },
+    {
+      "code": "DIS",
+      "name": "Disney",
+      "pct": -1.22,
+      "price": 105.55,
       "sector": "通信・メディア"
     },
     {
       "code": "TSLA",
       "name": "Tesla",
-      "pct": -1.22,
-      "price": 338.09,
+      "pct": -0.92,
+      "price": 339.14,
       "sector": "消費・EC"
-    },
-    {
-      "code": "MSFT",
-      "name": "Microsoft",
-      "pct": -1.2,
-      "price": 489.46,
-      "sector": "テクノロジー"
-    },
-    {
-      "code": "AMD",
-      "name": "AMD",
-      "pct": -1.02,
-      "price": 509.15,
-      "sector": "半導体"
-    },
-    {
-      "code": "DIS",
-      "name": "Disney",
-      "pct": -0.83,
-      "price": 105.96,
-      "sector": "通信・メディア"
-    },
-    {
-      "code": "PG",
-      "name": "Procter & Gamble",
-      "pct": -0.81,
-      "price": 143.38,
-      "sector": "生活必需品"
-    },
-    {
-      "code": "BA",
-      "name": "Boeing",
-      "pct": -0.8,
-      "price": 229.82,
-      "sector": "資本財"
     },
     {
       "code": "BAC",
       "name": "Bank of America",
-      "pct": 0.79,
-      "price": 65.0,
+      "pct": 0.85,
+      "price": 65.04,
       "sector": "金融"
     },
     {
-      "code": "CAT",
-      "name": "Caterpillar",
-      "pct": 0.7,
-      "price": 862.6,
-      "sector": "資本財"
+      "code": "PG",
+      "name": "Procter & Gamble",
+      "pct": -0.84,
+      "price": 143.33,
+      "sector": "生活必需品"
     }
   ],
   "us_all_changes": [
     {
       "code": "AAPL",
       "name": "Apple",
-      "pct": -0.19,
-      "price": 305.35,
+      "pct": -0.44,
+      "price": 304.59,
       "sector": "テクノロジー"
     },
     {
       "code": "MSFT",
       "name": "Microsoft",
-      "pct": -1.2,
-      "price": 489.46,
+      "pct": -2.4,
+      "price": 483.51,
       "sector": "テクノロジー"
     },
     {
       "code": "GOOGL",
       "name": "Alphabet",
-      "pct": -0.19,
-      "price": 345.24,
+      "pct": -0.6,
+      "price": 343.82,
       "sector": "テクノロジー"
     },
     {
       "code": "NVDA",
       "name": "NVIDIA",
-      "pct": 0.21,
-      "price": 225.64,
+      "pct": 0.43,
+      "price": 226.13,
       "sector": "半導体"
     },
     {
       "code": "AMD",
       "name": "AMD",
-      "pct": -1.02,
-      "price": 509.15,
+      "pct": -0.67,
+      "price": 510.92,
       "sector": "半導体"
     },
     {
       "code": "AVGO",
       "name": "Broadcom",
-      "pct": 0.1,
-      "price": 393.38,
+      "pct": 0.6,
+      "price": 395.35,
       "sector": "半導体"
     },
     {
       "code": "AMZN",
       "name": "Amazon",
-      "pct": -0.18,
-      "price": 262.17,
+      "pct": -0.6,
+      "price": 261.07,
       "sector": "消費・EC"
     },
     {
       "code": "TSLA",
       "name": "Tesla",
-      "pct": -1.22,
-      "price": 338.09,
+      "pct": -0.92,
+      "price": 339.14,
       "sector": "消費・EC"
     },
     {
       "code": "WMT",
       "name": "Walmart",
-      "pct": -0.28,
-      "price": 114.95,
+      "pct": -0.43,
+      "price": 114.77,
       "sector": "消費・EC"
     },
     {
       "code": "META",
       "name": "Meta Platforms",
-      "pct": -1.37,
-      "price": 581.74,
+      "pct": -1.94,
+      "price": 578.39,
       "sector": "通信・メディア"
     },
     {
       "code": "NFLX",
       "name": "Netflix",
-      "pct": -0.36,
-      "price": 77.88,
+      "pct": -1.57,
+      "price": 76.93,
       "sector": "通信・メディア"
     },
     {
       "code": "DIS",
       "name": "Disney",
-      "pct": -0.83,
-      "price": 105.96,
+      "pct": -1.22,
+      "price": 105.55,
       "sector": "通信・メディア"
     },
     {
       "code": "JPM",
       "name": "JPMorgan Chase",
-      "pct": 0.24,
-      "price": 363.71,
+      "pct": 0.3,
+      "price": 363.92,
       "sector": "金融"
     },
     {
       "code": "BAC",
       "name": "Bank of America",
-      "pct": 0.79,
-      "price": 65.0,
+      "pct": 0.85,
+      "price": 65.04,
       "sector": "金融"
     },
     {
       "code": "GS",
       "name": "Goldman Sachs",
-      "pct": 0.31,
-      "price": 1042.64,
+      "pct": 0.58,
+      "price": 1045.49,
       "sector": "金融"
     },
     {
       "code": "JNJ",
       "name": "Johnson & Johnson",
-      "pct": -0.27,
-      "price": 259.65,
+      "pct": 0.81,
+      "price": 262.46,
       "sector": "ヘルスケア"
     },
     {
       "code": "UNH",
       "name": "UnitedHealth",
-      "pct": -1.73,
-      "price": 394.8,
+      "pct": -1.28,
+      "price": 396.58,
       "sector": "ヘルスケア"
     },
     {
       "code": "LLY",
       "name": "Eli Lilly",
-      "pct": -0.44,
-      "price": 1175.01,
+      "pct": 0.77,
+      "price": 1189.29,
       "sector": "ヘルスケア"
     },
     {
       "code": "XOM",
       "name": "ExxonMobil",
-      "pct": -0.38,
-      "price": 159.49,
+      "pct": 0.28,
+      "price": 160.55,
       "sector": "エネルギー"
     },
     {
       "code": "CVX",
       "name": "Chevron",
-      "pct": 0.14,
-      "price": 200.29,
+      "pct": 0.79,
+      "price": 201.57,
       "sector": "エネルギー"
     },
     {
       "code": "KO",
       "name": "Coca-Cola",
-      "pct": -0.19,
-      "price": 87.54,
+      "pct": 0.01,
+      "price": 87.72,
       "sector": "生活必需品"
     },
     {
       "code": "PG",
       "name": "Procter & Gamble",
-      "pct": -0.81,
-      "price": 143.38,
+      "pct": -0.84,
+      "price": 143.33,
       "sector": "生活必需品"
     },
     {
       "code": "COST",
       "name": "Costco",
-      "pct": -0.53,
-      "price": 956.03,
+      "pct": -0.81,
+      "price": 953.34,
       "sector": "生活必需品"
     },
     {
       "code": "BA",
       "name": "Boeing",
-      "pct": -0.8,
-      "price": 229.82,
+      "pct": -1.62,
+      "price": 227.92,
       "sector": "資本財"
     },
     {
       "code": "CAT",
       "name": "Caterpillar",
-      "pct": 0.7,
-      "price": 862.6,
+      "pct": 1.95,
+      "price": 873.26,
       "sector": "資本財"
     },
     {
       "code": "GE",
       "name": "GE Aerospace",
-      "pct": 0.25,
-      "price": 369.29,
+      "pct": 0.17,
+      "price": 369.0,
       "sector": "資本財"
     }
   ],
@@ -1358,12 +1358,12 @@
   ],
   "note_body": "【週明けの朝に確認すべきこと——熱狂の翌日こそ冷静に】\n\n前営業日の東証は、任天堂(7974)+6.9%・ソニーグループ(6758)+5.7%という個別急騰が目を引く一日だった。日経225は68,713円・前々営業日比+0.59%で着地し、表面上は穏やかな上昇週明けに映る。しかし足元の相場を冷静に見ると、日立製作所(6501)RSI88.5・テルモ(4543)RSI82.5・リクルートHD(6098)RSI80.1・任天堂RSI75.5と、複数の日本株でテクニカル的な過熱シグナルが重なっている。VIX14.2という落ち着いた外部環境に油断せず、今日は『どの銘柄が熱いか』より『どの銘柄が冷静か』を探す一日にしたい。\n\nドル円は159.29円と円安水準を維持。輸出株、とりわけトヨタ(7203)のような自動車セクターには追い風の環境だ。一方でSOX指数は-0.3%と小幅軟調が続いており、東京エレクトロン(8035)や信越化学(4063)など半導体・半導体材料セクターへの逆風は完全に払拭されていない。AI・半導体関連銘柄のスイングトレードを組み立てる際は、今週後半のFOMC議事録・PCEデフレーターを意識しながら分割エントリーで対応するのが賢明だろう。\n\n---\n\n【今日の注目銘柄】\n\n★★★★☆ ダイキン工業(6367)\nRSI20.0・BB下限・MA25乖離-9.9%と、売られ過ぎシグナルが三重に重なる。空調大手として事業の底堅さに疑いはなく、相場の調整に巻き込まれた可能性がある。エントリーはBB下限付近での反発確認後に分割で。利確+3%・損切-2%を事前設定してから入ること。ただし下値余地がゼロとは言えず、あくまで反発確認後の行動が前提だ。\n\n★★★★☆ 信越化学工業(4063)\nRSI36.0・MA25乖離-3.0%と静かに押し目形成中。半導体材料の中長期需要は変わらない中、SOX軟調との連動売りが続いている可能性がある。週内の半導体関連ニュース次第で急回復シナリオも考えられ、今日は打診買いのタイミングとして意識したい。\n\n★★★☆☆ 東京エレクトロン(8035)\nRSI40.3・MA25乖離-4.5%。日本株の半導体製造装置セクターを代表するこの銘柄が割安ゾーンにある間に、スイングトレードの仕込みを考えたい。SOX動向が回復の鍵を握る。\n\n---\n\n【寄り付き・前場・後場の見どころ】\n\n🔔 寄り付き（9:00〜9:30）: 急騰銘柄の利確売りが集中しやすい。静観が基本姿勢。\n📊 前場中盤（10:00〜11:30）: セクターローテーションの方向が見えてくる。自動車・素材への資金移動があるか確認。\n🎯 後場（12:30〜15:30）: 円相場の動向と日経225の水準を見ながらポジション管理。持ち越し判断はこの時間に。\n\n---\n\n【今日の売買戦略まとめ】\n\nデイトレ: 寄り付き15分は絶対に様子見。前場10時以降に動いた銘柄だけを追う。\nスイング: ダイキン・信越化学など売られ過ぎゾーンを条件付きで仕込む。RSI過熱銘柄への新規追随は控える。\n中長期: トヨタをドル円と連動させながらじっくり積み上げる戦略が有効な局面。\n\n---\n\nかぶぼっちより一言——\n過熱した銘柄が主役の朝こそ、地味に仕込み場を作っている銘柄の存在を見逃しがちだ。日本株のスイングトレードで大事なのは、みんなが熱狂している時に冷静でいられるかどうか。今日という一日を、来週の自分への仕込みデーにしよう。",
   "note_cta": "毎朝の相場分析と注目銘柄は継続発信中。フォローしてお待ちください📊",
-  "usd_jpy_pct": -0.07,
-  "market_data_refreshed_at": "2026-08-17T22:38:00.772135+09:00",
+  "usd_jpy_pct": -0.14,
+  "market_data_refreshed_at": "2026-08-17T23:25:55.670286+09:00",
   "vix_pct": 5.26,
-  "us10y": 4.71,
-  "us10y_diff": 0.01,
-  "fear_greed_value": 64.1,
+  "us10y": 4.7,
+  "us10y_diff": 0.0,
+  "fear_greed_value": 62.5,
   "fear_greed_label": "greed",
   "jp_earnings_calendar": [
     {
@@ -2082,14 +2082,14 @@
     ]
   },
   "earnings_refreshed_at": "2026-08-17T10:47:42.244420+09:00",
-  "btc": 63656.0,
-  "btc_pct": 1.33,
-  "dxy": 99.44,
-  "dxy_pct": -0.23,
-  "gold": 4443.5,
-  "gold_pct": 1.44,
+  "btc": 63585.0,
+  "btc_pct": 1.22,
+  "dxy": 99.42,
+  "dxy_pct": -0.25,
+  "gold": 4470.1,
+  "gold_pct": 2.05,
   "fear_greed_prev": 65.0,
-  "fear_greed_diff": -0.9,
+  "fear_greed_diff": -2.5,
   "x_teaser_3line": "📋 今朝のnote、RSI20のダイキンと過熱銘柄の扱い方を本音で書いた。週明けの作戦立てに使ってみて",
   "jp_screener": {
     "top": [
@@ -3171,9 +3171,9 @@
   ],
   "nikkei_data_stale": false,
   "jp_sector_heatmap_stale": false,
-  "jp_sector_heatmap_refreshed_at": "2026-08-17T22:38:00.772135+09:00",
+  "jp_sector_heatmap_refreshed_at": "2026-08-17T23:25:55.670286+09:00",
   "us_sector_heatmap_stale": false,
-  "us_sector_heatmap_refreshed_at": "2026-08-17T22:38:00.772135+09:00",
+  "us_sector_heatmap_refreshed_at": "2026-08-17T23:25:55.670286+09:00",
   "is_trading_day": true,
   "next_trading_day": "2026/08/18",
   "top_news_headlines": [
@@ -3199,10 +3199,10 @@
       "label": "日経225先物",
       "symbol": "NKD=F",
       "source": "Yahoo Finance (yfinance)",
-      "volume": 1278,
-      "volume_prev_pct": -55.5,
+      "volume": 1541,
+      "volume_prev_pct": -46.3,
       "avg20d": 4789,
-      "avg20d_pct": 26.7,
+      "avg20d_pct": 32.2,
       "judgement": "薄商い",
       "history": [
         4979,
@@ -3219,7 +3219,7 @@
         3069,
         2871,
         2871,
-        1278
+        1541
       ]
     },
     {
@@ -3255,10 +3255,10 @@
       "label": "NASDAQ100先物",
       "symbol": "NQ=F",
       "source": "Yahoo Finance (yfinance)",
-      "volume": 80849,
-      "volume_prev_pct": -82.4,
+      "volume": 160370,
+      "volume_prev_pct": -65.2,
       "avg20d": 560592,
-      "avg20d_pct": 14.4,
+      "avg20d_pct": 28.6,
       "judgement": "薄商い",
       "history": [
         668434,
@@ -3275,7 +3275,7 @@
         412530,
         460408,
         460408,
-        80849
+        160370
       ]
     },
     {
@@ -3283,10 +3283,10 @@
       "label": "S&P500先物",
       "symbol": "ES=F",
       "source": "Yahoo Finance (yfinance)",
-      "volume": 118133,
-      "volume_prev_pct": -89.3,
+      "volume": 275923,
+      "volume_prev_pct": -75.1,
       "avg20d": 1367307,
-      "avg20d_pct": 8.6,
+      "avg20d_pct": 20.2,
       "judgement": "薄商い",
       "history": [
         1389750,
@@ -3303,7 +3303,7 @@
         944743,
         1106913,
         1106913,
-        118133
+        275923
       ]
     },
     {
@@ -3311,10 +3311,10 @@
       "label": "半導体ETF(SMH)",
       "symbol": "SMH",
       "source": "Yahoo Finance (yfinance)",
-      "volume": 563757,
-      "volume_prev_pct": -89.8,
+      "volume": 1366449,
+      "volume_prev_pct": -75.3,
       "avg20d": 10944290,
-      "avg20d_pct": 5.2,
+      "avg20d_pct": 12.5,
       "judgement": "薄商い",
       "history": [
         18429000,
@@ -3331,7 +3331,7 @@
         7414100,
         6786000,
         5521200,
-        563757
+        1366449
       ]
     },
     {
@@ -3363,7 +3363,7 @@
       ]
     }
   ],
-  "market_volume_refreshed_at": "2026-08-17T22:38:00.772135+09:00",
+  "market_volume_refreshed_at": "2026-08-17T23:25:55.670286+09:00",
   "updated_items": [
     "朝刊更新",
     "決算情報更新",
