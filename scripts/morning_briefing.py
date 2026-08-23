@@ -454,7 +454,12 @@ events_jp/events_usのimportanceは3段階で厳密に付けること:
 - medium: 個別統計や中堅企業決算など、注目はされるが相場全体への影響は限定的なイベント
 - low: 参考程度の経済指標や恒例行事
 urgentはimportanceが"high"の場合のみtrueにすること。
- 
+
+【重要な事実確認】あなたの学習データには反映されていない可能性がある最新の役職交代:
+- 米FRB(連邦準備制度理事会)議長は、2026年5月22日付でケビン・ウォーシュ(Kevin Warsh)氏に交代済み。
+  パウエル(Jerome Powell)氏はもう議長ではない。FRB関連のイベント・発言に言及する際は
+  「ウォーシュ議長」と書くこと。「パウエル議長」と書いてはならない。
+
 All text content must be in Japanese. Return ONLY the JSON object."""
  
     response = client.messages.create(
