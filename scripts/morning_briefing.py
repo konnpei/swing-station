@@ -1059,7 +1059,7 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
             f"{c.get('market_summary', '')}"
         ),
         "color": color,
-        "footer": {"text": "swing-station | かぶぼっち | 📝 noteの銘柄ページにも掲載実績あり | ※特定の金融商品の売買を推奨・勧誘するものではありません"}
+        "footer": {"text": "swing-station | かぶぼっち | ※特定の金融商品の売買を推奨・勧誘するものではありません"}
     }
 
     embed_stocks = {
