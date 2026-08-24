@@ -1109,7 +1109,7 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
         headlines_block = "\n\n📡 経済ニュース速報\n" + "\n".join(lines)
     note_suffix = (
         headlines_block + "\n\n---\n"
-        "いいね・フォローお願いします🙏\n"
+        "いいね・フォローお願いします🙇\n"
         "※本サイトは一般的な市場情報およびAIによる機械的な分析結果を提供するものであり、"
         "特定の金融商品の売買を推奨・勧誘するものではありません。掲載情報の正確性・完全性・"
         "将来の成果を保証するものではありません。投資に関する最終判断は、ご自身の責任で行ってください。"
@@ -1120,31 +1120,22 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
         note_body = note_body[:max_body_len].rstrip() + "…"
     post_json({"content": note_prefix + note_body + note_suffix})
 
-    # X告知用(note宣伝)とX投稿文(相場サマリー)は、以前は別々のメッセージだったが
-    # どちらもコピペ用の短文なので1通にまとめる。
-    x_blocks = []
-
+    # X告知用(note宣伝)とX投稿文(相場サマリー)は、以前は見出し2つに分かれた
+    # 状態で1通のメッセージに入っていたが、コピペ先が1つのXの投稿なので
+    # 本文自体を1本にまとめる（相場サマリー→note宣伝の一言→ハッシュタグの順）。
+    # フォロー導線・投資助言の注記はX投稿では付けない運用に変更。
     x_teaser = c.get("x_teaser_3line", "")
-    if x_teaser:
-        x_teaser_full = (
-            f"{x_teaser}\n\n"
-            "いいね・フォローよろしくお願いします🙏\n"
-            "※投資助言ではありません。投資判断は自己責任でお願いします。"
-        )
-        x_blocks.append(f"**📱 X告知用（note宣伝）**\n\n{x_teaser_full}")
+    x_posts = c.get("x_posts", [c.get("x_main", "")])
+    x_main = x_posts[0] if x_posts else ""
 
-    # 個別銘柄・騰落率に言及する投稿のため、短い注記を必ず末尾に付与する。
-    X_POST_DISCLAIMER = "\n※投資助言ではありません"
     # 検索流入を増やすため、固定ハッシュタグを毎回必ず付与する（LLM任せだと
     # 付け忘れ・個数のブレが起きるため、コード側で確実に追加する）。
     X_POST_HASHTAGS = "\n#日本株 #株式投資"
-    x_posts = c.get("x_posts", [c.get("x_main", "")])
-    if x_posts and x_posts[0]:
-        xp_full = x_posts[0] + X_POST_HASHTAGS + X_POST_DISCLAIMER
-        x_blocks.append(f"**📱 X投稿文（コピペしてそのまま投稿）**\n\n{xp_full[:450]}")
 
-    if x_blocks:
-        post_json({"content": "\n\n---\n\n".join(x_blocks)})
+    x_parts = [p for p in [x_main, x_teaser] if p]
+    if x_parts:
+        xp_full = "\n\n".join(x_parts) + X_POST_HASHTAGS
+        post_json({"content": f"**📱 X投稿文（コピペしてそのまま投稿）**\n\n{xp_full[:450]}"})
 
     print("Discord send complete!")
  
