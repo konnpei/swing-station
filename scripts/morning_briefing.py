@@ -619,8 +619,105 @@ def generate_chart(data, mode):
     plt.close()
     buf.seek(0)
     return buf
- 
- 
+
+
+def generate_stock_charts(content):
+    """本日の注目銘柄(stocks_jp + stock_us)について、終値ライン+MA5/MA25の
+    ミニチャートを1枚のグリッド画像にまとめて生成する。日経チャート
+    (generate_chart)とは別に、Discordの個別銘柄カードの下に添付する用途。
+
+    個別銘柄の取得失敗は握りつぶして残りの銘柄だけで描画する(1銘柄の
+    データ不備で朝刊全体が止まらないようにするため)。全滅した場合は
+    Noneを返し、呼び出し側で添付をスキップする。"""
+    import yfinance as yf
+
+    picks = []
+    for s in content.get("stocks_jp", [])[:5]:
+        code = str(s.get("code", "")).strip()
+        if code:
+            picks.append({"symbol": f"{code}.T", "label": f"{s.get('name','')}（{code}）"})
+    us = content.get("stock_us") or {}
+    us_ticker = str(us.get("ticker", "")).lstrip("$").strip()
+    if us_ticker:
+        picks.append({"symbol": us_ticker, "label": f"{us.get('name','')}（{us_ticker}）"})
+
+    if not picks:
+        return None
+
+    fm.fontManager.addfont(FONT_PATH)
+    fp = fm.FontProperties(fname=FONT_PATH)
+
+    BG, GRID, TEXT = "#0d1117", "#1e2535", "#9ca3af"
+    GREEN, RED = "#22c55e", "#ef4444"
+
+    panels = []
+    for p in picks:
+        try:
+            hist = yf.Ticker(p["symbol"]).history(period="3mo")
+            hist = hist.dropna(subset=["Close"])
+            if len(hist) < 6:
+                continue
+            closes = hist["Close"].tolist()
+            ma5 = [None if i < 4 else float(np.mean(closes[i-4:i+1])) for i in range(len(closes))]
+            ma25 = [None if i < 24 else float(np.mean(closes[i-24:i+1])) for i in range(len(closes))]
+            diff = closes[-1] - closes[-2]
+            pct = diff / closes[-2] * 100 if closes[-2] else 0.0
+            panels.append({
+                "label": p["label"], "closes": closes, "ma5": ma5, "ma25": ma25,
+                "last": closes[-1], "diff": diff, "pct": pct,
+            })
+        except Exception as e:
+            print(f"stock chart fetch error {p['symbol']}: {e}")
+            continue
+
+    if not panels:
+        return None
+
+    cols = 3
+    rows = (len(panels) + cols - 1) // cols
+    fig, axes = plt.subplots(rows, cols, figsize=(cols * 4.2, rows * 3), facecolor=BG)
+    # cols=3で固定のため、plt.subplotsは常に1次元以上の配列を返す(1x1にはならない)。
+    axes = np.array(axes).reshape(-1)
+
+    for i, ax in enumerate(axes):
+        ax.set_facecolor(BG)
+        if i >= len(panels):
+            ax.axis("off")
+            continue
+        pnl = panels[i]
+        c = GREEN if pnl["diff"] >= 0 else RED
+        x = np.arange(len(pnl["closes"]))
+        ax.plot(x, pnl["closes"], color=c, lw=1.4)
+        ma5_x = [j for j, v in enumerate(pnl["ma5"]) if v is not None]
+        ma5_v = [v for v in pnl["ma5"] if v is not None]
+        ma25_x = [j for j, v in enumerate(pnl["ma25"]) if v is not None]
+        ma25_v = [v for v in pnl["ma25"] if v is not None]
+        ax.plot(ma5_x, ma5_v, color="#3b82f6", lw=1.0, alpha=0.85)
+        ax.plot(ma25_x, ma25_v, color="#f59e0b", lw=1.0, alpha=0.85)
+        ax.tick_params(colors=TEXT, labelsize=7)
+        for sp in ["top", "right"]:
+            ax.spines[sp].set_visible(False)
+        for sp in ["bottom", "left"]:
+            ax.spines[sp].set_color(GRID)
+        ax.yaxis.grid(True, color=GRID, lw=0.5, ls="--", alpha=0.5)
+        ax.set_axisbelow(True)
+        ax.set_xticks([])
+        sign = "▲" if pnl["diff"] >= 0 else "▼"
+        ax.set_title(
+            f"{pnl['label']}\n{pnl['last']:,.1f}  {sign}{abs(pnl['pct']):.2f}%",
+            color=TEXT, fontsize=9, pad=6, loc="left", fontproperties=fp,
+        )
+
+    fig.text(0.99, 0.005, f"swing-station | {TODAY}  ※投資勧誘ではありません",
+        ha="right", va="bottom", fontsize=7, color="#4b5563", fontproperties=fp)
+    fig.tight_layout(rect=[0, 0.02, 1, 1])
+
+    buf = io.BytesIO()
+    plt.savefig(buf, dpi=150, bbox_inches="tight", facecolor=BG, format="png")
+    plt.close()
+    buf.seek(0)
+    return buf
+
 
 LOGO_PATH = "public/logo.png"
 
@@ -896,7 +993,7 @@ def generate_note(data, mode, c):
     return note
  
  
-def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlines=None):
+def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlines=None, stock_charts_buf=None):
     m    = MODES[mode]
     diff = data["diff"]
     sign = "▲" if diff >= 0 else "▼"
@@ -983,10 +1080,14 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
 
     banner_buf.seek(0)
     chart_buf.seek(0)
-    post_files("", files={
+    files = {
         "banner": ("banner.png", banner_buf, "image/png"),
         "chart":  ("chart.png",  chart_buf,  "image/png"),
-    }, embeds=[embed_main, embed_stocks, embed_strategy])
+    }
+    if stock_charts_buf is not None:
+        stock_charts_buf.seek(0)
+        files["stock_charts"] = ("stock_charts.png", stock_charts_buf, "image/png")
+    post_files("", files=files, embeds=[embed_main, embed_stocks, embed_strategy])
 
     # note専用本文をDiscordに送信（コードブロックなしの通常テキストでコピペしやすく）
     # note_body(Claude生成)にはフォロー導線と投資助言でない旨の注記が含まれないため、
@@ -1078,7 +1179,14 @@ if __name__ == "__main__":
  
     print("Generating chart...")
     chart_buf = generate_chart(data, mode)
- 
+
+    print("Generating stock pick charts...")
+    try:
+        stock_charts_buf = generate_stock_charts(content)
+    except Exception as e:
+        print(f"Stock charts generation error: {e}")
+        stock_charts_buf = None
+
     print("Generating banner...")
     banner_buf = generate_banner(data, mode)
  
@@ -1101,7 +1209,7 @@ if __name__ == "__main__":
         mtf_trend = None
 
     print("Sending to Discord...")
-    send_to_discord(banner_buf, chart_buf, note_text, content, data, mode, top_headlines)
+    send_to_discord(banner_buf, chart_buf, note_text, content, data, mode, top_headlines, stock_charts_buf)
 
     print("Saving data/latest.json...")
     diff = data["diff"]
