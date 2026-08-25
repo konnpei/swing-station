@@ -242,7 +242,44 @@ function InfoHubLinks({ code, name, market }) {
   );
 }
 
+function LiveChartPanel({ code, market }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.innerHTML = "";
+    const symbol = market === "us" ? code : `TSE:${code}`;
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      autosize: true,
+      symbol,
+      interval: "15",
+      timezone: "Asia/Tokyo",
+      theme: "dark",
+      style: "1",
+      locale: "ja",
+      allow_symbol_change: false,
+      save_image: false,
+      studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "BB@tv-basicstudies"],
+      disabled_features: ["popup_hints"],
+    });
+    containerRef.current.appendChild(script);
+  }, [code, market]);
+
+  return (
+    <div style={{ marginTop: 8, marginBottom: 4 }}>
+      <div ref={containerRef} style={{ height: 380, borderRadius: 8, overflow: "hidden", background: "#080D10" }} />
+      <div style={{ fontSize: 8, color: "#4a4a4a", marginTop: 4 }}>
+        ※TradingViewのリアルタイムチャートです。売買を推奨するものではありません。
+      </div>
+    </div>
+  );
+}
+
 function StockCard({ s, highlighted, market }) {
+  const [showChart, setShowChart] = useState(false);
   return (
     <div
       id={`stock-${s.code}`}
@@ -257,6 +294,17 @@ function StockCard({ s, highlighted, market }) {
           <span style={{ fontSize: 9, color: "#FFFFFF", background: "#FFFFFF18", padding: "2px 7px", borderRadius: 8 }}>{s.pattern}</span>
           <div style={{ fontSize: 14, color: "#FFFFFF", marginTop: 5, fontWeight: 500 }}>{s.name}<span style={{ color: "#A1A7B3", fontSize: 11 }}> ({s.code})</span></div>
           <InfoHubLinks code={s.code} name={s.name} market={market} />
+          <button
+            onClick={() => setShowChart((v) => !v)}
+            style={{
+              fontSize: 9, color: showChart ? "#00120C" : "#00E0A3",
+              background: showChart ? "#00E0A3" : "#080D10",
+              border: "1px solid #00E0A3", borderRadius: 6, padding: "3px 7px",
+              marginTop: 5, cursor: "pointer", fontWeight: 700,
+            }}
+          >
+            {showChart ? "✕ チャートを閉じる" : "📈 リアルタイムチャートを見る"}
+          </button>
         </div>
         <div style={{ textAlign: "right" }}>
           {typeof s.ai_score === "number" ? (() => {
@@ -277,6 +325,8 @@ function StockCard({ s, highlighted, market }) {
           )}
         </div>
       </div>
+
+      {showChart && <LiveChartPanel code={s.code} market={market} />}
 
       {s.fundamental && (
         <div style={{ marginBottom: 8, padding: "8px 10px", background: "#080D10", borderRadius: 8 }}>
