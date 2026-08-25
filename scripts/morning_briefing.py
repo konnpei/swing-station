@@ -662,9 +662,24 @@ def generate_stock_charts(content):
             ma25 = [None if i < 24 else float(np.mean(closes[i-24:i+1])) for i in range(len(closes))]
             diff = closes[-1] - closes[-2]
             pct = diff / closes[-2] * 100 if closes[-2] else 0.0
+
+            # RSI・MA25乖離率は fetch_technicals_for_ticker() と同じ計算式で揃える
+            # (「買い/売り」の断定フラグではなく、既に計算済みの実数値バッジとして表示するため)。
+            rsi_badge = None
+            ma25_diff_badge = None
+            close_series = hist["Close"]
+            if ma25[-1] is not None:
+                ma25_diff_badge = (closes[-1] - ma25[-1]) / ma25[-1] * 100
+            if len(close_series) >= 16:
+                delta = close_series.diff().tail(15)
+                gain = delta.clip(lower=0).mean()
+                loss = (-delta.clip(upper=0)).mean()
+                rsi_badge = round(100 - (100 / (1 + gain / loss)), 1) if loss != 0 else 50.0
+
             panels.append({
                 "label": p["label"], "closes": closes, "ma5": ma5, "ma25": ma25,
                 "last": closes[-1], "diff": diff, "pct": pct,
+                "rsi": rsi_badge, "ma25_diff": ma25_diff_badge,
             })
         except Exception as e:
             print(f"stock chart fetch error {p['symbol']}: {e}")
@@ -707,6 +722,19 @@ def generate_stock_charts(content):
             f"{pnl['label']}\n{pnl['last']:,.1f}  {sign}{abs(pnl['pct']):.2f}%",
             color=TEXT, fontsize=9, pad=6, loc="left", fontproperties=fp,
         )
+
+        # RSI・MA25乖離率の実数値バッジ(買い/売りの断定はせず、計算済みの
+        # テクニカル数値をそのまま小さく添えるだけに留める)。
+        badge_parts = []
+        if pnl["rsi"] is not None:
+            badge_parts.append(f"RSI {pnl['rsi']:.1f}")
+        if pnl["ma25_diff"] is not None:
+            badge_parts.append(f"MA25乖離 {pnl['ma25_diff']:+.1f}%")
+        if badge_parts:
+            ax.text(0.98, 0.96, "　".join(badge_parts),
+                transform=ax.transAxes, ha="right", va="top", fontsize=7.5, color=TEXT,
+                fontproperties=fp,
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="#1a2030", edgecolor=GRID, alpha=0.9))
 
     fig.text(0.99, 0.005, f"swing-station | {TODAY}  ※投資勧誘ではありません",
         ha="right", va="bottom", fontsize=7, color="#4b5563", fontproperties=fp)
