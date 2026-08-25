@@ -1135,8 +1135,26 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
             if h.get("link"):
                 lines.append(h["link"])
         headlines_block = "\n\n📡 経済ニュース速報\n" + "\n".join(lines)
+    # noteエディタは「^証券コード」「$ティッカー」を単独行で入力しEnterすると
+    # 株価チャートに自動変換される機能を持つ(2026年8月時点、note公式ヘルプ確認済み)。
+    # ただし「1文字ずつ入力した時に変換される」仕様のため、この本文をまとめて
+    # 貼り付けた場合に同じ変換がかかるかは未検証。かからない場合はコードの
+    # 文字列がそのまま表示されるだけなので、末尾にまとめて置いて実害を局所化し、
+    # 効かない場合は投稿前に手動でこの1行を消すだけで済むようにしている。
+    chart_codes = [f"^{s.get('code','').strip()}" for s in c.get("stocks_jp", [])[:5] if s.get("code")]
+    us_ticker_for_chart = str((c.get("stock_us") or {}).get("ticker", "")).lstrip("$").strip()
+    if us_ticker_for_chart:
+        chart_codes.append(f"${us_ticker_for_chart}")
+    chart_block = ""
+    if chart_codes:
+        chart_block = (
+            "\n\n---\n📊 銘柄チャート(貼り付けてもチャート化されない場合は、"
+            "該当行を一度消して同じ内容を打ち直すとnote上でチャートに変換されます)\n"
+            + "\n".join(chart_codes)
+        )
+
     note_suffix = (
-        headlines_block + "\n\n---\n"
+        headlines_block + chart_block + "\n\n---\n"
         "いいね・フォローお願いします🙇\n"
         "※本サイトは一般的な市場情報およびAIによる機械的な分析結果を提供するものであり、"
         "特定の金融商品の売買を推奨・勧誘するものではありません。掲載情報の正確性・完全性・"
