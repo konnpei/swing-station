@@ -3342,7 +3342,8 @@
   "market_volume_refreshed_at": "2026-08-27T07:44:00.258222+09:00",
   "updated_items": [
     "朝刊更新",
-    "AIスクリーニング更新"
+    "AIスクリーニング更新",
+    "注目テーマ更新"
   ],
   "updated_items_date": "2026/08/27",
   "generated_at": "2026-08-27T07:43:42.491485+09:00",
@@ -3361,12 +3362,12 @@
     {
       "id": "ai",
       "name": "AI",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 30,
-      "summary": "AI関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 29,
+      "source_count": 20,
+      "prev_news_count": 0,
+      "summary": "AI関連のニュースが増加（29件・20媒体）",
       "related_stocks": [
         {
           "code": "9984",
@@ -3384,17 +3385,21 @@
           "sector": "通信・IT"
         }
       ],
-      "sample_headlines": []
+      "sample_headlines": [
+        "生成AIで大転換期！商機急増で注目の「コールセンターAI」関連株 ＜株探トップ特集＞ - 株探",
+        "立命館大学図書館、Web展示「生成AIが描く、図書展示の世界」を公開 - カレントアウェアネス・ポータル",
+        "大学入試に生成AIはアリ?ナシ?近畿大学情報学部の総合型選抜では「利用認める」方針 専門家は「今後入試は二極化する」との見方 AI時代の入試のあり方とは - Yahoo!ニュース"
+      ]
     },
     {
       "id": "semiconductor",
       "name": "半導体",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 15,
-      "summary": "半導体関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 15,
+      "source_count": 14,
+      "prev_news_count": 0,
+      "summary": "半導体関連のニュースが増加（15件・14媒体）",
       "related_stocks": [
         {
           "code": "8035",
@@ -3422,29 +3427,37 @@
           "sector": "半導体"
         }
       ],
-      "sample_headlines": []
+      "sample_headlines": [
+        "OpenAI自前のAI向け半導体、エヌビディアの現行製品上回る性能示す - Bloomberg",
+        "コンデンサーなど電子部品、AI特需で品薄 7〜9月の半導体9指標 - 日本経済新聞",
+        "26年の半導体市場は1.6兆ドルに メモリが54％占める：Gartnerが発表 - EE Times Japan"
+      ]
     },
     {
       "id": "memory",
       "name": "メモリ",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 29,
-      "summary": "メモリ関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 28,
+      "source_count": 19,
+      "prev_news_count": 0,
+      "summary": "メモリ関連のニュースが増加（28件・19媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "26年の半導体市場は1.6兆ドルに メモリが54％占める：Gartnerが発表 - EE Times Japan",
+        "「半導体はまだこれから」世界市場の大幅成長予測に韓国ネット「好況は続く」「惑わされるな」 - ｄメニューニュース",
+        "中国CXMTの評価二極化－半導体メモリー市場の競争どう変えるかが焦点（Bloomberg） - Yahoo!ニュース"
+      ]
     },
     {
       "id": "datacenter",
       "name": "データセンター",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 15,
-      "summary": "データセンター関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 15,
+      "source_count": 10,
+      "prev_news_count": 0,
+      "summary": "データセンター関連のニュースが増加（15件・10媒体）",
       "related_stocks": [
         {
           "code": "9432",
@@ -3457,77 +3470,101 @@
           "sector": "半導体"
         }
       ],
-      "sample_headlines": []
+      "sample_headlines": [
+        "関電と米企業の合弁会社、大阪・箕面市にデータセンター建設へ - Yahoo!ニュース",
+        "整備費見通しは２兆円！ 秋田市・データセンターを巡る動き【まとめ】 - 秋田魁新報電子版",
+        "関西電力、大阪府箕面市にデータセンター新設 29年にも完成 - 日本経済新聞"
+      ]
     },
     {
       "id": "defense",
       "name": "防衛",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 28,
-      "summary": "防衛関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 29,
+      "source_count": 17,
+      "prev_news_count": 0,
+      "summary": "防衛関連のニュースが増加（29件・17媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "ゼレンスキー氏、同盟国に防衛費不足270億ユーロの補填要請 防空支援強化も - ロイター",
+        "防衛予算８．９兆円要求 過去最大、さらに上積みへ - 時事ドットコム",
+        "防衛省、概算要求で「新しい守り方」の表現を見送り 自民の反発で [高市政権の安保見直し][安全保障関連3文書] - 朝日新聞"
+      ]
     },
     {
       "id": "shipbuilding",
       "name": "造船",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 15,
-      "summary": "造船関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 15,
+      "source_count": 15,
+      "prev_news_count": 0,
+      "summary": "造船関連のニュースが増加（15件・15媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "三菱造船、1000トン型巡視船「わかさ」が進水 - ニュースイッチ by 日刊工業新聞社",
+        "【9/6】函館どつく創業130周年 巨大新造船＆護衛艦「しらぬい」の特別公開・限定見学会を開催 - はこぶら - 函館市公式観光サイト",
+        "IHI、社名の由来は造船所。だが利益の柱は航空エンジンと防衛にある。2026年8月に下げた株価をどう捉えるか（LIMO） - Yahoo!ニュース"
+      ]
     },
     {
       "id": "rare_earth",
       "name": "レアアース",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 29,
-      "summary": "レアアース関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 28,
+      "source_count": 20,
+      "prev_news_count": 0,
+      "summary": "レアアース関連のニュースが増加（28件・20媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "「都市鉱山」に眠るレアアース、核燃料の再処理技術で回収 原子力機構 - 日本経済新聞",
+        "中国向けレアアース採掘、ミャンマーで急増 「紛争経済」指摘も（毎日新聞） - Yahoo!ニュース",
+        "「資源に乏しい」わけではない 「海底ケーブル」「レアアース」……AI時代、島国ニッポンの勝機はどこにある？ - ITmedia"
+      ]
     },
     {
       "id": "power",
       "name": "電力",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 30,
-      "summary": "電力関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 30,
+      "source_count": 25,
+      "prev_news_count": 0,
+      "summary": "電力関連のニュースが増加（30件・25媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "北海道電力ネットワーク、託送料金2割値上げへ 家庭電気代5％上げも - 北海道新聞デジタル",
+        "電力市場、夕方の高騰頻発 再エネ普及で昼との需給差拡大 - 日本経済新聞",
+        "【在宅勤務の実態調査】約6割が1,000～3,000円電気代が増加したと回答 - PR TIMES"
+      ]
     },
     {
       "id": "nuclear",
       "name": "原発",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 28,
-      "summary": "原発関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 30,
+      "source_count": 18,
+      "prev_news_count": 0,
+      "summary": "原発関連のニュースが増加（30件・18媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "前例のない原発の地震データめぐる不正 見えてきた深層 - NHKニュース",
+        "東海第2原発再稼働反対大集会　「取り返しつかない被害生む」　県内外から400人参加 - ｄメニューニュース",
+        "首都圏に送電する東京電力柏崎刈羽原発、世界最高レベルの安全対策とは…再稼働に許されない「想定外」 - 読売新聞"
+      ]
     },
     {
       "id": "robot",
       "name": "ロボット",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 15,
-      "summary": "ロボット関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 14,
+      "source_count": 13,
+      "prev_news_count": 0,
+      "summary": "ロボット関連のニュースが増加（14件・13媒体）",
       "related_stocks": [
         {
           "code": "6954",
@@ -3540,17 +3577,21 @@
           "sector": "機械"
         }
       ],
-      "sample_headlines": []
+      "sample_headlines": [
+        "日本のロボ技術、北京で存在感 中国製品活用し「応用力」も - 時事ドットコム",
+        "産業用ロボット用自動ツールチェンジャー（ATC）の世界市場（2026年～2032年）、市場規模（手動式、自動式）・分析レポートを発表 - Newscast.jp",
+        "メタ出身の研究者ら、産業用ロボット向けオープンウェイト視覚モデルを発表 - BigGo ファイナンス"
+      ]
     },
     {
       "id": "drug_discovery",
       "name": "創薬",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 30,
-      "summary": "創薬関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 29,
+      "source_count": 23,
+      "prev_news_count": 0,
+      "summary": "創薬関連のニュースが増加（29件・23媒体）",
       "related_stocks": [
         {
           "code": "4568",
@@ -3573,29 +3614,37 @@
           "sector": "医薬品"
         }
       ],
-      "sample_headlines": []
+      "sample_headlines": [
+        "米FDA、膵臓がん新薬ダラクソンラシブを承認 治験で生存期間2倍 - 日本経済新聞",
+        "米、膵臓がんの新薬承認＝生存期間２倍に - 時事通信ニュース",
+        "韓国のHLB、MSCI韓国指数から除外…1カ月後の胆管がん新薬承認に命運 - BigGo ファイナンス"
+      ]
     },
     {
       "id": "regenerative",
       "name": "再生医療",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 27,
-      "summary": "再生医療関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 27,
+      "source_count": 18,
+      "prev_news_count": 0,
+      "summary": "再生医療関連のニュースが増加（27件・18媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "【再生医療】コージンバイオ大村に新工場 2028年1月操業開始予定（長崎文化放送） - Yahoo!ニュース",
+        "再生医療に安全を 自由診療拡大、死亡例も 厚労省 規制見直し議論 - 福井新聞社",
+        "タイガーの断熱技術が「細胞」を運ぶ! 再生医療用ボトルを見てきた - 家電 Watch"
+      ]
     },
     {
       "id": "finance",
       "name": "金融",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 15,
-      "summary": "金融関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 15,
+      "source_count": 11,
+      "prev_news_count": 0,
+      "summary": "金融関連のニュースが増加（15件・11媒体）",
       "related_stocks": [
         {
           "code": "8306",
@@ -3623,44 +3672,60 @@
           "sector": "金融"
         }
       ],
-      "sample_headlines": []
+      "sample_headlines": [
+        "コラム：日銀が抱える内憂外患、金融政策に問われる新たな独立性＝井上哲也氏 - ロイター",
+        "日銀、利上げペース加速検討 元審議委員と有力エコノミストの見方は - 日本経済新聞",
+        "日銀「9月利上げ」占う氷見野副総裁講演、金利正常化の最終ゴールは「1.5～2.0％」か - ダイヤモンド・オンライン"
+      ]
     },
     {
       "id": "crypto",
       "name": "暗号資産",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 26,
-      "summary": "暗号資産関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 28,
+      "source_count": 20,
+      "prev_news_count": 0,
+      "summary": "暗号資産関連のニュースが増加（28件・20媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "ビットコイン8万ドル回復 米国債混乱でドル離れ（時事通信） - Yahoo!ニュース",
+        "ビットコイン最悪シナリオは？ 「ガチホ神話」崩壊・メタプラ赤字より怖い後発の破綻、停滞相場が上向く条件 - JBpress",
+        "ストラテジー、ドル準備金拡充で純有利子負債がほぼゼロに - CoinPost"
+      ]
     },
     {
       "id": "yen_strong",
       "name": "円高",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 15,
-      "summary": "円高関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 15,
+      "source_count": 14,
+      "prev_news_count": 0,
+      "summary": "円高関連のニュースが増加（15件・14媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "コラム：日米協調介入が告げる円高への転換、円安派は今こそ見直しの時 - ロイター",
+        "円相場の中長期見通し「今が円安ピーク、徐々に円高か」市場アンケート - 日本経済新聞",
+        "〔NY外為〕円、159円台前半（26日）(時事通信) - Yahoo!ファイナンス"
+      ]
     },
     {
       "id": "yen_weak",
       "name": "円安",
-      "score": 0,
-      "direction": "down",
-      "news_count": 0,
-      "source_count": 0,
-      "prev_news_count": 15,
-      "summary": "円安関連のニュースが減少（0件・0媒体）",
+      "score": 100,
+      "direction": "up",
+      "news_count": 15,
+      "source_count": 13,
+      "prev_news_count": 0,
+      "summary": "円安関連のニュースが増加（15件・13媒体）",
       "related_stocks": [],
-      "sample_headlines": []
+      "sample_headlines": [
+        "ひとまず円安を止めることには成功したけど…28年ぶりの日米協調介入で｢最大の犠牲者｣になったのは誰か - Yahoo!ニュース",
+        "コラム：日米協調介入が告げる円高への転換、円安派は今こそ見直しの時 - ロイター",
+        "28年ぶり日米円買い協調介入も効果は一時的、しばらくすれば円安にまた戻る「根深い原因」 - ダイヤモンド・オンライン"
+      ]
     }
   ],
-  "trend_themes_refreshed_at": "2026-08-26T05:44:44.279965+09:00"
+  "trend_themes_refreshed_at": "2026-08-27T08:30:15.603194+09:00"
 }
