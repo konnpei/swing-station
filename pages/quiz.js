@@ -180,7 +180,7 @@ const TERMS = [
 // --- 問題集(4択クイズ) -------------------------------------------------
 // TERMSの short 説明文をそのまま選択肢として使う。新しい文章は生成しない。
 
-const QUIZ_LENGTH = 10;
+const QUIZ_LENGTH = 5; // KABU QUEST: 毎日5問
 
 function shuffleArray(arr) {
   const a = [...arr];

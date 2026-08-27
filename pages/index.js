@@ -131,21 +131,29 @@ function NextActionsCard({ onNavigate }) {
     { label: "🇺🇸 米国株を見る", tab: "us", event: "click_us_stocks" },
     { label: "📅 今週の注目を見る", tab: "events", event: "click_weekly_focus" },
     { label: "🗂️ 過去の朝刊を見る", tab: "history", event: "click_history" },
+    { label: "🎯 KABU QUEST(毎日5問)に挑戦", href: "/quiz", event: "click_kabu_quest" },
   ];
+  const itemStyle = {
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    padding: "12px 14px", background: "#13161C", border: "1px solid #1B1F26",
+    borderRadius: 10, color: "#FFFFFF", fontSize: 12, fontFamily: "inherit",
+    cursor: "pointer", width: "100%", textAlign: "left", textDecoration: "none",
+    boxSizing: "border-box",
+  };
   return (
     <div style={{ marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 8 }}>次に見る</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {items.map((it, i) => (
+        {items.map((it, i) => it.href ? (
+          <a key={i} href={it.href} onClick={() => track(it.event)} style={itemStyle}>
+            <span>{it.label}</span>
+            <span style={{ color: "#6B7280" }}>›</span>
+          </a>
+        ) : (
           <button
             key={i}
             onClick={() => { track(it.event); onNavigate(it.tab, it.anchor); }}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              padding: "12px 14px", background: "#13161C", border: "1px solid #1B1F26",
-              borderRadius: 10, color: "#FFFFFF", fontSize: 12, fontFamily: "inherit",
-              cursor: "pointer", width: "100%", textAlign: "left",
-            }}
+            style={itemStyle}
           >
             <span>{it.label}</span>
             <span style={{ color: "#6B7280" }}>›</span>
