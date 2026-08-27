@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Head from "next/head";
 import { track } from "@vercel/analytics";
+import QuestCTA from "../components/QuestCTA";
 
 const MODE_LABELS = {
   normal: { label: "通常モード", color: "#888888" },
@@ -1102,6 +1103,8 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
           )}
         </div>
       )}
+
+      <QuestCTA />
 
     </div>
   );
