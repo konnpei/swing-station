@@ -359,6 +359,15 @@ export default function Quest() {
           background:linear-gradient(transparent 62%, rgba(255,77,77,.25) 62%);
           font-weight:700;
         }
+        /* globals.cssのhtml,body,#__nextはoverflow:hiddenだが、
+           それは朝刊(index.js)が内部スクロール領域を持つ前提の設定。
+           /questはページ全体スクロールが前提のため、この画面にいる間だけ
+           overflowを解除する(styled-jsxのglobalはページ離脱時に自動で外れる)。 */
+        html, body, #__next {
+          height: auto;
+          min-height: 100%;
+          overflow-y: auto;
+        }
       `}</style>
     </div>
   );
