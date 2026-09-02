@@ -25,15 +25,18 @@ function childToProfileFormValues(child: Child): ProfileFormValues {
 
 type ChildProfileCardProps = {
   child: Child;
-  onUpdateProfile: (input: ProfileUpdateInput) => void;
+  onUpdateProfile?: (input: ProfileUpdateInput) => void;
   /** カード右上、編集ボタンの左に追加で表示したいボタン（並び替えなど） */
   extraActions?: React.ReactNode;
+  /** trueのとき、編集ボタンを出さず表示のみにする（子ども本人のSETTINGS画面用） */
+  readOnly?: boolean;
 };
 
 export default function ChildProfileCard({
   child,
   onUpdateProfile,
   extraActions,
+  readOnly = false,
 }: ChildProfileCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [values, setValues] = useState<ProfileFormValues>(() =>
@@ -57,7 +60,7 @@ export default function ChildProfileCard({
       return;
     }
 
-    onUpdateProfile({ name, goal, examDate: values.examDate || null });
+    onUpdateProfile?.({ name, goal, examDate: values.examDate || null });
     setIsEditing(false);
   }
 
@@ -71,7 +74,7 @@ export default function ChildProfileCard({
             {child.examDate && ` ・試験日：${child.examDate}`}
           </p>
         </div>
-        {!isEditing && (
+        {!isEditing && !readOnly && (
           <div className="flex shrink-0 items-center gap-1">
             {extraActions}
             <button

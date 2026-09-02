@@ -8,18 +8,21 @@
 
 import { Check } from "lucide-react";
 import { Mission } from "../lib/dummy-data";
-import { getIncompleteMissionMessage } from "../lib/utils";
+import { formatWeekdays, getIncompleteMissionMessage } from "../lib/utils";
 
 type MissionListProps = {
   missions: Mission[];
   interactive: boolean;
   onToggle?: (missionId: string) => void;
+  /** trueのとき、各ミッションに「毎日」「月・水・金」などの曜日タグを表示する */
+  showWeekday?: boolean;
 };
 
 export default function MissionList({
   missions,
   interactive,
   onToggle,
+  showWeekday = false,
 }: MissionListProps) {
   return (
     <ul className="flex flex-col gap-2">
@@ -63,6 +66,11 @@ export default function MissionList({
                     ? `+${mission.xp} XP 獲得`
                     : getIncompleteMissionMessage(index)}
                 </p>
+                {showWeekday && (
+                  <p className="text-xs text-accent">
+                    {formatWeekdays(mission.weekdays)}
+                  </p>
+                )}
               </div>
             </div>
             <span
