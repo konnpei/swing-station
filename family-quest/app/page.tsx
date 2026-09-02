@@ -17,6 +17,7 @@ import ChildHome from "../components/child-home";
 import FamilyDashboard from "../components/family-dashboard";
 import MissionEditor from "../components/mission-editor";
 import ModeSwitcher from "../components/mode-switcher";
+import SettingsScreen from "../components/settings-screen";
 import {
   ChildId,
   initialFamily,
@@ -57,6 +58,8 @@ export default function Page() {
   const [notice, setNotice] = useState<string | null>(null);
   // 保護者モードで「ミッション設定」画面を開いている子どものID（開いていなければnull）
   const [editingChildId, setEditingChildId] = useState<ChildId | null>(null);
+  // 保護者モードで「SETTINGS」画面を開いているかどうか
+  const [showSettings, setShowSettings] = useState(false);
   // 初回の読み込みが終わるまでは、localStorageへの保存を行わないためのフラグ
   const isFirstRender = useRef(true);
 
@@ -88,10 +91,25 @@ export default function Page() {
     window.setTimeout(() => setNotice(null), 3000);
   }
 
-  // モードを切り替えるときは、ミッション設定画面を開いたままにしない
+  // モードを切り替えるときは、ミッション設定・SETTINGS画面を開いたままにしない
   function handleChangeMode(nextMode: Mode) {
     setEditingChildId(null);
+    setShowSettings(false);
     setMode(nextMode);
+  }
+
+  /** 子ども（＝モード切替タブ）の並び順を1つ上下に入れ替える */
+  function handleMoveChild(childId: ChildId, direction: "up" | "down") {
+    setFamily((prevFamily) => {
+      const index = prevFamily.findIndex((c) => c.id === childId);
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (index === -1 || targetIndex < 0 || targetIndex >= prevFamily.length) {
+        return prevFamily;
+      }
+      const next = [...prevFamily];
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
   }
 
   // 特定の子どものミッションを1件だけ更新するための共通処理
@@ -229,7 +247,16 @@ export default function Page() {
         />
       )}
 
-      {mode === "parent" && !editingChild && (
+      {mode === "parent" && !editingChild && showSettings && (
+        <SettingsScreen
+          family={family}
+          onUpdateProfile={handleUpdateProfile}
+          onMoveChild={handleMoveChild}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {mode === "parent" && !editingChild && !showSettings && (
         <FamilyDashboard
           family={family}
           onViewChild={(childId) => setMode(childId)}
@@ -257,8 +284,20 @@ export default function Page() {
 
       <BottomNav
         mode={mode}
+        activeKey={showSettings ? "settings" : "home"}
         onSelectNonHome={() => showNotice("この画面は次のSTEPで実装します")}
-        onHome={() => setEditingChildId(null)}
+        onHome={() => {
+          setEditingChildId(null);
+          setShowSettings(false);
+        }}
+        onSettings={
+          mode === "parent"
+            ? () => {
+                setEditingChildId(null);
+                setShowSettings(true);
+              }
+            : undefined
+        }
       />
     </div>
   );
