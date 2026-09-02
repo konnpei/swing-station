@@ -23,11 +23,13 @@ import {
   Mission,
   Mode,
   NewMissionInput,
+  ProfileUpdateInput,
 } from "../lib/dummy-data";
 import {
   deleteMissionRow,
   insertMission,
   loadFamily,
+  saveChildProfile,
   saveChildXp,
   saveMissionCompleted,
   updateMissionRow,
@@ -170,6 +172,16 @@ export default function Page() {
     if (xpDelta !== 0) saveChildXp(childId, child.xp + xpDelta);
   }
 
+  /** 保護者が子どものプロフィール（名前・目標・試験日）を編集する */
+  function handleUpdateProfile(childId: ChildId, input: ProfileUpdateInput) {
+    setFamily((prevFamily) =>
+      prevFamily.map((child) =>
+        child.id === childId ? { ...child, ...input } : child
+      )
+    );
+    saveChildProfile(childId, input);
+  }
+
   /** 保護者がミッションを削除する */
   function handleDeleteMission(childId: ChildId, missionId: string) {
     const child = family.find((c) => c.id === childId);
@@ -209,6 +221,9 @@ export default function Page() {
           }
           onDeleteMission={(missionId) =>
             handleDeleteMission(editingChild.id, missionId)
+          }
+          onUpdateProfile={(input) =>
+            handleUpdateProfile(editingChild.id, input)
           }
           onClose={() => setEditingChildId(null)}
         />

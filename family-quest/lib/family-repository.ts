@@ -13,6 +13,7 @@ import {
   initialFamily,
   Mission,
   NewMissionInput,
+  ProfileUpdateInput,
 } from "./dummy-data";
 import { isSupabaseConfigured, supabase } from "./supabase";
 
@@ -115,6 +116,23 @@ export async function saveChildXp(childId: ChildId, xp: number): Promise<void> {
     .update({ xp })
     .eq("id", childId);
   if (error) console.error("XPの保存に失敗しました", error);
+}
+
+/** 子どものプロフィール（名前・目標・試験日）をSupabaseに保存する */
+export async function saveChildProfile(
+  childId: ChildId,
+  input: ProfileUpdateInput
+): Promise<void> {
+  if (!isSupabaseConfigured || !supabase) return;
+  const { error } = await supabase
+    .from("children")
+    .update({
+      name: input.name,
+      goal: input.goal,
+      exam_date: input.examDate,
+    })
+    .eq("id", childId);
+  if (error) console.error("プロフィールの保存に失敗しました", error);
 }
 
 /** ミッションの完了/未完了をSupabaseに保存する */

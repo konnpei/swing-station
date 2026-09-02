@@ -13,6 +13,7 @@ import {
   Child,
   Mission,
   NewMissionInput,
+  ProfileUpdateInput,
   WEEKDAY_OPTIONS,
 } from "../lib/dummy-data";
 import { formatWeekdays } from "../lib/utils";
@@ -22,8 +23,24 @@ type MissionEditorProps = {
   onAddMission: (input: NewMissionInput) => void;
   onUpdateMission: (missionId: string, input: NewMissionInput) => void;
   onDeleteMission: (missionId: string) => void;
+  onUpdateProfile: (input: ProfileUpdateInput) => void;
   onClose: () => void;
 };
+
+// プロフィール編集フォームの入力値（試験日は文字列で持ち、空文字はnull扱いにする）
+type ProfileFormValues = {
+  name: string;
+  goal: string;
+  examDate: string;
+};
+
+function childToProfileFormValues(child: Child): ProfileFormValues {
+  return {
+    name: child.name,
+    goal: child.goal,
+    examDate: child.examDate ?? "",
+  };
+}
 
 // フォームの入力値。数値項目も文字列で持ち、送信時に変換する
 type FormValues = {
@@ -60,12 +77,44 @@ export default function MissionEditor({
   onAddMission,
   onUpdateMission,
   onDeleteMission,
+  onUpdateProfile,
   onClose,
 }: MissionEditorProps) {
   // null = フォームを閉じている, "add" = 新規追加, それ以外 = 編集中のミッションID
   const [formTarget, setFormTarget] = useState<"add" | string | null>(null);
   const [formValues, setFormValues] = useState<FormValues>(EMPTY_FORM);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // プロフィール（名前・目標・試験日）編集フォームの状態
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileValues, setProfileValues] = useState<ProfileFormValues>(() =>
+    childToProfileFormValues(child)
+  );
+  const [profileError, setProfileError] = useState<string | null>(null);
+
+  function openProfileForm() {
+    setProfileValues(childToProfileFormValues(child));
+    setProfileError(null);
+    setIsEditingProfile(true);
+  }
+
+  function handleProfileSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const name = profileValues.name.trim();
+    const goal = profileValues.goal.trim();
+
+    if (!name || !goal) {
+      setProfileError("名前と目標は入力してください");
+      return;
+    }
+
+    onUpdateProfile({
+      name,
+      goal,
+      examDate: profileValues.examDate || null,
+    });
+    setIsEditingProfile(false);
+  }
 
   function openAddForm() {
     setFormValues(EMPTY_FORM);
@@ -152,6 +201,91 @@ export default function MissionEditor({
       <p className="mb-4 text-xs text-gray-400">
         ここでは内容の追加・編集・削除のみ行えます。完了/未完了は本人が切り替えます。
       </p>
+
+      {/* プロフィール（名前・目標・試験日）編集 */}
+      <div className="mb-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-white">{child.name}</p>
+            <p className="text-xs text-gray-500">
+              目標：{child.goal}
+              {child.examDate && ` ・試験日：${child.examDate}`}
+            </p>
+          </div>
+          {!isEditingProfile && (
+            <button
+              type="button"
+              aria-label="プロフィールを編集"
+              onClick={openProfileForm}
+              className="shrink-0 rounded-lg border border-neutral-700 p-2 text-gray-300"
+            >
+              <Pencil size={16} />
+            </button>
+          )}
+        </div>
+
+        {isEditingProfile && (
+          <form
+            onSubmit={handleProfileSubmit}
+            className="mt-3 flex flex-col gap-2"
+          >
+            <Field label="名前">
+              <input
+                type="text"
+                value={profileValues.name}
+                onChange={(e) =>
+                  setProfileValues({ ...profileValues, name: e.target.value })
+                }
+                className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+              />
+            </Field>
+            <Field label="目標">
+              <input
+                type="text"
+                value={profileValues.goal}
+                onChange={(e) =>
+                  setProfileValues({ ...profileValues, goal: e.target.value })
+                }
+                placeholder="例：小山台高校"
+                className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+              />
+            </Field>
+            <Field label="試験日（無ければ空欄のままでOK）">
+              <input
+                type="date"
+                value={profileValues.examDate}
+                onChange={(e) =>
+                  setProfileValues({
+                    ...profileValues,
+                    examDate: e.target.value,
+                  })
+                }
+                className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+              />
+            </Field>
+
+            {profileError && (
+              <p className="text-xs text-warn">{profileError}</p>
+            )}
+
+            <div className="mt-1 flex gap-2">
+              <button
+                type="submit"
+                className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white active:scale-[0.99]"
+              >
+                保存する
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsEditingProfile(false)}
+                className="flex-1 rounded-xl border border-neutral-700 py-2.5 text-sm font-medium text-gray-300 active:scale-[0.99]"
+              >
+                キャンセル
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
 
       <ul className="flex flex-col gap-2">
         {child.missions.map((mission) => (

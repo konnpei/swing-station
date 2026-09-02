@@ -57,6 +57,13 @@ export type WeeklyRecord = {
   isToday: boolean; // 今日かどうか
 };
 
+/** 保護者が編集できる、子どものプロフィール項目 */
+export type ProfileUpdateInput = {
+  name: string;
+  goal: string;
+  examDate: string | null;
+};
+
 /** 子ども1人分のデータ */
 export type Child = {
   id: ChildId;
