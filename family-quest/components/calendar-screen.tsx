@@ -15,6 +15,8 @@ import {
   getMonthlyRecords,
   toMondayFirstColumn,
 } from "../lib/calendar-utils";
+import { getProgressPercent, TrendPoint } from "../lib/utils";
+import TrendChart from "./trend-chart";
 
 type CalendarScreenProps = {
   family: Child[];
@@ -40,6 +42,16 @@ export default function CalendarScreen({
   const leadingBlankCount = toMondayFirstColumn(
     new Date(today.getFullYear(), today.getMonth(), 1).getDay()
   );
+
+  // 月間の達成率推移グラフ用に、データがある日（今日まで）だけを取り出す
+  const trendPoints: TrendPoint[] = records
+    .filter((record) => record.completed !== null)
+    .map((record) => ({
+      label: `${record.day}日`,
+      percent: getProgressPercent(record.completed ?? 0, record.total),
+      completed: record.completed ?? 0,
+      total: record.total,
+    }));
 
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-24 pt-4">
@@ -137,6 +149,12 @@ export default function CalendarScreen({
           未達成
         </span>
       </div>
+
+      {trendPoints.length > 0 && (
+        <div className="mt-4">
+          <TrendChart title="月間の達成率推移" points={trendPoints} />
+        </div>
+      )}
     </div>
   );
 }

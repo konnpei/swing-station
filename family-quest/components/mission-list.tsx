@@ -7,6 +7,7 @@
 "use client";
 
 import { Check } from "lucide-react";
+import { useState } from "react";
 import { Mission } from "../lib/dummy-data";
 import { formatWeekdays, getIncompleteMissionMessage } from "../lib/utils";
 
@@ -24,6 +25,21 @@ export default function MissionList({
   onToggle,
   showWeekday = false,
 }: MissionListProps) {
+  // 完了にした直後だけ、控えめなアニメーションを付けるためのミッションID
+  const [poppedId, setPoppedId] = useState<string | null>(null);
+
+  function handleClick(mission: Mission) {
+    if (!interactive) return;
+    if (!mission.completed) {
+      // 未完了→完了への切り替えのときだけアニメーションさせる
+      setPoppedId(mission.id);
+      window.setTimeout(() => {
+        setPoppedId((current) => (current === mission.id ? null : current));
+      }, 320);
+    }
+    onToggle?.(mission.id);
+  }
+
   return (
     <ul className="flex flex-col gap-2">
       {missions.map((mission, index) => (
@@ -34,12 +50,14 @@ export default function MissionList({
             aria-label={`${mission.title} ${
               mission.completed ? "完了済み" : "未完了"
             }`}
-            onClick={() => interactive && onToggle?.(mission.id)}
+            onClick={() => handleClick(mission)}
             className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${
               mission.completed
                 ? "border-good/40 bg-good/10"
                 : "border-neutral-800 bg-neutral-900"
-            } ${interactive ? "active:scale-[0.99]" : "cursor-default"}`}
+            } ${interactive ? "active:scale-[0.99]" : "cursor-default"} ${
+              poppedId === mission.id ? "animate-mission-pop" : ""
+            }`}
           >
             <div className="flex min-w-0 items-center gap-3">
               <span

@@ -7,8 +7,14 @@
 
 "use client";
 
-import { ChevronDown, ChevronLeft, ChevronUp, Settings } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import { Child, ChildId, ProfileUpdateInput } from "../lib/dummy-data";
+import {
+  ACCENT_COLOR_OPTIONS,
+  loadAccentColorId,
+  saveAccentColor,
+} from "../lib/theme";
 import ChildProfileCard from "./child-profile-card";
 
 type SettingsScreenProps = {
@@ -24,6 +30,13 @@ export default function SettingsScreen({
   onMoveChild,
   onClose,
 }: SettingsScreenProps) {
+  const [accentColorId, setAccentColorId] = useState(() => loadAccentColorId());
+
+  function handleSelectColor(colorId: string) {
+    saveAccentColor(colorId);
+    setAccentColorId(colorId);
+  }
+
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-24 pt-4">
       <button
@@ -80,14 +93,50 @@ export default function SettingsScreen({
         </ul>
       </section>
 
+      <section className="mb-6">
+        <h2 className="mb-2 text-sm font-bold text-gray-300">テーマカラー</h2>
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+          <p className="mb-3 text-xs text-gray-500">
+            アプリ全体のアクセントカラーを選べます（この端末だけの設定です）。
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {ACCENT_COLOR_OPTIONS.map((option) => {
+              const isSelected = option.id === accentColorId;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  aria-label={option.label}
+                  aria-pressed={isSelected}
+                  onClick={() => handleSelectColor(option.id)}
+                  className="flex flex-col items-center gap-1"
+                >
+                  <span
+                    className="flex h-10 w-10 items-center justify-center rounded-full border-2"
+                    style={{
+                      backgroundColor: option.previewHex,
+                      borderColor: isSelected ? "#ffffff" : "transparent",
+                    }}
+                  >
+                    {isSelected && <Check size={18} className="text-white" />}
+                  </span>
+                  <span className="text-[10px] text-gray-400">
+                    {option.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section>
         <h2 className="mb-2 text-sm font-bold text-gray-300">
           アプリ全体の設定
         </h2>
-        <div className="flex items-start gap-2 rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
-          <Settings size={18} className="mt-0.5 shrink-0 text-gray-500" />
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
           <p className="text-xs text-gray-500">
-            テーマ色や通知など、アプリ全体に関わる設定は今後ここに追加していく予定です。
+            通知など、その他のアプリ全体設定は今後ここに追加していく予定です。
           </p>
         </div>
       </section>

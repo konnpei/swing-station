@@ -166,3 +166,51 @@ export function getFamilyTodayTotals(family: Child[]): {
     { completed: 0, total: 0 }
   );
 }
+
+/** グラフ（TrendChart）1点分のデータ */
+export type TrendPoint = {
+  label: string; // 横軸のラベル（例："9/1"）
+  percent: number; // 0〜100
+  completed: number;
+  total: number;
+};
+
+/**
+ * 家族全員分の「今週の記録」を、曜日ごとに合算して1つの推移データにする。
+ * 「今日」の枠だけは、ダミーの週間記録ではなく実際の合計値で上書きする。
+ */
+export function getFamilyWeeklyTrend(family: Child[]): TrendPoint[] {
+  const weekLength = family[0]?.weeklyRecords.length ?? 0;
+  const points: TrendPoint[] = [];
+
+  for (let i = 0; i < weekLength; i++) {
+    let completed = 0;
+    let total = 0;
+    let label = "";
+    let isToday = false;
+
+    for (const child of family) {
+      const record = child.weeklyRecords[i];
+      if (!record) continue;
+      label = record.day;
+      isToday = record.isToday;
+      completed += record.completed;
+      total += record.total;
+    }
+
+    if (isToday) {
+      const liveTotals = getFamilyTodayTotals(family);
+      completed = liveTotals.completed;
+      total = liveTotals.total;
+    }
+
+    points.push({
+      label,
+      percent: getProgressPercent(completed, total),
+      completed,
+      total,
+    });
+  }
+
+  return points;
+}

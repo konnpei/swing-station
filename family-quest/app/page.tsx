@@ -20,6 +20,7 @@ import ChildHome from "../components/child-home";
 import ChildrenScreen from "../components/children-screen";
 import ChildSettingsView from "../components/child-settings-view";
 import FamilyDashboard from "../components/family-dashboard";
+import FamilyQuestScreen from "../components/family-quest-screen";
 import MissionEditor from "../components/mission-editor";
 import ModeSwitcher from "../components/mode-switcher";
 import QuestScreen from "../components/quest-screen";
@@ -47,6 +48,7 @@ import {
   saveFamilyToLocalStorage,
 } from "../lib/local-storage";
 import { isSupabaseConfigured } from "../lib/supabase";
+import { applyAccentColor, loadAccentColorId } from "../lib/theme";
 import {
   createMissionId,
   getXpDelta,
@@ -70,8 +72,15 @@ export default function Page() {
   const [notice, setNotice] = useState<string | null>(null);
   // 保護者モードで「ミッション設定」画面を開いている子どものID（開いていなければnull）
   const [editingChildId, setEditingChildId] = useState<ChildId | null>(null);
+  // 保護者HOMEの「Family Quest」カードから、詳細画面を開いているかどうか
+  const [showFamilyQuest, setShowFamilyQuest] = useState(false);
   // 初回の読み込みが終わるまでは、localStorageへの保存を行わないためのフラグ
   const isFirstRender = useRef(true);
+
+  // マウント時に、保存されているテーマカラー（アクセントカラー）を反映する
+  useEffect(() => {
+    applyAccentColor(loadAccentColorId());
+  }, []);
 
   // マウント時に、Supabase（設定されていれば）またはlocalStorage（家族共用の1台で使う場合）から読み込む
   useEffect(() => {
@@ -101,9 +110,10 @@ export default function Page() {
     window.setTimeout(() => setNotice(null), 3000);
   }
 
-  // モードを切り替えるときは、ミッション設定画面を閉じてHOMEに戻す
+  // モードを切り替えるときは、開いている画面を閉じてHOMEに戻す
   function handleChangeMode(nextMode: Mode) {
     setEditingChildId(null);
+    setShowFamilyQuest(false);
     setActiveView("home");
     setMode(nextMode);
   }
@@ -111,6 +121,7 @@ export default function Page() {
   // 下部ナビのタブをタップしたときの処理
   function handleNavigate(key: string) {
     setEditingChildId(null);
+    setShowFamilyQuest(false);
     setActiveView(key as ActiveView);
   }
 
@@ -293,14 +304,28 @@ export default function Page() {
         <RewardScreen family={family} onClose={() => setActiveView("home")} />
       )}
 
-      {mode === "parent" && !editingChild && activeView === "home" && (
-        <FamilyDashboard
-          family={family}
-          onViewChild={(childId) => setMode(childId)}
-          onEditMissions={(childId) => setEditingChildId(childId)}
-          onShare={() => showNotice("この画面は次のSTEPで実装します")}
-        />
-      )}
+      {mode === "parent" &&
+        !editingChild &&
+        activeView === "home" &&
+        showFamilyQuest && (
+          <FamilyQuestScreen
+            family={family}
+            onClose={() => setShowFamilyQuest(false)}
+          />
+        )}
+
+      {mode === "parent" &&
+        !editingChild &&
+        activeView === "home" &&
+        !showFamilyQuest && (
+          <FamilyDashboard
+            family={family}
+            onViewChild={(childId) => setMode(childId)}
+            onEditMissions={(childId) => setEditingChildId(childId)}
+            onOpenFamilyQuest={() => setShowFamilyQuest(true)}
+            onShare={() => showNotice("この画面は次のSTEPで実装します")}
+          />
+        )}
 
       {mode !== "parent" && currentChild && activeView === "settings" && (
         <ChildSettingsView

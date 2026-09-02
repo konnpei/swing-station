@@ -6,7 +6,14 @@
 
 "use client";
 
-import { ChevronRight, Flame, Pencil, Share2, Star, Trophy } from "lucide-react";
+import {
+  ChevronRight,
+  Flame,
+  Pencil,
+  Share2,
+  Star,
+  Trophy,
+} from "lucide-react";
 import { Child, ChildId } from "../lib/dummy-data";
 import {
   getCompletedCount,
@@ -22,6 +29,7 @@ type FamilyDashboardProps = {
   family: Child[];
   onViewChild: (childId: ChildId) => void;
   onEditMissions: (childId: ChildId) => void;
+  onOpenFamilyQuest: () => void;
   onShare: () => void;
 };
 
@@ -29,6 +37,7 @@ export default function FamilyDashboard({
   family,
   onViewChild,
   onEditMissions,
+  onOpenFamilyQuest,
   onShare,
 }: FamilyDashboardProps) {
   const familyTotals = getFamilyTodayTotals(family);
@@ -60,13 +69,20 @@ export default function FamilyDashboard({
           <Trophy className="text-accent" size={28} />
         </div>
 
-        <ProgressBar
-          value={familyTotals.completed}
-          max={familyTotals.total}
-          colorClassName="bg-accent"
-          label="Family Questの進捗"
-          valueLabel={`${familyPercent}%`}
-        />
+        <button
+          type="button"
+          onClick={onOpenFamilyQuest}
+          aria-label="Family Questの詳細を見る"
+          className="w-full text-left"
+        >
+          <ProgressBar
+            value={familyTotals.completed}
+            max={familyTotals.total}
+            colorClassName="bg-accent"
+            label="Family Questの進捗（タップで詳細）"
+            valueLabel={`${familyPercent}%`}
+          />
+        </button>
 
         <div className="mt-4 flex items-center justify-between rounded-xl bg-neutral-800/60 px-3 py-2">
           <div className="flex items-center gap-2">
