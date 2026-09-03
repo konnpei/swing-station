@@ -13,15 +13,18 @@ import {
   Child,
   Mission,
   NewMissionInput,
+  ProfileUpdateInput,
   WEEKDAY_OPTIONS,
 } from "../lib/dummy-data";
 import { formatWeekdays } from "../lib/utils";
+import ChildProfileCard, { Field } from "./child-profile-card";
 
 type MissionEditorProps = {
   child: Child;
   onAddMission: (input: NewMissionInput) => void;
   onUpdateMission: (missionId: string, input: NewMissionInput) => void;
   onDeleteMission: (missionId: string) => void;
+  onUpdateProfile: (input: ProfileUpdateInput) => void;
   onClose: () => void;
 };
 
@@ -60,6 +63,7 @@ export default function MissionEditor({
   onAddMission,
   onUpdateMission,
   onDeleteMission,
+  onUpdateProfile,
   onClose,
 }: MissionEditorProps) {
   // null = フォームを閉じている, "add" = 新規追加, それ以外 = 編集中のミッションID
@@ -152,6 +156,11 @@ export default function MissionEditor({
       <p className="mb-4 text-xs text-gray-400">
         ここでは内容の追加・編集・削除のみ行えます。完了/未完了は本人が切り替えます。
       </p>
+
+      {/* プロフィール（名前・目標・試験日）編集 */}
+      <div className="mb-4">
+        <ChildProfileCard child={child} onUpdateProfile={onUpdateProfile} />
+      </div>
 
       <ul className="flex flex-col gap-2">
         {child.missions.map((mission) => (
@@ -363,14 +372,5 @@ function MissionForm({
         </button>
       </div>
     </form>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-xs text-gray-400">{label}</span>
-      {children}
-    </label>
   );
 }

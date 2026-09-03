@@ -4,8 +4,10 @@
 // STEP2で「保護者によるミッション設定（追加・編集・削除）」を追加した。
 // STEP3で、環境変数が設定されていればSupabaseと連携して保存するようにした
 // （設定されていなければ、これまで通りブラウザの中だけで完結する）。
+// STEP4で下部ナビの全タブ（CALENDAR/QUEST/REWARD/CHILDREN/SETTINGS）を
+// 実際に動く画面にした。
 //
-// 状態（family, mode, notice, editingChildId）はすべてここで管理し、
+// 状態（family, mode, activeView, editingChildId）はすべてここで管理し、
 // 下の階層にはprops経由でデータと更新用の関数だけを渡している。
 // =============================================================
 
@@ -13,21 +15,30 @@
 
 import { useEffect, useRef, useState } from "react";
 import BottomNav from "../components/bottom-nav";
+import CalendarScreen from "../components/calendar-screen";
 import ChildHome from "../components/child-home";
+import ChildrenScreen from "../components/children-screen";
+import ChildSettingsView from "../components/child-settings-view";
 import FamilyDashboard from "../components/family-dashboard";
+import FamilyQuestScreen from "../components/family-quest-screen";
 import MissionEditor from "../components/mission-editor";
 import ModeSwitcher from "../components/mode-switcher";
+import QuestScreen from "../components/quest-screen";
+import RewardScreen from "../components/reward-screen";
+import SettingsScreen from "../components/settings-screen";
 import {
   ChildId,
   initialFamily,
   Mission,
   Mode,
   NewMissionInput,
+  ProfileUpdateInput,
 } from "../lib/dummy-data";
 import {
   deleteMissionRow,
   insertMission,
   loadFamily,
+  saveChildProfile,
   saveChildXp,
   saveMissionCompleted,
   updateMissionRow,
@@ -37,12 +48,16 @@ import {
   saveFamilyToLocalStorage,
 } from "../lib/local-storage";
 import { isSupabaseConfigured } from "../lib/supabase";
+import { applyAccentColor, loadAccentColorId } from "../lib/theme";
 import {
   createMissionId,
   getXpDelta,
   getXpDeltaForDelete,
   getXpDeltaForEdit,
 } from "../lib/utils";
+
+// 下部ナビで切り替える画面の種類。BottomNavの各ボタンのkeyと一致させている
+type ActiveView = "home" | "calendar" | "quest" | "reward" | "children" | "settings";
 
 export default function Page() {
   // 家族全員分のデータ（ミッションの完了状態・XPなど）
@@ -51,12 +66,21 @@ export default function Page() {
   const [family, setFamily] = useState(initialFamily);
   // 今どのモードを見ているか（初期表示は保護者モード）
   const [mode, setMode] = useState<Mode>("parent");
-  // 下部ナビのHOME以外をタップしたときの案内メッセージ
+  // 下部ナビで今どの画面を表示しているか（初期表示はHOME）
+  const [activeView, setActiveView] = useState<ActiveView>("home");
+  // 下部ナビのHOME以外をタップしたときの案内メッセージ（共有ボタンなどで使用）
   const [notice, setNotice] = useState<string | null>(null);
   // 保護者モードで「ミッション設定」画面を開いている子どものID（開いていなければnull）
   const [editingChildId, setEditingChildId] = useState<ChildId | null>(null);
+  // 保護者HOMEの「Family Quest」カードから、詳細画面を開いているかどうか
+  const [showFamilyQuest, setShowFamilyQuest] = useState(false);
   // 初回の読み込みが終わるまでは、localStorageへの保存を行わないためのフラグ
   const isFirstRender = useRef(true);
+
+  // マウント時に、保存されているテーマカラー（アクセントカラー）を反映する
+  useEffect(() => {
+    applyAccentColor(loadAccentColorId());
+  }, []);
 
   // マウント時に、Supabase（設定されていれば）またはlocalStorage（家族共用の1台で使う場合）から読み込む
   useEffect(() => {
@@ -86,10 +110,33 @@ export default function Page() {
     window.setTimeout(() => setNotice(null), 3000);
   }
 
-  // モードを切り替えるときは、ミッション設定画面を開いたままにしない
+  // モードを切り替えるときは、開いている画面を閉じてHOMEに戻す
   function handleChangeMode(nextMode: Mode) {
     setEditingChildId(null);
+    setShowFamilyQuest(false);
+    setActiveView("home");
     setMode(nextMode);
+  }
+
+  // 下部ナビのタブをタップしたときの処理
+  function handleNavigate(key: string) {
+    setEditingChildId(null);
+    setShowFamilyQuest(false);
+    setActiveView(key as ActiveView);
+  }
+
+  /** 子ども（＝モード切替タブ）の並び順を1つ上下に入れ替える */
+  function handleMoveChild(childId: ChildId, direction: "up" | "down") {
+    setFamily((prevFamily) => {
+      const index = prevFamily.findIndex((c) => c.id === childId);
+      const targetIndex = direction === "up" ? index - 1 : index + 1;
+      if (index === -1 || targetIndex < 0 || targetIndex >= prevFamily.length) {
+        return prevFamily;
+      }
+      const next = [...prevFamily];
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
   }
 
   // 特定の子どものミッションを1件だけ更新するための共通処理
@@ -170,6 +217,16 @@ export default function Page() {
     if (xpDelta !== 0) saveChildXp(childId, child.xp + xpDelta);
   }
 
+  /** 保護者が子どものプロフィール（名前・目標・試験日）を編集する */
+  function handleUpdateProfile(childId: ChildId, input: ProfileUpdateInput) {
+    setFamily((prevFamily) =>
+      prevFamily.map((child) =>
+        child.id === childId ? { ...child, ...input } : child
+      )
+    );
+    saveChildProfile(childId, input);
+  }
+
   /** 保護者がミッションを削除する */
   function handleDeleteMission(childId: ChildId, missionId: string) {
     const child = family.find((c) => c.id === childId);
@@ -210,20 +267,100 @@ export default function Page() {
           onDeleteMission={(missionId) =>
             handleDeleteMission(editingChild.id, missionId)
           }
+          onUpdateProfile={(input) =>
+            handleUpdateProfile(editingChild.id, input)
+          }
           onClose={() => setEditingChildId(null)}
         />
       )}
 
-      {mode === "parent" && !editingChild && (
-        <FamilyDashboard
+      {mode === "parent" && !editingChild && activeView === "settings" && (
+        <SettingsScreen
           family={family}
-          onViewChild={(childId) => setMode(childId)}
-          onEditMissions={(childId) => setEditingChildId(childId)}
-          onShare={() => showNotice("この画面は次のSTEPで実装します")}
+          onUpdateProfile={handleUpdateProfile}
+          onMoveChild={handleMoveChild}
+          onClose={() => setActiveView("home")}
         />
       )}
 
-      {mode !== "parent" && currentChild && (
+      {mode === "parent" && !editingChild && activeView === "children" && (
+        <ChildrenScreen
+          family={family}
+          onViewChild={(childId) => setMode(childId)}
+          onClose={() => setActiveView("home")}
+        />
+      )}
+
+      {mode === "parent" && !editingChild && activeView === "calendar" && (
+        <CalendarScreen
+          family={family}
+          initialChildId={family[0].id}
+          allowChildSwitch
+          onClose={() => setActiveView("home")}
+        />
+      )}
+
+      {mode === "parent" && !editingChild && activeView === "reward" && (
+        <RewardScreen family={family} onClose={() => setActiveView("home")} />
+      )}
+
+      {mode === "parent" &&
+        !editingChild &&
+        activeView === "home" &&
+        showFamilyQuest && (
+          <FamilyQuestScreen
+            family={family}
+            onClose={() => setShowFamilyQuest(false)}
+          />
+        )}
+
+      {mode === "parent" &&
+        !editingChild &&
+        activeView === "home" &&
+        !showFamilyQuest && (
+          <FamilyDashboard
+            family={family}
+            onViewChild={(childId) => setMode(childId)}
+            onEditMissions={(childId) => setEditingChildId(childId)}
+            onOpenFamilyQuest={() => setShowFamilyQuest(true)}
+            onShare={() => showNotice("この画面は次のSTEPで実装します")}
+          />
+        )}
+
+      {mode !== "parent" && currentChild && activeView === "settings" && (
+        <ChildSettingsView
+          child={currentChild}
+          onClose={() => setActiveView("home")}
+        />
+      )}
+
+      {mode !== "parent" && currentChild && activeView === "quest" && (
+        <QuestScreen
+          child={currentChild}
+          onToggleMission={(missionId) =>
+            handleToggleMission(currentChild.id, missionId)
+          }
+          onClose={() => setActiveView("home")}
+        />
+      )}
+
+      {mode !== "parent" && currentChild && activeView === "calendar" && (
+        <CalendarScreen
+          family={[currentChild]}
+          initialChildId={currentChild.id}
+          allowChildSwitch={false}
+          onClose={() => setActiveView("home")}
+        />
+      )}
+
+      {mode !== "parent" && currentChild && activeView === "reward" && (
+        <RewardScreen
+          family={[currentChild]}
+          onClose={() => setActiveView("home")}
+        />
+      )}
+
+      {mode !== "parent" && currentChild && activeView === "home" && (
         <ChildHome
           child={currentChild}
           onToggleMission={(missionId) =>
@@ -240,11 +377,7 @@ export default function Page() {
         </div>
       )}
 
-      <BottomNav
-        mode={mode}
-        onSelectNonHome={() => showNotice("この画面は次のSTEPで実装します")}
-        onHome={() => setEditingChildId(null)}
-      />
+      <BottomNav mode={mode} activeKey={activeView} onNavigate={handleNavigate} />
     </div>
   );
 }

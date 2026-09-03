@@ -1,7 +1,8 @@
 // =============================================================
 // BottomNav：画面下部のナビゲーション。
-// STEP1で実際に動くのはHOMEだけ。それ以外は「次のSTEPで実装します」と
-// 案内するだけにしている（onSelectNonHomeで親に伝える）。
+// どのタブをタップしても、そのキー（"home" / "calendar" など）を
+// onNavigateで親に伝えるだけのシンプルな作りにしている。
+// 実際にどの画面を表示するかはpage.tsx側で決める。
 // =============================================================
 
 "use client";
@@ -41,14 +42,16 @@ const CHILD_NAV_ITEMS: NavItem[] = [
 
 type BottomNavProps = {
   mode: Mode;
-  onSelectNonHome: () => void;
-  onHome?: () => void;
+  /** 今どの項目を選択中として表示するか（省略時は"home"） */
+  activeKey?: string;
+  /** タブをタップしたときに、そのキーを伝える */
+  onNavigate: (key: string) => void;
 };
 
 export default function BottomNav({
   mode,
-  onSelectNonHome,
-  onHome,
+  activeKey = "home",
+  onNavigate,
 }: BottomNavProps) {
   const items = mode === "parent" ? PARENT_NAV_ITEMS : CHILD_NAV_ITEMS;
 
@@ -60,21 +63,15 @@ export default function BottomNav({
       <div className="mx-auto flex max-w-md items-stretch justify-between px-2">
         {items.map((item) => {
           const Icon = item.icon;
-          const isHome = item.key === "home";
+          const isActive = item.key === activeKey;
           return (
             <button
               key={item.key}
               type="button"
               aria-label={item.label}
-              onClick={() => {
-                if (isHome) {
-                  onHome?.();
-                } else {
-                  onSelectNonHome();
-                }
-              }}
+              onClick={() => onNavigate(item.key)}
               className={`flex flex-1 flex-col items-center gap-1 py-3 text-[11px] font-medium ${
-                isHome ? "text-accent" : "text-gray-500"
+                isActive ? "text-accent" : "text-gray-500"
               }`}
             >
               <Icon size={22} />
