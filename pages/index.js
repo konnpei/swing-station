@@ -10,6 +10,12 @@ const MODE_LABELS = {
   surge: { label: "爆騰モード", color: "#00E0A3" },
   crash: { label: "暴落モード", color: "#ff5566" },
   ai: { label: "AIバブルモード", color: "#cccccc" },
+  // 以前はscripts/morning_briefing.pyのMODES辞書に存在するのにここに無く、
+  // 該当時は誤って「通常モード」にフォールバックしていた4モードを追加。
+  yen: { label: "円高ショックモード", color: "#06b6d4" },
+  rate_cut: { label: "利下げ期待モード", color: "#f59e0b" },
+  earnings: { label: "決算祭りモード", color: "#ec4899" },
+  geopolitical: { label: "地政学リスクモード", color: "#f97316" },
 };
 
 const DISCLAIMER_TEXT = "本サイトは一般的な市場情報およびAIによる機械的な分析結果を提供するものであり、特定の金融商品の売買を推奨・勧誘するものではありません。掲載情報の正確性・完全性・将来の成果を保証するものではありません。投資に関する最終判断は、ご自身の責任で行ってください。";
@@ -840,9 +846,12 @@ function TodayTrend({ themes }) {
   );
 }
 
-function MorningHero({ briefing, todayInfo }) {
+function MorningHero({ briefing, todayInfo, mode }) {
   const statusLabel = todayInfo.isMarketOpen ? "東証OPEN" : todayInfo.isUSMarket ? "NY OPEN" : todayInfo.isRealWeekend ? "休場中" : `${todayInfo.day}曜`;
   const statusOn = todayInfo.isMarketOpen || todayInfo.isUSMarket;
+  const refreshedLabel = briefing.market_data_refreshed_at
+    ? new Date(briefing.market_data_refreshed_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })
+    : null;
   return (
     <div style={{
       position: "relative", overflow: "hidden", minHeight: 168, borderRadius: 28,
@@ -861,13 +870,27 @@ function MorningHero({ briefing, todayInfo }) {
       }} />
       <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.16em", textTransform: "uppercase" }}>Morning Brief</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "#00E0A3", letterSpacing: "0.16em", textTransform: "uppercase" }}>Morning Brief</div>
+            {mode && (
+              <div style={{
+                display: "flex", alignItems: "center", gap: 5, fontSize: 9.5, fontWeight: 700,
+                padding: "2px 9px", borderRadius: 20,
+                background: `${mode.color}1c`, border: `1px solid ${mode.color}55`, color: mode.color,
+              }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "currentColor" }} />
+                {mode.label}
+              </div>
+            )}
+          </div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "#FFFFFF", marginTop: 8, lineHeight: 1.3, textWrap: "balance" }}>日米マーケット朝刊</div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, fontSize: 12, fontWeight: 700, color: "#A1A7B3" }}>
             <span>🇯🇵 JAPAN</span><span style={{ color: "#00E0A3" }}>×</span><span>🇺🇸 USA</span>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, rowGap: 6, marginTop: 16 }}>
-            <div style={{ fontSize: 11, color: "#68747C", fontVariantNumeric: "tabular-nums" }}>{briefing.date}</div>
+            <div style={{ fontSize: 11, color: "#68747C", fontVariantNumeric: "tabular-nums" }}>
+              {briefing.date}{refreshedLabel && ` ・ ${refreshedLabel} 更新`}
+            </div>
             <div style={{
               display: "flex", alignItems: "center", gap: 5, fontSize: 10, fontWeight: 700,
               padding: "3px 10px", borderRadius: 20,
@@ -941,7 +964,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <MarketTicker briefing={briefing} />
-      <MorningHero briefing={briefing} todayInfo={todayInfo} />
+      <MorningHero briefing={briefing} todayInfo={todayInfo} mode={mode} />
       <MarketPulse briefing={briefing} />
       <TodayTrend themes={briefing.trend_themes} />
       <TodayFocusPoints briefing={briefing} />
@@ -950,17 +973,6 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
       <EarningsStraddleWarning briefing={briefing} onJump={onJump} />
       <MacroEventWarning briefing={briefing} />
       <TopHeadlines headlines={briefing.top_news_headlines} />
-      <div style={{
-        background: `linear-gradient(155deg, ${mode.color}14, #101519)`, border: `1px solid ${mode.color}44`,
-        borderRadius: 18, padding: "12px 16px", marginBottom: 12,
-      }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: mode.color }}>
-          {mode.label} <span style={{ color: "#A1A7B3", fontWeight: 400, fontSize: 10 }}>
-            {briefing.date}
-            {briefing.market_data_refreshed_at && ` ${new Date(briefing.market_data_refreshed_at).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })} 更新`}
-          </span>
-        </div>
-      </div>
 
       <MarketDashboard briefing={briefing} todayInfo={todayInfo} />
 
