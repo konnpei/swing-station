@@ -774,51 +774,44 @@ def _composite_logo(im, special):
 
 
 def generate_banner(data, mode):
-    banner_map = {
-        "normal": "public/banners/normal.png",
-        "surge": "public/banners/surge.png",
-        "crash": "public/banners/crash.png",
-        "ai": "public/banners/ai.png",
-    }
-    banner_path = banner_map.get(mode)
-    if banner_path and os.path.exists(banner_path):
-        with open(banner_path, "rb") as f:
-            im = Image.open(io.BytesIO(f.read())).convert("RGBA")
-        # 日経の値動きが±3%以上の日だけ「オオカミ参加」特別演出にする。
-        # 滅多に起きない条件に絞ることで特別感を保つ。
-        pct = data.get("pct", 0) or 0
-        im = _composite_logo(im, special=abs(pct) >= 3.0)
-        buf = io.BytesIO()
-        im.save(buf, format="PNG")
-        buf.seek(0)
-        return buf
-
+    """モード別バナー画像を生成する。
+    2026-09以前は normal/surge/crash/ai の4モードだけ固定イラスト
+    (public/banners/*.png、クマ・ブルのキャラ絵)を毎回同じものを合成していた。
+    実データを反映しない静的な絵だったため廃止し、全モード共通で
+    実際の日経平均の推移(data["ohlcv"])を組み込んだ生成バナーに統一した。
+    KabuBocchi次世代デザイン(ダーク金融ターミナル)のトーンに合わせた配色。"""
     m = MODES[mode]
     W, H = 1200, 400
- 
+
     def hex2rgb(h):
         h = h.lstrip("#")
         return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
- 
+
     accent = hex2rgb(m["color"])
-    bg     = m["bg"]
- 
-    canvas = Image.new("RGB", (W, H), bg)
-    draw   = ImageDraw.Draw(canvas)
- 
-    for i in range(6):
-        a = int(220*(1-i/6))
-        draw.rectangle([(0, i), (W, i+1)], fill=(*accent, a))
- 
+
+    BG      = (8, 11, 15)      # #080B0F
+    SURFACE = (18, 22, 28)     # #12161C
+    INK     = (243, 245, 247)  # #F3F5F7
+    MUTE    = (151, 161, 173)  # #97A1AD
+    DIM     = (87, 98, 115)    # #576273
+    POS     = (51, 183, 140)   # #33B78C
+    NEG     = (226, 88, 90)    # #E2585A
+
+    canvas = Image.new("RGBA", (W, H), (*BG, 255))
+    draw   = ImageDraw.Draw(canvas, "RGBA")
+
+    # 上部のアクセントhairline(旧: 6段グラデーション帯 → 新: 1本の細線)
+    draw.rectangle([(0, 0), (W, 2)], fill=(*accent, 210))
+
     try:
-        fn_xl = ImageFont.truetype(FONT_PATH, 52)
-        fn_lg = ImageFont.truetype(FONT_PATH, 28)
-        fn_md = ImageFont.truetype(FONT_PATH, 20)
-        fn_sm = ImageFont.truetype(FONT_PATH, 15)
+        fn_xl = ImageFont.truetype(FONT_PATH, 46)
+        fn_lg = ImageFont.truetype(FONT_PATH, 24)
+        fn_md = ImageFont.truetype(FONT_PATH, 19)
+        fn_sm = ImageFont.truetype(FONT_PATH, 14)
         fn_xs = ImageFont.truetype(FONT_PATH, 12)
     except Exception:
         fn_xl = fn_lg = fn_md = fn_sm = fn_xs = ImageFont.load_default()
- 
+
     headlines = {
         "normal":       ("今日の相場分析",       "ブル vs ベア 方向感を見極めろ"),
         "surge":        ("強い!! 資金集中!!",     "上昇トレンド加速中"),
@@ -830,15 +823,47 @@ def generate_banner(data, mode):
         "geopolitical": ("地政学リスク 急浮上!!","有事の金・円・原油に注目"),
     }
     hl, sub = headlines.get(mode, (m["label"], ""))
- 
-    draw.rounded_rectangle([(40, 26), (240, 62)], radius=18,
-        fill=accent, outline=accent, width=2)
-    draw.text((54, 36), f"[{m['label']}]", fill=(255, 255, 255), font=fn_sm)
- 
-    draw.text((40, 72),  hl,           fill=(*accent, 255),     font=fn_xl)
-    draw.text((40, 140), sub,          fill=(180, 200, 200, 255), font=fn_lg)
-    draw.text((40, 180), m["quote"],   fill=(*accent, 120),     font=fn_sm)
- 
+
+    label_text = f"[{m['label']}]"
+    lb = draw.textbbox((0, 0), label_text, font=fn_sm)
+    draw.rounded_rectangle([(40, 24), (40 + (lb[2]-lb[0]) + 28, 56)], radius=14,
+        fill=(*accent, 255))
+    draw.text((54, 32), label_text, fill=(255, 255, 255, 255), font=fn_sm)
+    draw.text((W - 40, 32), f"{TODAY}({WEEKDAY_JP})", fill=(*DIM, 255), font=fn_sm, anchor="ra")
+
+    draw.text((40, 68),  hl,  fill=(*accent, 255), font=fn_xl)
+    draw.text((40, 122), sub, fill=(*MUTE, 255),   font=fn_lg)
+    draw.text((40, 156), m["quote"], fill=(*accent, 150), font=fn_sm)
+
+    # ---- 実チャート: 日経平均の直近推移(固定イラストの代わり) ----
+    ohlcv = data.get("ohlcv") or []
+    closes = [d["close"] for d in ohlcv if d.get("close") is not None]
+    cx0, cy0, cx1, cy1 = 700, 60, 1160, 240
+    draw.text((cx0, cy0 - 22), "日経平均 直近推移", fill=(*DIM, 255), font=fn_xs)
+    if len(closes) >= 2:
+        recent = closes[-15:]
+        lo, hi = min(recent), max(recent)
+        span = (hi - lo) or 1
+        n = len(recent)
+        pad = 10
+        pts = []
+        for i, v in enumerate(recent):
+            x = cx0 + pad + (cx1 - cx0 - pad*2) * (i / (n - 1))
+            y = cy1 - pad - (cy1 - cy0 - pad*2) * ((v - lo) / span)
+            pts.append((x, y))
+        chart_color = POS if recent[-1] >= recent[0] else NEG
+        poly = pts + [(cx1 - pad, cy1 - pad), (cx0 + pad, cy1 - pad)]
+        draw.polygon(poly, fill=(*chart_color, 40))
+        draw.line(pts, fill=(*chart_color, 255), width=3, joint="curve")
+        ex, ey = pts[-1]
+        draw.ellipse([ex-4, ey-4, ex+4, ey+4], fill=(*chart_color, 255))
+        # ヘッダー右上の日付ラベルと同じ高さ・右端に置くと重なるため、
+        # チャート枠の下(cy1の下)に配置して分離する。
+        draw.text((cx1, cy1 + 8), f"{recent[-1]:,.0f}円", fill=(*INK, 255), font=fn_sm, anchor="ra")
+    else:
+        draw.text(((cx0+cx1)//2, (cy0+cy1)//2), "データ取得中", fill=(*DIM, 255), font=fn_sm, anchor="mm")
+
+    # ---- 指標バー ----
     diff = data["diff"]
     sign = "▲" if diff >= 0 else "▼"
     metrics = [
@@ -847,26 +872,32 @@ def generate_banner(data, mode):
         ("SOX",      "前日比",                           f"{data['sox_pct']:+.1f}%"),
         ("VIX",      f"{data['vix']}",                  "警戒" if data["vix"] >= 25 else "安定"),
     ]
-    bx = 40
-    by = 230
+    box_w = (W - 80 - 3*12) // 4
+    bx, by = 40, 268
     for label, val, chg in metrics:
-        draw.rounded_rectangle([(bx, by), (bx+172, by+82)], radius=8,
-            fill=(255, 255, 255, 12), outline=(255, 255, 255, 20), width=1)
-        draw.text((bx+8, by+6),  label, fill=(110, 140, 140, 255), font=fn_xs)
-        draw.text((bx+8, by+26), val,   fill=(220, 240, 240, 255), font=fn_md)
-        chg_c = (34, 197, 94, 255) if ("▲" in chg or "+" in chg) else \
-                (239, 68, 68, 255)  if ("▼" in chg or "-" in chg) else (180, 190, 210, 255)
-        draw.text((bx+8, by+54), chg, fill=chg_c, font=fn_xs)
-        bx += 184
- 
-    draw.text((W-230, 28), "swing-station", fill=(*accent, 80), font=fn_lg)
-    draw.text((W-160, 60), "かぶぼっち",    fill=(*accent, 55), font=fn_sm)
- 
-    draw.rectangle([(0, H-28), (W, H)], fill=(0, 0, 0, 200))
+        draw.rounded_rectangle([(bx, by), (bx+box_w, by+72)], radius=8,
+            fill=(*SURFACE, 255), outline=(255, 255, 255, 22), width=1)
+        draw.text((bx+14, by+10), label, fill=(*DIM, 255), font=fn_xs)
+        draw.text((bx+14, by+28), val,   fill=(*INK, 255), font=fn_md)
+        chg_c = POS if ("▲" in chg or "+" in chg) else NEG if ("▼" in chg or "-" in chg) else MUTE
+        draw.text((bx+14, by+52), chg, fill=(*chg_c, 255), font=fn_xs)
+        bx += box_w + 12
+
+    draw.rectangle([(0, H-28), (W, H)], fill=(0, 0, 0, 210))
     draw.text((14, H-18),
         f"swing-station | {TODAY}({WEEKDAY_JP})  ※投資勧誘ではありません",
-        fill=(60, 90, 90, 255), font=fn_xs)
- 
+        fill=(*DIM, 255), font=fn_xs)
+
+    # ImageDraw(canvas, "RGBA")で描いた半透明の塗り(チャート面・フッター帯など)は
+    # 生ピクセルにalphaを残したまま書き込まれるだけで背景と合成されないため、
+    # ここで不透明な背景の上に一度合成してから確定させる。
+    canvas = Image.alpha_composite(Image.new("RGBA", (W, H), (*BG, 255)), canvas)
+
+    # 日経の値動きが±3%以上の日だけ「オオカミ参加」特別演出にする。
+    # 滅多に起きない条件に絞ることで特別感を保つ。
+    pct = data.get("pct", 0) or 0
+    canvas = _composite_logo(canvas, special=abs(pct) >= 3.0)
+
     buf = io.BytesIO()
     canvas.save(buf, format="PNG")
     buf.seek(0)
