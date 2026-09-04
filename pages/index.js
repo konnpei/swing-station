@@ -5,6 +5,7 @@ import { track } from "@vercel/analytics";
 import QuestCTA from "../components/QuestCTA";
 import MarketTicker from "../components/market/MarketTicker";
 import MarketWorldTable from "../components/market/MarketWorldTable";
+import SectorRanking from "../components/market/SectorRanking";
 
 const MODE_LABELS = {
   normal: { label: "通常モード", color: "#888888" },
@@ -935,6 +936,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
       <MarketTicker briefing={briefing} />
       <MorningHero briefing={briefing} todayInfo={todayInfo} mode={mode} />
       <MarketWorldTable briefing={briefing} />
+      <SectorRanking heatmap={briefing.sector_heatmap} />
       <TodayTrend themes={briefing.trend_themes} />
       <TodayFocusPoints briefing={briefing} />
       <LastUpdatedBanner briefing={briefing} />
