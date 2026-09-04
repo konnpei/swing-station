@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import Head from "next/head";
 import { track } from "@vercel/analytics";
 import QuestCTA from "../components/QuestCTA";
+import MarketTicker from "../components/market/MarketTicker";
 
 const MODE_LABELS = {
   normal: { label: "通常モード", color: "#888888" },
@@ -939,6 +940,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
 
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
+      <MarketTicker briefing={briefing} />
       <MorningHero briefing={briefing} todayInfo={todayInfo} />
       <MarketPulse briefing={briefing} />
       <TodayTrend themes={briefing.trend_themes} />
