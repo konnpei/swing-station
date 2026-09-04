@@ -4,6 +4,7 @@ import Head from "next/head";
 import { track } from "@vercel/analytics";
 import QuestCTA from "../components/QuestCTA";
 import MarketTicker from "../components/market/MarketTicker";
+import MarketWorldTable from "../components/market/MarketWorldTable";
 
 const MODE_LABELS = {
   normal: { label: "通常モード", color: "#888888" },
@@ -916,38 +917,6 @@ function MorningHero({ briefing, todayInfo, mode }) {
   );
 }
 
-function MarketPulse({ briefing }) {
-  const items = [
-    { label: "日経平均", value: briefing.nikkei?.toLocaleString(), pct: briefing.nikkei_pct, icon: "🇯🇵" },
-    { label: "SOX", value: briefing.sox?.toLocaleString(), pct: briefing.sox_pct, icon: "💾" },
-    { label: "NASDAQ", value: briefing.nasdaq?.toLocaleString(), pct: briefing.nasdaq_pct, icon: "🇺🇸" },
-    { label: "VIX", value: briefing.vix, pct: briefing.vix_pct, invert: true, icon: "🌊" },
-    { label: "USD/JPY", value: briefing.usd_jpy, pct: briefing.usd_jpy_pct, icon: "💱" },
-  ];
-  return (
-    <div style={{ display: "flex", gap: 8, overflowX: "auto", marginBottom: 14, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
-      {items.map((it, i) => {
-        const hasPct = typeof it.pct === "number";
-        const positive = it.invert ? it.pct < 0 : it.pct >= 0;
-        const color = hasPct ? (positive ? "#00E0A3" : "#FF5A67") : "#68747C";
-        return (
-          <div key={i} style={{
-            flex: "0 0 auto", minWidth: 108, background: "#101519", border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: 18, padding: "10px 12px",
-          }}>
-            <div style={{ fontSize: 14 }}>{it.icon}</div>
-            <div style={{ fontSize: 9.5, fontWeight: 700, color: "#9AA5AD", marginTop: 6, letterSpacing: "0.02em" }}>{it.label}</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#F5F7F8", marginTop: 2, fontVariantNumeric: "tabular-nums" }}>{it.value ?? "—"}</div>
-            <div style={{ fontSize: 10, fontWeight: 700, color, marginTop: 2, fontVariantNumeric: "tabular-nums" }}>
-              {hasPct ? `${it.pct >= 0 ? "+" : ""}${it.pct.toFixed(2)}%` : "—"}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
   if (!briefing) {
     return (
@@ -965,7 +934,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <MarketTicker briefing={briefing} />
       <MorningHero briefing={briefing} todayInfo={todayInfo} mode={mode} />
-      <MarketPulse briefing={briefing} />
+      <MarketWorldTable briefing={briefing} />
       <TodayTrend themes={briefing.trend_themes} />
       <TodayFocusPoints briefing={briefing} />
       <LastUpdatedBanner briefing={briefing} />
@@ -975,39 +944,6 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
       <TopHeadlines headlines={briefing.top_news_headlines} />
 
       <MarketDashboard briefing={briefing} todayInfo={todayInfo} />
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 8, marginBottom: 14 }}>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>TOPIX</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.topix ? briefing.topix.toLocaleString() : "—"}</div>
-          <div style={{ fontSize: 10, color: (briefing.topix_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>{briefing.topix_pct ? (briefing.topix_pct >= 0 ? "+" : "") + briefing.topix_pct.toFixed(2) + "%" : "—"}</div>
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>S&P500</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.sp500 ? briefing.sp500.toLocaleString() : "—"}</div>
-          <div style={{ fontSize: 10, color: (briefing.sp500_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>{briefing.sp500_pct ? briefing.sp500_pct.toFixed(2) + "%" : "—"}</div>
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>米10年債利回り</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.us10y ? `${briefing.us10y}%` : "—"}</div>
-          <div style={{ fontSize: 10, color: (briefing.us10y_diff || 0) >= 0 ? "#ff5566" : "#00E0A3" }}>{typeof briefing.us10y_diff === "number" ? (briefing.us10y_diff >= 0 ? "+" : "") + briefing.us10y_diff.toFixed(2) + "pt" : "—"}</div>
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>ビットコイン</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.btc ? `$${briefing.btc.toLocaleString()}` : "—"}</div>
-          <div style={{ fontSize: 10, color: (briefing.btc_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>{briefing.btc_pct ? (briefing.btc_pct >= 0 ? "+" : "") + briefing.btc_pct.toFixed(2) + "%" : "—"}</div>
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>ドル指数(DXY)</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.dxy || "—"}</div>
-          <div style={{ fontSize: 10, color: (briefing.dxy_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>{briefing.dxy_pct ? (briefing.dxy_pct >= 0 ? "+" : "") + briefing.dxy_pct.toFixed(2) + "%" : "—"}</div>
-        </div>
-        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 8, padding: "8px 10px" }}>
-          <div style={{ fontSize: 9, color: "#A1A7B3" }}>金（ゴールド）</div>
-          <div style={{ fontSize: 15, color: "#FFFFFF", marginTop: 2 }}>{briefing.gold ? `$${briefing.gold.toLocaleString()}` : "—"}</div>
-          <div style={{ fontSize: 10, color: (briefing.gold_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>{briefing.gold_pct ? (briefing.gold_pct >= 0 ? "+" : "") + briefing.gold_pct.toFixed(2) + "%" : "—"}</div>
-        </div>
-      </div>
 
       <VolumeMonitor items={briefing.market_volume} refreshedAt={briefing.market_volume_refreshed_at} />
 
