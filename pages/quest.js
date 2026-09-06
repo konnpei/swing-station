@@ -92,13 +92,33 @@ export default function Quest() {
     setStats({ streak: saved.streak || 0, total: saved.total || 0, hit: saved.hit || 0 });
     if (saved.doneDay === k && Array.isArray(saved.log)) {
       setResults(saved.log); setIdx(PER_DAY); setView('result');
+    } else if (saved.inProgressDay === k && Array.isArray(saved.inProgressResults) && saved.inProgressIdx > 0) {
+      // 途中で離脱していた場合、続きから再開する。
+      setResults(saved.inProgressResults);
+      setIdx(Math.min(saved.inProgressIdx, PER_DAY - 1));
     }
   }, []);
 
   const answer = (i) => {
     if (picked !== null) return;
     setPicked(i);
-    setResults((r) => { const n = [...r]; n[idx] = i === qs[idx].a; return n; });
+    setResults((r) => {
+      const n = [...r];
+      n[idx] = i === qs[idx].a;
+      // 「続きから」機能のため、1問答えるたびに途中経過を保存する
+      // (以前は5問目まで終わるまで一切保存されず、離脱すると最初からになっていた)。
+      try {
+        let saved = {};
+        try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+        localStorage.setItem(KEY, JSON.stringify({
+          ...saved,
+          inProgressDay: day.key,
+          inProgressIdx: idx + 1,
+          inProgressResults: n,
+        }));
+      } catch (e) {}
+      return n;
+    });
   };
 
   const next = () => {
@@ -118,7 +138,10 @@ export default function Quest() {
       };
       setStats(nextStats);
       try {
-        localStorage.setItem(KEY, JSON.stringify({ ...nextStats, lastDay: day.key, doneDay: day.key, log: results }));
+        localStorage.setItem(KEY, JSON.stringify({
+          ...nextStats, lastDay: day.key, doneDay: day.key, log: results,
+          inProgressDay: null, inProgressIdx: null, inProgressResults: null,
+        }));
       } catch (e) {}
     }
     setView('result');
@@ -127,7 +150,7 @@ export default function Quest() {
   const share = useCallback(() => {
     const hit = results.filter(Boolean).length;
     const bar = results.map((o) => (o ? '🟥' : '🟦')).join('');
-    const txt = `株クエスト ${day.key.replace(/-/g, '/')}\n${bar} ${hit}/5・${stats.streak}日連続\nhttps://swing-station-app.vercel.app/quest`;
+    const txt = `株の問題集 ${day.key.replace(/-/g, '/')}\n${bar} ${hit}/5・${stats.streak}日連続\nhttps://swing-station-app.vercel.app/quest`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(txt).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
     }
@@ -148,10 +171,10 @@ export default function Quest() {
   return (
     <div className="page">
       <Head>
-        <title>株クエスト｜毎日5問 - swing station</title>
-        <meta name="description" content="日本株スイングトレードの判断力を毎日5問で鍛えるデイリークイズ。制度・需給・チャート・決算・マクロを全50問収録。" />
-        <meta property="og:title" content="株クエスト｜毎日5問" />
-        <meta property="og:description" content="日本株の判断力を毎日5問。連続記録に挑戦できます。" />
+        <title>株の問題集｜毎日5問 - KabuBocchi</title>
+        <meta name="description" content="株初心者でも大丈夫。1日5問で株の見方が少しずつ身につくデイリー問題集。制度・需給・チャート・決算・マクロを全50問収録。" />
+        <meta property="og:title" content="株の問題集｜毎日5問" />
+        <meta property="og:description" content="1日5問で株に強くなる。初心者OK、チャート問題あり、毎日更新。" />
       </Head>
 
       <div className="wrap">
@@ -161,7 +184,8 @@ export default function Quest() {
 
         <header>
           <div>
-            <h1>株クエスト</h1>
+            <h1>株の問題集</h1>
+            <div className="brand">KabuBocchi 株クエスト</div>
             <div className="tick">{day.label}　／　全{BANK.length}問収録</div>
           </div>
           <div className={`streak ${stats.streak >= 3 ? 'hot' : ''}`}>
@@ -280,6 +304,7 @@ export default function Quest() {
         header { display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
           border-bottom:1px solid ${T.line}; padding:10px 0 14px; margin-bottom:20px; }
         h1 { margin:0; font-size:23px; font-weight:900; letter-spacing:-.04em; }
+        .brand { font-size:10.5px; color:${T.accent}; letter-spacing:.08em; margin-top:5px; opacity:.85; }
         .tick { font-family:${T.mono}; font-size:11px; color:${T.sub}; letter-spacing:.06em; margin-top:3px; }
         .streak { font-family:${T.mono}; text-align:right; line-height:1.2; }
         .streak b { font-size:27px; font-weight:700; letter-spacing:-.03em; }
