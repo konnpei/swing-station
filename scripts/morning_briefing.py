@@ -779,9 +779,17 @@ def generate_banner(data, mode):
     (public/banners/*.png、クマ・ブルのキャラ絵)を毎回同じものを合成していた。
     実データを反映しない静的な絵だったため廃止し、全モード共通で
     実際の日経平均の推移(data["ohlcv"])を組み込んだ生成バナーに統一した。
-    KabuBocchi次世代デザイン(ダーク金融ターミナル)のトーンに合わせた配色。"""
+    KabuBocchi次世代デザイン(ダーク金融ターミナル)のトーンに合わせた配色。
+
+    2026-09-08追記: 初回リリース時はW,H=1200,400(横3:1)にしていたが、
+    send_to_discordはbanner/chart/stock_chartsの3枚を1メッセージにまとめて
+    送信しており、Discordクライアントはこれを正方形寄りのグリッドで表示する。
+    横に極端に長い画像はこのグリッドで大部分がトリミングされ、見出し・指標
+    のほとんどが見えなくなる実害が発生した(旧固定イラストは462x298=約1.55:1
+    でグリッド表示に耐えていた)。そのため旧イラストに近い比率(1200x800=1.5:1)
+    に変更し、レイアウトも縦方向に余裕を持たせて組み直した。"""
     m = MODES[mode]
-    W, H = 1200, 400
+    W, H = 1200, 800
 
     def hex2rgb(h):
         h = h.lstrip("#")
@@ -838,14 +846,14 @@ def generate_banner(data, mode):
     # ---- 実チャート: 日経平均の直近推移(固定イラストの代わり) ----
     ohlcv = data.get("ohlcv") or []
     closes = [d["close"] for d in ohlcv if d.get("close") is not None]
-    cx0, cy0, cx1, cy1 = 700, 60, 1160, 240
+    cx0, cy0, cx1, cy1 = 40, 232, 1160, 560
     draw.text((cx0, cy0 - 22), "日経平均 直近推移", fill=(*DIM, 255), font=fn_xs)
     if len(closes) >= 2:
         recent = closes[-15:]
         lo, hi = min(recent), max(recent)
         span = (hi - lo) or 1
         n = len(recent)
-        pad = 10
+        pad = 14
         pts = []
         for i, v in enumerate(recent):
             x = cx0 + pad + (cx1 - cx0 - pad*2) * (i / (n - 1))
@@ -854,12 +862,10 @@ def generate_banner(data, mode):
         chart_color = POS if recent[-1] >= recent[0] else NEG
         poly = pts + [(cx1 - pad, cy1 - pad), (cx0 + pad, cy1 - pad)]
         draw.polygon(poly, fill=(*chart_color, 40))
-        draw.line(pts, fill=(*chart_color, 255), width=3, joint="curve")
+        draw.line(pts, fill=(*chart_color, 255), width=4, joint="curve")
         ex, ey = pts[-1]
-        draw.ellipse([ex-4, ey-4, ex+4, ey+4], fill=(*chart_color, 255))
-        # ヘッダー右上の日付ラベルと同じ高さ・右端に置くと重なるため、
-        # チャート枠の下(cy1の下)に配置して分離する。
-        draw.text((cx1, cy1 + 8), f"{recent[-1]:,.0f}円", fill=(*INK, 255), font=fn_sm, anchor="ra")
+        draw.ellipse([ex-5, ey-5, ex+5, ey+5], fill=(*chart_color, 255))
+        draw.text((cx1, cy1 + 10), f"{recent[-1]:,.0f}円", fill=(*INK, 255), font=fn_md, anchor="ra")
     else:
         draw.text(((cx0+cx1)//2, (cy0+cy1)//2), "データ取得中", fill=(*DIM, 255), font=fn_sm, anchor="mm")
 
@@ -873,14 +879,14 @@ def generate_banner(data, mode):
         ("VIX",      f"{data['vix']}",                  "警戒" if data["vix"] >= 25 else "安定"),
     ]
     box_w = (W - 80 - 3*12) // 4
-    bx, by = 40, 268
+    bx, by = 40, 610
     for label, val, chg in metrics:
-        draw.rounded_rectangle([(bx, by), (bx+box_w, by+72)], radius=8,
+        draw.rounded_rectangle([(bx, by), (bx+box_w, by+84)], radius=8,
             fill=(*SURFACE, 255), outline=(255, 255, 255, 22), width=1)
-        draw.text((bx+14, by+10), label, fill=(*DIM, 255), font=fn_xs)
-        draw.text((bx+14, by+28), val,   fill=(*INK, 255), font=fn_md)
+        draw.text((bx+16, by+12), label, fill=(*DIM, 255), font=fn_sm)
+        draw.text((bx+16, by+33), val,   fill=(*INK, 255), font=fn_lg)
         chg_c = POS if ("▲" in chg or "+" in chg) else NEG if ("▼" in chg or "-" in chg) else MUTE
-        draw.text((bx+14, by+52), chg, fill=(*chg_c, 255), font=fn_xs)
+        draw.text((bx+16, by+62), chg, fill=(*chg_c, 255), font=fn_sm)
         bx += box_w + 12
 
     draw.rectangle([(0, H-28), (W, H)], fill=(0, 0, 0, 210))
