@@ -33,6 +33,7 @@ import {
   Mode,
   NewMissionInput,
   ProfileUpdateInput,
+  SubjectGoal,
 } from "../lib/dummy-data";
 import {
   deleteMissionRow,
@@ -41,6 +42,7 @@ import {
   saveChildProfile,
   saveChildXp,
   saveMissionCompleted,
+  saveSubjectGoals,
   updateMissionRow,
 } from "../lib/family-repository";
 import {
@@ -231,6 +233,16 @@ export default function Page() {
     saveChildProfile(childId, input);
   }
 
+  /** 保護者が「教科別ゴール（受験対策の残り総量）」を編集する */
+  function handleUpdateSubjectGoals(childId: ChildId, goals: SubjectGoal[]) {
+    setFamily((prevFamily) =>
+      prevFamily.map((child) =>
+        child.id === childId ? { ...child, subjectGoals: goals } : child
+      )
+    );
+    saveSubjectGoals(childId, goals);
+  }
+
   /** 保護者がミッションを削除する */
   function handleDeleteMission(childId: ChildId, missionId: string) {
     const child = family.find((c) => c.id === childId);
@@ -273,6 +285,9 @@ export default function Page() {
           }
           onUpdateProfile={(input) =>
             handleUpdateProfile(editingChild.id, input)
+          }
+          onUpdateSubjectGoals={(goals) =>
+            handleUpdateSubjectGoals(editingChild.id, goals)
           }
           onClose={() => setEditingChildId(null)}
         />
