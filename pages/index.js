@@ -385,7 +385,7 @@ const FG_LABEL_JP = {
 function FearGreedGauge({ value, label, diff }) {
   if (typeof value !== "number") {
     return (
-      <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "12px 14px", marginBottom: 14, textAlign: "center", color: "#6B7280", fontSize: 11 }}>
+      <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 12, padding: "12px 14px", marginBottom: 14, textAlign: "center", color: "#6B7280", fontSize: 11 }}>
         Fear &amp; Greed指数はまだ取得できていません
       </div>
     );
@@ -401,8 +401,8 @@ function FearGreedGauge({ value, label, diff }) {
   const diffColor = typeof diff === "number" ? (diff >= 0 ? "#00E0A3" : "#ff5566") : "#A1A7B3";
 
   return (
-    <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "10px 14px 6px", marginBottom: 14 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", marginBottom: 4 }}>Fear &amp; Greed指数</div>
+    <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 12, padding: "12px 14px 8px", marginBottom: 14 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: "#6B7280", letterSpacing: "0.05em", marginBottom: 6 }}>Fear &amp; Greed指数</div>
       <svg viewBox="0 0 200 112" style={{ width: "100%", maxWidth: 260, height: "auto", display: "block", margin: "0 auto" }}>
         <defs>
           <linearGradient id="fgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -420,7 +420,7 @@ function FearGreedGauge({ value, label, diff }) {
         <text x={162} y={cy + 18} fontSize="9" fill="#6B7280">強欲</text>
       </svg>
       <div style={{ textAlign: "center", marginTop: -8, paddingBottom: 8 }}>
-        <span style={{ fontSize: 22, fontWeight: 700, color: "#FFFFFF" }}>{Math.round(value)}</span>
+        <span style={{ fontSize: 22, fontWeight: 700, color: "#FFFFFF", fontFamily: "'JetBrains Mono','Courier New',monospace", fontVariantNumeric: "tabular-nums" }}>{Math.round(value)}</span>
         <span style={{ fontSize: 12, color: "#A1A7B3", marginLeft: 6 }}>{labelJp}</span>
         {typeof diff === "number" && (
           <span style={{ fontSize: 11, color: diffColor, marginLeft: 8 }}>
@@ -476,11 +476,11 @@ function MtfMiniScore({ label, score, sublabel }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 3 }}>
         <span style={{ fontSize: 9, color: "#A1A7B3" }}>{label}</span>
         <span style={{ fontSize: 10 }}>
-          <span style={{ color, fontWeight: 700 }}>{score}</span>
+          <span style={{ color, fontWeight: 700, fontFamily: "'JetBrains Mono','Courier New',monospace" }}>{score}</span>
           <span style={{ color: "#A1A7B3", marginLeft: 4 }}>{sublabel}</span>
         </span>
       </div>
-      <div style={{ width: "100%", height: 6, background: "#13161C", borderRadius: 3, overflow: "hidden" }}>
+      <div style={{ width: "100%", height: 6, background: "#080D10", borderRadius: 3, overflow: "hidden" }}>
         <div style={{ width: `${score}%`, height: "100%", background: color, borderRadius: 3 }} />
       </div>
     </div>
@@ -547,8 +547,8 @@ function MarketDashboard({ briefing, todayInfo }) {
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))", gap: 10, marginBottom: 14 }}>
-      <div style={{ background: "linear-gradient(145deg,#151B20,#0B0F12)", border: `1px solid ${meta.color}55`, boxShadow: `0 0 28px ${meta.color}16`, borderRadius: 20, padding: "14px 14px 12px" }}>
-        <div style={{ fontSize: 10, color: "#A1A7B3", letterSpacing: 1 }}>TODAY'S MARKET SCORE</div>
+      <div style={{ background: "#13161C", border: `1px solid ${meta.color}44`, borderRadius: 12, padding: "14px 14px 12px" }}>
+        <div style={{ fontSize: 10, color: "#6B7280", fontWeight: 700, letterSpacing: "0.1em" }}>TODAY'S MARKET SCORE</div>
         {todayInfo?.isWeekend && (
           <div style={{ fontSize: 9, color: "#FFB020", marginTop: 3 }}>
             休場中のため{briefing.date || "直近営業日"}時点のスコアです
@@ -561,17 +561,17 @@ function MarketDashboard({ briefing, todayInfo }) {
               <circle cx="50" cy="50" r={radius} fill="none" stroke={meta.color} strokeWidth="9" strokeLinecap="round" strokeDasharray={`${dash} ${circumference - dash}`} />
             </svg>
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ fontSize: 34, lineHeight: 1, fontWeight: 800, color: meta.color }}>{score}</div>
-              <div style={{ fontSize: 9, color: "#777", marginTop: 3 }}>/ 100</div>
+              <div style={{ fontSize: 34, lineHeight: 1, fontWeight: 800, color: meta.color, fontFamily: "'JetBrains Mono','Courier New',monospace" }}>{score}</div>
+              <div style={{ fontSize: 9, color: "#6B7280", marginTop: 3 }}>/ 100</div>
             </div>
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 21, fontWeight: 800, color: meta.color, lineHeight: 1.25 }}>{meta.label}</div>
-            <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>{briefing.market_score_label || meta.sub}</div>
+            <div style={{ fontSize: 11, color: "#A1A7B3", marginTop: 4 }}>{briefing.market_score_label || meta.sub}</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
               <span style={{ fontSize: 9, color: (briefing.nikkei_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>日経 {(briefing.nikkei_pct || 0).toFixed(1)}%</span>
               <span style={{ fontSize: 9, color: (briefing.sox_pct || 0) >= 0 ? "#00E0A3" : "#ff5566" }}>SOX {(briefing.sox_pct || 0).toFixed(1)}%</span>
-              <span style={{ fontSize: 9, color: "#aaa" }}>VIX {briefing.vix ?? "—"}</span>
+              <span style={{ fontSize: 9, color: "#A1A7B3" }}>VIX {briefing.vix ?? "—"}</span>
             </div>
           </div>
         </div>
@@ -585,23 +585,23 @@ function MarketDashboard({ briefing, todayInfo }) {
       </div>
 
       <div style={{ display: "grid", gap: 10 }}>
-        <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "12px 14px" }}>
+        <div style={{ background: "#13161C", border: "1px solid #1B1F26", borderRadius: 12, padding: "12px 14px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 9 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: "#f0f0f0" }}>今日の3行戦略</div>
+            <div style={{ fontSize: 12, fontWeight: 800, color: "#FFFFFF" }}>今日の3行戦略</div>
             <div style={{ fontSize: 9, color: meta.color }}>ACTION</div>
           </div>
           {lines.map((line, i) => (
-            <div key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "7px 0", borderTop: i ? "1px solid #202020" : "none" }}>
+            <div key={i} style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "7px 0", borderTop: i ? "1px solid #1B1F26" : "none" }}>
               <div style={{ width: 22, height: 22, borderRadius: 7, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: `${meta.color}18`, border: `1px solid ${meta.color}44`, color: meta.color, fontSize: 11, fontWeight: 800 }}>{i + 1}</div>
-              <div style={{ fontSize: 11.5, lineHeight: 1.55, color: "#dddddd" }}>{line}</div>
+              <div style={{ fontSize: 11.5, lineHeight: 1.55, color: "#FFFFFF" }}>{line}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ background: "linear-gradient(155deg, #151B20, #101519)", border: `1px solid ${eventMeta.color}44`, borderLeft: `4px solid ${eventMeta.color}`, borderRadius: 20, padding: "11px 14px" }}>
+        <div style={{ background: "#13161C", border: `1px solid ${eventMeta.color}44`, borderLeft: `4px solid ${eventMeta.color}`, borderRadius: 12, padding: "11px 14px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}>
             <div>
-              <div style={{ fontSize: 10, color: "#A1A7B3" }}>今日は何の日？ / NEXT EVENT</div>
+              <div style={{ fontSize: 10, color: "#6B7280", fontWeight: 700, letterSpacing: "0.05em" }}>今日は何の日？ / NEXT EVENT</div>
               {event ? (
                 <>
                   <div style={{ fontSize: 15, fontWeight: 800, color: "#FFFFFF", marginTop: 5 }}>{shortText(event.title || event.text, 34)}</div>
