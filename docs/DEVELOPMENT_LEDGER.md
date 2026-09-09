@@ -23,6 +23,8 @@ Claude判断・オーナー最終判断・実装ファイル)は、対応するG
 | HOLD | 保留(理由はIssue本文に明記) |
 | REJECTED | 却下(理由はIssue本文に明記) |
 
+状態ラベル(`status:*`)は同時に1つだけ付ける。詳しい運用ルールは `docs/AI_HANDOFF.md` を参照。
+
 ## 索引
 
 | ID | 機能名 | 状態 | 優先度 | Phase | 担当 | Issue |
@@ -31,8 +33,8 @@ Claude判断・オーナー最終判断・実装ファイル)は、対応するG
 | L-002 | FearGreedGauge/MarketDashboard デザイン統一 | DONE | - | 1 | Claude | [#21](https://github.com/konnpei/swing-station/issues/21) |
 | L-003 | Vercel Cronフェイルセーフの環境変数設定 | HOLD | - | 1 | CEO | [#22](https://github.com/konnpei/swing-station/issues/22) |
 | L-004 | 情報源監視機能(実在個人SNS監視) | HOLD | - | backlog | CEO | [#23](https://github.com/konnpei/swing-station/issues/23) |
-| L-005 | KabuBocchi SCORE(100点満点) | HOLD | - | backlog | ChatGPT | [#24](https://github.com/konnpei/swing-station/issues/24) |
-| L-006 | Phase2新機能開発(全体) | HOLD | - | 2 | ChatGPT | [#25](https://github.com/konnpei/swing-station/issues/25) |
+| L-005 | KabuBocchi SCORE(100点満点) | HOLD | - | backlog | CEO | [#24](https://github.com/konnpei/swing-station/issues/24) |
+| L-006 | Phase2新機能開発(全体) | HOLD | - | 2 | CEO | [#25](https://github.com/konnpei/swing-station/issues/25) |
 | L-007 | 開発フローのGitHub SSOT化(3者体制) | IN_PROGRESS | - | 1 | Claude | [#26](https://github.com/konnpei/swing-station/issues/26) |
 
 ## ラベル一覧
