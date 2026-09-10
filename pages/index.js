@@ -935,6 +935,7 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
     <div style={{ height: "100%", overflowY: "auto", padding: "12px 14px 24px" }}>
       <MarketTicker briefing={briefing} />
       <MorningHero briefing={briefing} todayInfo={todayInfo} mode={mode} />
+      <MarketDashboard briefing={briefing} todayInfo={todayInfo} />
       <MarketWorldTable briefing={briefing} />
       <SectorRanking heatmap={briefing.sector_heatmap} />
       <TodayTrend themes={briefing.trend_themes} />
@@ -944,8 +945,6 @@ function BriefingView({ briefing, onJump, ignoreStaleness, onNavigate }) {
       <EarningsStraddleWarning briefing={briefing} onJump={onJump} />
       <MacroEventWarning briefing={briefing} />
       <TopHeadlines headlines={briefing.top_news_headlines} />
-
-      <MarketDashboard briefing={briefing} todayInfo={todayInfo} />
 
       <VolumeMonitor items={briefing.market_volume} refreshedAt={briefing.market_volume_refreshed_at} />
 
@@ -2503,6 +2502,25 @@ export default function SwingStation() {
       // 壊れた保存データは無視して既定値のまま使う
     } finally {
       setTabPrefsHydrated(true);
+    }
+  }, []);
+
+  // 流入元の分類(note/X/Discordからの導線を把握するための最小限の計測)。
+  // UTM等の付与はX/note側の投稿運用と合わせる必要があるため対象外とし、
+  // ブラウザが送ってくるdocument.referrerだけで判定できる範囲に留める。
+  useEffect(() => {
+    if (typeof window === "undefined" || !document.referrer) {
+      track("visit_direct");
+      return;
+    }
+    try {
+      const host = new URL(document.referrer).hostname;
+      if (host.includes("x.com") || host.includes("twitter.com")) track("visit_from_x");
+      else if (host.includes("note.com")) track("visit_from_note");
+      else if (host.includes("discord.com")) track("visit_from_discord");
+      else track("visit_from_other");
+    } catch (e) {
+      track("visit_direct");
     }
   }, []);
 

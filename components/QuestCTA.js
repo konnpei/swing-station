@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { track } from '@vercel/analytics';
 
 /* 朝刊（pages/index.js）の一番下に置く導線。
    色は pages/quest.js の T と揃えてある。サイト側の値に合わせて調整可。
@@ -59,7 +60,7 @@ export default function QuestCTA() {
 
   return (
     <Link href="/quest">
-      <a className="cta">
+      <a className="cta" onClick={() => track('click_quest_cta')}>
         <span className="candles" aria-hidden="true">
           <i className="up" /><i className="up" /><i className="down" /><i className="up" /><i className="up" />
         </span>
