@@ -34,7 +34,7 @@ Claude判断・オーナー最終判断・実装ファイル)は、対応するG
 | L-003 | Vercel Cronフェイルセーフの環境変数設定 | HOLD | - | 1 | CEO | [#22](https://github.com/konnpei/swing-station/issues/22) |
 | L-004 | 情報源監視機能(実在個人SNS監視) | HOLD | - | backlog | CEO | [#23](https://github.com/konnpei/swing-station/issues/23) |
 | L-005 | KabuBocchi SCORE(100点満点) | HOLD | - | backlog | CEO | [#24](https://github.com/konnpei/swing-station/issues/24) |
-| L-006 | Phase2新機能開発(最小実装: 表示順+計測イベント) | REVIEW | - | 2 | CEO | [#25](https://github.com/konnpei/swing-station/issues/25) |
+| L-006 | Phase2新機能開発(全体、①②反映済み・③④未着手) | IN_PROGRESS | - | 2 | CEO | [#25](https://github.com/konnpei/swing-station/issues/25) |
 | L-007 | 開発フローのGitHub SSOT化(3者体制) | DONE | - | 1 | Claude | [#26](https://github.com/konnpei/swing-station/issues/26) |
 | L-008 | ユーザー認証・アカウント機能(無料登録の実体) | HOLD | p2 | backlog | ChatGPT | [#27](https://github.com/konnpei/swing-station/issues/27) |
 
