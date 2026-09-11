@@ -1058,6 +1058,52 @@ def generate_note(data, mode, c):
     return note
  
  
+def save_png_to_repo(gh_token, buf, repo_path, commit_message):
+    """画像バッファをGitHub Contents APIでリポジトリへ保存する共通処理。
+    data/latest_chart.pngの保存で使っていたGET(sha取得)→PUTのパターンを
+    Issue #28(note投稿セット)向けにbanner/stock_charts画像へも使い回すために
+    関数化した。呼び出し側で例外を捕捉し、1枚の保存失敗が他の処理を
+    止めないようにする方針は元のまま維持する。
+    """
+    buf.seek(0)
+    png_b64 = base64.b64encode(buf.read()).decode("ascii")
+    url = f"https://api.github.com/repos/konnpei/swing-station/contents/{repo_path}"
+    r_check = requests.get(url, headers={"Authorization": f"Bearer {gh_token}"})
+    body = {"message": commit_message, "content": png_b64}
+    if r_check.status_code == 200:
+        body["sha"] = r_check.json().get("sha")
+    r_put = requests.put(url, headers={"Authorization": f"Bearer {gh_token}", "Content-Type": "application/json"}, json=body)
+    return r_put.status_code
+
+
+def build_note_parts(c, top_headlines=None, fallback_text=""):
+    """note本文の共通パーツ(タイトル行・本文・末尾注記)を組み立てる。
+    Discord送信用(note_prefix付き・2000字切り詰め)とサイト`/note`ページ用
+    (切り詰めなしのフル本文)の両方から呼ばれるため、注記・見出しブロックの
+    組み立てロジックを一箇所に集約している(Discord用と別々に実装すると
+    文言がずれていく可能性があるため)。
+    """
+    _y, _m, _d = TODAY.split("/")
+    title_line = f"KABU BOCCHI 朝刊｜{_y}年{int(_m)}月{int(_d)}日"
+    headlines_block = ""
+    if top_headlines:
+        lines = []
+        for h in top_headlines:
+            lines.append(f"・[{h['source']}] {h['title']}")
+            if h.get("link"):
+                lines.append(h["link"])
+        headlines_block = "\n\n📡 経済ニュース速報\n" + "\n".join(lines)
+    note_suffix = (
+        headlines_block + "\n\n---\n"
+        "いいね・フォローお願いします🙇\n"
+        "※本サイトは一般的な市場情報およびAIによる機械的な分析結果を提供するものであり、"
+        "特定の金融商品の売買を推奨・勧誘するものではありません。掲載情報の正確性・完全性・"
+        "将来の成果を保証するものではありません。投資に関する最終判断は、ご自身の責任で行ってください。"
+    )
+    note_body = c.get("note_body", fallback_text)
+    return title_line, note_body, note_suffix
+
+
 def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlines=None, stock_charts_buf=None):
     m    = MODES[mode]
     diff = data["diff"]
@@ -1159,30 +1205,13 @@ def send_to_discord(banner_buf, chart_buf, note_text, c, data, mode, top_headlin
     # 固定文言として末尾に必ず付与する（LLM任せにせず毎回確実に表示するため）。
     # 経済ニュース見出しもAIに言い換えさせず、取得したテキストをそのまま挿入する。
     # Discordの1メッセージ上限(2000字)に収め、2通に分割されないようにする。
-    _y, _m, _d = TODAY.split("/")
-    title_line = f"📰 **KABU BOCCHI 朝刊｜{_y}年{int(_m)}月{int(_d)}日**\n\n"
-    note_prefix = "**📝 note本文(コピペして投稿)**\n\n" + title_line
-    headlines_block = ""
-    if top_headlines:
-        # リンクを見出しと別行にすることで、noteに貼り付けた際にnote側の
-        # リンクカード自動生成機能で記事プレビューが表示されるようにする。
-        lines = []
-        for h in top_headlines:
-            lines.append(f"・[{h['source']}] {h['title']}")
-            if h.get("link"):
-                lines.append(h["link"])
-        headlines_block = "\n\n📡 経済ニュース速報\n" + "\n".join(lines)
+    # パーツ(タイトル行・本文・末尾注記)の組み立ては build_note_parts() に集約し、
+    # /noteページ用のフル本文(data/latest.json保存)と食い違わないようにしている。
     # 2026/08/25: noteエディタの「^証券コード」自動チャート変換は、実機検証の結果
     # 貼り付けでは発動しない(1文字ずつ入力した場合のみ)ことが確認できた。毎回
     # 手動で打ち直す手間が見合わないため、コード行の自動挿入は見送り。
-    note_suffix = (
-        headlines_block + "\n\n---\n"
-        "いいね・フォローお願いします🙇\n"
-        "※本サイトは一般的な市場情報およびAIによる機械的な分析結果を提供するものであり、"
-        "特定の金融商品の売買を推奨・勧誘するものではありません。掲載情報の正確性・完全性・"
-        "将来の成果を保証するものではありません。投資に関する最終判断は、ご自身の責任で行ってください。"
-    )
-    note_body = c.get("note_body", note_text)
+    title_line, note_body, note_suffix = build_note_parts(c, top_headlines, fallback_text=note_text)
+    note_prefix = "**📝 note本文(コピペして投稿)**\n\n" + f"📰 **{title_line}**\n\n"
     max_body_len = 1900 - len(note_prefix) - len(note_suffix)
     if len(note_body) > max_body_len:
         note_body = note_body[:max_body_len].rstrip() + "…"
@@ -1310,6 +1339,8 @@ if __name__ == "__main__":
             _us_top_movers = _prev_latest.get("us_top_movers", [])
             _us_changes = _prev_latest.get("us_all_changes", [])
 
+    _note_title, _note_body, _note_suffix = build_note_parts(content, top_headlines)
+
     latest_json = {
         "date": f"{TODAY}",
         "generated_at": NOW.isoformat(),
@@ -1368,6 +1399,10 @@ if __name__ == "__main__":
         "x_teaser_3line": content.get("x_teaser_3line", ""),
         "note_body": content.get("note_body", ""),
         "note_cta": content.get("note_cta", ""),
+        # /noteページ(Issue #28)でのコピペ用。Discord版(build_note_parts経由で
+        # 共通ロジック)と違い、2000字切り詰め・note_prefix見出しは付けない
+        # (Webページには文字数上限が無いため、noteにそのまま貼れる完全な形で保存する)。
+        "note_full_text": f"{_note_title}\n\n{_note_body}{_note_suffix}",
     }
 
     gh_token = os.environ.get("GH_PAT", "")
@@ -1414,17 +1449,26 @@ if __name__ == "__main__":
 
             # 日経チャート画像もサイト表示用に保存（data/latest_chart.png）
             try:
-                chart_buf.seek(0)
-                chart_png_b64 = base64.b64encode(chart_buf.read()).decode("ascii")
-                chart_url = "https://api.github.com/repos/konnpei/swing-station/contents/data/latest_chart.png"
-                r_chart_check = requests.get(chart_url, headers={"Authorization": f"Bearer {gh_token}"})
-                chart_body = {"message": f"Update chart {TODAY}", "content": chart_png_b64}
-                if r_chart_check.status_code == 200:
-                    chart_body["sha"] = r_chart_check.json().get("sha")
-                r_chart_put = requests.put(chart_url, headers={"Authorization": f"Bearer {gh_token}", "Content-Type": "application/json"}, json=chart_body)
-                print(f"data/latest_chart.png updated: {r_chart_put.status_code}")
+                status = save_png_to_repo(gh_token, chart_buf, "data/latest_chart.png", f"Update chart {TODAY}")
+                print(f"data/latest_chart.png updated: {status}")
             except Exception as ce:
                 print(f"Chart image save error: {ce}")
+
+            # バナー・注目株チャート画像もサイト表示用に保存(Issue #28: note投稿セット用)。
+            # いずれもDiscordへは送信済みだがこれまで保存先が無く、Discordを見返す以外に
+            # 取得する手段が無かった。/noteページから個別保存できるようにするため追加。
+            try:
+                status = save_png_to_repo(gh_token, banner_buf, "data/latest_banner.png", f"Update banner {TODAY}")
+                print(f"data/latest_banner.png updated: {status}")
+            except Exception as be:
+                print(f"Banner image save error: {be}")
+
+            if stock_charts_buf is not None:
+                try:
+                    status = save_png_to_repo(gh_token, stock_charts_buf, "data/latest_stock_charts.png", f"Update stock charts {TODAY}")
+                    print(f"data/latest_stock_charts.png updated: {status}")
+                except Exception as se:
+                    print(f"Stock charts image save error: {se}")
 
             # 注: data/latest.json / latest_chart.png のコミット自体がVercelのGit連携
             # による自動デプロイをトリガーするため、明示的なVERCEL_DEPLOY_HOOK呼び出し
