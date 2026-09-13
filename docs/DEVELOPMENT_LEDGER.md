@@ -38,7 +38,7 @@ Claude判断・オーナー最終判断・実装ファイル)は、対応するG
 | L-007 | 開発フローのGitHub SSOT化(3者体制) | DONE | - | 1 | Claude | [#26](https://github.com/konnpei/swing-station/issues/26) |
 | L-008 | ユーザー認証・アカウント機能(無料登録の実体) | HOLD | p2 | backlog | ChatGPT | [#27](https://github.com/konnpei/swing-station/issues/27) |
 | L-009 | note投稿セットMVP(Slice 1、main反映済み) | DONE | - | 2 | ChatGPT | [#28](https://github.com/konnpei/swing-station/issues/28) |
-| L-010 | Market Universe Phase EXP-1モックデモ(main反映済み、実機確認待ち) | REVIEW | - | backlog | CEO | [#29](https://github.com/konnpei/swing-station/issues/29) |
+| L-010 | Market Universe Phase EXP-1モックデモ(main反映済み、CEO実機確認待ちで停止中) | HOLD | - | backlog | CEO | [#29](https://github.com/konnpei/swing-station/issues/29) |
 
 ## ラベル一覧
 
