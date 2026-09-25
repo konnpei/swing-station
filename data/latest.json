@@ -2638,10 +2638,10 @@
         "sector": "エネルギー",
         "price": 205.65,
         "change_pct": 0.07,
-        "ma25_diff": -1.1,
-        "bb_pos": 38.4,
-        "rsi": 42.3,
-        "vol_ratio": 1.61,
+        "ma25_diff": -1.0,
+        "bb_pos": 39.3,
+        "rsi": 41.7,
+        "vol_ratio": 1.63,
         "ai_score": 61,
         "cup_handle": {
           "detected": false
@@ -2678,25 +2678,6 @@
         }
       },
       {
-        "code": "COST",
-        "name": "Costco",
-        "sector": "生活必需品",
-        "price": 896.48,
-        "change_pct": -0.91,
-        "ma25_diff": -2.9,
-        "bb_pos": 22.3,
-        "rsi": 27.9,
-        "vol_ratio": 1.28,
-        "ai_score": 57,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 928.5,
-          "cup_depth_pct": 14.5,
-          "cup_weeks": 20
-        }
-      },
-      {
         "code": "WMT",
         "name": "Walmart",
         "sector": "消費・EC",
@@ -2717,10 +2698,10 @@
         "sector": "ヘルスケア",
         "price": 1181.89,
         "change_pct": 2.68,
-        "ma25_diff": 0.9,
-        "bb_pos": 55.7,
-        "rsi": 57.6,
-        "vol_ratio": 1.12,
+        "ma25_diff": 1.3,
+        "bb_pos": 59.3,
+        "rsi": 57.1,
+        "vol_ratio": 1.18,
         "ai_score": 56,
         "cup_handle": {
           "detected": false
@@ -2763,6 +2744,21 @@
           "cup_depth_pct": 20.2,
           "cup_weeks": 21
         }
+      },
+      {
+        "code": "JNJ",
+        "name": "Johnson & Johnson",
+        "sector": "ヘルスケア",
+        "price": 270.68,
+        "change_pct": 0.56,
+        "ma25_diff": 0.4,
+        "bb_pos": 59.0,
+        "rsi": 40.3,
+        "vol_ratio": 1.22,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": false
+        }
       }
     ],
     "bottom": [
@@ -2782,15 +2778,34 @@
         }
       },
       {
-        "code": "GE",
-        "name": "GE Aerospace",
-        "sector": "資本財",
-        "price": 319.78,
-        "change_pct": -0.01,
-        "ma25_diff": -3.4,
-        "bb_pos": 29.6,
-        "rsi": 39.1,
-        "vol_ratio": 1.31,
+        "code": "COST",
+        "name": "Costco",
+        "sector": "生活必需品",
+        "price": 896.48,
+        "change_pct": -0.91,
+        "ma25_diff": -2.7,
+        "bb_pos": 24.0,
+        "rsi": 31.6,
+        "vol_ratio": 1.22,
+        "ai_score": 47,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 925.4,
+          "cup_depth_pct": 14.5,
+          "cup_weeks": 20
+        }
+      },
+      {
+        "code": "UNH",
+        "name": "UnitedHealth",
+        "sector": "ヘルスケア",
+        "price": 375.01,
+        "change_pct": 1.0,
+        "ma25_diff": -2.8,
+        "bb_pos": 20.7,
+        "rsi": 30.8,
+        "vol_ratio": 1.07,
         "ai_score": 47,
         "cup_handle": {
           "detected": false
@@ -2817,11 +2832,26 @@
         "sector": "金融",
         "price": 923.29,
         "change_pct": -1.4,
-        "ma25_diff": -7.9,
-        "bb_pos": -0.5,
-        "rsi": 32.9,
-        "vol_ratio": 1.35,
+        "ma25_diff": -7.7,
+        "bb_pos": 2.8,
+        "rsi": 32.4,
+        "vol_ratio": 1.21,
         "ai_score": 50,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "GE",
+        "name": "GE Aerospace",
+        "sector": "資本財",
+        "price": 319.78,
+        "change_pct": -0.01,
+        "ma25_diff": -3.0,
+        "bb_pos": 31.1,
+        "rsi": 40.4,
+        "vol_ratio": 1.21,
+        "ai_score": 52,
         "cup_handle": {
           "detected": false
         }
@@ -2867,9 +2897,9 @@
         "price": 88.1,
         "change_pct": 0.01,
         "ma25_diff": -0.5,
-        "bb_pos": 40.3,
-        "rsi": 54.0,
-        "vol_ratio": 1.13,
+        "bb_pos": 41.1,
+        "rsi": 52.2,
+        "vol_ratio": 1.14,
         "ai_score": 54,
         "cup_handle": {
           "detected": false
@@ -2889,67 +2919,10 @@
         "cup_handle": {
           "detected": false
         }
-      },
-      {
-        "code": "DIS",
-        "name": "Disney",
-        "sector": "通信・メディア",
-        "price": 105.56,
-        "change_pct": 2.03,
-        "ma25_diff": -1.1,
-        "bb_pos": 36.2,
-        "rsi": 48.5,
-        "vol_ratio": 1.22,
-        "ai_score": 54,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 108.6,
-          "cup_depth_pct": 25.0,
-          "cup_weeks": 65
-        }
-      },
-      {
-        "code": "META",
-        "name": "Meta Platforms",
-        "sector": "通信・メディア",
-        "price": 777.59,
-        "change_pct": 4.5,
-        "ma25_diff": 22.8,
-        "bb_pos": 103.9,
-        "rsi": 86.6,
-        "vol_ratio": 1.52,
-        "ai_score": 54,
-        "cup_handle": {
-          "detected": true,
-          "stage": "cup",
-          "pivot": 777.6,
-          "cup_depth_pct": 32.9,
-          "cup_weeks": 59
-        }
       }
     ],
     "high_conviction": [],
     "cup_handle": [
-      {
-        "code": "COST",
-        "name": "Costco",
-        "sector": "生活必需品",
-        "price": 896.48,
-        "change_pct": -0.91,
-        "ma25_diff": -2.9,
-        "bb_pos": 22.3,
-        "rsi": 27.9,
-        "vol_ratio": 1.28,
-        "ai_score": 57,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 928.5,
-          "cup_depth_pct": 14.5,
-          "cup_weeks": 20
-        }
-      },
       {
         "code": "MSFT",
         "name": "Microsoft",
@@ -2994,10 +2967,10 @@
         "sector": "エネルギー",
         "price": 162.14,
         "change_pct": 0.56,
-        "ma25_diff": -0.3,
-        "bb_pos": 46.1,
-        "rsi": 46.3,
-        "vol_ratio": 1.22,
+        "ma25_diff": -0.2,
+        "bb_pos": 48.1,
+        "rsi": 46.8,
+        "vol_ratio": 1.26,
         "ai_score": 55,
         "cup_handle": {
           "detected": true,
@@ -3013,15 +2986,15 @@
         "sector": "生活必需品",
         "price": 145.68,
         "change_pct": -1.16,
-        "ma25_diff": 0.1,
-        "bb_pos": 52.9,
-        "rsi": 48.3,
-        "vol_ratio": 0.95,
+        "ma25_diff": 0.0,
+        "bb_pos": 50.3,
+        "rsi": 43.9,
+        "vol_ratio": 0.94,
         "ai_score": 55,
         "cup_handle": {
           "detected": true,
           "stage": "handle",
-          "pivot": 147.6,
+          "pivot": 148.2,
           "cup_depth_pct": 14.7,
           "cup_weeks": 31
         }
@@ -3032,9 +3005,9 @@
         "sector": "通信・メディア",
         "price": 105.56,
         "change_pct": 2.03,
-        "ma25_diff": -1.1,
-        "bb_pos": 36.2,
-        "rsi": 48.5,
+        "ma25_diff": -1.0,
+        "bb_pos": 38.1,
+        "rsi": 43.9,
         "vol_ratio": 1.22,
         "ai_score": 54,
         "cup_handle": {
@@ -3063,10 +3036,29 @@
           "cup_depth_pct": 24.4,
           "cup_weeks": 36
         }
+      },
+      {
+        "code": "COST",
+        "name": "Costco",
+        "sector": "生活必需品",
+        "price": 896.48,
+        "change_pct": -0.91,
+        "ma25_diff": -2.7,
+        "bb_pos": 24.0,
+        "rsi": 31.6,
+        "vol_ratio": 1.22,
+        "ai_score": 47,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 925.4,
+          "cup_depth_pct": 14.5,
+          "cup_weeks": 20
+        }
       }
     ]
   },
-  "screener_refreshed_at": "2026-09-25T17:08:15.955268+09:00",
+  "screener_refreshed_at": "2026-09-25T21:44:45.870206+09:00",
   "weekly_review": {
     "date": "2026/09/19",
     "title": "ヨコヨコの中でもAIは生きてた週",
