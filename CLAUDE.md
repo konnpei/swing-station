@@ -1,7 +1,7 @@
 # CLAUDE.md
 
-> Version: 1.3
-> Last Updated: 2026-07-15
+> Version: 1.4
+> Last Updated: 2026-09-20
 
 このファイルは、Claude Code / Claude / ChatGPT / Codex がこのリポジトリで作業するときに読む運用ルールです。
 作業前に必ず確認し、迷った場合は新機能よりも安定運用を優先してください。
@@ -55,19 +55,26 @@ SWING STATIONは「毎朝安心して見られる株サイト」を最優先に�
 
 担当:
 
-- GitHub Issue更新
-- PRレビュー
-- ドキュメント更新
-- コードレビュー
-- 設計レビュー
-- セキュリティレビュー
-- 必要に応じた実装、commit、push
+- GitHub Issue・既存PRの事前確認
+- 設計、実装、Build/Test、コードレビュー、セキュリティレビュー
+- `chatgpt/*` 専用ブランチへのcommit / push
+- Draft Pull Request作成とレビュー結果の整理
+
+運用:
+
+- `main` への直接pushと自動マージは禁止
+- 作業開始前に同一Issue・同一機能を扱う既存PRがないか確認する
+- Claude / Claude Codeが担当中の同一Issue・同一機能を並行実装しない
+- 担当が重複する場合は実装を開始せず、CEOの担当決定を待つ
+- 1ブランチ・1PRは原則1目的とし、最小差分で実装する
+- PR作成後のmainへの反映はCEOの承認を必要とする
 
 禁止:
 
 - 指示されていないファイル変更
 - 大規模リファクタ
 - 勝手な設計変更
+- Secrets、環境変数値、認証情報のコミットまたはPR本文への記載
 
 ### Claude Code
 
@@ -270,13 +277,21 @@ VercelとGitHub ActionsのSecretsは別管理。
 
 ## 完了条件
 
-作業完了とは、以下を満たした状態を指す。
+### 実装完了
 
-- Build成功
+- 必要なBuild/Test成功
 - エラーなし
 - 既存機能が壊れていない
 - 差分確認済み
 - 必要なIssue更新済み
+- 専用ブランチからDraft Pull Request作成済み
+
+### リリース完了
+
+- レビュー完了
+- CEOがmainへの反映を承認
+- mainへのマージ完了
+- 必要に応じて本番反映後の動作確認完了
 
 ---
 
