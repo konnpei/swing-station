@@ -19,23 +19,11 @@ export default function Page(){
  const activeTheme=themeFor(filter);
  const earned=useMemo(()=>todos.filter(x=>x.done).reduce((a,x)=>a+x.pts,0),[todos]);
  function toggle(i:number){setTodos(v=>v.map((x,j)=>j===i?{...x,done:!x.done}:x))}
- async function add(){
+ function add(){
   if(!title.trim()) return;
   if(type==='予定'){
    setEvents(v=>[...v,{time,title,who,icon:'📌',date}].sort((a,b)=>(a.date||today).localeCompare(b.date||today)||a.time.localeCompare(b.time)));
-   if(google){
-    setSyncing(true);
-    try{
-     const [yy,mm,dd]=date.split('-').map(Number);
-     const d=new Date(yy,mm-1,dd);
-     const [h,m]=time.split(':').map(Number);
-     d.setHours(h,m,0,0);
-     const end=new Date(d.getTime()+60*60*1000);
-     const r=await fetch('/api/google/events',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title,who,start:d.toISOString(),end:end.toISOString()})});
-     if(!r.ok&&r.status===401) setGoogle(false);
-    }catch{}finally{setSyncing(false)}
-   }
-  }else{
+  } else {
    setTodos(v=>[...v,{text:title,who,pts:10,done:false}]);
   }
   setTitle('');
