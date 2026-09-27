@@ -2,9 +2,9 @@
 import { useEffect,useMemo,useState } from 'react';
 type Event={time:string;title:string;who:string;icon:string;date?:string}; type Todo={text:string;who:string;pts:number;done:boolean}; type ShopItem={text:string;who:string;done:boolean};
 const localDate=(d=new Date())=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
-const people=[['全員','👨‍👩‍👧‍👦'],['パパ','👨'],['ママ','👩'],['長男','👦'],['長女','👧'],['次男','🧒']];
+const people:[string,string][]=[['全員','👨‍👩‍👧‍👦'],['パパ','👨'],['ママ','👩'],['長男','👦'],['長女','👧'],['次男','🧒']];
 const personTheme:Record<string,{accent:string,soft:string}>={全員:{accent:'#d59b16',soft:'#fff8df'},パパ:{accent:'#2878e8',soft:'#eaf3ff'},ママ:{accent:'#e36b9d',soft:'#fff0f6'},長男:{accent:'#2e9b66',soft:'#eaf8f0'},長女:{accent:'#8b5fd3',soft:'#f3edff'},次男:{accent:'#e88932',soft:'#fff2e5'}};
-const themeFor=(who:string)=>personTheme[who]||personTheme[Object.keys(personTheme).find(k=>who.includes(k))||'全員'];
+const themeFor=(who:string)=>personTheme[who] ?? personTheme[Object.keys(personTheme).find(k=>who.includes(k)) ?? '全員'] ?? personTheme['全員'];
 const baseEvents:Event[]=[{time:'08:00',title:'学校',who:'長男・長女・次男',icon:'🏫'},{time:'08:30',title:'仕事',who:'パパ',icon:'💻'},{time:'16:30',title:'剣道',who:'長男',icon:'🥋'},{time:'19:00',title:'夕食',who:'全員',icon:'🍴'}];
 const baseShop:ShopItem[]=[{text:'牛乳',who:'全員',done:false},{text:'卵',who:'全員',done:false}];
 const baseTodos:Todo[]=[{text:'英語プリント提出',who:'長男',pts:20,done:false},{text:'漢字ドリル',who:'長女',pts:20,done:false},{text:'音読',who:'次男',pts:10,done:false},{text:'剣道の防具準備',who:'長男',pts:10,done:false}];
