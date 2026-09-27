@@ -26,6 +26,7 @@ import ModeSwitcher from "../components/mode-switcher";
 import QuestScreen from "../components/quest-screen";
 import RewardScreen from "../components/reward-screen";
 import SettingsScreen from "../components/settings-screen";
+import ShoppingScreen from "../components/shopping-screen";
 import {
   ChildId,
   initialFamily,
@@ -57,7 +58,7 @@ import {
 } from "../lib/utils";
 
 // 下部ナビで切り替える画面の種類。BottomNavの各ボタンのkeyと一致させている
-type ActiveView = "home" | "calendar" | "quest" | "reward" | "children" | "settings";
+type ActiveView = "home" | "calendar" | "quest" | "shopping" | "reward" | "children" | "settings";
 
 export default function Page() {
   // 家族全員分のデータ（ミッションの完了状態・XPなど）
@@ -298,6 +299,10 @@ export default function Page() {
           allowChildSwitch
           onClose={() => setActiveView("home")}
         />
+      )}
+
+      {mode === "parent" && !editingChild && activeView === "shopping" && (
+        <ShoppingScreen onClose={() => setActiveView("home")} />
       )}
 
       {mode === "parent" && !editingChild && activeView === "reward" && (
