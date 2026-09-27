@@ -14,6 +14,7 @@ import {
   Gift,
   Settings,
   Target,
+  ShoppingCart,
   LucideIcon,
 } from "lucide-react";
 import { Mode } from "../lib/dummy-data";
@@ -28,6 +29,7 @@ const PARENT_NAV_ITEMS: NavItem[] = [
   { key: "home", label: "HOME", icon: Home },
   { key: "children", label: "CHILDREN", icon: Users },
   { key: "calendar", label: "CALENDAR", icon: CalendarDays },
+  { key: "shopping", label: "SHOP", icon: ShoppingCart },
   { key: "reward", label: "REWARD", icon: Gift },
   { key: "settings", label: "SETTINGS", icon: Settings },
 ];
