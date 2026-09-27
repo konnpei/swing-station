@@ -1,60 +1,187 @@
 'use client';
-import { useEffect,useMemo,useState } from 'react';
-type Event={time:string;title:string;who:string;icon:string;date?:string}; type Todo={text:string;who:string;pts:number;done:boolean}; type ShopItem={text:string;who:string;done:boolean};
-const localDate=(d=new Date())=>{const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
-const people:[string,string][]=[['全員','👨‍👩‍👧‍👦'],['パパ','👨'],['ママ','👩'],['長男','👦'],['長女','👧'],['次男','🧒']];
-const personTheme:Record<string,{accent:string,soft:string}>={全員:{accent:'#d59b16',soft:'#fff8df'},パパ:{accent:'#2878e8',soft:'#eaf3ff'},ママ:{accent:'#e36b9d',soft:'#fff0f6'},長男:{accent:'#2e9b66',soft:'#eaf8f0'},長女:{accent:'#8b5fd3',soft:'#f3edff'},次男:{accent:'#e88932',soft:'#fff2e5'}};
-const themeFor=(who:string)=>personTheme[who] ?? personTheme[Object.keys(personTheme).find(k=>who.includes(k)) ?? '全員'] ?? personTheme['全員'];
-const baseEvents:Event[]=[{time:'08:00',title:'学校',who:'長男・長女・次男',icon:'🏫'},{time:'08:30',title:'仕事',who:'パパ',icon:'💻'},{time:'16:30',title:'剣道',who:'長男',icon:'🥋'},{time:'19:00',title:'夕食',who:'全員',icon:'🍴'}];
-const baseShop:ShopItem[]=[{text:'牛乳',who:'全員',done:false},{text:'卵',who:'全員',done:false}];
-const baseTodos:Todo[]=[{text:'英語プリント提出',who:'長男',pts:20,done:false},{text:'漢字ドリル',who:'長女',pts:20,done:false},{text:'音読',who:'次男',pts:10,done:false},{text:'剣道の防具準備',who:'長男',pts:10,done:false}];
-export default function Page(){
- const [tab,setTab]=useState('home'),[filter,setFilter]=useState('全員'),[events,setEvents]=useState(baseEvents),[todos,setTodos]=useState(baseTodos),[open,setOpen]=useState(false),[type,setType]=useState('予定'),[title,setTitle]=useState(''),[who,setWho]=useState('全員'),[time,setTime]=useState('18:00'),[date,setDate]=useState(localDate()),[google,setGoogle]=useState(false),[syncing,setSyncing]=useState(false),[shop,setShop]=useState(baseShop),[shopText,setShopText]=useState('');
- useEffect(()=>{try{const e=localStorage.getItem('fq-events'),t=localStorage.getItem('fq-todos');if(e)setEvents(JSON.parse(e));if(t)setTodos(JSON.parse(t));const s=localStorage.getItem('fq-shop');if(s)setShop(JSON.parse(s))}catch{};const q=new URLSearchParams(location.search);setGoogle(q.get('google')==='connected')},[]);
- useEffect(()=>{localStorage.setItem('fq-events',JSON.stringify(events));localStorage.setItem('fq-todos',JSON.stringify(todos));localStorage.setItem('fq-shop',JSON.stringify(shop))},[events,todos,shop]);
- const today=localDate();
- const shown=(filter==='全員'?events:events.filter(e=>e.who.includes(filter)||e.who==='全員')).filter(e=>(e.date||today)===today);
- const now=new Date(),calYear=now.getFullYear(),calMonth=now.getMonth(),firstDay=new Date(calYear,calMonth,1).getDay(),daysInMonth=new Date(calYear,calMonth+1,0).getDate();
- const calendarCells=Array.from({length:firstDay+daysInMonth},(_,i)=>i<firstDay?0:i-firstDay+1);
- const activeTheme=themeFor(filter);
- const earned=useMemo(()=>todos.filter(x=>x.done).reduce((a,x)=>a+x.pts,0),[todos]);
- function toggle(i:number){setTodos(v=>v.map((x,j)=>j===i?{...x,done:!x.done}:x))}
- function add(){
-  if(!title.trim()) return;
-  if(type==='予定'){
-   setEvents(v=>[...v,{time,title,who,icon:'📌',date}].sort((a,b)=>(a.date||today).localeCompare(b.date||today)||a.time.localeCompare(b.time)));
-  } else {
-   setTodos(v=>[...v,{text:title,who,pts:10,done:false}]);
+
+import { useEffect, useState } from 'react';
+
+type Tab = 'home' | 'calendar' | 'todo' | 'shop' | 'record';
+type ShopItem = { text: string; done: boolean };
+type Todo = { text: string; done: boolean };
+
+const card: React.CSSProperties = {
+  background: '#fff',
+  borderRadius: 20,
+  padding: 18,
+  marginBottom: 14,
+  boxShadow: '0 7px 24px rgba(20,50,90,.07)',
+};
+const button: React.CSSProperties = {
+  border: 0,
+  borderRadius: 12,
+  padding: '11px 14px',
+  fontWeight: 700,
+  cursor: 'pointer',
+};
+const input: React.CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+  padding: 12,
+  border: '1px solid #dbe4ee',
+  borderRadius: 12,
+  fontSize: 16,
+};
+const row: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  padding: '12px 0',
+  borderBottom: '1px solid #edf2f7',
+};
+
+export default function Page() {
+  const [tab, setTab] = useState<Tab>('home');
+  const [shopText, setShopText] = useState('');
+  const [shop, setShop] = useState<ShopItem[]>([
+    { text: '牛乳', done: false },
+    { text: '卵', done: false },
+  ]);
+  const [todos, setTodos] = useState<Todo[]>([
+    { text: '英語プリント提出', done: false },
+    { text: '漢字ドリル', done: false },
+    { text: '剣道の防具準備', done: false },
+  ]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('fq-shop');
+      if (saved) setShop(JSON.parse(saved) as ShopItem[]);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('fq-shop', JSON.stringify(shop));
+  }, [shop]);
+
+  function addShop() {
+    const text = shopText.trim();
+    if (!text) return;
+    setShop((items) => [...items, { text, done: false }]);
+    setShopText('');
   }
-  setTitle('');
-  setOpen(false);
- }
- return (<main style={{...mainStyle,background:activeTheme.soft}}><div style={wrap}>
- <header style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><small>FAMILY OS · β</small><h1 style={{margin:'3px 0'}}>わが家クエスト</h1><p style={{margin:'0 0 12px',color:'#64748b'}}>予定・宿題・成長をひとつに</p><a href="/api/google/auth" style={{fontSize:12,fontWeight:800,color:google?'#16803b':'#2878e8'}}>{google?'✓ Googleカレンダー接続済み':'Googleカレンダーを接続'}</a></div><button style={plus} onClick={()=>setOpen(true)}>＋</button></header>
- <div style={{display:'flex',gap:8,overflowX:'auto',padding:'8px 0 14px'}}>{people.map(p=><button key={p[0]} onClick={()=>setFilter(p[0])} style={{...chip,background:filter===p[0]?themeFor(p[0]).accent:'white',color:filter===p[0]?'white':themeFor(p[0]).accent,border:`1px solid ${themeFor(p[0]).soft}`}}>{p[1]} {p[0]}</button>)}</div>
- {tab==='home'&&<><section style={card}><h2>☀️ 今日の作戦</h2>{shown.map((e,i)=><div style={{...row,background:themeFor(e.who).soft,borderLeft:`5px solid ${themeFor(e.who).accent}`,paddingLeft:8,borderRadius:10,marginBottom:5}} key={i}><b>{e.time}</b><span>{e.icon}</span><div><b>{e.title}</b><small style={{display:'block'}}>{e.who}</small></div></div>)}</section>
- <section style={card}><h2>🎯 今日のミッション</h2>{todos.filter(x=>filter==='全員'||x.who===filter).map((x,i)=><div key={i} style={mission} onClick={()=>{const real=todos.indexOf(x);toggle(real)}}><span>{x.done?'✅':'⬜️'}</span><div style={{flex:1,textDecoration:x.done?'line-through':'none'}}><b>{x.text}</b><small style={{display:'block'}}>{x.who}</small></div><b>+{x.pts}pt</b></div>)}</section>
- <section style={{...card,background:'linear-gradient(135deg,#fff7db,#fff)'}}><h2>🏆 Family Quest</h2><div style={{fontSize:34,fontWeight:900}}>{1280+earned} pt</div><p>🔥 6日連続　⭐ 今日 +{earned}pt</p><Progress v={Math.min(100,(1280+earned-1000)/6)}/><small>1,600ptで「家族ごほうび」解放！</small></section>
- <section style={card}><h2>📣 家族掲示板</h2><p>🎒 明日の持ち物を21時までに確認</p><p>🥛 牛乳が少ないです</p><p>🥋 剣道：防具を乾燥</p></section></>}
- {tab==='calendar'&&<section style={card}><h2>📅 {calYear}年{calMonth+1}月</h2><div style={grid}>{['日','月','火','水','木','金','土'].map((x,i)=><b key={x} style={{color:i===0?'#dc2626':i===6?'#2563eb':undefined}}>{x}</b>)}{calendarCells.map((d,i)=>{const ds=d?`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`:'';const es=d?events.filter(e=>(e.date||today)===ds):[];return <div key={i} style={{...day,border:ds===today?'2px solid #2878e8':'1px solid #e5e7eb',background:ds===today?'#eff6ff':'white'}}>{d||''}{es.slice(0,3).map((e,j)=><i key={j} style={{...tag,background:themeFor(e.who).soft,color:themeFor(e.who).accent,borderLeft:`3px solid ${themeFor(e.who).accent}`}>{e.time} {e.title}</i>)}{es.length>3&&<small>+{es.length-3}件</small>}</div>})}</div></section>}
- {tab==='todo'&&<section style={card}><h2>☑️ ミッション一覧</h2>{todos.map((x,i)=><div key={i} style={mission} onClick={()=>toggle(i)}><span>{x.done?'✅':'⬜️'}</span><div style={{flex:1}}>{x.text}<small style={{display:'block'}}>{x.who}</small></div><b>+{x.pts}</b></div>)}</section>}
- {tab==='shop'&&<section style={card}><h2>🛒 家族の買い物リスト</h2><div style={{display:'flex',gap:8}}><input style={{...input,marginTop:0}} value={shopText} onChange={e=>setShopText(e.target.value)} placeholder="例：牛乳・ティッシュ" onKeyDown={e=>{if(e.key==='Enter'&&shopText.trim()){setShop(v=>[...v,{text:shopText.trim(),who:filter==='全員'?'全員':filter,done:false}]);setShopText('')}}}/><button style={{...plus,borderRadius:12,flex:'0 0 46px'}} onClick={()=>{if(shopText.trim()){setShop(v=>[...v,{text:shopText.trim(),who:filter==='全員'?'全員':filter,done:false}]);setShopText('')}}}>＋</button></div>{shop.map((x,i)=><div key={i} style={{...mission,opacity:x.done ? 0.55 : 1}} onClick={()=>setShop(v=>v.map((a,j)=>j===i?{...a,done:!a.done}:a))}><span>{x.done?'✅':'⬜️'}</span><div style={{flex:1,textDecoration:x.done?'line-through':'none'}}><b>{x.text}</b><small style={{display:'block'}}>{x.who}</small></div><button style={{border:0,background:'transparent',fontSize:18}} onClick={e=>{e.stopPropagation();setShop(v=>v.filter((_,j)=>j!==i))}}>×</button></div>)}{shop.length===0&&<p style={{color:'#64748b'}}>買うものはありません</p>}<small style={{color:'#64748b'}}>この端末に自動保存されます。</small></section>}
- {tab==='record'&&<><section style={card}><h2>📊 今週の成長</h2><p>📚 勉強 12.5時間</p><Progress v={72}/><p>🥋 運動 9回</p><Progress v={64}/><p>✅ ミッション達成 85%</p><Progress v={85}/></section><section style={card}><h2>🏅 家族ランキング</h2><p>🥇 長男 420pt</p><p>🥈 長女 360pt</p><p>🥉 次男 310pt</p><h3>🎁 ごほうびショップ</h3><p>🍨 300pt　好きなデザート</p><p>🍽️ 600pt　好きな夕食リクエスト</p><p>🎡 1,600pt　家族イベント</p></section></>}
- </div>
- {open&&<div style={shade}><div style={{...card,width:'min(88vw,410px)',margin:0}}><h2>＋ 新しく追加</h2><div style={{display:'flex',gap:8}}>{['予定','ミッション'].map(x=><button style={{...chip,background:type===x?'#2878e8':'#eef2f7',color:type===x?'white':'#183153'}} key={x} onClick={()=>setType(x)}>{x}</button>)}</div><input style={input} value={title} onChange={e=>setTitle(e.target.value)} placeholder={type==='予定'?'例：歯医者・学校行事':'例：算数プリント'}/><select style={input} value={who} onChange={e=>setWho(e.target.value)}>{people.map(p=><option key={p[0]}>{p[0]}</option>)}</select>{type==='予定'&&<><input style={input} type="date" value={date} onChange={e=>setDate(e.target.value)}/><input style={input} type="time" value={time} onChange={e=>setTime(e.target.value)}/></>}<button disabled={syncing} style={{...plus,width:'100%',borderRadius:12,marginTop:12}} onClick={add}>{syncing?'Googleカレンダーへ保存中…':'追加する'}</button><button style={{...chip,width:'100%',marginTop:8}} onClick={()=>setOpen(false)}>閉じる</button><small style={{display:'block',marginTop:10,color:'#64748b'}}>予定はこの端末にも保存します。Google接続後はGoogleカレンダーにも追加します。</small></div></div>}
- <nav style={nav}>{[['home','🏠','ホーム'],['calendar','📅','予定'],['todo','🎯','ミッション'],['shop','🛒','買い物'],['record','📊','成長']].map(x=><button key={x[0]} onClick={()=>setTab(x[0])} style={{border:0,background:'white',padding:9,color:tab===x[0]?activeTheme.accent:'#64748b',fontWeight:700}}><div style={{fontSize:20}}>{x[1]}</div><small>{x[2]}</small></button>)}</nav></main>);
+
+  const tabs: Array<[Tab, string, string]> = [
+    ['home', '🏠', 'ホーム'],
+    ['calendar', '📅', '予定'],
+    ['todo', '🎯', 'ミッション'],
+    ['shop', '🛒', '買い物'],
+    ['record', '📊', '成長'],
+  ];
+
+  return (
+    <main style={{ minHeight: '100vh', background: '#f3f6fb', color: '#183153', fontFamily: 'system-ui,sans-serif', paddingBottom: 90 }}>
+      <div style={{ maxWidth: 520, margin: 'auto', padding: '18px 14px' }}>
+        <header style={{ marginBottom: 18 }}>
+          <small>FAMILY OS · β</small>
+          <h1 style={{ margin: '4px 0' }}>わが家クエスト</h1>
+          <p style={{ margin: 0, color: '#64748b' }}>予定・宿題・買い物・成長をひとつに</p>
+          <a href="/api/google/auth" style={{ display: 'inline-block', marginTop: 8, fontSize: 13, fontWeight: 700 }}>Googleカレンダーを接続</a>
+        </header>
+
+        {tab === 'home' && (
+          <>
+            <section style={card}>
+              <h2>☀️ 今日の作戦</h2>
+              <p>🏫 学校　08:00</p>
+              <p>💻 仕事　08:30</p>
+              <p>🥋 剣道　16:30</p>
+              <p>🍴 夕食　19:00</p>
+            </section>
+            <section style={card}>
+              <h2>🏆 Family Quest</h2>
+              <div style={{ fontSize: 34, fontWeight: 900 }}>1280 pt</div>
+              <p>🔥 6日連続　⭐ 今日 +0pt</p>
+            </section>
+            <section style={card}>
+              <h2>📣 家族掲示板</h2>
+              <p>🎒 明日の持ち物を21時までに確認</p>
+              <p>🥛 牛乳が少ないです</p>
+              <p>🥋 剣道：防具を乾燥</p>
+            </section>
+          </>
+        )}
+
+        {tab === 'calendar' && (
+          <section style={card}>
+            <h2>📅 家族の予定</h2>
+            <p>Googleカレンダー連携用の予定画面です。</p>
+          </section>
+        )}
+
+        {tab === 'todo' && (
+          <section style={card}>
+            <h2>🎯 ミッション</h2>
+            {todos.map((item, index) => (
+              <div key={index} style={row} onClick={() => setTodos((items) => items.map((x, i) => i === index ? { ...x, done: !x.done } : x))}>
+                <span>{item.done ? '✅' : '⬜️'}</span>
+                <span style={{ textDecoration: item.done ? 'line-through' : 'none' }}>{item.text}</span>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {tab === 'shop' && (
+          <section style={card}>
+            <h2>🛒 家族の買い物リスト</h2>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <input
+                style={input}
+                value={shopText}
+                onChange={(e) => setShopText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') addShop(); }}
+                placeholder="例：牛乳・ティッシュ"
+              />
+              <button style={{ ...button, background: '#2878e8', color: '#fff' }} onClick={addShop}>＋</button>
+            </div>
+            {shop.map((item, index) => (
+              <div key={index} style={{ ...row, opacity: item.done ? 0.55 : 1 }}>
+                <button
+                  aria-label="完了切替"
+                  style={{ border: 0, background: 'transparent', fontSize: 20 }}
+                  onClick={() => setShop((items) => items.map((x, i) => i === index ? { ...x, done: !x.done } : x))}
+                >
+                  {item.done ? '✅' : '⬜️'}
+                </button>
+                <b style={{ flex: 1, textDecoration: item.done ? 'line-through' : 'none' }}>{item.text}</b>
+                <button
+                  aria-label="削除"
+                  style={{ border: 0, background: 'transparent', fontSize: 20 }}
+                  onClick={() => setShop((items) => items.filter((_, i) => i !== index))}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {shop.length === 0 && <p style={{ color: '#64748b' }}>買うものはありません。</p>}
+            <small style={{ color: '#64748b' }}>この端末に自動保存されます。</small>
+          </section>
+        )}
+
+        {tab === 'record' && (
+          <section style={card}>
+            <h2>📊 今週の成長</h2>
+            <p>📚 勉強 12.5時間</p>
+            <p>🥋 運動 9回</p>
+            <p>✅ ミッション達成 85%</p>
+          </section>
+        )}
+      </div>
+
+      <nav style={{ position: 'fixed', bottom: 0, left: 0, right: 0, maxWidth: 520, margin: 'auto', display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', background: '#fff', borderTop: '1px solid #dfe7f1' }}>
+        {tabs.map(([id, icon, label]) => (
+          <button key={id} onClick={() => setTab(id)} style={{ border: 0, background: '#fff', padding: 9, color: tab === id ? '#2878e8' : '#64748b', fontWeight: 700 }}>
+            <div style={{ fontSize: 20 }}>{icon}</div>
+            <small>{label}</small>
+          </button>
+        ))}
+      </nav>
+    </main>
+  );
 }
-function Progress({v}:{v:number}){return <div style={{height:10,background:'#e8eef6',borderRadius:10,overflow:'hidden',marginBottom:8}}><div style={{width:v+'%',height:'100%',background:'#3987f6'}}/></div>}
-const mainStyle:React.CSSProperties={minHeight:'100vh',background:'#f3f6fb',color:'#183153',fontFamily:'system-ui,sans-serif',paddingBottom:86};
-const wrap:React.CSSProperties={maxWidth:520,margin:'auto',padding:'18px 14px'};
-const card:React.CSSProperties={background:'white',borderRadius:20,padding:17,marginBottom:14,boxShadow:'0 7px 24px rgba(20,50,90,.07)'};
-const row:React.CSSProperties={display:'grid',gridTemplateColumns:'55px 35px 1fr',alignItems:'center',padding:'10px 0',borderBottom:'1px solid #edf2f7'};
-const mission:React.CSSProperties={display:'flex',gap:11,alignItems:'center',padding:'12px 0',borderBottom:'1px solid #edf2f7',cursor:'pointer'};
-const chip:React.CSSProperties={border:0,borderRadius:99,padding:'9px 12px',whiteSpace:'nowrap',fontWeight:700};
-const plus:React.CSSProperties={border:0,background:'#2878e8',color:'white',width:46,height:46,borderRadius:99,fontSize:24,fontWeight:800};
-const input:React.CSSProperties={width:'100%',boxSizing:'border-box',padding:13,border:'1px solid #dbe4ee',borderRadius:11,fontSize:16,marginTop:10};
-const shade:React.CSSProperties={position:'fixed',inset:0,background:'rgba(15,23,42,.48)',display:'grid',placeItems:'center',zIndex:30};
-const nav:React.CSSProperties={position:'fixed',bottom:0,left:0,right:0,maxWidth:520,margin:'auto',display:'grid',gridTemplateColumns:'repeat(5,1fr)',background:'white',borderTop:'1px solid #dfe7f1',zIndex:20};
-const grid:React.CSSProperties={display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:4,textAlign:'center',fontSize:11};
-const day:React.CSSProperties={minHeight:72,borderRadius:8,padding:4,textAlign:'left'};
-const tag:React.CSSProperties={display:'block',background:'#dbeafe',borderRadius:4,fontSize:8,padding:2,marginTop:2,fontStyle:'normal'};
