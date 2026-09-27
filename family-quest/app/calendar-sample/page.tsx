@@ -19,7 +19,28 @@ export default function Page(){
  const activeTheme=themeFor(filter);
  const earned=useMemo(()=>todos.filter(x=>x.done).reduce((a,x)=>a+x.pts,0),[todos]);
  function toggle(i:number){setTodos(v=>v.map((x,j)=>j===i?{...x,done:!x.done}:x))}
- async function add(){if(!title.trim())return;if(type==='予定'){setEvents(v=>[...v,{time,title,who,icon:'📌',date}].sort((a,b)=>(a.date||today).localeCompare(b.date||today)||a.time.localeCompare(b.time)));if(google){setSyncing(true);try{const [yy,mm,dd]=date.split('-').map(Number);const d=new Date(yy,mm-1,dd);const [h,m]=time.split(':').map(Number);d.setHours(h,m,0,0);const end=new Date(d.getTime()+60*60*1000);const r=await fetch('/api/google/events',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title,who,start:d.toISOString(),end:end.toISOString()})});if(!r.ok&&r.status===401)setGoogle(false)}catch{}finally{setSyncing(false)}}}else setTodos(v=>[...v,{text:title,who,pts:10,done:false}]);setTitle('');setOpen(false)}
+ async function add(){
+  if(!title.trim()) return;
+  if(type==='予定'){
+   setEvents(v=>[...v,{time,title,who,icon:'📌',date}].sort((a,b)=>(a.date||today).localeCompare(b.date||today)||a.time.localeCompare(b.time)));
+   if(google){
+    setSyncing(true);
+    try{
+     const [yy,mm,dd]=date.split('-').map(Number);
+     const d=new Date(yy,mm-1,dd);
+     const [h,m]=time.split(':').map(Number);
+     d.setHours(h,m,0,0);
+     const end=new Date(d.getTime()+60*60*1000);
+     const r=await fetch('/api/google/events',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({title,who,start:d.toISOString(),end:end.toISOString()})});
+     if(!r.ok&&r.status===401) setGoogle(false);
+    }catch{}finally{setSyncing(false)}
+   }
+  }else{
+   setTodos(v=>[...v,{text:title,who,pts:10,done:false}]);
+  }
+  setTitle('');
+  setOpen(false);
+ }
  return <main style={{...main,background:activeTheme.soft}}><div style={wrap}>
  <header style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}><div><small>FAMILY OS · β</small><h1 style={{margin:'3px 0'}}>わが家クエスト</h1><p style={{margin:'0 0 12px',color:'#64748b'}}>予定・宿題・成長をひとつに</p><a href="/api/google/auth" style={{fontSize:12,fontWeight:800,color:google?'#16803b':'#2878e8'}}>{google?'✓ Googleカレンダー接続済み':'Googleカレンダーを接続'}</a></div><button style={plus} onClick={()=>setOpen(true)}>＋</button></header>
  <div style={{display:'flex',gap:8,overflowX:'auto',padding:'8px 0 14px'}}>{people.map(p=><button key={p[0]} onClick={()=>setFilter(p[0])} style={{...chip,background:filter===p[0]?themeFor(p[0]).accent:'white',color:filter===p[0]?'white':themeFor(p[0]).accent,border:`1px solid ${themeFor(p[0]).soft}`}}>{p[1]} {p[0]}</button>)}</div>
