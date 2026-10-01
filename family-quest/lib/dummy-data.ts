@@ -18,12 +18,31 @@ export type Mission = {
   id: string;
   title: string; // 例：「漢字 10個」
   category: string; // 例：「学習」「学校」
+  subject: SubjectId; // 教科タグ（受験対策の「教科別ペース」計算に使用）
   targetAmount: number; // 目標の量（例：10）
   unit: string; // 単位（例：「個」「分」「問」）
   xp: number; // 完了したときにもらえるXP
   completed: boolean; // 完了しているかどうか
   weekdays: number[]; // このミッションを表示する曜日（0=日,1=月,...6=土）。7つ全部で「毎日」
 };
+
+/** ミッションの教科タグ。受験に向けた「教科別ペース」計算に使う */
+export type SubjectId = "english" | "kanji" | "math" | "other";
+
+/** 教科選択UIで使う表示順とラベル */
+export const SUBJECT_OPTIONS: { id: SubjectId; label: string }[] = [
+  { id: "english", label: "英語" },
+  { id: "kanji", label: "漢字・国語" },
+  { id: "math", label: "数学" },
+  { id: "other", label: "その他" },
+];
+
+/** 教科IDから表示ラベルを引く */
+export function getSubjectLabel(subject: SubjectId): string {
+  return (
+    SUBJECT_OPTIONS.find((option) => option.id === subject)?.label ?? "その他"
+  );
+}
 
 /** すべての曜日を表す配列（＝毎日のミッション用のデフォルト値） */
 export const ALL_WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
@@ -43,10 +62,18 @@ export const WEEKDAY_OPTIONS: { label: string; value: number }[] = [
 export type NewMissionInput = {
   title: string;
   category: string;
+  subject: SubjectId;
   targetAmount: number;
   unit: string;
   xp: number;
   weekdays: number[];
+};
+
+/** 教科ごとの受験対策ゴール（保護者が設定する「残りの総量」） */
+export type SubjectGoal = {
+  subject: SubjectId;
+  remainingTotal: number; // 試験日までにやり切りたい残りの総量
+  unit: string; // 単位（例：「個」「問」）
 };
 
 /** 1週間分の達成記録（月〜日） */
@@ -78,6 +105,7 @@ export type Child = {
   examDate: string | null; // 試験日（YYYY-MM-DD）。ない場合はnull
   missions: Mission[];
   weeklyRecords: WeeklyRecord[]; // 今週（月〜日）の記録
+  subjectGoals: SubjectGoal[]; // 教科別の受験対策ゴール（試験日がない子は基本的に空配列）
 };
 
 // -------------------------------------------------------------
@@ -124,12 +152,13 @@ export const initialFamily: Child[] = [
     monthlyDays: 18,
     bestStreak: 14,
     goal: "小山台高校",
-    examDate: "2025-12-01",
+    examDate: "2027-02-14",
     missions: [
       {
         id: "eldest-homework",
         title: "学校宿題",
         category: "学校",
+        subject: "other",
         targetAmount: 1,
         unit: "回",
         xp: 30,
@@ -140,6 +169,7 @@ export const initialFamily: Child[] = [
         id: "eldest-tablet",
         title: "タブレット学習 2講座",
         category: "学習",
+        subject: "other",
         targetAmount: 2,
         unit: "講座",
         xp: 40,
@@ -150,6 +180,7 @@ export const initialFamily: Child[] = [
         id: "eldest-kanji",
         title: "漢字 10個",
         category: "学習",
+        subject: "kanji",
         targetAmount: 10,
         unit: "個",
         xp: 20,
@@ -160,6 +191,7 @@ export const initialFamily: Child[] = [
         id: "eldest-eitango",
         title: "英単語 10個",
         category: "学習",
+        subject: "english",
         targetAmount: 10,
         unit: "個",
         xp: 20,
@@ -170,6 +202,7 @@ export const initialFamily: Child[] = [
         id: "eldest-english",
         title: "英語 5問",
         category: "学習",
+        subject: "english",
         targetAmount: 5,
         unit: "問",
         xp: 25,
@@ -180,6 +213,7 @@ export const initialFamily: Child[] = [
         id: "eldest-math",
         title: "数学 5問",
         category: "学習",
+        subject: "math",
         targetAmount: 5,
         unit: "問",
         xp: 25,
@@ -188,6 +222,11 @@ export const initialFamily: Child[] = [
       },
     ],
     weeklyRecords: buildWeeklyRecords([6, 5, 6, 4, 6, 5], 6),
+    subjectGoals: [
+      { subject: "english", remainingTotal: 1500, unit: "個" },
+      { subject: "kanji", remainingTotal: 2400, unit: "個" },
+      { subject: "math", remainingTotal: 2400, unit: "問" },
+    ],
   },
   {
     id: "eldest-daughter",
@@ -205,6 +244,7 @@ export const initialFamily: Child[] = [
         id: "daughter-homework",
         title: "学校宿題",
         category: "学校",
+        subject: "other",
         targetAmount: 1,
         unit: "回",
         xp: 30,
@@ -215,6 +255,7 @@ export const initialFamily: Child[] = [
         id: "daughter-tablet",
         title: "タブレット学習 2講座",
         category: "学習",
+        subject: "other",
         targetAmount: 2,
         unit: "講座",
         xp: 40,
@@ -225,6 +266,7 @@ export const initialFamily: Child[] = [
         id: "daughter-english",
         title: "英語 10分",
         category: "学習",
+        subject: "other",
         targetAmount: 10,
         unit: "分",
         xp: 20,
@@ -235,6 +277,7 @@ export const initialFamily: Child[] = [
         id: "daughter-piano",
         title: "ピアノ 20分",
         category: "習い事",
+        subject: "other",
         targetAmount: 20,
         unit: "分",
         xp: 20,
@@ -245,6 +288,7 @@ export const initialFamily: Child[] = [
         id: "daughter-reading",
         title: "読書 15分",
         category: "学習",
+        subject: "other",
         targetAmount: 15,
         unit: "分",
         xp: 15,
@@ -253,6 +297,7 @@ export const initialFamily: Child[] = [
       },
     ],
     weeklyRecords: buildWeeklyRecords([5, 5, 4, 5, 5, 4], 5),
+    subjectGoals: [],
   },
   {
     id: "youngest",
@@ -270,6 +315,7 @@ export const initialFamily: Child[] = [
         id: "youngest-homework",
         title: "学校宿題",
         category: "学校",
+        subject: "other",
         targetAmount: 1,
         unit: "回",
         xp: 30,
@@ -280,6 +326,7 @@ export const initialFamily: Child[] = [
         id: "youngest-tablet",
         title: "タブレット学習 1講座",
         category: "学習",
+        subject: "other",
         targetAmount: 1,
         unit: "講座",
         xp: 25,
@@ -290,6 +337,7 @@ export const initialFamily: Child[] = [
         id: "youngest-reading-aloud",
         title: "音読 10分",
         category: "学習",
+        subject: "other",
         targetAmount: 10,
         unit: "分",
         xp: 15,
@@ -300,6 +348,7 @@ export const initialFamily: Child[] = [
         id: "youngest-kanji",
         title: "漢字 5個",
         category: "学習",
+        subject: "other",
         targetAmount: 5,
         unit: "個",
         xp: 15,
@@ -308,5 +357,6 @@ export const initialFamily: Child[] = [
       },
     ],
     weeklyRecords: buildWeeklyRecords([4, 3, 4, 2, 4, 3], 4),
+    subjectGoals: [],
   },
 ];

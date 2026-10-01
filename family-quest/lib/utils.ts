@@ -8,7 +8,9 @@
 import {
   Child,
   ChildId,
+  getSubjectLabel,
   Mission,
+  SubjectId,
   WEEKDAY_OPTIONS,
   WeeklyRecord,
 } from "./dummy-data";
@@ -165,6 +167,62 @@ export function getFamilyTodayTotals(family: Child[]): {
     },
     { completed: 0, total: 0 }
   );
+}
+
+/** 小数第1位で四捨五入する（ペース計算の表示を細かくしすぎないため） */
+function roundTo1(value: number): number {
+  return Math.round(value * 10) / 10;
+}
+
+/** 教科別の「必要ペース」1件分のデータ */
+export type SubjectPace = {
+  subject: SubjectId;
+  label: string; // 教科名（表示用）
+  unit: string;
+  requiredPerDay: number; // 目標達成に1日あたり必要な量
+  actualToday: number; // 今日すでに完了した分の量（対象教科のミッション合計）
+  gap: number; // actualToday - requiredPerDay（プラスならペース通り、マイナスなら不足）
+  isOnPace: boolean; // 今日時点でのペースを満たせているか
+};
+
+/**
+ * 子どもの「教科別ゴール」から、今日時点の必要ペースと実施量を計算する。
+ * - 必要ペース = 残りの総量 ÷ 残り日数（試験当日以降は残り総量をそのまま今日の必要量とする）
+ * - 実施量 = 今日が対象曜日で、かつ完了済みのミッションのうち、その教科のtargetAmount合計
+ * 試験日が設定されていない子どもは対象外（空配列を返す）。
+ * ※ subjectGoals未設定（旧バージョンのlocalStorageデータなど）でも壊れないよう ?? [] で防御している。
+ */
+export function getSubjectPaces(child: Child): SubjectPace[] {
+  const remainingDays = getDaysUntilExam(child.examDate);
+  if (remainingDays === null) return [];
+  // 試験当日・試験日超過（0日）のときは、残り全部を「今日必要な量」とみなす
+  const effectiveDays = Math.max(remainingDays, 1);
+  const today = new Date();
+
+  return (child.subjectGoals ?? [])
+    .filter((goal) => goal.remainingTotal > 0)
+    .map((goal) => {
+      const requiredPerDay = roundTo1(goal.remainingTotal / effectiveDays);
+      const actualToday = child.missions
+        .filter(
+          (mission) =>
+            mission.subject === goal.subject &&
+            mission.completed &&
+            isMissionActiveOn(mission, today)
+        )
+        .reduce((sum, mission) => sum + mission.targetAmount, 0);
+      const gap = roundTo1(actualToday - requiredPerDay);
+
+      return {
+        subject: goal.subject,
+        label: getSubjectLabel(goal.subject),
+        unit: goal.unit,
+        requiredPerDay,
+        actualToday,
+        gap,
+        isOnPace: actualToday >= requiredPerDay,
+      };
+    });
 }
 
 /** グラフ（TrendChart）1点分のデータ */
