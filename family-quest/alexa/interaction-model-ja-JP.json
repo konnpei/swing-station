@@ -1,0 +1,27 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "ファミリークエスト",
+      "intents": [
+        {
+          "name": "AddShoppingItemIntent",
+          "slots": [{ "name": "item", "type": "AMAZON.SearchQuery" }],
+          "samples": [
+            "{item} 追加",
+            "{item} 追加して",
+            "{item} を追加",
+            "{item} を追加して",
+            "{item} 買って",
+            "{item} を買い物リストに追加して",
+            "買い物リストに {item} 追加",
+            "買い物リストに {item} を追加して"
+          ]
+        },
+        { "name": "AMAZON.HelpIntent", "samples": [] },
+        { "name": "AMAZON.CancelIntent", "samples": [] },
+        { "name": "AMAZON.StopIntent", "samples": [] }
+      ],
+      "types": []
+    }
+  }
+}

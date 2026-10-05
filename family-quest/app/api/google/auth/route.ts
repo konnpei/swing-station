@@ -2,13 +2,14 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  if (!clientId) return NextResponse.json({ error: 'GOOGLE_CLIENT_ID is not configured' }, { status: 500 });
+  if (!clientId || !process.env.GOOGLE_CLIENT_SECRET) return NextResponse.redirect(new URL('/?view=calendar&google=setup', request.url));
 
   const state = crypto.randomBytes(24).toString('hex');
-  const redirectUri = new URL('/api/google/callback', request.url).toString();
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || new URL('/api/google/callback', request.url).toString();
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   url.searchParams.set('client_id', clientId);
   url.searchParams.set('redirect_uri', redirectUri);
