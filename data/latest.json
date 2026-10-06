@@ -2601,110 +2601,46 @@
   "us_screener": {
     "top": [
       {
+        "code": "JPM",
+        "name": "JPMorgan Chase",
+        "sector": "金融",
+        "price": 333.27,
+        "change_pct": 0.27,
+        "ma25_diff": -3.6,
+        "bb_pos": 18.2,
+        "rsi": 27.7,
+        "vol_ratio": 0.73,
+        "ai_score": 64,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
         "code": "JNJ",
         "name": "Johnson & Johnson",
         "sector": "ヘルスケア",
-        "price": 252.93,
-        "change_pct": -1.21,
-        "ma25_diff": -5.6,
-        "bb_pos": -16.5,
-        "rsi": 25.0,
-        "vol_ratio": 1.2,
+        "price": 252.54,
+        "change_pct": -0.16,
+        "ma25_diff": -5.5,
+        "bb_pos": -7.9,
+        "rsi": 22.1,
+        "vol_ratio": 1.12,
         "ai_score": 62,
         "cup_handle": {
           "detected": false
         }
       },
       {
-        "code": "BAC",
-        "name": "Bank of America",
-        "sector": "金融",
-        "price": 54.0,
-        "change_pct": 0.47,
-        "ma25_diff": -7.7,
-        "bb_pos": 15.8,
-        "rsi": 17.9,
-        "vol_ratio": 0.99,
-        "ai_score": 60,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "GS",
-        "name": "Goldman Sachs",
-        "sector": "金融",
-        "price": 893.46,
-        "change_pct": -1.01,
-        "ma25_diff": -7.5,
-        "bb_pos": 14.3,
-        "rsi": 25.4,
-        "vol_ratio": 0.9,
-        "ai_score": 60,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "META",
-        "name": "Meta Platforms",
-        "sector": "通信・メディア",
-        "price": 741.9,
-        "change_pct": 1.9,
-        "ma25_diff": 9.1,
-        "bb_pos": 75.5,
-        "rsi": 64.2,
-        "vol_ratio": 0.71,
-        "ai_score": 59,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 777.6,
-          "cup_depth_pct": 32.9,
-          "cup_weeks": 61
-        }
-      },
-      {
         "code": "NFLX",
         "name": "Netflix",
         "sector": "通信・メディア",
-        "price": 67.5,
-        "change_pct": 0.66,
-        "ma25_diff": -9.5,
-        "bb_pos": 13.3,
-        "rsi": 17.5,
-        "vol_ratio": 1.05,
-        "ai_score": 58,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "KO",
-        "name": "Coca-Cola",
-        "sector": "生活必需品",
-        "price": 86.51,
-        "change_pct": 1.0,
-        "ma25_diff": -1.2,
-        "bb_pos": 18.7,
-        "rsi": 35.2,
-        "vol_ratio": 1.12,
-        "ai_score": 57,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "AAPL",
-        "name": "Apple",
-        "sector": "テクノロジー",
-        "price": 332.89,
-        "change_pct": -0.24,
-        "ma25_diff": 0.7,
-        "bb_pos": 57.6,
-        "rsi": 49.8,
-        "vol_ratio": 0.92,
-        "ai_score": 56,
+        "price": 67.7,
+        "change_pct": 0.3,
+        "ma25_diff": -8.6,
+        "bb_pos": 17.1,
+        "rsi": 20.8,
+        "vol_ratio": 0.93,
+        "ai_score": 59,
         "cup_handle": {
           "detected": false
         }
@@ -2713,12 +2649,12 @@
         "code": "GOOGL",
         "name": "Alphabet",
         "sector": "テクノロジー",
-        "price": 346.47,
-        "change_pct": 0.86,
-        "ma25_diff": 1.3,
-        "bb_pos": 68.9,
-        "rsi": 47.6,
-        "vol_ratio": 1.03,
+        "price": 345.91,
+        "change_pct": -0.16,
+        "ma25_diff": 1.0,
+        "bb_pos": 65.3,
+        "rsi": 50.8,
+        "vol_ratio": 0.93,
         "ai_score": 56,
         "cup_handle": {
           "detected": true,
@@ -2726,300 +2662,34 @@
           "pivot": 355.0,
           "cup_depth_pct": 20.2,
           "cup_weeks": 23
-        }
-      },
-      {
-        "code": "XOM",
-        "name": "ExxonMobil",
-        "sector": "エネルギー",
-        "price": 164.0,
-        "change_pct": -0.01,
-        "ma25_diff": 0.7,
-        "bb_pos": 61.8,
-        "rsi": 48.0,
-        "vol_ratio": 0.83,
-        "ai_score": 56,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 169.3,
-          "cup_depth_pct": 19.6,
-          "cup_weeks": 29
-        }
-      },
-      {
-        "code": "COST",
-        "name": "Costco",
-        "sector": "生活必需品",
-        "price": 923.52,
-        "change_pct": 0.31,
-        "ma25_diff": 1.2,
-        "bb_pos": 69.2,
-        "rsi": 52.3,
-        "vol_ratio": 0.9,
-        "ai_score": 56,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 924.6,
-          "cup_depth_pct": 14.5,
-          "cup_weeks": 22
-        }
-      }
-    ],
-    "bottom": [
-      {
-        "code": "CAT",
-        "name": "Caterpillar",
-        "sector": "資本財",
-        "price": 848.14,
-        "change_pct": 0.32,
-        "ma25_diff": 4.7,
-        "bb_pos": 103.9,
-        "rsi": 74.3,
-        "vol_ratio": 0.95,
-        "ai_score": 37,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 848.1,
-          "cup_depth_pct": 19.6,
-          "cup_weeks": 16
-        }
-      },
-      {
-        "code": "NVDA",
-        "name": "NVIDIA",
-        "sector": "半導体",
-        "price": 238.9,
-        "change_pct": 2.12,
-        "ma25_diff": 6.6,
-        "bb_pos": 105.0,
-        "rsi": 85.1,
-        "vol_ratio": 1.07,
-        "ai_score": 39,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "BA",
-        "name": "Boeing",
-        "sector": "資本財",
-        "price": 192.72,
-        "change_pct": -0.43,
-        "ma25_diff": -4.1,
-        "bb_pos": 25.2,
-        "rsi": 33.9,
-        "vol_ratio": 1.28,
-        "ai_score": 46,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 209.7,
-          "cup_depth_pct": 24.4,
-          "cup_weeks": 38
-        }
-      },
-      {
-        "code": "TSLA",
-        "name": "Tesla",
-        "sector": "消費・EC",
-        "price": 378.73,
-        "change_pct": 2.2,
-        "ma25_diff": 3.7,
-        "bb_pos": 87.0,
-        "rsi": 61.7,
-        "vol_ratio": 1.08,
-        "ai_score": 46,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "MSFT",
-        "name": "Microsoft",
-        "sector": "テクノロジー",
-        "price": 525.18,
-        "change_pct": 1.48,
-        "ma25_diff": 4.4,
-        "bb_pos": 110.6,
-        "rsi": 61.6,
-        "vol_ratio": 1.04,
-        "ai_score": 46,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "DIS",
-        "name": "Disney",
-        "sector": "通信・メディア",
-        "price": 103.61,
-        "change_pct": 1.39,
-        "ma25_diff": -1.6,
-        "bb_pos": 26.7,
-        "rsi": 37.0,
-        "vol_ratio": 0.96,
-        "ai_score": 48,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 107.0,
-          "cup_depth_pct": 23.4,
-          "cup_weeks": 64
-        }
-      },
-      {
-        "code": "WMT",
-        "name": "Walmart",
-        "sector": "消費・EC",
-        "price": 105.07,
-        "change_pct": 0.78,
-        "ma25_diff": -1.7,
-        "bb_pos": 24.0,
-        "rsi": 37.6,
-        "vol_ratio": 1.09,
-        "ai_score": 48,
-        "cup_handle": {
-          "detected": false
         }
       },
       {
         "code": "CVX",
         "name": "Chevron",
         "sector": "エネルギー",
-        "price": 206.47,
-        "change_pct": -0.11,
-        "ma25_diff": -1.1,
-        "bb_pos": 35.5,
-        "rsi": 41.4,
-        "vol_ratio": 0.64,
-        "ai_score": 51,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "AVGO",
-        "name": "Broadcom",
-        "sector": "半導体",
-        "price": 362.51,
-        "change_pct": 2.08,
-        "ma25_diff": 1.8,
-        "bb_pos": 68.0,
-        "rsi": 60.6,
-        "vol_ratio": 0.9,
-        "ai_score": 52,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "GE",
-        "name": "GE Aerospace",
-        "sector": "資本財",
-        "price": 306.34,
-        "change_pct": -0.89,
-        "ma25_diff": -4.4,
-        "bb_pos": 11.0,
-        "rsi": 39.5,
-        "vol_ratio": 0.92,
-        "ai_score": 54,
-        "cup_handle": {
-          "detected": false
-        }
-      }
-    ],
-    "high_conviction": [],
-    "cup_handle": [
-      {
-        "code": "META",
-        "name": "Meta Platforms",
-        "sector": "通信・メディア",
-        "price": 741.9,
-        "change_pct": 1.9,
-        "ma25_diff": 9.1,
-        "bb_pos": 75.5,
-        "rsi": 64.2,
-        "vol_ratio": 0.71,
-        "ai_score": 59,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 777.6,
-          "cup_depth_pct": 32.9,
-          "cup_weeks": 61
-        }
-      },
-      {
-        "code": "GOOGL",
-        "name": "Alphabet",
-        "sector": "テクノロジー",
-        "price": 346.47,
-        "change_pct": 0.86,
-        "ma25_diff": 1.3,
-        "bb_pos": 68.9,
-        "rsi": 47.6,
-        "vol_ratio": 1.03,
+        "price": 205.85,
+        "change_pct": -0.3,
+        "ma25_diff": -1.4,
+        "bb_pos": 31.6,
+        "rsi": 28.8,
+        "vol_ratio": 0.55,
         "ai_score": 56,
         "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 355.0,
-          "cup_depth_pct": 20.2,
-          "cup_weeks": 23
-        }
-      },
-      {
-        "code": "XOM",
-        "name": "ExxonMobil",
-        "sector": "エネルギー",
-        "price": 164.0,
-        "change_pct": -0.01,
-        "ma25_diff": 0.7,
-        "bb_pos": 61.8,
-        "rsi": 48.0,
-        "vol_ratio": 0.83,
-        "ai_score": 56,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 169.3,
-          "cup_depth_pct": 19.6,
-          "cup_weeks": 29
-        }
-      },
-      {
-        "code": "COST",
-        "name": "Costco",
-        "sector": "生活必需品",
-        "price": 923.52,
-        "change_pct": 0.31,
-        "ma25_diff": 1.2,
-        "bb_pos": 69.2,
-        "rsi": 52.3,
-        "vol_ratio": 0.9,
-        "ai_score": 56,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 924.6,
-          "cup_depth_pct": 14.5,
-          "cup_weeks": 22
+          "detected": false
         }
       },
       {
         "code": "PG",
         "name": "Procter & Gamble",
         "sector": "生活必需品",
-        "price": 145.94,
-        "change_pct": 0.71,
-        "ma25_diff": -0.1,
-        "bb_pos": 46.7,
-        "rsi": 49.5,
-        "vol_ratio": 0.91,
-        "ai_score": 55,
+        "price": 147.55,
+        "change_pct": 1.1,
+        "ma25_diff": 0.9,
+        "bb_pos": 71.2,
+        "rsi": 52.3,
+        "vol_ratio": 0.79,
+        "ai_score": 56,
         "cup_handle": {
           "detected": true,
           "stage": "handle",
@@ -3029,35 +2699,308 @@
         }
       },
       {
-        "code": "UNH",
-        "name": "UnitedHealth",
-        "sector": "ヘルスケア",
-        "price": 378.58,
-        "change_pct": 1.8,
-        "ma25_diff": -0.6,
-        "bb_pos": 44.5,
-        "rsi": 45.0,
-        "vol_ratio": 0.83,
-        "ai_score": 54,
+        "code": "AAPL",
+        "name": "Apple",
+        "sector": "テクノロジー",
+        "price": 332.67,
+        "change_pct": -0.07,
+        "ma25_diff": 0.4,
+        "bb_pos": 55.1,
+        "rsi": 51.6,
+        "vol_ratio": 0.79,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "AMZN",
+        "name": "Amazon",
+        "sector": "消費・EC",
+        "price": 253.21,
+        "change_pct": 0.72,
+        "ma25_diff": 0.4,
+        "bb_pos": 56.1,
+        "rsi": 56.4,
+        "vol_ratio": 0.89,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "META",
+        "name": "Meta Platforms",
+        "sector": "通信・メディア",
+        "price": 740.6,
+        "change_pct": -0.17,
+        "ma25_diff": 7.8,
+        "bb_pos": 73.4,
+        "rsi": 63.3,
+        "vol_ratio": 0.55,
+        "ai_score": 55,
         "cup_handle": {
           "detected": true,
           "stage": "handle",
-          "pivot": 378.6,
-          "cup_depth_pct": 12.5,
-          "cup_weeks": 16
+          "pivot": 777.6,
+          "cup_depth_pct": 32.9,
+          "cup_weeks": 61
         }
       },
       {
         "code": "LLY",
         "name": "Eli Lilly",
         "sector": "ヘルスケア",
-        "price": 1143.12,
-        "change_pct": 0.02,
-        "ma25_diff": -0.8,
-        "bb_pos": 38.5,
-        "rsi": 51.8,
-        "vol_ratio": 1.0,
-        "ai_score": 54,
+        "price": 1156.55,
+        "change_pct": 1.17,
+        "ma25_diff": 0.4,
+        "bb_pos": 55.6,
+        "rsi": 57.2,
+        "vol_ratio": 0.93,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 1184.8,
+          "cup_depth_pct": 11.1,
+          "cup_weeks": 8
+        }
+      }
+    ],
+    "bottom": [
+      {
+        "code": "MSFT",
+        "name": "Microsoft",
+        "sector": "テクノロジー",
+        "price": 533.74,
+        "change_pct": 1.63,
+        "ma25_diff": 5.9,
+        "bb_pos": 117.4,
+        "rsi": 71.5,
+        "vol_ratio": 0.91,
+        "ai_score": 38,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "CAT",
+        "name": "Caterpillar",
+        "sector": "資本財",
+        "price": 872.0,
+        "change_pct": 2.81,
+        "ma25_diff": 7.3,
+        "bb_pos": 118.8,
+        "rsi": 78.4,
+        "vol_ratio": 0.82,
+        "ai_score": 39,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 872.0,
+          "cup_depth_pct": 19.6,
+          "cup_weeks": 16
+        }
+      },
+      {
+        "code": "NVDA",
+        "name": "NVIDIA",
+        "sector": "半導体",
+        "price": 241.77,
+        "change_pct": 1.2,
+        "ma25_diff": 7.4,
+        "bb_pos": 105.8,
+        "rsi": 85.7,
+        "vol_ratio": 0.97,
+        "ai_score": 39,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "GS",
+        "name": "Goldman Sachs",
+        "sector": "金融",
+        "price": 903.84,
+        "change_pct": 1.16,
+        "ma25_diff": -6.0,
+        "bb_pos": 21.8,
+        "rsi": 31.0,
+        "vol_ratio": 0.77,
+        "ai_score": 44,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "AMD",
+        "name": "AMD",
+        "sector": "半導体",
+        "price": 645.3,
+        "change_pct": 2.15,
+        "ma25_diff": 15.4,
+        "bb_pos": 82.4,
+        "rsi": 83.6,
+        "vol_ratio": 0.69,
+        "ai_score": 44,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "BA",
+        "name": "Boeing",
+        "sector": "資本財",
+        "price": 190.76,
+        "change_pct": -1.02,
+        "ma25_diff": -4.8,
+        "bb_pos": 21.8,
+        "rsi": 33.0,
+        "vol_ratio": 1.09,
+        "ai_score": 45,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 202.0,
+          "cup_depth_pct": 24.4,
+          "cup_weeks": 38
+        }
+      },
+      {
+        "code": "TSLA",
+        "name": "Tesla",
+        "sector": "消費・EC",
+        "price": 381.3,
+        "change_pct": 0.68,
+        "ma25_diff": 4.2,
+        "bb_pos": 90.2,
+        "rsi": 64.6,
+        "vol_ratio": 1.01,
+        "ai_score": 46,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "AVGO",
+        "name": "Broadcom",
+        "sector": "半導体",
+        "price": 375.6,
+        "change_pct": 3.61,
+        "ma25_diff": 5.4,
+        "bb_pos": 101.1,
+        "rsi": 69.5,
+        "vol_ratio": 0.83,
+        "ai_score": 47,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "KO",
+        "name": "Coca-Cola",
+        "sector": "生活必需品",
+        "price": 86.74,
+        "change_pct": 0.27,
+        "ma25_diff": -0.9,
+        "bb_pos": 27.4,
+        "rsi": 37.6,
+        "vol_ratio": 1.02,
+        "ai_score": 49,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "XOM",
+        "name": "ExxonMobil",
+        "sector": "エネルギー",
+        "price": 163.87,
+        "change_pct": -0.08,
+        "ma25_diff": 0.6,
+        "bb_pos": 59.3,
+        "rsi": 38.1,
+        "vol_ratio": 0.74,
+        "ai_score": 51,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 164.0,
+          "cup_depth_pct": 19.6,
+          "cup_weeks": 29
+        }
+      }
+    ],
+    "high_conviction": [],
+    "cup_handle": [
+      {
+        "code": "GOOGL",
+        "name": "Alphabet",
+        "sector": "テクノロジー",
+        "price": 345.91,
+        "change_pct": -0.16,
+        "ma25_diff": 1.0,
+        "bb_pos": 65.3,
+        "rsi": 50.8,
+        "vol_ratio": 0.93,
+        "ai_score": 56,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 355.0,
+          "cup_depth_pct": 20.2,
+          "cup_weeks": 23
+        }
+      },
+      {
+        "code": "PG",
+        "name": "Procter & Gamble",
+        "sector": "生活必需品",
+        "price": 147.55,
+        "change_pct": 1.1,
+        "ma25_diff": 0.9,
+        "bb_pos": 71.2,
+        "rsi": 52.3,
+        "vol_ratio": 0.79,
+        "ai_score": 56,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 149.0,
+          "cup_depth_pct": 14.7,
+          "cup_weeks": 33
+        }
+      },
+      {
+        "code": "META",
+        "name": "Meta Platforms",
+        "sector": "通信・メディア",
+        "price": 740.6,
+        "change_pct": -0.17,
+        "ma25_diff": 7.8,
+        "bb_pos": 73.4,
+        "rsi": 63.3,
+        "vol_ratio": 0.55,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 777.6,
+          "cup_depth_pct": 32.9,
+          "cup_weeks": 61
+        }
+      },
+      {
+        "code": "LLY",
+        "name": "Eli Lilly",
+        "sector": "ヘルスケア",
+        "price": 1156.55,
+        "change_pct": 1.17,
+        "ma25_diff": 0.4,
+        "bb_pos": 55.6,
+        "rsi": 57.2,
+        "vol_ratio": 0.93,
+        "ai_score": 55,
         "cup_handle": {
           "detected": true,
           "stage": "handle",
@@ -3070,13 +3013,13 @@
         "code": "DIS",
         "name": "Disney",
         "sector": "通信・メディア",
-        "price": 103.61,
-        "change_pct": 1.39,
-        "ma25_diff": -1.6,
-        "bb_pos": 26.7,
-        "rsi": 37.0,
-        "vol_ratio": 0.96,
-        "ai_score": 48,
+        "price": 104.14,
+        "change_pct": 0.51,
+        "ma25_diff": -1.0,
+        "bb_pos": 35.6,
+        "rsi": 43.5,
+        "vol_ratio": 0.84,
+        "ai_score": 54,
         "cup_handle": {
           "detected": true,
           "stage": "handle",
@@ -3086,20 +3029,77 @@
         }
       },
       {
-        "code": "BA",
-        "name": "Boeing",
-        "sector": "資本財",
-        "price": 192.72,
-        "change_pct": -0.43,
-        "ma25_diff": -4.1,
-        "bb_pos": 25.2,
-        "rsi": 33.9,
-        "vol_ratio": 1.28,
-        "ai_score": 46,
+        "code": "UNH",
+        "name": "UnitedHealth",
+        "sector": "ヘルスケア",
+        "price": 377.92,
+        "change_pct": -0.17,
+        "ma25_diff": -0.6,
+        "bb_pos": 43.7,
+        "rsi": 52.3,
+        "vol_ratio": 0.77,
+        "ai_score": 54,
         "cup_handle": {
           "detected": true,
           "stage": "handle",
-          "pivot": 209.7,
+          "pivot": 378.6,
+          "cup_depth_pct": 12.5,
+          "cup_weeks": 16
+        }
+      },
+      {
+        "code": "COST",
+        "name": "Costco",
+        "sector": "生活必需品",
+        "price": 926.92,
+        "change_pct": 0.37,
+        "ma25_diff": 1.6,
+        "bb_pos": 78.8,
+        "rsi": 64.9,
+        "vol_ratio": 0.74,
+        "ai_score": 52,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 926.9,
+          "cup_depth_pct": 14.5,
+          "cup_weeks": 22
+        }
+      },
+      {
+        "code": "XOM",
+        "name": "ExxonMobil",
+        "sector": "エネルギー",
+        "price": 163.87,
+        "change_pct": -0.08,
+        "ma25_diff": 0.6,
+        "bb_pos": 59.3,
+        "rsi": 38.1,
+        "vol_ratio": 0.74,
+        "ai_score": 51,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 164.0,
+          "cup_depth_pct": 19.6,
+          "cup_weeks": 29
+        }
+      },
+      {
+        "code": "BA",
+        "name": "Boeing",
+        "sector": "資本財",
+        "price": 190.76,
+        "change_pct": -1.02,
+        "ma25_diff": -4.8,
+        "bb_pos": 21.8,
+        "rsi": 33.0,
+        "vol_ratio": 1.09,
+        "ai_score": 45,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 202.0,
           "cup_depth_pct": 24.4,
           "cup_weeks": 38
         }
@@ -3108,24 +3108,24 @@
         "code": "CAT",
         "name": "Caterpillar",
         "sector": "資本財",
-        "price": 848.14,
-        "change_pct": 0.32,
-        "ma25_diff": 4.7,
-        "bb_pos": 103.9,
-        "rsi": 74.3,
-        "vol_ratio": 0.95,
-        "ai_score": 37,
+        "price": 872.0,
+        "change_pct": 2.81,
+        "ma25_diff": 7.3,
+        "bb_pos": 118.8,
+        "rsi": 78.4,
+        "vol_ratio": 0.82,
+        "ai_score": 39,
         "cup_handle": {
           "detected": true,
           "stage": "handle",
-          "pivot": 848.1,
+          "pivot": 872.0,
           "cup_depth_pct": 19.6,
           "cup_weeks": 16
         }
       }
     ]
   },
-  "screener_refreshed_at": "2026-10-06T18:20:03.339958+09:00",
+  "screener_refreshed_at": "2026-10-06T23:09:22.254593+09:00",
   "weekly_review": {
     "date": "2026/10/03",
     "title": "半導体復活の狼煙、東京海上が爆発💥",
