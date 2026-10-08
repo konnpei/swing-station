@@ -27,7 +27,9 @@ create table if not exists children (
   monthly_days integer not null default 0,
   best_streak integer not null default 0,
   goal text not null default '',
-  exam_date date
+  exam_date date,
+  -- 教科別ゴール（受験対策の残り総量）。例：[{"subject":"english","remainingTotal":1500,"unit":"個"}]
+  subject_goals jsonb not null default '[]'
 );
 
 create table if not exists missions (
@@ -35,6 +37,8 @@ create table if not exists missions (
   child_id text not null references children (id) on delete cascade,
   title text not null,
   category text not null,
+  -- 教科タグ（"english" | "kanji" | "math" | "other"）。教科別ペース計算に使用
+  subject text not null default 'other',
   target_amount integer not null default 1,
   unit text not null default '',
   xp integer not null default 10,
@@ -42,6 +46,11 @@ create table if not exists missions (
   -- 0=日,1=月,2=火,3=水,4=木,5=金,6=土。7つ全部で「毎日」
   weekdays integer[] not null default '{0,1,2,3,4,5,6}'
 );
+
+-- 既に作成済みのテーブルに対する追記マイグレーション（初回作成時はcreate tableで
+-- 列も一緒に作られているため実質no-opになる。既存環境向けの安全策として残す）
+alter table children add column if not exists subject_goals jsonb not null default '[]';
+alter table missions add column if not exists subject text not null default 'other';
 
 -- ---------------------------------------------------------------
 -- RLS（行レベルセキュリティ）
@@ -68,30 +77,31 @@ create policy "allow anon full access to missions"
 -- 既に同じidの行がある場合は何もしない
 -- ---------------------------------------------------------------
 
-insert into children (id, name, level, level_title, xp, streak, monthly_days, best_streak, goal, exam_date)
+insert into children (id, name, level, level_title, xp, streak, monthly_days, best_streak, goal, exam_date, subject_goals)
 values
-  ('eldest', '長男', 5, '基礎固め', 850, 10, 18, 14, '小山台高校', '2025-12-01'),
-  ('eldest-daughter', '長女', 4, '継続の達人', 620, 7, 15, 11, '英語力アップ', null),
-  ('youngest', '次男', 3, '習慣化中', 410, 5, 12, 8, '毎日少しずつ挑戦', null)
+  ('eldest', '長男', 5, '基礎固め', 850, 10, 18, 14, '小山台高校', '2027-02-14',
+    '[{"subject":"english","remainingTotal":1500,"unit":"個"},{"subject":"kanji","remainingTotal":2400,"unit":"個"},{"subject":"math","remainingTotal":2400,"unit":"問"}]'),
+  ('eldest-daughter', '長女', 4, '継続の達人', 620, 7, 15, 11, '英語力アップ', null, '[]'),
+  ('youngest', '次男', 3, '習慣化中', 410, 5, 12, 8, '毎日少しずつ挑戦', null, '[]')
 on conflict (id) do nothing;
 
-insert into missions (id, child_id, title, category, target_amount, unit, xp, completed, weekdays)
+insert into missions (id, child_id, title, category, subject, target_amount, unit, xp, completed, weekdays)
 values
-  ('eldest-homework', 'eldest', '学校宿題', '学校', 1, '回', 30, true, '{0,1,2,3,4,5,6}'),
-  ('eldest-tablet', 'eldest', 'タブレット学習 2講座', '学習', 2, '講座', 40, true, '{0,1,2,3,4,5,6}'),
-  ('eldest-kanji', 'eldest', '漢字 10個', '学習', 10, '個', 20, true, '{0,1,2,3,4,5,6}'),
-  ('eldest-eitango', 'eldest', '英単語 10個', '学習', 10, '個', 20, true, '{0,1,2,3,4,5,6}'),
-  ('eldest-english', 'eldest', '英語 5問', '学習', 5, '問', 25, false, '{0,1,2,3,4,5,6}'),
-  ('eldest-math', 'eldest', '数学 5問', '学習', 5, '問', 25, false, '{0,1,2,3,4,5,6}'),
+  ('eldest-homework', 'eldest', '学校宿題', '学校', 'other', 1, '回', 30, true, '{0,1,2,3,4,5,6}'),
+  ('eldest-tablet', 'eldest', 'タブレット学習 2講座', '学習', 'other', 2, '講座', 40, true, '{0,1,2,3,4,5,6}'),
+  ('eldest-kanji', 'eldest', '漢字 10個', '学習', 'kanji', 10, '個', 20, true, '{0,1,2,3,4,5,6}'),
+  ('eldest-eitango', 'eldest', '英単語 10個', '学習', 'english', 10, '個', 20, true, '{0,1,2,3,4,5,6}'),
+  ('eldest-english', 'eldest', '英語 5問', '学習', 'english', 5, '問', 25, false, '{0,1,2,3,4,5,6}'),
+  ('eldest-math', 'eldest', '数学 5問', '学習', 'math', 5, '問', 25, false, '{0,1,2,3,4,5,6}'),
 
-  ('daughter-homework', 'eldest-daughter', '学校宿題', '学校', 1, '回', 30, true, '{0,1,2,3,4,5,6}'),
-  ('daughter-tablet', 'eldest-daughter', 'タブレット学習 2講座', '学習', 2, '講座', 40, true, '{0,1,2,3,4,5,6}'),
-  ('daughter-english', 'eldest-daughter', '英語 10分', '学習', 10, '分', 20, true, '{0,1,2,3,4,5,6}'),
-  ('daughter-piano', 'eldest-daughter', 'ピアノ 20分', '習い事', 20, '分', 20, true, '{0,1,2,3,4,5,6}'),
-  ('daughter-reading', 'eldest-daughter', '読書 15分', '学習', 15, '分', 15, true, '{0,1,2,3,4,5,6}'),
+  ('daughter-homework', 'eldest-daughter', '学校宿題', '学校', 'other', 1, '回', 30, true, '{0,1,2,3,4,5,6}'),
+  ('daughter-tablet', 'eldest-daughter', 'タブレット学習 2講座', '学習', 'other', 2, '講座', 40, true, '{0,1,2,3,4,5,6}'),
+  ('daughter-english', 'eldest-daughter', '英語 10分', '学習', 'other', 10, '分', 20, true, '{0,1,2,3,4,5,6}'),
+  ('daughter-piano', 'eldest-daughter', 'ピアノ 20分', '習い事', 'other', 20, '分', 20, true, '{0,1,2,3,4,5,6}'),
+  ('daughter-reading', 'eldest-daughter', '読書 15分', '学習', 'other', 15, '分', 15, true, '{0,1,2,3,4,5,6}'),
 
-  ('youngest-homework', 'youngest', '学校宿題', '学校', 1, '回', 30, true, '{0,1,2,3,4,5,6}'),
-  ('youngest-tablet', 'youngest', 'タブレット学習 1講座', '学習', 1, '講座', 25, true, '{0,1,2,3,4,5,6}'),
-  ('youngest-reading-aloud', 'youngest', '音読 10分', '学習', 10, '分', 15, true, '{0,1,2,3,4,5,6}'),
-  ('youngest-kanji', 'youngest', '漢字 5個', '学習', 5, '個', 15, false, '{0,1,2,3,4,5,6}')
+  ('youngest-homework', 'youngest', '学校宿題', '学校', 'other', 1, '回', 30, true, '{0,1,2,3,4,5,6}'),
+  ('youngest-tablet', 'youngest', 'タブレット学習 1講座', '学習', 'other', 1, '講座', 25, true, '{0,1,2,3,4,5,6}'),
+  ('youngest-reading-aloud', 'youngest', '音読 10分', '学習', 'other', 10, '分', 15, true, '{0,1,2,3,4,5,6}'),
+  ('youngest-kanji', 'youngest', '漢字 5個', '学習', 'other', 5, '個', 15, false, '{0,1,2,3,4,5,6}')
 on conflict (id) do nothing;

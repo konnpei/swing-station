@@ -14,12 +14,14 @@ import {
   getDaysUntilExam,
   getProgressPercent,
   getRewardProgress,
+  getSubjectPaces,
   getTodayMissions,
   getTotalCount,
   withTodayRecord,
 } from "../lib/utils";
 import MissionList from "./mission-list";
 import ProgressBar from "./progress-bar";
+import SubjectPaceChart from "./subject-pace-chart";
 
 type ChildHomeProps = {
   child: Child;
@@ -36,6 +38,7 @@ export default function ChildHome({ child, onToggleMission }: ChildHomeProps) {
   const daysUntilExam = getDaysUntilExam(child.examDate);
   const reward = getRewardProgress(child.xp);
   const weeklyRecords = withTodayRecord(child.weeklyRecords, completed, total);
+  const subjectPaces = getSubjectPaces(child);
 
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-24 pt-4">
@@ -109,6 +112,16 @@ export default function ChildHome({ child, onToggleMission }: ChildHomeProps) {
           </p>
         )}
       </section>
+
+      {/* 教科別 受験ペース（試験日が設定されている子どもだけ表示） */}
+      {subjectPaces.length > 0 && (
+        <section className="mt-5 rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+          <h2 className="mb-3 text-sm font-bold text-gray-300">
+            教科別 受験ペース
+          </h2>
+          <SubjectPaceChart paces={subjectPaces} />
+        </section>
+      )}
 
       {/* 5-6 継続記録 */}
       <section className="mt-5 grid grid-cols-3 gap-2">
