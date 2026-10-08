@@ -17,6 +17,7 @@ import {
 } from "../lib/calendar-utils";
 import { getProgressPercent, TrendPoint } from "../lib/utils";
 import TrendChart from "./trend-chart";
+import GoogleCalendarPanel from "./google-calendar-panel";
 
 type CalendarScreenProps = {
   family: Child[];
@@ -66,6 +67,7 @@ export default function CalendarScreen({
       </button>
 
       <h1 className="text-lg font-bold">CALENDAR</h1>
+      {allowChildSwitch && <GoogleCalendarPanel />}
       <p className="mb-4 text-xs text-gray-400">
         {formatYearMonth(today)}の達成状況（{child.name}）
       </p>
