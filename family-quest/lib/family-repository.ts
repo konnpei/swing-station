@@ -14,6 +14,7 @@ import {
   Mission,
   NewMissionInput,
   ProfileUpdateInput,
+  SubjectGoal,
 } from "./dummy-data";
 import { isSupabaseConfigured, supabase } from "./supabase";
 
@@ -29,6 +30,7 @@ type ChildRow = {
   best_streak: number;
   goal: string;
   exam_date: string | null;
+  subject_goals: SubjectGoal[] | null;
 };
 
 type MissionRow = {
@@ -36,6 +38,7 @@ type MissionRow = {
   child_id: ChildId;
   title: string;
   category: string;
+  subject: Mission["subject"];
   target_amount: number;
   unit: string;
   xp: number;
@@ -48,6 +51,7 @@ function missionRowToMission(row: MissionRow): Mission {
     id: row.id,
     title: row.title,
     category: row.category,
+    subject: row.subject,
     targetAmount: row.target_amount,
     unit: row.unit,
     xp: row.xp,
@@ -104,6 +108,7 @@ export async function loadFamily(): Promise<Child[]> {
         .filter((m) => m.child_id === row.id)
         .map(missionRowToMission),
       weeklyRecords: dummyChild?.weeklyRecords ?? [],
+      subjectGoals: row.subject_goals ?? [],
     };
   });
 }
@@ -135,6 +140,19 @@ export async function saveChildProfile(
   if (error) console.error("プロフィールの保存に失敗しました", error);
 }
 
+/** 子どもの「教科別ゴール（受験対策の残り総量）」をSupabaseに保存する */
+export async function saveSubjectGoals(
+  childId: ChildId,
+  subjectGoals: SubjectGoal[]
+): Promise<void> {
+  if (!isSupabaseConfigured || !supabase) return;
+  const { error } = await supabase
+    .from("children")
+    .update({ subject_goals: subjectGoals })
+    .eq("id", childId);
+  if (error) console.error("教科別ゴールの保存に失敗しました", error);
+}
+
 /** ミッションの完了/未完了をSupabaseに保存する */
 export async function saveMissionCompleted(
   missionId: string,
@@ -160,6 +178,7 @@ export async function insertMission(
     child_id: childId,
     title: input.title,
     category: input.category,
+    subject: input.subject,
     target_amount: input.targetAmount,
     unit: input.unit,
     xp: input.xp,
@@ -180,6 +199,7 @@ export async function updateMissionRow(
     .update({
       title: input.title,
       category: input.category,
+      subject: input.subject,
       target_amount: input.targetAmount,
       unit: input.unit,
       xp: input.xp,
