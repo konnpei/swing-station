@@ -14,8 +14,8 @@ export default async function handler(req, res) {
     if (allowed !== "OK") return res.status(200).json(generic);
     const token = crypto.randomBytes(32).toString("base64url");
     await redis(["SET", tokenKey(token), "1", "EX", 600]);
-    const origin = "https://" + req.headers.host;
-    if (!/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(origin)) throw new Error("Invalid origin");
+    const origin = process.env.PRIVATE_SITE_ORIGIN;
+    if (!origin || !/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(origin)) throw new Error("Invalid configured origin");
     const url = origin + "/api/private/verify?token=" + encodeURIComponent(token);
     const sent = await fetch("https://api.resend.com/emails", {
       method: "POST",
