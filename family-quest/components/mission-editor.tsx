@@ -11,13 +11,18 @@ import { useState } from "react";
 import {
   ALL_WEEKDAYS,
   Child,
+  getSubjectLabel,
   Mission,
   NewMissionInput,
   ProfileUpdateInput,
+  SubjectGoal,
+  SubjectId,
+  SUBJECT_OPTIONS,
   WEEKDAY_OPTIONS,
 } from "../lib/dummy-data";
 import { formatWeekdays } from "../lib/utils";
 import ChildProfileCard, { Field } from "./child-profile-card";
+import SubjectGoalEditor from "./subject-goal-editor";
 
 type MissionEditorProps = {
   child: Child;
@@ -25,6 +30,7 @@ type MissionEditorProps = {
   onUpdateMission: (missionId: string, input: NewMissionInput) => void;
   onDeleteMission: (missionId: string) => void;
   onUpdateProfile: (input: ProfileUpdateInput) => void;
+  onUpdateSubjectGoals: (goals: SubjectGoal[]) => void;
   onClose: () => void;
 };
 
@@ -32,6 +38,7 @@ type MissionEditorProps = {
 type FormValues = {
   title: string;
   category: string;
+  subject: SubjectId;
   targetAmount: string;
   unit: string;
   xp: string;
@@ -41,6 +48,7 @@ type FormValues = {
 const EMPTY_FORM: FormValues = {
   title: "",
   category: "",
+  subject: "other",
   targetAmount: "1",
   unit: "",
   xp: "10",
@@ -51,6 +59,7 @@ function missionToFormValues(mission: Mission): FormValues {
   return {
     title: mission.title,
     category: mission.category,
+    subject: mission.subject,
     targetAmount: String(mission.targetAmount),
     unit: mission.unit,
     xp: String(mission.xp),
@@ -64,6 +73,7 @@ export default function MissionEditor({
   onUpdateMission,
   onDeleteMission,
   onUpdateProfile,
+  onUpdateSubjectGoals,
   onClose,
 }: MissionEditorProps) {
   // null = フォームを閉じている, "add" = 新規追加, それ以外 = 編集中のミッションID
@@ -117,6 +127,7 @@ export default function MissionEditor({
     const input: NewMissionInput = {
       title,
       category,
+      subject: formValues.subject,
       targetAmount,
       unit,
       xp,
@@ -162,6 +173,14 @@ export default function MissionEditor({
         <ChildProfileCard child={child} onUpdateProfile={onUpdateProfile} />
       </div>
 
+      {/* 教科別ゴール設定（試験日が設定されている子どもだけ意味を持つ） */}
+      <div className="mb-4">
+        <SubjectGoalEditor
+          subjectGoals={child.subjectGoals ?? []}
+          onSave={onUpdateSubjectGoals}
+        />
+      </div>
+
       <ul className="flex flex-col gap-2">
         {child.missions.map((mission) => (
           <li
@@ -179,7 +198,8 @@ export default function MissionEditor({
                   )}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {mission.category} ・ {mission.targetAmount}
+                  {mission.category} ・ {getSubjectLabel(mission.subject)} ・{" "}
+                  {mission.targetAmount}
                   {mission.unit} ・ {mission.xp}XP
                 </p>
                 <p className="text-xs text-accent">
@@ -288,6 +308,22 @@ function MissionForm({
           <option value="習い事" />
           <option value="運動" />
         </datalist>
+      </Field>
+
+      <Field label="教科（受験ペースの集計に使用）">
+        <select
+          value={values.subject}
+          onChange={(e) =>
+            onChange({ ...values, subject: e.target.value as SubjectId })
+          }
+          className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+        >
+          {SUBJECT_OPTIONS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </Field>
 
       <div className="flex gap-2">
