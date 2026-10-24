@@ -81,6 +81,7 @@ export default function Page() {
   // マウント時に、保存されているテーマカラー（アクセントカラー）を反映する
   useEffect(() => {
     applyAccentColor(loadAccentColorId());
+    if (new URLSearchParams(window.location.search).get('view') === 'calendar') setActiveView('calendar');
   }, []);
 
   // マウント時に、Supabase（設定されていれば）またはlocalStorage（家族共用の1台で使う場合）から読み込む
