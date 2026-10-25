@@ -60,7 +60,7 @@ export default function CalendarScreen({
         type="button"
         onClick={onClose}
         aria-label="ホームに戻る"
-        className="mb-3 flex items-center gap-1 text-sm text-gray-400"
+        className="mb-3 flex items-center gap-1 text-sm text-ink-muted"
       >
         <ChevronLeft size={18} />
         ホームに戻る
@@ -68,7 +68,7 @@ export default function CalendarScreen({
 
       <h1 className="text-lg font-bold">CALENDAR</h1>
       {allowChildSwitch && <GoogleCalendarPanel />}
-      <p className="mb-4 text-xs text-gray-400">
+      <p className="mb-4 text-xs text-ink-muted">
         {formatYearMonth(today)}の達成状況（{child.name}）
       </p>
 
@@ -83,7 +83,7 @@ export default function CalendarScreen({
               className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium ${
                 c.id === selectedId
                   ? "bg-accent text-white"
-                  : "bg-neutral-800 text-gray-300"
+                  : "bg-surface-strong text-ink-muted"
               }`}
             >
               {c.name}
@@ -92,7 +92,7 @@ export default function CalendarScreen({
         </div>
       )}
 
-      <div className="mb-2 grid grid-cols-7 gap-1 text-center text-xs text-gray-500">
+      <div className="mb-2 grid grid-cols-7 gap-1 text-center text-xs text-ink-faint">
         {CALENDAR_WEEKDAY_LABELS.map((label) => (
           <span key={label}>{label}</span>
         ))}
@@ -115,15 +115,15 @@ export default function CalendarScreen({
               className={`flex aspect-square flex-col items-center justify-center rounded-lg border text-[11px] ${
                 record.isToday
                   ? "border-accent"
-                  : "border-neutral-800"
+                  : "border-subtle"
               } ${
                 record.isFuture
-                  ? "bg-neutral-950 text-gray-600"
+                  ? "bg-surface-muted text-ink-faint"
                   : cleared
                     ? "bg-good/20 text-good"
                     : hasSome
-                      ? "bg-accent/10 text-gray-200"
-                      : "bg-neutral-900 text-gray-500"
+                      ? "bg-accent/10 text-ink"
+                      : "bg-surface text-ink-faint"
               }`}
             >
               <span className="font-semibold">{record.day}</span>
@@ -137,7 +137,7 @@ export default function CalendarScreen({
         })}
       </div>
 
-      <div className="mt-4 flex items-center gap-4 text-xs text-gray-400">
+      <div className="mt-4 flex items-center gap-4 text-xs text-ink-muted">
         <span className="flex items-center gap-1">
           <span className="h-3 w-3 rounded bg-good/20" />
           全達成
@@ -147,7 +147,7 @@ export default function CalendarScreen({
           一部達成
         </span>
         <span className="flex items-center gap-1">
-          <span className="h-3 w-3 rounded bg-neutral-900" />
+          <span className="h-3 w-3 rounded bg-surface" />
           未達成
         </span>
       </div>

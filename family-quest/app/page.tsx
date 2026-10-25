@@ -49,7 +49,12 @@ import {
   saveFamilyToLocalStorage,
 } from "../lib/local-storage";
 import { isSupabaseConfigured } from "../lib/supabase";
-import { applyAccentColor, loadAccentColorId } from "../lib/theme";
+import {
+  applyAccentColor,
+  applyThemeMode,
+  loadAccentColorId,
+  loadThemeMode,
+} from "../lib/theme";
 import {
   createMissionId,
   getXpDelta,
@@ -78,9 +83,10 @@ export default function Page() {
   // 初回の読み込みが終わるまでは、localStorageへの保存を行わないためのフラグ
   const isFirstRender = useRef(true);
 
-  // マウント時に、保存されているテーマカラー（アクセントカラー）を反映する
+  // マウント時に、保存されているテーマカラー（アクセントカラー）・明暗モードを反映する
   useEffect(() => {
     applyAccentColor(loadAccentColorId());
+    applyThemeMode(loadThemeMode());
     if (new URLSearchParams(window.location.search).get('view') === 'calendar') setActiveView('calendar');
   }, []);
 
@@ -252,7 +258,7 @@ export default function Page() {
     : null;
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-canvas">
       <ModeSwitcher
         family={family}
         currentMode={mode}
@@ -377,7 +383,7 @@ export default function Page() {
 
       {notice && (
         <div className="fixed inset-x-0 bottom-20 z-20 flex justify-center px-4">
-          <div className="rounded-full bg-neutral-800 px-4 py-2 text-xs text-gray-100 shadow-lg">
+          <div className="rounded-full bg-surface-strong px-4 py-2 text-xs text-ink shadow-lg">
             {notice}
           </div>
         </div>

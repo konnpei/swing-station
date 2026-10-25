@@ -59,7 +59,7 @@ export default function BottomNav({
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-neutral-800 bg-neutral-950/95 backdrop-blur"
+      className="fixed inset-x-0 bottom-0 z-10 border-t border-subtle bg-surface-muted/95 backdrop-blur"
       aria-label="下部ナビゲーション"
     >
       <div className="mx-auto flex max-w-md items-stretch justify-between px-2">
@@ -73,7 +73,7 @@ export default function BottomNav({
               aria-label={item.label}
               onClick={() => onNavigate(item.key)}
               className={`flex flex-1 flex-col items-center gap-1 py-3 text-[11px] font-medium ${
-                isActive ? "text-accent" : "text-gray-500"
+                isActive ? "text-accent" : "text-ink-faint"
               }`}
             >
               <Icon size={22} />

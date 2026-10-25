@@ -34,21 +34,21 @@ export default function FamilyQuestScreen({
         type="button"
         onClick={onClose}
         aria-label="ホームに戻る"
-        className="mb-3 flex items-center gap-1 text-sm text-gray-400"
+        className="mb-3 flex items-center gap-1 text-sm text-ink-muted"
       >
         <ChevronLeft size={18} />
         ホームに戻る
       </button>
 
       <h1 className="text-lg font-bold">FAMILY QUEST</h1>
-      <p className="mb-4 text-xs text-gray-400">
+      <p className="mb-4 text-xs text-ink-muted">
         家族全体の、今日の達成状況です。
       </p>
 
-      <div className="mb-6 flex flex-col items-center rounded-2xl border border-neutral-800 bg-neutral-900 p-6">
+      <div className="mb-6 flex flex-col items-center rounded-2xl border border-subtle bg-surface p-6">
         <Trophy size={32} className="mb-2 text-accent" />
-        <p className="text-4xl font-bold text-white">{percent}%</p>
-        <p className="mb-4 text-sm text-gray-400">
+        <p className="text-4xl font-bold text-ink">{percent}%</p>
+        <p className="mb-4 text-sm text-ink-muted">
           {totals.completed} / {totals.total} 達成
         </p>
         <ProgressBar value={totals.completed} max={totals.total} colorClassName="bg-accent" />

@@ -40,15 +40,15 @@ export default function ChildHome({ child, onToggleMission }: ChildHomeProps) {
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-24 pt-4">
       {/* 5-1 今日の日付 */}
-      <p className="text-xs text-gray-400">{formatJapaneseDate(new Date())}</p>
+      <p className="text-xs text-ink-muted">{formatJapaneseDate(new Date())}</p>
 
       {/* 5-2 個人目標 */}
-      <div className="mt-1 flex items-center gap-2 text-sm text-gray-200">
+      <div className="mt-1 flex items-center gap-2 text-sm text-ink">
         <Target size={16} className="shrink-0 text-accent" />
         <p>
           {child.goal}
           {daysUntilExam !== null && (
-            <span className="text-gray-400">
+            <span className="text-ink-muted">
               {" "}
               入試まで あと{daysUntilExam}日
             </span>
@@ -57,23 +57,23 @@ export default function ChildHome({ child, onToggleMission }: ChildHomeProps) {
       </div>
 
       {/* 5-3 レベルとXP */}
-      <section className="mt-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+      <section className="mt-4 rounded-2xl border border-subtle bg-surface p-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-lg font-bold">Lv.{child.level}</p>
-            <p className="text-xs text-gray-400">{child.levelTitle}</p>
+            <p className="text-xs text-ink-muted">{child.levelTitle}</p>
           </div>
           <div className="flex items-center gap-1 text-warn">
             <Star size={18} />
-            <span className="text-lg font-bold text-white">{child.xp}</span>
-            <span className="text-xs text-gray-400">XP</span>
+            <span className="text-lg font-bold text-ink">{child.xp}</span>
+            <span className="text-xs text-ink-muted">XP</span>
           </div>
         </div>
       </section>
 
       {/* 5-4 今日のミッション */}
       <section className="mt-5">
-        <h2 className="mb-2 text-sm font-bold text-gray-300">
+        <h2 className="mb-2 text-sm font-bold text-ink-muted">
           今日のミッション
         </h2>
         {todaysMissions.length > 0 ? (
@@ -83,19 +83,19 @@ export default function ChildHome({ child, onToggleMission }: ChildHomeProps) {
             onToggle={onToggleMission}
           />
         ) : (
-          <p className="rounded-2xl border border-neutral-800 bg-neutral-900 px-4 py-6 text-center text-sm text-gray-400">
+          <p className="rounded-2xl border border-subtle bg-surface px-4 py-6 text-center text-sm text-ink-muted">
             今日は予定されているミッションがありません
           </p>
         )}
       </section>
 
       {/* 5-5 TODAY PROGRESS */}
-      <section className="mt-5 rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
+      <section className="mt-5 rounded-2xl border border-subtle bg-surface p-4">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-gray-300">TODAY PROGRESS</h2>
+          <h2 className="text-sm font-bold text-ink-muted">TODAY PROGRESS</h2>
           <p className="text-sm font-bold">
             {completed}
-            <span className="text-xs text-gray-400"> / {total}</span>
+            <span className="text-xs text-ink-muted"> / {total}</span>
           </p>
         </div>
         <ProgressBar
@@ -118,8 +118,8 @@ export default function ChildHome({ child, onToggleMission }: ChildHomeProps) {
       </section>
 
       {/* 5-7 次のご褒美 */}
-      <section className="mt-5 rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-bold text-gray-300">
+      <section className="mt-5 rounded-2xl border border-subtle bg-surface p-4">
+        <div className="mb-2 flex items-center gap-2 text-sm font-bold text-ink-muted">
           <Gift size={16} className="text-accent" />
           次のご褒美
         </div>
@@ -129,12 +129,12 @@ export default function ChildHome({ child, onToggleMission }: ChildHomeProps) {
           colorClassName="bg-accent"
           valueLabel={`${reward.current} / ${reward.threshold} XP`}
         />
-        <p className="mt-2 text-xs text-gray-400">次のご褒美：{reward.label}</p>
+        <p className="mt-2 text-xs text-ink-muted">次のご褒美：{reward.label}</p>
       </section>
 
       {/* 5-8 今週の記録 */}
       <section className="mt-5">
-        <h2 className="mb-2 text-sm font-bold text-gray-300">今週の記録</h2>
+        <h2 className="mb-2 text-sm font-bold text-ink-muted">今週の記録</h2>
         <div className="grid grid-cols-7 gap-1">
           {weeklyRecords.map((record) => {
             const cleared = record.total > 0 && record.completed >= record.total;
@@ -144,13 +144,13 @@ export default function ChildHome({ child, onToggleMission }: ChildHomeProps) {
                 className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-2 ${
                   record.isToday
                     ? "border-accent bg-accent/10"
-                    : "border-neutral-800 bg-neutral-900"
+                    : "border-subtle bg-surface"
                 }`}
               >
-                <span className="text-[11px] text-gray-400">{record.day}</span>
+                <span className="text-[11px] text-ink-muted">{record.day}</span>
                 <span
                   className={`text-xs font-bold ${
-                    cleared ? "text-good" : "text-gray-200"
+                    cleared ? "text-good" : "text-ink"
                   }`}
                 >
                   {record.completed}/{record.total}
@@ -174,9 +174,9 @@ function StatCard({
   value: string;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-2xl border border-neutral-800 bg-neutral-900 py-3">
+    <div className="flex flex-col items-center gap-1 rounded-2xl border border-subtle bg-surface py-3">
       <Icon size={16} className="text-accent" />
-      <p className="text-[11px] text-gray-400">{label}</p>
+      <p className="text-[11px] text-ink-muted">{label}</p>
       <p className="text-sm font-bold">{value}</p>
     </div>
   );

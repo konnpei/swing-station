@@ -65,11 +65,11 @@ export default function ChildProfileCard({
   }
 
   return (
-    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-3">
+    <div className="rounded-2xl border border-subtle bg-surface p-3">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-white">{child.name}</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-sm font-medium text-ink">{child.name}</p>
+          <p className="text-xs text-ink-faint">
             目標：{child.goal}
             {child.examDate && ` ・試験日：${child.examDate}`}
           </p>
@@ -81,7 +81,7 @@ export default function ChildProfileCard({
               type="button"
               aria-label={`${child.name}のプロフィールを編集`}
               onClick={openForm}
-              className="rounded-lg border border-neutral-700 p-2 text-gray-300"
+              className="rounded-lg border border-strong p-2 text-ink-muted"
             >
               <Pencil size={16} />
             </button>
@@ -96,7 +96,7 @@ export default function ChildProfileCard({
               type="text"
               value={values.name}
               onChange={(e) => setValues({ ...values, name: e.target.value })}
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+              className="w-full rounded-lg border border-strong bg-surface-muted px-3 py-2 text-sm text-ink"
             />
           </Field>
           <Field label="目標">
@@ -105,7 +105,7 @@ export default function ChildProfileCard({
               value={values.goal}
               onChange={(e) => setValues({ ...values, goal: e.target.value })}
               placeholder="例：小山台高校"
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+              className="w-full rounded-lg border border-strong bg-surface-muted px-3 py-2 text-sm text-ink"
             />
           </Field>
           <Field label="試験日（無ければ空欄のままでOK）">
@@ -115,7 +115,7 @@ export default function ChildProfileCard({
               onChange={(e) =>
                 setValues({ ...values, examDate: e.target.value })
               }
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+              className="w-full rounded-lg border border-strong bg-surface-muted px-3 py-2 text-sm text-ink"
             />
           </Field>
 
@@ -131,7 +131,7 @@ export default function ChildProfileCard({
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="flex-1 rounded-xl border border-neutral-700 py-2.5 text-sm font-medium text-gray-300 active:scale-[0.99]"
+              className="flex-1 rounded-xl border border-strong py-2.5 text-sm font-medium text-ink-muted active:scale-[0.99]"
             >
               キャンセル
             </button>
@@ -151,7 +151,7 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs text-gray-400">{label}</span>
+      <span className="mb-1 block text-xs text-ink-muted">{label}</span>
       {children}
     </label>
   );
