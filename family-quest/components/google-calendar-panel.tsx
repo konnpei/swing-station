@@ -2,6 +2,8 @@
 // GoogleCalendarPanel：CALENDAR画面に表示するGoogle予定パネル。
 // TimeTreeのような「横スクロールの日付帯＋日付ごとにまとめた予定一覧」の
 // 見た目に寄せている（データ取得・接続の仕組み自体は変更していない）。
+// このパネルだけ、本物のTimeTreeに近い明るい配色にしている
+// （アプリ全体はダークテーマのままなので、ここだけ意図的に浮いて見える）。
 // =============================================================
 
 "use client";
@@ -132,9 +134,12 @@ export default function GoogleCalendarPanel() {
   }
 
   return (
-    <section className="my-4 rounded-2xl border border-neutral-800 bg-neutral-900 p-4" aria-label="Googleカレンダーの予定">
+    <section
+      className="my-4 rounded-2xl border border-gray-200 bg-white p-4 text-gray-900 shadow-sm"
+      aria-label="Googleカレンダーの予定"
+    >
       <h2 className="font-bold">Googleカレンダーの予定</h2>
-      <p className="mt-1 text-xs text-gray-400">今日から2週間・日本時間</p>
+      <p className="mt-1 text-xs text-gray-500">今日から2週間・日本時間</p>
 
       {status === "ready" && (
         <div className="-mx-1 mt-3 flex gap-1.5 overflow-x-auto px-1 pb-1">
@@ -155,7 +160,7 @@ export default function GoogleCalendarPanel() {
                     ? "bg-accent text-white"
                     : day.isToday
                       ? "border border-accent text-accent"
-                      : "border border-neutral-800 text-gray-300"
+                      : "border border-gray-200 text-gray-600"
                 } ${!hasEvents ? "opacity-40" : ""}`}
               >
                 <span className="text-[10px] leading-none">{day.weekdayLabel}</span>
@@ -172,7 +177,7 @@ export default function GoogleCalendarPanel() {
         </div>
       )}
 
-      <div role="status" className="my-3 text-sm text-gray-300">
+      <div role="status" className="my-3 text-sm text-gray-600">
         {status === "loading" && "予定を確認中…"}
         {status === "setup" && "Google連携の設定を準備中です。設定完了後に接続できます。"}
         {status === "login" && "Googleアカウントを接続すると予定が表示されます。"}
@@ -193,17 +198,17 @@ export default function GoogleCalendarPanel() {
                 selectedDateKey === group.key ? "bg-accent/10" : ""
               }`}
             >
-              <p className="px-2 pb-1.5 pt-2 text-xs font-semibold text-gray-400">
+              <p className="px-2 pb-1.5 pt-2 text-xs font-semibold text-gray-500">
                 {dateHeaderLabel(group.key)}
               </p>
               <ul className="flex flex-col gap-1.5">
                 {group.items.map((e) => (
                   <li
                     key={e.id}
-                    className="flex gap-2 rounded-lg border-l-2 border-accent bg-neutral-950 px-2.5 py-2"
+                    className="flex gap-2 rounded-lg border-l-2 border-accent bg-gray-50 px-2.5 py-2"
                   >
-                    <span className="shrink-0 text-xs text-gray-400">{timeLabel(e)}</span>
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium">{e.title}</span>
+                    <span className="shrink-0 text-xs text-gray-500">{timeLabel(e)}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-gray-900">{e.title}</span>
                     {e.htmlLink?.startsWith("https://www.google.com/calendar/") && (
                       <a
                         className="shrink-0 text-xs text-accent underline"
@@ -222,7 +227,7 @@ export default function GoogleCalendarPanel() {
         </ul>
       )}
       {status === "ready" && hasMore && (
-        <p className="my-2 text-xs text-gray-400">先頭250件を表示しています。残りはGoogleカレンダーで確認できます。</p>
+        <p className="my-2 text-xs text-gray-500">先頭250件を表示しています。残りはGoogleカレンダーで確認できます。</p>
       )}
 
       <div className="mt-3 flex flex-wrap gap-3 text-sm">
@@ -234,19 +239,23 @@ export default function GoogleCalendarPanel() {
         <button
           type="button"
           disabled={status === "loading"}
-          className="rounded-xl border border-neutral-700 px-3 py-2 disabled:opacity-50"
+          className="rounded-xl border border-gray-300 px-3 py-2 text-gray-700 disabled:opacity-50"
           onClick={() => void refresh()}
         >
           再読み込み
         </button>
         {status === "ready" && (
-          <button type="button" className="rounded-xl border border-neutral-700 px-3 py-2" onClick={() => void disconnect()}>
+          <button
+            type="button"
+            className="rounded-xl border border-gray-300 px-3 py-2 text-gray-700"
+            onClick={() => void disconnect()}
+          >
             この端末の接続を解除
           </button>
         )}
       </div>
 
-      <details className="mt-4 text-xs text-gray-400">
+      <details className="mt-4 text-xs text-gray-500">
         <summary className="cursor-pointer">TimeTreeにも表示するには</summary>
         <p className="mt-2 leading-relaxed">
           スマホの標準カレンダーに同じGoogleアカウントを追加し、TimeTreeのカレンダー画面右上のフィルター設定から「表示するフィルターを選択」を開き、Googleカレンダーをオンにして保存してください。表示は自分の端末のみです。家族の共有カレンダーへのコピーは別操作で、変更は自動同期されません。
