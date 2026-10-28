@@ -2643,15 +2643,30 @@
   "us_screener": {
     "top": [
       {
+        "code": "BA",
+        "name": "Boeing",
+        "sector": "資本財",
+        "price": 167.14,
+        "change_pct": -0.62,
+        "ma25_diff": -11.1,
+        "bb_pos": -25.1,
+        "rsi": 26.6,
+        "vol_ratio": 1.8,
+        "ai_score": 64,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
         "code": "GOOGL",
         "name": "Alphabet",
         "sector": "テクノロジー",
-        "price": 324.14,
-        "change_pct": 1.11,
-        "ma25_diff": -4.8,
-        "bb_pos": 12.6,
-        "rsi": 28.9,
-        "vol_ratio": 0.91,
+        "price": 324.89,
+        "change_pct": 1.34,
+        "ma25_diff": -4.6,
+        "bb_pos": 14.1,
+        "rsi": 29.7,
+        "vol_ratio": 1.21,
         "ai_score": 63,
         "cup_handle": {
           "detected": true,
@@ -2662,61 +2677,16 @@
         }
       },
       {
-        "code": "BA",
-        "name": "Boeing",
-        "sector": "資本財",
-        "price": 165.4,
-        "change_pct": -1.65,
-        "ma25_diff": -12.0,
-        "bb_pos": -28.6,
-        "rsi": 25.6,
-        "vol_ratio": 1.59,
-        "ai_score": 63,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "MSFT",
-        "name": "Microsoft",
-        "sector": "テクノロジー",
-        "price": 530.08,
-        "change_pct": -0.24,
-        "ma25_diff": 0.8,
-        "bb_pos": 59.8,
-        "rsi": 50.2,
-        "vol_ratio": 0.8,
-        "ai_score": 56,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "AMZN",
-        "name": "Amazon",
-        "sector": "消費・EC",
-        "price": 253.25,
-        "change_pct": 0.06,
-        "ma25_diff": -0.2,
-        "bb_pos": 47.8,
-        "rsi": 44.5,
-        "vol_ratio": 0.86,
-        "ai_score": 55,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
         "code": "META",
         "name": "Meta Platforms",
         "sector": "通信・メディア",
-        "price": 616.17,
-        "change_pct": -0.65,
-        "ma25_diff": -13.2,
-        "bb_pos": -2.8,
-        "rsi": 23.6,
-        "vol_ratio": 1.43,
-        "ai_score": 55,
+        "price": 612.49,
+        "change_pct": -1.24,
+        "ma25_diff": -13.7,
+        "bb_pos": -4.4,
+        "rsi": 23.2,
+        "vol_ratio": 1.6,
+        "ai_score": 61,
         "cup_handle": {
           "detected": true,
           "stage": "cup",
@@ -2726,30 +2696,79 @@
         }
       },
       {
-        "code": "TSLA",
-        "name": "Tesla",
-        "sector": "消費・EC",
-        "price": 400.99,
-        "change_pct": -1.59,
-        "ma25_diff": 7.2,
-        "bb_pos": 98.9,
-        "rsi": 59.2,
-        "vol_ratio": 1.07,
-        "ai_score": 54,
+        "code": "AAPL",
+        "name": "Apple",
+        "sector": "テクノロジー",
+        "price": 343.83,
+        "change_pct": -0.94,
+        "ma25_diff": 1.2,
+        "bb_pos": 69.8,
+        "rsi": 59.0,
+        "vol_ratio": 1.06,
+        "ai_score": 56,
         "cup_handle": {
           "detected": false
+        }
+      },
+      {
+        "code": "MSFT",
+        "name": "Microsoft",
+        "sector": "テクノロジー",
+        "price": 531.01,
+        "change_pct": -0.06,
+        "ma25_diff": 1.0,
+        "bb_pos": 61.7,
+        "rsi": 50.7,
+        "vol_ratio": 0.99,
+        "ai_score": 56,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "AMZN",
+        "name": "Amazon",
+        "sector": "消費・EC",
+        "price": 254.6,
+        "change_pct": 0.59,
+        "ma25_diff": 0.3,
+        "bb_pos": 53.8,
+        "rsi": 45.7,
+        "vol_ratio": 0.99,
+        "ai_score": 55,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "UNH",
+        "name": "UnitedHealth",
+        "sector": "ヘルスケア",
+        "price": 407.1,
+        "change_pct": -0.8,
+        "ma25_diff": 4.2,
+        "bb_pos": 71.4,
+        "rsi": 66.4,
+        "vol_ratio": 0.72,
+        "ai_score": 54,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 425.0,
+          "cup_depth_pct": 12.5,
+          "cup_weeks": 19
         }
       },
       {
         "code": "PG",
         "name": "Procter & Gamble",
         "sector": "生活必需品",
-        "price": 158.5,
-        "change_pct": -0.46,
-        "ma25_diff": 4.2,
-        "bb_pos": 74.8,
-        "rsi": 68.1,
-        "vol_ratio": 1.03,
+        "price": 158.26,
+        "change_pct": -0.61,
+        "ma25_diff": 4.0,
+        "bb_pos": 73.9,
+        "rsi": 67.6,
+        "vol_ratio": 1.1,
         "ai_score": 54,
         "cup_handle": {
           "detected": true,
@@ -2760,49 +2779,30 @@
         }
       },
       {
-        "code": "JPM",
-        "name": "JPMorgan Chase",
-        "sector": "金融",
-        "price": 335.76,
-        "change_pct": -0.01,
-        "ma25_diff": 0.6,
-        "bb_pos": 65.4,
-        "rsi": 59.0,
-        "vol_ratio": 0.67,
+        "code": "GE",
+        "name": "GE Aerospace",
+        "sector": "資本財",
+        "price": 301.13,
+        "change_pct": 1.17,
+        "ma25_diff": -1.8,
+        "bb_pos": 35.2,
+        "rsi": 47.8,
+        "vol_ratio": 1.26,
         "ai_score": 53,
         "cup_handle": {
           "detected": false
         }
       },
       {
-        "code": "UNH",
-        "name": "UnitedHealth",
-        "sector": "ヘルスケア",
-        "price": 413.25,
-        "change_pct": 0.7,
-        "ma25_diff": 5.7,
-        "bb_pos": 78.6,
-        "rsi": 69.7,
-        "vol_ratio": 0.62,
-        "ai_score": 53,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 425.0,
-          "cup_depth_pct": 12.5,
-          "cup_weeks": 19
-        }
-      },
-      {
-        "code": "AAPL",
-        "name": "Apple",
-        "sector": "テクノロジー",
-        "price": 344.79,
-        "change_pct": -0.67,
-        "ma25_diff": 1.5,
-        "bb_pos": 74.0,
-        "rsi": 60.5,
-        "vol_ratio": 0.94,
+        "code": "KO",
+        "name": "Coca-Cola",
+        "sector": "生活必需品",
+        "price": 91.73,
+        "change_pct": 0.6,
+        "ma25_diff": 2.2,
+        "bb_pos": 66.3,
+        "rsi": 67.6,
+        "vol_ratio": 1.03,
         "ai_score": 52,
         "cup_handle": {
           "detected": false
@@ -2814,28 +2814,13 @@
         "code": "CVX",
         "name": "Chevron",
         "sector": "エネルギー",
-        "price": 228.81,
-        "change_pct": 0.25,
-        "ma25_diff": 5.8,
-        "bb_pos": 80.9,
-        "rsi": 79.2,
-        "vol_ratio": 0.82,
+        "price": 229.2,
+        "change_pct": 0.43,
+        "ma25_diff": 6.0,
+        "bb_pos": 81.7,
+        "rsi": 79.4,
+        "vol_ratio": 0.95,
         "ai_score": 38,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "BAC",
-        "name": "Bank of America",
-        "sector": "金融",
-        "price": 50.78,
-        "change_pct": 0.2,
-        "ma25_diff": -4.0,
-        "bb_pos": 23.1,
-        "rsi": 31.4,
-        "vol_ratio": 0.61,
-        "ai_score": 43,
         "cup_handle": {
           "detected": false
         }
@@ -2844,12 +2829,42 @@
         "code": "XOM",
         "name": "ExxonMobil",
         "sector": "エネルギー",
-        "price": 180.49,
-        "change_pct": 0.33,
-        "ma25_diff": 5.3,
-        "bb_pos": 78.8,
-        "rsi": 75.2,
-        "vol_ratio": 0.9,
+        "price": 182.02,
+        "change_pct": 1.17,
+        "ma25_diff": 6.2,
+        "bb_pos": 83.2,
+        "rsi": 76.3,
+        "vol_ratio": 1.05,
+        "ai_score": 38,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "JPM",
+        "name": "JPMorgan Chase",
+        "sector": "金融",
+        "price": 339.3,
+        "change_pct": 1.05,
+        "ma25_diff": 1.6,
+        "bb_pos": 91.5,
+        "rsi": 62.8,
+        "vol_ratio": 0.78,
+        "ai_score": 44,
+        "cup_handle": {
+          "detected": false
+        }
+      },
+      {
+        "code": "GS",
+        "name": "Goldman Sachs",
+        "sector": "金融",
+        "price": 925.17,
+        "change_pct": 1.47,
+        "ma25_diff": 3.0,
+        "bb_pos": 92.9,
+        "rsi": 61.2,
+        "vol_ratio": 0.82,
         "ai_score": 45,
         "cup_handle": {
           "detected": false
@@ -2859,12 +2874,12 @@
         "code": "WMT",
         "name": "Walmart",
         "sector": "消費・EC",
-        "price": 118.7,
-        "change_pct": -0.52,
-        "ma25_diff": 5.3,
-        "bb_pos": 75.0,
-        "rsi": 76.6,
-        "vol_ratio": 0.83,
+        "price": 118.77,
+        "change_pct": -0.46,
+        "ma25_diff": 5.4,
+        "bb_pos": 75.3,
+        "rsi": 76.9,
+        "vol_ratio": 0.93,
         "ai_score": 45,
         "cup_handle": {
           "detected": true,
@@ -2875,30 +2890,30 @@
         }
       },
       {
-        "code": "GS",
-        "name": "Goldman Sachs",
-        "sector": "金融",
-        "price": 917.0,
-        "change_pct": 0.57,
-        "ma25_diff": 2.2,
-        "bb_pos": 81.6,
-        "rsi": 59.2,
-        "vol_ratio": 0.69,
+        "code": "JNJ",
+        "name": "Johnson & Johnson",
+        "sector": "ヘルスケア",
+        "price": 271.04,
+        "change_pct": 0.86,
+        "ma25_diff": 3.8,
+        "bb_pos": 85.9,
+        "rsi": 60.1,
+        "vol_ratio": 0.85,
         "ai_score": 46,
         "cup_handle": {
           "detected": false
         }
       },
       {
-        "code": "AMD",
-        "name": "AMD",
-        "sector": "半導体",
-        "price": 565.19,
-        "change_pct": 0.88,
-        "ma25_diff": -3.6,
-        "bb_pos": 37.8,
-        "rsi": 35.2,
-        "vol_ratio": 0.89,
+        "code": "BAC",
+        "name": "Bank of America",
+        "sector": "金融",
+        "price": 50.85,
+        "change_pct": 0.34,
+        "ma25_diff": -3.9,
+        "bb_pos": 23.9,
+        "rsi": 32.1,
+        "vol_ratio": 0.7,
         "ai_score": 46,
         "cup_handle": {
           "detected": false
@@ -2908,28 +2923,13 @@
         "code": "NVDA",
         "name": "NVIDIA",
         "sector": "半導体",
-        "price": 217.87,
-        "change_pct": -0.03,
-        "ma25_diff": -2.9,
-        "bb_pos": 29.9,
-        "rsi": 32.1,
-        "vol_ratio": 0.81,
-        "ai_score": 47,
-        "cup_handle": {
-          "detected": false
-        }
-      },
-      {
-        "code": "NFLX",
-        "name": "Netflix",
-        "sector": "通信・メディア",
-        "price": 61.83,
-        "change_pct": -1.1,
-        "ma25_diff": -9.8,
-        "bb_pos": -8.6,
-        "rsi": 30.9,
-        "vol_ratio": 0.98,
-        "ai_score": 48,
+        "price": 215.38,
+        "change_pct": -1.17,
+        "ma25_diff": -4.0,
+        "bb_pos": 23.0,
+        "rsi": 30.7,
+        "vol_ratio": 0.94,
+        "ai_score": 46,
         "cup_handle": {
           "detected": false
         }
@@ -2938,28 +2938,28 @@
         "code": "LLY",
         "name": "Eli Lilly",
         "sector": "ヘルスケア",
-        "price": 1292.72,
-        "change_pct": 0.84,
-        "ma25_diff": 6.6,
-        "bb_pos": 86.9,
-        "rsi": 67.3,
-        "vol_ratio": 0.84,
-        "ai_score": 49,
+        "price": 1288.3,
+        "change_pct": 0.5,
+        "ma25_diff": 6.2,
+        "bb_pos": 85.1,
+        "rsi": 66.8,
+        "vol_ratio": 0.97,
+        "ai_score": 48,
         "cup_handle": {
           "detected": false
         }
       },
       {
-        "code": "JNJ",
-        "name": "Johnson & Johnson",
-        "sector": "ヘルスケア",
-        "price": 269.66,
-        "change_pct": 0.35,
-        "ma25_diff": 3.3,
-        "bb_pos": 81.4,
-        "rsi": 59.2,
-        "vol_ratio": 0.73,
-        "ai_score": 50,
+        "code": "NFLX",
+        "name": "Netflix",
+        "sector": "通信・メディア",
+        "price": 61.99,
+        "change_pct": -0.85,
+        "ma25_diff": -9.6,
+        "bb_pos": -7.6,
+        "rsi": 31.1,
+        "vol_ratio": 1.1,
+        "ai_score": 48,
         "cup_handle": {
           "detected": false
         }
@@ -2971,12 +2971,12 @@
         "code": "GOOGL",
         "name": "Alphabet",
         "sector": "テクノロジー",
-        "price": 324.14,
-        "change_pct": 1.11,
-        "ma25_diff": -4.8,
-        "bb_pos": 12.6,
-        "rsi": 28.9,
-        "vol_ratio": 0.91,
+        "price": 324.89,
+        "change_pct": 1.34,
+        "ma25_diff": -4.6,
+        "bb_pos": 14.1,
+        "rsi": 29.7,
+        "vol_ratio": 1.21,
         "ai_score": 63,
         "cup_handle": {
           "detected": true,
@@ -2987,15 +2987,34 @@
         }
       },
       {
+        "code": "UNH",
+        "name": "UnitedHealth",
+        "sector": "ヘルスケア",
+        "price": 407.1,
+        "change_pct": -0.8,
+        "ma25_diff": 4.2,
+        "bb_pos": 71.4,
+        "rsi": 66.4,
+        "vol_ratio": 0.72,
+        "ai_score": 54,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 425.0,
+          "cup_depth_pct": 12.5,
+          "cup_weeks": 19
+        }
+      },
+      {
         "code": "PG",
         "name": "Procter & Gamble",
         "sector": "生活必需品",
-        "price": 158.5,
-        "change_pct": -0.46,
-        "ma25_diff": 4.2,
-        "bb_pos": 74.8,
-        "rsi": 68.1,
-        "vol_ratio": 1.03,
+        "price": 158.26,
+        "change_pct": -0.61,
+        "ma25_diff": 4.0,
+        "bb_pos": 73.9,
+        "rsi": 67.6,
+        "vol_ratio": 1.1,
         "ai_score": 54,
         "cup_handle": {
           "detected": true,
@@ -3006,53 +3025,15 @@
         }
       },
       {
-        "code": "UNH",
-        "name": "UnitedHealth",
-        "sector": "ヘルスケア",
-        "price": 413.25,
-        "change_pct": 0.7,
-        "ma25_diff": 5.7,
-        "bb_pos": 78.6,
-        "rsi": 69.7,
-        "vol_ratio": 0.62,
-        "ai_score": 53,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 425.0,
-          "cup_depth_pct": 12.5,
-          "cup_weeks": 19
-        }
-      },
-      {
-        "code": "DIS",
-        "name": "Disney",
-        "sector": "通信・メディア",
-        "price": 109.58,
-        "change_pct": -0.59,
-        "ma25_diff": 1.7,
-        "bb_pos": 63.6,
-        "rsi": 67.1,
-        "vol_ratio": 0.78,
-        "ai_score": 52,
-        "cup_handle": {
-          "detected": true,
-          "stage": "handle",
-          "pivot": 113.1,
-          "cup_depth_pct": 21.7,
-          "cup_weeks": 63
-        }
-      },
-      {
         "code": "COST",
         "name": "Costco",
         "sector": "生活必需品",
-        "price": 982.46,
-        "change_pct": -0.97,
+        "price": 982.73,
+        "change_pct": -0.95,
         "ma25_diff": 2.5,
-        "bb_pos": 66.7,
-        "rsi": 64.7,
-        "vol_ratio": 0.99,
+        "bb_pos": 66.8,
+        "rsi": 64.8,
+        "vol_ratio": 1.1,
         "ai_score": 52,
         "cup_handle": {
           "detected": true,
@@ -3063,15 +3044,34 @@
         }
       },
       {
+        "code": "DIS",
+        "name": "Disney",
+        "sector": "通信・メディア",
+        "price": 109.04,
+        "change_pct": -1.08,
+        "ma25_diff": 1.2,
+        "bb_pos": 59.6,
+        "rsi": 64.6,
+        "vol_ratio": 0.89,
+        "ai_score": 51,
+        "cup_handle": {
+          "detected": true,
+          "stage": "handle",
+          "pivot": 113.1,
+          "cup_depth_pct": 21.7,
+          "cup_weeks": 63
+        }
+      },
+      {
         "code": "WMT",
         "name": "Walmart",
         "sector": "消費・EC",
-        "price": 118.7,
-        "change_pct": -0.52,
-        "ma25_diff": 5.3,
-        "bb_pos": 75.0,
-        "rsi": 76.6,
-        "vol_ratio": 0.83,
+        "price": 118.77,
+        "change_pct": -0.46,
+        "ma25_diff": 5.4,
+        "bb_pos": 75.3,
+        "rsi": 76.9,
+        "vol_ratio": 0.93,
         "ai_score": 45,
         "cup_handle": {
           "detected": true,
@@ -3083,7 +3083,7 @@
       }
     ]
   },
-  "screener_refreshed_at": "2026-10-28T22:59:30.612427+09:00",
+  "screener_refreshed_at": "2026-10-29T08:57:50.640218+09:00",
   "weekly_review": {
     "date": "2026/10/17",
     "title": "半導体が爆発、日経▲1.86%の重い週",
@@ -3299,7 +3299,8 @@
   ],
   "market_volume_refreshed_at": "2026-10-29T07:13:25.331307+09:00",
   "updated_items": [
-    "朝刊更新"
+    "朝刊更新",
+    "AIスクリーニング更新"
   ],
   "updated_items_date": "2026/10/29",
   "generated_at": "2026-10-29T08:34:04.490108+09:00",
