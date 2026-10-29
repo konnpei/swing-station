@@ -34,6 +34,7 @@ import {
   Mode,
   NewMissionInput,
   ProfileUpdateInput,
+  SubjectGoal,
 } from "../lib/dummy-data";
 import {
   deleteMissionRow,
@@ -42,6 +43,7 @@ import {
   saveChildProfile,
   saveChildXp,
   saveMissionCompleted,
+  saveSubjectGoals,
   updateMissionRow,
 } from "../lib/family-repository";
 import {
@@ -118,6 +120,8 @@ export default function Page() {
     setShowFamilyQuest(false);
     setActiveView("home");
     setMode(nextMode);
+    // 表示中の通知（例：共有機能の案内）が別画面に残って見えてしまわないよう消す
+    setNotice(null);
   }
 
   // 下部ナビのタブをタップしたときの処理
@@ -125,6 +129,8 @@ export default function Page() {
     setEditingChildId(null);
     setShowFamilyQuest(false);
     setActiveView(key as ActiveView);
+    // 表示中の通知が別画面に残って見えてしまわないよう消す
+    setNotice(null);
   }
 
   /** 子ども（＝モード切替タブ）の並び順を1つ上下に入れ替える */
@@ -229,6 +235,16 @@ export default function Page() {
     saveChildProfile(childId, input);
   }
 
+  /** 保護者が「教科別ゴール（受験対策の残り総量）」を編集する */
+  function handleUpdateSubjectGoals(childId: ChildId, goals: SubjectGoal[]) {
+    setFamily((prevFamily) =>
+      prevFamily.map((child) =>
+        child.id === childId ? { ...child, subjectGoals: goals } : child
+      )
+    );
+    saveSubjectGoals(childId, goals);
+  }
+
   /** 保護者がミッションを削除する */
   function handleDeleteMission(childId: ChildId, missionId: string) {
     const child = family.find((c) => c.id === childId);
@@ -271,6 +287,9 @@ export default function Page() {
           }
           onUpdateProfile={(input) =>
             handleUpdateProfile(editingChild.id, input)
+          }
+          onUpdateSubjectGoals={(goals) =>
+            handleUpdateSubjectGoals(editingChild.id, goals)
           }
           onClose={() => setEditingChildId(null)}
         />
