@@ -28,14 +28,14 @@ export default function QuestScreen({
         type="button"
         onClick={onClose}
         aria-label="ホームに戻る"
-        className="mb-3 flex items-center gap-1 text-sm text-gray-400"
+        className="mb-3 flex items-center gap-1 text-sm text-ink-muted"
       >
         <ChevronLeft size={18} />
         ホームに戻る
       </button>
 
       <h1 className="text-lg font-bold">QUEST</h1>
-      <p className="mb-4 text-xs text-gray-400">
+      <p className="mb-4 text-xs text-ink-muted">
         {child.name}に割り当てられている、すべてのミッション一覧です。
       </p>
 
@@ -47,7 +47,7 @@ export default function QuestScreen({
           showWeekday
         />
       ) : (
-        <p className="rounded-2xl border border-neutral-800 bg-neutral-900 px-4 py-6 text-center text-sm text-gray-400">
+        <p className="rounded-2xl border border-subtle bg-surface px-4 py-6 text-center text-sm text-ink-muted">
           まだミッションが設定されていません
         </p>
       )}

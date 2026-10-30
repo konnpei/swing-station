@@ -33,14 +33,14 @@ export default function ChildrenScreen({
         type="button"
         onClick={onClose}
         aria-label="ホームに戻る"
-        className="mb-3 flex items-center gap-1 text-sm text-gray-400"
+        className="mb-3 flex items-center gap-1 text-sm text-ink-muted"
       >
         <ChevronLeft size={18} />
         ホームに戻る
       </button>
 
       <h1 className="text-lg font-bold">CHILDREN</h1>
-      <p className="mb-4 text-xs text-gray-400">3人の子ども一覧です。</p>
+      <p className="mb-4 text-xs text-ink-muted">3人の子ども一覧です。</p>
 
       <ul className="flex flex-col gap-3">
         {family.map((child) => {
@@ -55,17 +55,17 @@ export default function ChildrenScreen({
                 type="button"
                 onClick={() => onViewChild(child.id)}
                 aria-label={`${child.name}の詳細を見る`}
-                className="flex w-full flex-col gap-2 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 text-left active:scale-[0.99]"
+                className="flex w-full flex-col gap-2 rounded-2xl border border-subtle bg-surface p-4 text-left active:scale-[0.99]"
               >
                 <div className="flex items-center justify-between">
-                  <p className="text-base font-bold text-white">
+                  <p className="text-base font-bold text-ink">
                     {child.name}
                   </p>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-neutral-800 px-2 py-1 text-xs text-gray-300">
+                    <span className="rounded-full bg-surface-strong px-2 py-1 text-xs text-ink-muted">
                       Lv.{child.level}
                     </span>
-                    <ChevronRight size={16} className="text-gray-500" />
+                    <ChevronRight size={16} className="text-ink-faint" />
                   </div>
                 </div>
 
@@ -76,7 +76,7 @@ export default function ChildrenScreen({
                   valueLabel={`${completed} / ${total}`}
                 />
 
-                <div className="flex items-center gap-4 text-xs text-gray-400">
+                <div className="flex items-center gap-4 text-xs text-ink-muted">
                   <span className="flex items-center gap-1">
                     <Star size={14} className="text-warn" />
                     {child.xp} XP

@@ -19,8 +19,8 @@ export default function TrendChart({ title, points }: TrendChartProps) {
   const selected = selectedIndex !== null ? points[selectedIndex] : null;
 
   return (
-    <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
-      <p className="mb-3 text-sm font-bold text-gray-300">{title}</p>
+    <div className="rounded-2xl border border-subtle bg-surface p-4">
+      <p className="mb-3 text-sm font-bold text-ink-muted">{title}</p>
 
       <div className="flex h-24 items-end gap-1">
         {points.map((point, index) => {
@@ -49,7 +49,7 @@ export default function TrendChart({ title, points }: TrendChartProps) {
         })}
       </div>
 
-      <div className="mt-2 flex gap-1 text-[9px] text-gray-500">
+      <div className="mt-2 flex gap-1 text-[9px] text-ink-faint">
         {points.map((point, index) => (
           <span key={index} className="flex-1 text-center">
             {index % Math.max(1, Math.ceil(points.length / 8)) === 0
@@ -59,7 +59,7 @@ export default function TrendChart({ title, points }: TrendChartProps) {
         ))}
       </div>
 
-      <p className="mt-2 min-h-[1rem] text-xs text-gray-400">
+      <p className="mt-2 min-h-[1rem] text-xs text-ink-muted">
         {selected
           ? `${selected.label}：${selected.completed} / ${selected.total}（${selected.percent}%）`
           : "バーをタップすると、その日の内訳が表示されます"}

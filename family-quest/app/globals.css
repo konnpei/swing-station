@@ -5,6 +5,30 @@
 :root {
   /* アクセントカラーのデフォルト値（紫）。SETTINGS画面で変更するとJSから書き換わる */
   --color-accent-rgb: 99 102 241;
+
+  /* 明暗テーマのデフォルト（ライト）。SETTINGS画面の切り替えで
+     [data-theme="dark"] の値に上書きされる（lib/theme.tsのapplyThemeMode参照） */
+  --color-canvas-rgb: 244 244 245; /* ページ背景（薄いグレー） */
+  --color-surface-rgb: 255 255 255; /* カード背景（白） */
+  --color-surface-muted-rgb: 243 244 246; /* カード内のへこんだ要素 */
+  --color-surface-strong-rgb: 229 231 235; /* チップ・ピル */
+  --color-ink-rgb: 17 24 39; /* 主要な文字色（ほぼ黒） */
+  --color-ink-muted-rgb: 75 85 99; /* 補助的な文字色 */
+  --color-ink-faint-rgb: 107 114 128; /* 控えめな文字色 */
+  --color-border-subtle-rgb: 229 231 235; /* カードの枠線 */
+  --color-border-strong-rgb: 209 213 219; /* 入力欄・ボタンの枠線 */
+}
+
+:root[data-theme="dark"] {
+  --color-canvas-rgb: 10 10 10;
+  --color-surface-rgb: 23 23 23;
+  --color-surface-muted-rgb: 10 10 10;
+  --color-surface-strong-rgb: 38 38 38;
+  --color-ink-rgb: 255 255 255;
+  --color-ink-muted-rgb: 156 163 175;
+  --color-ink-faint-rgb: 107 114 128;
+  --color-border-subtle-rgb: 38 38 38;
+  --color-border-strong-rgb: 64 64 64;
 }
 
 html,
@@ -15,8 +39,8 @@ body {
 }
 
 body {
-  background-color: #0a0a0a; /* ほぼ黒の背景 */
-  color: #ffffff;
+  background-color: rgb(var(--color-canvas-rgb));
+  color: rgb(var(--color-ink-rgb));
 }
 
 /* ミッションを完了にしたときの、控えめな「ポン」というアニメーション */

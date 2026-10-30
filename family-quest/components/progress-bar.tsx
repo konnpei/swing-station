@@ -28,13 +28,13 @@ export default function ProgressBar({
   return (
     <div className="w-full">
       {(label || valueLabel) && (
-        <div className="mb-1 flex items-center justify-between text-xs text-gray-400">
+        <div className="mb-1 flex items-center justify-between text-xs text-ink-muted">
           {label && <span>{label}</span>}
           {valueLabel && <span>{valueLabel}</span>}
         </div>
       )}
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-800"
+        className="h-2.5 w-full overflow-hidden rounded-full bg-surface-strong"
         role="progressbar"
         aria-valuenow={percent}
         aria-valuemin={0}

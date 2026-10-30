@@ -146,14 +146,14 @@ export default function MissionEditor({
         type="button"
         onClick={onClose}
         aria-label="保護者ホームに戻る"
-        className="mb-3 flex items-center gap-1 text-sm text-gray-400"
+        className="mb-3 flex items-center gap-1 text-sm text-ink-muted"
       >
         <ChevronLeft size={18} />
         保護者ホームに戻る
       </button>
 
       <h1 className="text-lg font-bold">{child.name}のミッション設定</h1>
-      <p className="mb-4 text-xs text-gray-400">
+      <p className="mb-4 text-xs text-ink-muted">
         ここでは内容の追加・編集・削除のみ行えます。完了/未完了は本人が切り替えます。
       </p>
 
@@ -166,11 +166,11 @@ export default function MissionEditor({
         {child.missions.map((mission) => (
           <li
             key={mission.id}
-            className="rounded-2xl border border-neutral-800 bg-neutral-900 p-3"
+            className="rounded-2xl border border-subtle bg-surface p-3"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-white">
+                <p className="truncate text-sm font-medium text-ink">
                   {mission.title}
                   {mission.completed && (
                     <span className="ml-2 rounded-full bg-good/20 px-2 py-0.5 text-[10px] font-semibold text-good">
@@ -178,7 +178,7 @@ export default function MissionEditor({
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-ink-faint">
                   {mission.category} ・ {mission.targetAmount}
                   {mission.unit} ・ {mission.xp}XP
                 </p>
@@ -191,7 +191,7 @@ export default function MissionEditor({
                   type="button"
                   aria-label={`${mission.title}を編集`}
                   onClick={() => openEditForm(mission)}
-                  className="rounded-lg border border-neutral-700 p-2 text-gray-300"
+                  className="rounded-lg border border-strong p-2 text-ink-muted"
                 >
                   <Pencil size={16} />
                 </button>
@@ -199,7 +199,7 @@ export default function MissionEditor({
                   type="button"
                   aria-label={`${mission.title}を削除`}
                   onClick={() => handleDelete(mission)}
-                  className="rounded-lg border border-neutral-700 p-2 text-gray-300"
+                  className="rounded-lg border border-strong p-2 text-ink-muted"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -221,7 +221,7 @@ export default function MissionEditor({
       </ul>
 
       {formTarget === "add" ? (
-        <div className="mt-3 rounded-2xl border border-neutral-800 bg-neutral-900 p-3">
+        <div className="mt-3 rounded-2xl border border-subtle bg-surface p-3">
           <MissionForm
             values={formValues}
             errorMessage={errorMessage}
@@ -235,7 +235,7 @@ export default function MissionEditor({
         <button
           type="button"
           onClick={openAddForm}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-700 py-3 text-sm font-medium text-gray-300 active:scale-[0.99]"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-strong py-3 text-sm font-medium text-ink-muted active:scale-[0.99]"
         >
           <Plus size={18} />
           ミッションを追加
@@ -269,7 +269,7 @@ function MissionForm({
           value={values.title}
           onChange={(e) => onChange({ ...values, title: e.target.value })}
           placeholder="例：漢字 10個"
-          className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+          className="w-full rounded-lg border border-strong bg-surface-muted px-3 py-2 text-sm text-ink"
         />
       </Field>
 
@@ -280,7 +280,7 @@ function MissionForm({
           value={values.category}
           onChange={(e) => onChange({ ...values, category: e.target.value })}
           placeholder="例：学習"
-          className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+          className="w-full rounded-lg border border-strong bg-surface-muted px-3 py-2 text-sm text-ink"
         />
         <datalist id="mission-category-options">
           <option value="学校" />
@@ -299,7 +299,7 @@ function MissionForm({
             onChange={(e) =>
               onChange({ ...values, targetAmount: e.target.value })
             }
-            className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+            className="w-full rounded-lg border border-strong bg-surface-muted px-3 py-2 text-sm text-ink"
           />
         </Field>
         <Field label="単位">
@@ -308,7 +308,7 @@ function MissionForm({
             value={values.unit}
             onChange={(e) => onChange({ ...values, unit: e.target.value })}
             placeholder="例：個・分・問"
-            className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+            className="w-full rounded-lg border border-strong bg-surface-muted px-3 py-2 text-sm text-ink"
           />
         </Field>
       </div>
@@ -319,7 +319,7 @@ function MissionForm({
           min={1}
           value={values.xp}
           onChange={(e) => onChange({ ...values, xp: e.target.value })}
-          className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-white"
+          className="w-full rounded-lg border border-strong bg-surface-muted px-3 py-2 text-sm text-ink"
         />
       </Field>
 
@@ -344,7 +344,7 @@ function MissionForm({
                 className={`h-9 w-9 rounded-lg text-sm font-medium ${
                   selected
                     ? "bg-accent text-white"
-                    : "bg-neutral-950 text-gray-400 border border-neutral-700"
+                    : "bg-surface-muted text-ink-muted border border-strong"
                 }`}
               >
                 {option.label}
@@ -366,7 +366,7 @@ function MissionForm({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 rounded-xl border border-neutral-700 py-2.5 text-sm font-medium text-gray-300 active:scale-[0.99]"
+          className="flex-1 rounded-xl border border-strong py-2.5 text-sm font-medium text-ink-muted active:scale-[0.99]"
         >
           キャンセル
         </button>

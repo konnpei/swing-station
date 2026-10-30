@@ -26,14 +26,14 @@ export default function RewardScreen({ family, onClose }: RewardScreenProps) {
         type="button"
         onClick={onClose}
         aria-label="ホームに戻る"
-        className="mb-3 flex items-center gap-1 text-sm text-gray-400"
+        className="mb-3 flex items-center gap-1 text-sm text-ink-muted"
       >
         <ChevronLeft size={18} />
         ホームに戻る
       </button>
 
       <h1 className="text-lg font-bold">REWARD</h1>
-      <p className="mb-4 text-xs text-gray-400">
+      <p className="mb-4 text-xs text-ink-muted">
         {isSingleChild
           ? "次のご褒美までの道のりです。"
           : "3人それぞれの、次のご褒美までの道のりです。"}
@@ -45,10 +45,10 @@ export default function RewardScreen({ family, onClose }: RewardScreenProps) {
           return (
             <div
               key={child.id}
-              className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4"
+              className="rounded-2xl border border-subtle bg-surface p-4"
             >
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm font-bold text-white">{child.name}</p>
+                <p className="text-sm font-bold text-ink">{child.name}</p>
                 <span className="flex items-center gap-1 text-xs text-warn">
                   <Star size={14} />
                   {child.xp} XP
@@ -62,7 +62,7 @@ export default function RewardScreen({ family, onClose }: RewardScreenProps) {
                 valueLabel={`${reward.current} / ${reward.threshold} XP`}
               />
 
-              <div className="mt-3 flex items-center gap-2 text-sm text-gray-300">
+              <div className="mt-3 flex items-center gap-2 text-sm text-ink-muted">
                 <Gift size={16} className="text-accent" />
                 次のご褒美：{reward.label}
               </div>

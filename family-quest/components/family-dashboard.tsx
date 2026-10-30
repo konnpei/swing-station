@@ -50,17 +50,17 @@ export default function FamilyDashboard({
     <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-4">
       <header className="mb-5">
         <h1 className="text-2xl font-bold tracking-wide">FAMILY QUEST</h1>
-        <p className="text-sm text-gray-400">家族ダッシュボード</p>
+        <p className="text-sm text-ink-muted">家族ダッシュボード</p>
       </header>
 
       {/* 家族全体の合計 */}
-      <section className="mb-6 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm">
+      <section className="mb-6 rounded-2xl border border-subtle bg-surface p-4 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <p className="text-xs text-gray-400">今日の家族合計</p>
+            <p className="text-xs text-ink-muted">今日の家族合計</p>
             <p className="text-xl font-bold">
               {familyTotals.completed}
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-ink-muted">
                 {" "}
                 / {familyTotals.total}
               </span>
@@ -84,10 +84,10 @@ export default function FamilyDashboard({
           />
         </button>
 
-        <div className="mt-4 flex items-center justify-between rounded-xl bg-neutral-800/60 px-3 py-2">
+        <div className="mt-4 flex items-center justify-between rounded-xl bg-surface-strong/60 px-3 py-2">
           <div className="flex items-center gap-2">
             <Star size={16} className="text-warn" />
-            <p className="text-xs text-gray-300">
+            <p className="text-xs text-ink-muted">
               今週の家族目標：みんなでミッション達成を続けよう
             </p>
           </div>
@@ -135,17 +135,17 @@ function ChildCard({
   const statusMessage = getStatusMessage(completed, total);
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-neutral-800 bg-neutral-900 p-4 shadow-sm">
+    <div className="flex flex-col gap-3 rounded-2xl border border-subtle bg-surface p-4 shadow-sm">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold">{child.name}</h2>
-        <span className="rounded-full bg-neutral-800 px-2 py-1 text-xs text-gray-300">
+        <span className="rounded-full bg-surface-strong px-2 py-1 text-xs text-ink-muted">
           Lv.{child.level}
         </span>
       </div>
 
       <p className="text-2xl font-bold">
         {completed}
-        <span className="text-sm text-gray-400"> / {total}</span>
+        <span className="text-sm text-ink-muted"> / {total}</span>
       </p>
 
       <ProgressBar
@@ -154,7 +154,7 @@ function ChildCard({
         colorClassName={percent >= 100 ? "bg-good" : "bg-accent"}
       />
 
-      <div className="flex items-center justify-between text-xs text-gray-400">
+      <div className="flex items-center justify-between text-xs text-ink-muted">
         <span className="flex items-center gap-1">
           <Star size={14} className="text-warn" />
           {child.xp} XP
@@ -167,7 +167,7 @@ function ChildCard({
 
       <p
         className={`text-sm font-semibold ${
-          percent >= 100 ? "text-good" : "text-gray-300"
+          percent >= 100 ? "text-good" : "text-ink-muted"
         }`}
       >
         {statusMessage}
@@ -177,7 +177,7 @@ function ChildCard({
         type="button"
         aria-label={`${child.name}の詳細を見る`}
         onClick={() => onViewChild(child.id)}
-        className="mt-1 flex items-center justify-center gap-1 rounded-xl border border-neutral-700 py-2.5 text-sm font-medium text-gray-200 active:scale-[0.99]"
+        className="mt-1 flex items-center justify-center gap-1 rounded-xl border border-strong py-2.5 text-sm font-medium text-ink active:scale-[0.99]"
       >
         子どもの詳細を見る
         <ChevronRight size={16} />
@@ -187,7 +187,7 @@ function ChildCard({
         type="button"
         aria-label={`${child.name}のミッションを編集`}
         onClick={() => onEditMissions(child.id)}
-        className="flex items-center justify-center gap-1 rounded-xl border border-neutral-700 py-2.5 text-sm font-medium text-gray-200 active:scale-[0.99]"
+        className="flex items-center justify-center gap-1 rounded-xl border border-strong py-2.5 text-sm font-medium text-ink active:scale-[0.99]"
       >
         <Pencil size={16} />
         ミッションを編集

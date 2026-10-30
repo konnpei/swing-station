@@ -58,3 +58,47 @@ export function saveAccentColor(colorId: string): void {
     console.error("アクセントカラーの保存に失敗しました", error);
   }
 }
+
+// =============================================================
+// 明暗テーマ（ライト/ダーク）の管理。アクセントカラーと同じ考え方で、
+// 選んだモードはその端末のlocalStorageにだけ保存する。
+// デフォルトはライト（TimeTreeに近い明るい見た目）。
+// =============================================================
+
+export type ThemeMode = "light" | "dark";
+
+const DEFAULT_THEME_MODE: ThemeMode = "light";
+const THEME_MODE_STORAGE_KEY = "family-quest:theme-mode";
+
+/** 今保存されているテーマモードを読み込む（無ければライト） */
+export function loadThemeMode(): ThemeMode {
+  if (typeof window === "undefined") return DEFAULT_THEME_MODE;
+  try {
+    const saved = window.localStorage.getItem(THEME_MODE_STORAGE_KEY);
+    return saved === "dark" ? "dark" : DEFAULT_THEME_MODE;
+  } catch (error) {
+    console.error("テーマモードの読み込みに失敗しました", error);
+    return DEFAULT_THEME_MODE;
+  }
+}
+
+/** テーマモードを画面に反映する（htmlタグのdata-theme属性を書き換えるだけ） */
+export function applyThemeMode(mode: ThemeMode): void {
+  if (typeof document === "undefined") return;
+  if (mode === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+}
+
+/** テーマモードを保存して、画面にも反映する */
+export function saveThemeMode(mode: ThemeMode): void {
+  applyThemeMode(mode);
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(THEME_MODE_STORAGE_KEY, mode);
+  } catch (error) {
+    console.error("テーマモードの保存に失敗しました", error);
+  }
+}

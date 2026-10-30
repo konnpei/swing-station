@@ -2,18 +2,21 @@
 // SettingsScreen：保護者モードの「SETTINGS」画面。
 // - 3人の子どものプロフィール（名前・目標・試験日）をまとめて編集できる
 // - 子ども（＝モード切替タブ）の並び順を上下ボタンで変更できる
-// - アプリ全体の設定（テーマ・通知など）は、将来ここに追加していく想定の土台
+// - 明暗テーマ・テーマカラーなど、アプリ全体の見た目の設定もここで行う
 // =============================================================
 
 "use client";
 
-import { Check, ChevronDown, ChevronLeft, ChevronUp } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronUp, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 import { Child, ChildId, ProfileUpdateInput } from "../lib/dummy-data";
 import {
   ACCENT_COLOR_OPTIONS,
   loadAccentColorId,
+  loadThemeMode,
   saveAccentColor,
+  saveThemeMode,
+  ThemeMode,
 } from "../lib/theme";
 import ChildProfileCard from "./child-profile-card";
 
@@ -31,10 +34,16 @@ export default function SettingsScreen({
   onClose,
 }: SettingsScreenProps) {
   const [accentColorId, setAccentColorId] = useState(() => loadAccentColorId());
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => loadThemeMode());
 
   function handleSelectColor(colorId: string) {
     saveAccentColor(colorId);
     setAccentColorId(colorId);
+  }
+
+  function handleSelectThemeMode(mode: ThemeMode) {
+    saveThemeMode(mode);
+    setThemeMode(mode);
   }
 
   return (
@@ -43,20 +52,20 @@ export default function SettingsScreen({
         type="button"
         onClick={onClose}
         aria-label="保護者ホームに戻る"
-        className="mb-3 flex items-center gap-1 text-sm text-gray-400"
+        className="mb-3 flex items-center gap-1 text-sm text-ink-muted"
       >
         <ChevronLeft size={18} />
         保護者ホームに戻る
       </button>
 
       <h1 className="text-lg font-bold">SETTINGS</h1>
-      <p className="mb-4 text-xs text-gray-400">
+      <p className="mb-4 text-xs text-ink-muted">
         子どものプロフィールと、モード切替の並び順をここで管理できます。
       </p>
 
       <section className="mb-6">
-        <h2 className="mb-2 text-sm font-bold text-gray-300">子どもの管理</h2>
-        <p className="mb-2 text-xs text-gray-500">
+        <h2 className="mb-2 text-sm font-bold text-ink-muted">子どもの管理</h2>
+        <p className="mb-2 text-xs text-ink-faint">
           上下の矢印で、モード切替タブの並び順を変更できます。
         </p>
         <ul className="flex flex-col gap-2">
@@ -72,7 +81,7 @@ export default function SettingsScreen({
                       aria-label={`${child.name}を上に移動`}
                       disabled={index === 0}
                       onClick={() => onMoveChild(child.id, "up")}
-                      className="rounded border border-neutral-700 p-0.5 text-gray-300 disabled:opacity-30"
+                      className="rounded border border-strong p-0.5 text-ink-muted disabled:opacity-30"
                     >
                       <ChevronUp size={14} />
                     </button>
@@ -81,7 +90,7 @@ export default function SettingsScreen({
                       aria-label={`${child.name}を下に移動`}
                       disabled={index === family.length - 1}
                       onClick={() => onMoveChild(child.id, "down")}
-                      className="rounded border border-neutral-700 p-0.5 text-gray-300 disabled:opacity-30"
+                      className="rounded border border-strong p-0.5 text-ink-muted disabled:opacity-30"
                     >
                       <ChevronDown size={14} />
                     </button>
@@ -94,9 +103,46 @@ export default function SettingsScreen({
       </section>
 
       <section className="mb-6">
-        <h2 className="mb-2 text-sm font-bold text-gray-300">テーマカラー</h2>
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
-          <p className="mb-3 text-xs text-gray-500">
+        <h2 className="mb-2 text-sm font-bold text-ink-muted">画面の明るさ</h2>
+        <div className="rounded-2xl border border-subtle bg-surface p-4">
+          <p className="mb-3 text-xs text-ink-faint">
+            アプリ全体を明るい画面・暗い画面のどちらで使うか選べます（この端末だけの設定です）。
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              aria-pressed={themeMode === "light"}
+              onClick={() => handleSelectThemeMode("light")}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-medium ${
+                themeMode === "light"
+                  ? "border-accent bg-accent text-white"
+                  : "border-strong text-ink-muted"
+              }`}
+            >
+              <Sun size={16} />
+              ライト
+            </button>
+            <button
+              type="button"
+              aria-pressed={themeMode === "dark"}
+              onClick={() => handleSelectThemeMode("dark")}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl border py-2.5 text-sm font-medium ${
+                themeMode === "dark"
+                  ? "border-accent bg-accent text-white"
+                  : "border-strong text-ink-muted"
+              }`}
+            >
+              <Moon size={16} />
+              ダーク
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-6">
+        <h2 className="mb-2 text-sm font-bold text-ink-muted">テーマカラー</h2>
+        <div className="rounded-2xl border border-subtle bg-surface p-4">
+          <p className="mb-3 text-xs text-ink-faint">
             アプリ全体のアクセントカラーを選べます（この端末だけの設定です）。
           </p>
           <div className="flex flex-wrap gap-3">
@@ -115,12 +161,12 @@ export default function SettingsScreen({
                     className="flex h-10 w-10 items-center justify-center rounded-full border-2"
                     style={{
                       backgroundColor: option.previewHex,
-                      borderColor: isSelected ? "#ffffff" : "transparent",
+                      borderColor: isSelected ? "rgb(var(--color-ink-rgb))" : "transparent",
                     }}
                   >
                     {isSelected && <Check size={18} className="text-white" />}
                   </span>
-                  <span className="text-[10px] text-gray-400">
+                  <span className="text-[10px] text-ink-muted">
                     {option.label}
                   </span>
                 </button>
@@ -131,11 +177,11 @@ export default function SettingsScreen({
       </section>
 
       <section>
-        <h2 className="mb-2 text-sm font-bold text-gray-300">
+        <h2 className="mb-2 text-sm font-bold text-ink-muted">
           アプリ全体の設定
         </h2>
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-4">
-          <p className="text-xs text-gray-500">
+        <div className="rounded-2xl border border-subtle bg-surface p-4">
+          <p className="text-xs text-ink-faint">
             通知など、その他のアプリ全体設定は今後ここに追加していく予定です。
           </p>
         </div>

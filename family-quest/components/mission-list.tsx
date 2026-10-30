@@ -54,7 +54,7 @@ export default function MissionList({
             className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${
               mission.completed
                 ? "border-good/40 bg-good/10"
-                : "border-neutral-800 bg-neutral-900"
+                : "border-subtle bg-surface"
             } ${interactive ? "active:scale-[0.99]" : "cursor-default"} ${
               poppedId === mission.id ? "animate-mission-pop" : ""
             }`}
@@ -64,7 +64,7 @@ export default function MissionList({
                 className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 ${
                   mission.completed
                     ? "border-good bg-good text-black"
-                    : "border-neutral-600 text-transparent"
+                    : "border-strong text-transparent"
                 }`}
               >
                 <Check size={16} strokeWidth={3} />
@@ -73,13 +73,13 @@ export default function MissionList({
                 <p
                   className={`truncate text-sm font-medium ${
                     mission.completed
-                      ? "text-gray-400 line-through"
-                      : "text-white"
+                      ? "text-ink-faint line-through"
+                      : "text-ink"
                   }`}
                 >
                   {mission.title}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-ink-faint">
                   {mission.completed
                     ? `+${mission.xp} XP 獲得`
                     : getIncompleteMissionMessage(index)}
@@ -93,7 +93,7 @@ export default function MissionList({
             </div>
             <span
               className={`shrink-0 text-xs font-semibold ${
-                mission.completed ? "text-good" : "text-gray-500"
+                mission.completed ? "text-good" : "text-ink-faint"
               }`}
             >
               {mission.xp}XP
