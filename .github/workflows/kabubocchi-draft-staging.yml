@@ -1,0 +1,21 @@
+name: KabuBocchi Draft Staging (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate and stage latest briefing
+        run: python scripts/stage_kabubocchi_draft.py
+      - name: Upload review bundle (not a note draft)
+        uses: actions/upload-artifact@v4
+        with:
+          name: kabubocchi-review-bundle
+          path: draft-output/
+          retention-days: 3
